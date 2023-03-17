@@ -29,16 +29,22 @@ export default function () {
       position: location.range.start,
     };
     // Use zod instead of as any
-    const result = (await rs.call(
+    const response = (await rs.call(
       "Lean.Widget.getInteractiveGoals",
       arg
     )) as any;
-    return (result.goals.length > 0 ? result.goals[0].hyps ?? [] : []).map(
-      (h: any) => {
-        const type = h.type ? toGoodFormat(transform(h.type)) : [];
-        return `${h.names.join(",")}: ${type.join()}`;
-      }
-    );
+    const result = (
+      response.goals.length > 0 ? response.goals[0].hyps ?? [] : []
+    ).map((h: any) => {
+      const type = h.type ? toGoodFormat(transform(h.type)) : [];
+      return `${h.names.join(",")}: ${type.join()}`;
+    });
+    await fetch("http://localhost:3000/sendTypes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(result),
+    });
+    return result;
   }, [location]);
 
   if (response.state === "loading") {
@@ -46,7 +52,7 @@ export default function () {
   }
 
   if (response.state === "rejected") {
-    return <div>{JSON.stringify(response.error)}</div>;
+    return <div>Error: {JSON.stringify(response.error)}</div>;
   }
 
   return (
