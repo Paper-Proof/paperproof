@@ -1,4 +1,5 @@
 build
+lake-packages
 widget/dist
 widget/node_modules
 .vscode

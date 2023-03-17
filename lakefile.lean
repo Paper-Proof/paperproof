@@ -38,3 +38,6 @@ target paperProofJs (pkg : Package) : FilePath := tsxTarget pkg "paperProof"
 
 @[default_target]
 lean_lib PaperProof
+
+require std from git "https://github.com/leanprover/std4" @ "main"
+require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "master"

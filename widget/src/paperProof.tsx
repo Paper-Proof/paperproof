@@ -5,6 +5,7 @@ import {
   TextDocumentPositionParams,
   Location,
 } from "vscode-languageserver-protocol";
+import { toGoodFormat, transform } from "./prettyPrint";
 
 export default function () {
   const editorConnection = useContext(EditorContext);
@@ -27,7 +28,17 @@ export default function () {
       },
       position: location.range.start,
     };
-    return rs.call("Lean.Widget.getInteractiveTermGoal", arg);
+    // Use zod instead of as any
+    const result = (await rs.call(
+      "Lean.Widget.getInteractiveGoals",
+      arg
+    )) as any;
+    return (result.goals.length > 0 ? result.goals[0].hyps ?? [] : []).map(
+      (h: any) => {
+        const type = h.type ? toGoodFormat(transform(h.type)) : [];
+        return `${h.names.join(",")}: ${type.join()}`;
+      }
+    );
   }, [location]);
 
   return (
