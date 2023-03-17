@@ -18,7 +18,7 @@ export default function () {
     }).dispose;
   }, [rs]);
 
-  const response = useAsync(async () => {
+  const response = useAsync<any[]>(async () => {
     if (!location) {
       return Promise.reject();
     }
@@ -41,13 +41,20 @@ export default function () {
     );
   }, [location]);
 
+  if (response.state === "loading") {
+    return <div>loading...</div>;
+  }
+
+  if (response.state === "rejected") {
+    return <div>{JSON.stringify(response.error)}</div>;
+  }
+
   return (
     <div>
-      {response.state === "loading"
-        ? "loading..."
-        : response.state === "rejected"
-        ? JSON.stringify(response.error)
-        : JSON.stringify(response.value)}
+      Hello world!
+      {response.value.map((v) => (
+        <div>{v}</div>
+      ))}
     </div>
   );
 }

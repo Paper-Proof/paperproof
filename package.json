@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "dev": "watchexec -w widget/src -e ts,tsx --print-events -- lake build paperProofJs"
+  }
+}
