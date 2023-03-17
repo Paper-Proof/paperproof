@@ -44,7 +44,10 @@ export default function () {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result),
     });
-    return result;
+    const context = await rs.call("getPpContext", {
+      pos: location.range.start,
+    });
+    return context;
   }, [location]);
 
   if (response.state === "loading") {
@@ -55,12 +58,5 @@ export default function () {
     return <div>Error: {JSON.stringify(response.error)}</div>;
   }
 
-  return (
-    <div>
-      Hello world!
-      {response.value.map((v) => (
-        <div>{v}</div>
-      ))}
-    </div>
-  );
+  return <div>{response.value}</div>;
 }

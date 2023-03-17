@@ -77,6 +77,16 @@ theorem ex (limit:∀ ε, ε > 0 → ∃ δ, δ > 0 ∧
   sorry
 -/
 
+structure GetPpContextParams where
+  pos : Lsp.Position
+  deriving FromJson, ToJson
+
+open Server RequestM in
+@[server_rpc_method]
+def getPpContext (params : GetPpContextParams): RequestM (RequestTask String) := do
+  withWaitFindSnapAtPos params.pos fun _ => do
+    pure "Hello from custom function"
+
 @[widget]
 def ppWidget: UserWidgetDefinition := {
   name := "Paper proof"
