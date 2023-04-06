@@ -18,20 +18,20 @@ open Lean Widget
 
 def solvedEmoji := "✅"
 
-def printInfo (info : Info) (printAll : Bool) : MessageData :=
+def printInfo (info : Info) : MessageData :=
   match info with
   | .ofTacticInfo ti => 
     if ti.stx.prettyPrint.pretty.startsWith "have" then
       m!"TCTCINFO {ti.stx.prettyPrint}"
     else
-      if printAll then m!"tactic info ${ti.elaborator} ${info.stx.getPos?}, {info.stx.getTailPos?} <{ti.stx.prettyPrint}>" else m!""
-  | .ofTermInfo i => if printAll then m!"term info {info.stx.prettyPrint}" else m!""
-  | .ofCommandInfo _ => if printAll then m!"command info {info.stx.prettyPrint}" else m!""
+      m!"tactic info ${ti.elaborator} ${info.stx.getPos?}, {info.stx.getTailPos?} <{ti.stx.prettyPrint}>"
+  | .ofTermInfo i => m!"term info {info.stx.prettyPrint}"
+  | .ofCommandInfo _ => m!"command info {info.stx.prettyPrint}"
   | .ofMacroExpansionInfo _ => m!"macro expansion info"
   | .ofFieldInfo _ => m!"field info"
   | .ofCompletionInfo _ => m!"completion info"
   | .ofCustomInfo _ => m!"custom info"
-  | _ => if printAll then m!"other info" else m!""
+  | _ => m!"other info"
 
 def goDeeper (info : Info) : Bool :=
   match info with
@@ -67,10 +67,17 @@ structure Frame where
   toType: String
   action: String
   subFrames : List String
+  deriving ToJson
+
+structure LetDefn where
+  name : String
+  defn: String
+  deriving ToJson
 
 structure TreeState where
   types : PersistentHashMap String String
   frames : List Frame
+  defns : List LetDefn
 
 instance : ToString Frame where
   toString f := s!"from: {f.fromType}, action: {f.action} to: {f.toType} subframes: {f.subFrames}"
@@ -94,6 +101,9 @@ def toStrSyntax (infoTree : InfoTree) : String :=
 def addFrame (frame : Frame) : FrameStack Unit :=
   modify fun state => {state with frames := frame :: state.frames }
 
+def addDefn (name defn : String) : FrameStack Unit :=
+  modify fun state => {state with defns := {name := name, defn := defn} :: state.defns }
+
 def addName (name type : String) : FrameStack Unit :=
   modify fun state => {state with types := state.types.insert name type }
 
@@ -101,6 +111,12 @@ def isHaveTerm (info : Info) (children: PersistentArray InfoTree): Bool :=
   match info with
   | .ofTermInfo i => s!"{i.stx.prettyPrint}".trimLeft.startsWith "let_fun" && children.size == 4
   | _ => false
+
+def isLetTerm(info : Info) (children: PersistentArray InfoTree): Bool :=
+  match info with
+  | .ofTermInfo i => s!"{i.stx.prettyPrint}".trimLeft.startsWith "let "
+  | _ => false
+
 
 def isTactic (names: List String) (info : Info) : Option (String × TacticInfo) := do
   match info with
@@ -167,13 +183,21 @@ partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalCont
       parseTacticProof ctx lctx children[0]! -- this is helpful only for tree output, not parsing
     else if children.size == 2 && i.stx.prettyPrint.pretty.trimLeft.startsWith "focus" then
       parseTacticProof ctx lctx children[1]! -- same as above
+    else if isLetTerm i children then
+      -- Here I somehow need to extract the name and definition and subterms
+      let name := toStrSyntax children[2]!
+      let defn := toStrSyntax children[1]!
+      addDefn name defn
+      let info := printInfo i
+      let cs := (← children.mapM (parseTacticProof ctx lctx)) |>.toList
+      return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
     else if isHaveTerm i children then
       -- let type := getType ctx lctx i
       let vals ← children.mapM (fun c => toStrType c ctx lctx)
       let name := toStrSyntax children[2]!
       addName name vals[0]!
       if vals[1]!.trimLeft.startsWith "by" then
-        let info := "BBB" ++ printInfo i true
+        let info := "BBB" ++ printInfo i
         let r ← parseTacticProof ctx lctx children[1]!
         return info ++ r
       else
@@ -185,7 +209,7 @@ partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalCont
     else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
       processTactic tName tInfo
     else
-      let info := printInfo i true
+      let info := printInfo i
       let cs := (← children.mapM (parseTacticProof ctx lctx)) |>.toList
       return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
   | InfoTree.context ctx t => parseTacticProof ctx lctx t 
@@ -203,6 +227,38 @@ partial def findChain (name : String) (types : PersistentHashMap String String) 
       if frame.fromType == type then
         return frame :: findChain frame.toType types frames
     []
+  
+inductive ProofTree where
+  | empty : ProofTree 
+  | leaf : String → ProofTree
+  | node : Frame → Option String → List ProofTree → ProofTree
+  deriving Inhabited
+
+partial def ProofTree.format : ProofTree → MessageData
+  | ProofTree.empty => "empty"
+  | ProofTree.leaf f => m!"{f}"
+  | ProofTree.node f name ts =>
+    MessageData.group $ printFrame f name
+       ++ MessageData.nest 2 (Format.line ++ MessageData.ofList (ts.map ProofTree.format))
+  where
+    printFrame f name :=
+      (if let some name := name then m!"{name}: " else "")
+      ++ m!"{f.fromType} ====> {f.toType} : [[ {f.action} ]]"
+
+partial def findTree (name : String) (state : TreeState): ProofTree :=
+  if name == solvedEmoji then
+    .leaf name
+  else
+    let type := state.types.findD name name
+    if let some frame := state.frames.find? (fun f => f.fromType == type) then
+      let subTrees := frame.subFrames.map (fun f => findTree f state)
+      .node frame
+        (if type != name then name else none)
+        ((findTree frame.toType state) :: subTrees)
+    else if let some d := state.defns.find? (fun f => f.name == name) then
+      .leaf s!"{d.name} := {d.defn}"
+    else 
+      .leaf type
 
 elab "#buildTree" : command => do
   let filename := "Example.lean"
@@ -218,20 +274,28 @@ elab "#buildTree" : command => do
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
   let tree := s.commandState.infoState.trees[0]!
-  let (pp, ⟨ types, frames ⟩ ) ← (parseTacticProof none none tree).run ⟨ .empty, [] ⟩
+  let (pp, state ) ← (parseTacticProof none none tree).run ⟨ .empty, [], [] ⟩
   let env := s.commandState.env
   let expr := (env.find? `infinitude_of_primes).get!.toConstantVal.type
   let type ← if let (.context ctx _) := tree then ctx.runMetaM {} (ppExpr expr) else return ()
-  let types := types.insert "top level" s!"{type}"
-  let fragments := findChain "h₂" types frames
-  for frag in fragments do
-    logInfo s!"{frag}"
+  let state := {state with types := state.types.insert "top level" s!"{type}"}
+  let fragments := findTree "top level" state
+  logInfo m!"{fragments.format}"
+--   logInfo "----------------"
+--  for (name, type) in types.toList do
+--    logInfo s!"{name} : {type}"
   logInfo "----------------"
-  for (name, type) in types.toList do
-    logInfo s!"{name} : {type}"
-  logInfo "----------------"
-  for frame in frames do
+  for frame in state.frames do
     logInfo s!"{frame}"
   logInfo pp
 
 #buildTree
+
+-- TODOs
+-- [Done] [P0] let definitions should be in the tree too
+-- [Done] [P1] It would be also nice to print names before the type if we have them
+-- [P1] Print as JSON so it can be used from TS
+-- ==== Then draw that tree using TLDraw ============
+-- [P2] We need types of intro'd names like `pln`
+-- [P2] refine has ?_ in the type, we should replace it with the type of the mvar
+-- [P3] Definitions should be recursive too
