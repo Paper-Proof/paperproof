@@ -1,6 +1,7 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
+import Mathlib.Mathport.Syntax
 import Std.Classes.Dvd
 import Lean.Elab.Tactic
 import Lean
@@ -234,6 +235,17 @@ inductive ProofTree where
   | node : Frame → Option String → List ProofTree → ProofTree
   deriving Inhabited
 
+partial def ProofTree.toJson : ProofTree → Json 
+  | ProofTree.empty => Json.mkObj []
+  | ProofTree.leaf f => Json.str f
+  | ProofTree.node f name ts =>
+    let name := name.getD ""
+    let ts := ts.map ProofTree.toJson
+    Json.mkObj $ [("name", Json.str name), ("children", Json.arr ts.toArray)] ++ (frameJson f)
+  where
+    frameJson (f : Frame) :=
+      [("fromType", Json.str f.fromType), ("toType", Json.str f.toType), ("action", Json.str f.action)]
+
 partial def ProofTree.format : ProofTree → MessageData
   | ProofTree.empty => "empty"
   | ProofTree.leaf f => m!"{f}"
@@ -280,10 +292,10 @@ elab "#buildTree" : command => do
   let type ← if let (.context ctx _) := tree then ctx.runMetaM {} (ppExpr expr) else return ()
   let state := {state with types := state.types.insert "top level" s!"{type}"}
   let fragments := findTree "top level" state
-  logInfo m!"{fragments.format}"
---   logInfo "----------------"
---  for (name, type) in types.toList do
---    logInfo s!"{name} : {type}"
+  logInfo m!"{fragments.toJson}"
+  logInfo "----------------"
+  for (name, type) in state.types.toList do
+    logInfo s!"{name} : {type}"
   logInfo "----------------"
   for frame in state.frames do
     logInfo s!"{frame}"
@@ -291,10 +303,12 @@ elab "#buildTree" : command => do
 
 #buildTree
 
+-- #explode infinitude_of_primes
+
 -- TODOs
 -- [Done] [P0] let definitions should be in the tree too
 -- [Done] [P1] It would be also nice to print names before the type if we have them
--- [P1] Print as JSON so it can be used from TS
+-- [Done] [P1] Print as JSON so it can be used from TS
 -- ==== Then draw that tree using TLDraw ============
 -- [P2] We need types of intro'd names like `pln`
 -- [P2] refine has ?_ in the type, we should replace it with the type of the mvar
