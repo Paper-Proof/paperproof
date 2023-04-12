@@ -1,6 +1,7 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
+import TacticTree
  
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N

@@ -1,10 +1,11 @@
 {"version": 4,
  "packagesDir": "lake-packages",
  "packages":
- [{"git":
+ [{"path": {"name": "tactictree", "dir": "././tactictree"}},
+  {"git":
    {"url": "https://github.com/leanprover-community/mathlib4",
     "subDir?": null,
-    "rev": "6df7e43ebe71ff09a1db557ea576ee38dc6e8f35",
+    "rev": "72a49e2ccfc57378887e7de57b73c480817044d3",
     "name": "mathlib",
     "inputRev?": "master"}},
   {"git":
