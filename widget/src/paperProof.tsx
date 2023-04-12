@@ -18,7 +18,7 @@ export default function () {
     }).dispose;
   }, [rs]);
 
-  const response = useAsync<any[]>(async () => {
+  const response = useAsync<any>(async () => {
     if (!location) {
       return Promise.reject();
     }
@@ -33,12 +33,14 @@ export default function () {
       "Lean.Widget.getInteractiveGoals",
       arg
     )) as any;
-    const result = (
-      response.goals.length > 0 ? response.goals[0].hyps ?? [] : []
-    ).map((h: any) => {
-      const type = h.type ? toGoodFormat(transform(h.type)) : [];
-      return `${h.names.join(",")}: ${type.join()}`;
-    });
+    const result = response
+      ? (response.goals.length > 0 ? response.goals[0].hyps ?? [] : []).map(
+          (h: any) => {
+            const type = h.type ? toGoodFormat(transform(h.type)) : [];
+            return `${h.names.join(",")}: ${type.join()}`;
+          }
+        )
+      : [];
     await fetch("http://localhost:3000/sendTypes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -55,8 +57,15 @@ export default function () {
   }
 
   if (response.state === "rejected") {
-    return <div>Error: {JSON.stringify(response.error)}</div>;
+    return <div>Error: {anyToString(response.error)}</div>;
   }
 
   return <div>{response.value}</div>;
+}
+
+function anyToString(s: any): string {
+  if (typeof s === "string") {
+    return s;
+  }
+  return JSON.stringify(s);
 }

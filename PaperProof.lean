@@ -208,6 +208,15 @@ partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalCont
         let info := m!"Parsed have {t.subFrames}: type: {t.toType}, action: {t.action}"
         return info
     else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
+      if tName == "intro" then
+        if let some ctx := ctx then
+          if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
+            let type ← ctx.runMetaM (lctx.getD {}) do
+              let t ← inferType i.expr
+              ppExpr t
+            addName (toStrSyntax children[0]!) s!"{type}"
+
+        -- let name := (findSubFrames children[0]!)[0]!
       processTactic tName tInfo
     else
       let info := printInfo i
@@ -231,13 +240,14 @@ partial def findChain (name : String) (types : PersistentHashMap String String) 
   
 inductive ProofTree where
   | empty : ProofTree 
-  | leaf : String → ProofTree
+  -- Name and type of the leaf
+  | leaf : String → String →  ProofTree
   | node : Frame → Option String → List ProofTree → ProofTree
   deriving Inhabited
 
 partial def ProofTree.toJson : ProofTree → Json 
   | ProofTree.empty => Json.mkObj []
-  | ProofTree.leaf f => Json.str f
+  | ProofTree.leaf f type => Json.mkObj $ [("name", Json.str f), ("type", Json.str type)]
   | ProofTree.node f name ts =>
     let name := name.getD ""
     let ts := ts.map ProofTree.toJson
@@ -248,7 +258,7 @@ partial def ProofTree.toJson : ProofTree → Json
 
 partial def ProofTree.format : ProofTree → MessageData
   | ProofTree.empty => "empty"
-  | ProofTree.leaf f => m!"{f}"
+  | ProofTree.leaf f type => m!"{f}"
   | ProofTree.node f name ts =>
     MessageData.group $ printFrame f name
        ++ MessageData.nest 2 (Format.line ++ MessageData.ofList (ts.map ProofTree.format))
@@ -259,7 +269,7 @@ partial def ProofTree.format : ProofTree → MessageData
 
 partial def findTree (name : String) (state : TreeState): ProofTree :=
   if name == solvedEmoji then
-    .leaf name
+    .leaf name ""
   else
     let type := state.types.findD name name
     if let some frame := state.frames.find? (fun f => f.fromType == type) then
@@ -268,9 +278,9 @@ partial def findTree (name : String) (state : TreeState): ProofTree :=
         (if type != name then name else none)
         ((findTree frame.toType state) :: subTrees)
     else if let some d := state.defns.find? (fun f => f.name == name) then
-      .leaf s!"{d.name} := {d.defn}"
+      .leaf s!"{d.name} := {d.defn}" ""
     else 
-      .leaf type
+      .leaf name (state.types.findD name "$$$$")
 
 elab "#buildTree" : command => do
   let filename := "Example.lean"
@@ -309,7 +319,9 @@ elab "#buildTree" : command => do
 -- [Done] [P0] let definitions should be in the tree too
 -- [Done] [P1] It would be also nice to print names before the type if we have them
 -- [Done] [P1] Print as JSON so it can be used from TS
--- ==== Then draw that tree using TLDraw ============
--- [P2] We need types of intro'd names like `pln`
--- [P2] refine has ?_ in the type, we should replace it with the type of the mvar
+-- ==== Then draw that tree using TLDraw: Attempt 1 ============
+-- [Done] [P2] We need types of intro'd names like `pln`
+-- [P0] !!! I really need to rewrite the code so that it's more readable (see https://github.com/leanprover-community/mathlib4/pull/1218/files)
 -- [P3] Definitions should be recursive too
+-- ==== Then draw that tree using TLDraw: Attempt 2 ============
+-- [P2] refine has ?_ in the type, we should replace it with the type of the mvar
