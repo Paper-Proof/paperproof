@@ -29,7 +29,7 @@ export default function () {
       position: location.range.start,
     };
     // Use zod instead of as any
-    const response = (await rs.call(
+    /*const response = (await rs.call(
       "Lean.Widget.getInteractiveGoals",
       arg
     )) as any;
@@ -40,15 +40,20 @@ export default function () {
             return `${h.names.join(",")}: ${type.join()}`;
           }
         )
-      : [];
-    await fetch("http://localhost:3000/sendTypes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(result),
-    });
+      : [];*/
     const context = await rs.call("getPpContext", {
       pos: location.range.start,
     });
+    try {
+      await fetch("http://localhost:3000/sendTypes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: context as string,
+      });
+    } catch (e) {
+      console.log("ERROR FROM POST", e);
+    }
+
     return context;
   }, [location]);
 

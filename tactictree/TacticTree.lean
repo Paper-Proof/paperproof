@@ -5,6 +5,7 @@ import PaperProof
 
 open Lean Lean.Meta Lean.Elab
 open Lean Elab Command Linter
+open Lean Widget
 
 namespace TacticTree
 
@@ -29,3 +30,9 @@ partial def tacticTreeLinter : Linter := fun stx => do
     logInfoAt i m!"{fragments.toJson}"
 
 initialize addLinter tacticTreeLinter
+
+end TacticTree
+
+theorem th : ∀ {a b : Prop}, a ∧ b → b ∧ a := by
+  intro a b h
+  exact ⟨ h.right, h.left ⟩

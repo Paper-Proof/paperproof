@@ -2,6 +2,9 @@ import Mathlib.Data.Nat.Prime
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 import TacticTree
+
+import Lean
+open Lean Widget
  
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N
@@ -30,4 +33,6 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
 theorem th : ∀ {a b : Prop}, a ∧ b → b ∧ a := by
   intro a b h
   exact ⟨ h.right, h.left ⟩
-  
+
+structure SomeProps where
+  position: Lsp.Position
