@@ -26,3 +26,8 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
     exact Nat.Prime.not_dvd_one pp h
   }
   exact ⟨ p, ppos, pp ⟩
+
+theorem th : ∀ {a b : Prop}, a ∧ b → b ∧ a := by
+  intro a b h
+  exact ⟨ h.right, h.left ⟩
+  

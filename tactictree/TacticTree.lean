@@ -1,6 +1,7 @@
 import Lean
 import Lean.Linter.Util
 import Lean.Elab.Command
+import PaperProof
 
 open Lean Lean.Meta Lean.Elab
 open Lean Elab Command Linter
@@ -12,7 +13,19 @@ register_option linter.tacticTree : Bool := {
   descr := "enable the tactic tree linter"
 }
 
+def ppExpr' := Elab.Command.liftCoreM ∘ Lean.Meta.MetaM.run' ∘ ppExpr
+
 partial def tacticTreeLinter : Linter := fun stx => do
-  logLint linter.tacticTree stx m!"Fancy tactic tree linter {stx}"
+  if let `(theorem $i:ident : $_ := $_) := stx then
+    let trees ← getInfoTrees 
+    let tree := trees[0]!
+    let (_, state ) ← (parseTacticProof none none tree).run ⟨ .empty, [], [] ⟩
+
+    let env ← getEnv 
+    let type ← ppExpr' (env.find? i.getId).get!.type
+    let state := {state with types := state.types.insert "top level" s!"{type}"}
+
+    let fragments := findTree "top level" state
+    logInfoAt i m!"{fragments.toJson}"
 
 initialize addLinter tacticTreeLinter
