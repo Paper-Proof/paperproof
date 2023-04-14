@@ -4,6 +4,11 @@
 
 ## Overview
 
+WIP: Supposed to be a Lean therorem proving interface (bimodal with VSCode text editing) for iPad and Apple Pencil which feels like you do pen-and-paper proofs.
+Currently working on the readonly milestone allowing to visually explore "tactic tree"s of Lean proofs on a spatial canvas (powered by tldraw).
+
+In future potentially with LLMs and visual transformers trying to understand user intent from sketches, formalize to Lean and assist the user. (like in OpenAI GPT 4 demo)
+
 To try the widget
 
 1. Open Example.lean
@@ -37,6 +42,8 @@ For development run `yarn dev` in command line (it will watch changes in widget 
 Run `lean4.restartFile` from VSCode when in Lean file to pick up a new widget version.
 
 ## TODO
+
+Progress tracker in Notion https://safe-roof-f44.notion.site/Magic-paper-47f3f2c1d3b940428d7d981ea425a601
 
 - [Done] [P0] let definitions should be in the tree too
 - [Done] [P1] It would be also nice to print names before the type if we have them
