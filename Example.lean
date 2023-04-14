@@ -7,7 +7,7 @@ import Lean
 
 #widget ppWidget .null
 
- theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
+theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n
   exact ⟨ n + n, rfl ⟩ 
 }

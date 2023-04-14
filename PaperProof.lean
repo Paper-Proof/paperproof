@@ -17,28 +17,13 @@ open Lean Widget
 
 def solvedEmoji := "✅"
 
-def printInfo (info : Info) : MessageData :=
-  match info with
-  | .ofTacticInfo ti => 
-    if ti.stx.prettyPrint.pretty.startsWith "have" then
-      m!"TCTCINFO {ti.stx.prettyPrint}"
-    else
-      m!"tactic info ${ti.elaborator} ${info.stx.getPos?}, {info.stx.getTailPos?} <{ti.stx.prettyPrint}>"
-  | .ofTermInfo i => m!"term info {info.stx.prettyPrint}"
-  | .ofCommandInfo _ => m!"command info {info.stx.prettyPrint}"
-  | .ofMacroExpansionInfo _ => m!"macro expansion info"
-  | .ofFieldInfo _ => m!"field info"
-  | .ofCompletionInfo _ => m!"completion info"
-  | .ofCustomInfo _ => m!"custom info"
-  | _ => m!"other info"
-
 -- should find all term info nodes which have no children
 partial def findSubFrames (infoTree : InfoTree) : List String :=
   match infoTree with
   | InfoTree.node i children =>
     if children.size == 0 then
       match i with
-      | .ofTermInfo info => [s!"{i.stx.prettyPrint}"]
+      | .ofTermInfo _ => [s!"{i.stx.prettyPrint}"]
       | _ => []
     else
       children.map findSubFrames |>.toList.join
@@ -66,15 +51,6 @@ instance : ToString Frame where
 
 abbrev FrameStack T := StateT TreeState IO T
 
-def toStrType (infoTree : InfoTree) (ctx : Option ContextInfo) (lctx : Option LocalContext) : FrameStack String := do
-  if let some ctx := ctx then
-    match infoTree with
-    | InfoTree.node (.ofTermInfo i) _ => ctx.runMetaM (lctx.getD {}) $ do
-      return s!"{← ppExpr i.expr}"
-    | InfoTree.node i _ => return s!"{i.stx.prettyPrint}"
-    | _ => return s!""
-  else return "XXX"
-
 def toStrSyntax (infoTree : InfoTree) : String :=
   match infoTree with
   | InfoTree.node i _ => s!"{i.stx.prettyPrint}"
@@ -99,7 +75,6 @@ def isLetTerm(info : Info) : Bool :=
   | .ofTermInfo i => s!"{i.stx.prettyPrint}".trimLeft.startsWith "let "
   | _ => false
 
-
 def isTactic (names: List String) (info : Info) : Option (String × TacticInfo) := do
   match info with
   | .ofTacticInfo i => 
@@ -109,40 +84,35 @@ def isTactic (names: List String) (info : Info) : Option (String × TacticInfo) 
     none
   | _ => none
 
-def getType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : FrameStack String :=
+def getGoalType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO String :=
   if let some goal := goals.head? then
     if let some mDecl := mctx.findDecl? goal then
       ctx.runMetaM mDecl.lctx do return s!"{← ppExpr mDecl.type}"
-    else panic! "goal is expected to be in metavar context"
+    else panic! "goal is expected to be present in the metavar context"
   else pure solvedEmoji
 
 def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
   infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
-    let processTactic (tInfo : TacticInfo) : FrameStack Unit := do
-      let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
-      let type ← getType ctx tInfo.goalsAfter tInfo.mctxAfter
-      let beforeGoal ← getType ctx tInfo.goalsBefore tInfo.mctxBefore
-      let t := {
-        fromType := beforeGoal,
-        toType := type,
-        action := s!"{i.stx.prettyPrint}",
-        subFrames := subFrames}
-      addFrame t
-
     if isLetTerm i then
-      -- Here I somehow need to extract the name and definition and subterms
-      let name := toStrSyntax children[2]!
-      let defn := toStrSyntax children[1]!
-      addDefn name defn
+      dbg_trace s!"dbg: {i.stx}"
+      match i.stx with
+      | `(let $name := $defn ; $_ ) =>
+        addDefn name.raw.prettyPrint.pretty defn.raw.prettyPrint.pretty
+      | _ => panic! "unexpected syntax"
     else if let some ti := isHaveTerm i children then
-      -- let type := getType ctx lctx i
-      let vals ← children.mapM (fun c => toStrType c ctx ti.lctx)
-      let name := toStrSyntax children[2]!
-      addName name vals[0]!
-      if !vals[1]!.trimLeft.startsWith "by" then
-        let subFrames := findSubFrames children[1]!
-        let t := {fromType := vals[0]!, toType := solvedEmoji, action:= s!"exact {vals[1]!}", subFrames := subFrames}
-        addFrame t
+      match i.stx with
+      | `(let_fun $name : $type := $d; $_) =>
+        let name ← ctx.ppSyntax ti.lctx name
+        let type ← ctx.ppSyntax ti.lctx type
+        addName name.pretty type.pretty
+        match d with
+        | `(by $_) => pure ()
+        | _ =>
+          let dPretty ← ctx.ppSyntax ti.lctx d
+          let subFrames := findSubFrames children[1]!
+          let t := {fromType := type.pretty, toType := solvedEmoji, action:= s!"exact {dPretty}", subFrames := subFrames}
+          addFrame t
+      | _ => panic! "unexpected syntax"
     else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
       if tName == "intro" then
         if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
@@ -150,26 +120,17 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
             let t ← inferType i.expr
             ppExpr t
           addName (toStrSyntax children[0]!) s!"{type}"
-      processTactic tInfo
 
+      let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
+      let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
+      addFrame {fromType,
+                toType,
+                action := s!"{i.stx.prettyPrint}",
+                subFrames := children.map (fun c => findSubFrames c) |>.toList.join}
 
--- Questions:
--- 1) How to get a source code for the definiton?
-
-partial def findChain (name : String) (types : PersistentHashMap String String) (frames : List Frame): List Frame := Id.run do
-  if name == solvedEmoji then
-    []
-  else
-    let type := types.findD name name
-    for frame in frames do
-      if frame.fromType == type then
-        return frame :: findChain frame.toType types frames
-    []
-  
 inductive ProofTree where
   | empty : ProofTree 
-  -- Name and type of the leaf
-  | leaf : String → String →  ProofTree
+  | leaf : (name: String) → (type: String) →  ProofTree
   | node : Frame → Option String → List ProofTree → ProofTree
   deriving Inhabited
 
@@ -214,8 +175,6 @@ structure GetPpContextParams where
   pos : Lsp.Position
   deriving FromJson, ToJson
 
-def ppExpr' := Lean.Meta.MetaM.run' ∘ ppExpr
-
 def getTopLevelType (state : TreeState) : Option String := Id.run do
     -- Top level type is the one which is never in the `toType` of `state.frames` and has no entry with name in `state.types`
     let allTypesTo := state.frames.map (fun f => f.toType)
@@ -244,10 +203,6 @@ def ppWidget: UserWidgetDefinition := {
   name := "Paper proof"
   javascript:= include_str "widget" / "dist" / "paperProof.js"
 }
-
-#widget ppWidget .null
-
--- #explode infinitude_of_primes
 
 -- TODOs
 -- [Done] [P0] let definitions should be in the tree too
