@@ -1,5 +1,7 @@
 # Paper proof Lean widget
 
+![Screen Recording 2023-04-15 at 00 22 03](https://user-images.githubusercontent.com/2538570/232170163-3ef1def1-932d-4f4e-ad0e-ffaaffead01a.gif)
+
 ## Overview
 
 To try the widget
