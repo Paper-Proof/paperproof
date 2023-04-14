@@ -1,11 +1,7 @@
 import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { EditorContext, RpcContext, useAsync } from "@leanprover/infoview";
-import {
-  TextDocumentPositionParams,
-  Location,
-} from "vscode-languageserver-protocol";
-import { toGoodFormat, transform } from "./prettyPrint";
+import { Location } from "vscode-languageserver-protocol";
 
 export default function () {
   const editorConnection = useContext(EditorContext);
@@ -22,25 +18,6 @@ export default function () {
     if (!location) {
       return Promise.reject();
     }
-    const arg: TextDocumentPositionParams = {
-      textDocument: {
-        uri: location.uri,
-      },
-      position: location.range.start,
-    };
-    // Use zod instead of as any
-    /*const response = (await rs.call(
-      "Lean.Widget.getInteractiveGoals",
-      arg
-    )) as any;
-    const result = response
-      ? (response.goals.length > 0 ? response.goals[0].hyps ?? [] : []).map(
-          (h: any) => {
-            const type = h.type ? toGoodFormat(transform(h.type)) : [];
-            return `${h.names.join(",")}: ${type.join()}`;
-          }
-        )
-      : [];*/
     const context = await rs.call("getPpContext", {
       pos: location.range.start,
     });
