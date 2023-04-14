@@ -106,10 +106,10 @@ def addDefn (name defn : String) : FrameStack Unit :=
 def addName (name type : String) : FrameStack Unit :=
   modify fun state => {state with types := state.types.insert name type }
 
-def isHaveTerm (info : Info) (children: PersistentArray InfoTree): Bool :=
+def isHaveTerm (info : Info) (children: PersistentArray InfoTree): Option TermInfo :=
   match info with
-  | .ofTermInfo i => s!"{i.stx.prettyPrint}".trimLeft.startsWith "let_fun" && children.size == 4
-  | _ => false
+  | .ofTermInfo i => if s!"{i.stx.prettyPrint}".trimLeft.startsWith "let_fun" && children.size == 4 then i else none
+  | _ => none
 
 def isLetTerm(info : Info) (children: PersistentArray InfoTree): Bool :=
   match info with
@@ -144,30 +144,30 @@ partial def getLCtx (info : Info) (children : PersistentArray InfoTree): Option 
     else none
   | _ => none
 
-def getType (ctx: Option ContextInfo) (lctx : Option LocalContext) (tInfo: TacticInfo) (before := false) : FrameStack String :=
+def getType (ctx: Option ContextInfo) (tInfo: TacticInfo) (before := false) : FrameStack String :=
   let goals := if before then tInfo.goalsBefore else tInfo.goalsAfter
-  let lctx := lctx.getD {}
+  let mctx := if before then tInfo.mctxBefore else tInfo.mctxAfter
   if let (some context) := (ctx) then
     if goals.length > 0 then
-      context.runMetaM lctx $ do
-        let mvar := goals[0]!
-        let type ← mvar.getType
-        return s!"{← ppExpr type}"
+      if let some mDecl := mctx.findDecl? goals[0]! then
+        context.runMetaM mDecl.lctx $ do
+          return s!"{← ppExpr mDecl.type}"
+      else
+        return "XXX"
     else pure solvedEmoji
   else pure solvedEmoji
 
 
-partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalContext) (infoTree : InfoTree) (name: String := "top level") : FrameStack MessageData := do
+partial def parseTacticProof (ctx : Option ContextInfo) (infoTree : InfoTree) (name: String := "top level") : FrameStack MessageData := do
   match infoTree with
   | InfoTree.node i children =>
-    let lctx := if let some c := getLCtx i children then c else lctx
     let fromPos := i.stx.getPos?.get!
     let toPos := i.stx.getTailPos?.get!
 
     let processTactic (tacticName : String) (tInfo : TacticInfo) : FrameStack MessageData := do
       let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
-      let type ← getType ctx lctx tInfo
-      let beforeGoal ← getType ctx lctx tInfo true
+      let type ← getType ctx tInfo
+      let beforeGoal ← getType ctx tInfo true
       let t := {
         fromType := beforeGoal,
         toType := type,
@@ -175,29 +175,29 @@ partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalCont
         subFrames := subFrames}
       addFrame t
       let info := m!"!!!! {tInfo.elaborator} {tacticName} {i.stx.prettyPrint}"
-      let cs := (← children.mapM (parseTacticProof ctx lctx)) |>.toList
+      let cs := (← children.mapM (parseTacticProof ctx)) |>.toList
       return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
 
     if children.size == 1 && isSameSpan children[0]! fromPos toPos then
-      parseTacticProof ctx lctx children[0]! -- this is helpful only for tree output, not parsing
+      parseTacticProof ctx children[0]! -- this is helpful only for tree output, not parsing
     else if children.size == 2 && i.stx.prettyPrint.pretty.trimLeft.startsWith "focus" then
-      parseTacticProof ctx lctx children[1]! -- same as above
+      parseTacticProof ctx children[1]! -- same as above
     else if isLetTerm i children then
       -- Here I somehow need to extract the name and definition and subterms
       let name := toStrSyntax children[2]!
       let defn := toStrSyntax children[1]!
       addDefn name defn
       let info := printInfo i
-      let cs := (← children.mapM (parseTacticProof ctx lctx)) |>.toList
+      let cs := (← children.mapM (parseTacticProof ctx)) |>.toList
       return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-    else if isHaveTerm i children then
+    else if let some ti := isHaveTerm i children then
       -- let type := getType ctx lctx i
-      let vals ← children.mapM (fun c => toStrType c ctx lctx)
+      let vals ← children.mapM (fun c => toStrType c ctx ti.lctx)
       let name := toStrSyntax children[2]!
       addName name vals[0]!
       if vals[1]!.trimLeft.startsWith "by" then
         let info := "BBB" ++ printInfo i
-        let r ← parseTacticProof ctx lctx children[1]!
+        let r ← parseTacticProof ctx children[1]!
         return info ++ r
       else
         let subFrames := findSubFrames children[1]!
@@ -209,7 +209,7 @@ partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalCont
       if tName == "intro" then
         if let some ctx := ctx then
           if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
-            let type ← ctx.runMetaM (lctx.getD {}) do
+            let type ← ctx.runMetaM i.lctx do
               let t ← inferType i.expr
               ppExpr t
             addName (toStrSyntax children[0]!) s!"{type}"
@@ -218,9 +218,9 @@ partial def parseTacticProof (ctx : Option ContextInfo) (lctx : Option LocalCont
       processTactic tName tInfo
     else
       let info := printInfo i
-      let cs := (← children.mapM (parseTacticProof ctx lctx)) |>.toList
+      let cs := (← children.mapM (parseTacticProof ctx)) |>.toList
       return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-  | InfoTree.context ctx t => parseTacticProof ctx lctx t 
+  | InfoTree.context ctx t => parseTacticProof ctx t 
   | _ => return m!"+++++++"
 
 -- Questions:
@@ -294,7 +294,7 @@ elab "#buildTree" : command => do
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
   let tree := s.commandState.infoState.trees[0]!
-  let (pp, state ) ← (parseTacticProof none none tree).run ⟨ .empty, [], [] ⟩
+  let (pp, state ) ← (parseTacticProof none tree).run ⟨ .empty, [], [] ⟩
   let env := s.commandState.env
   let expr := (env.find? `infinitude_of_primes).get!.toConstantVal.type
   let type ← if let (.context ctx _) := tree then ctx.runMetaM {} (ppExpr expr) else return ()
@@ -309,7 +309,7 @@ elab "#buildTree" : command => do
     logInfo s!"{frame}"
   logInfo pp
 
--- #buildTree
+#buildTree
 
 theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n
@@ -346,23 +346,28 @@ structure GetPpContextParams where
 
 def ppExpr' := Lean.Meta.MetaM.run' ∘ ppExpr
 
-open Server RequestM in
-@[server_rpc_method]
-def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
-  withWaitFindSnapAtPos params.pos fun snap => do
-    let tree := snap.infoTree
-    let (pp, state ) ← (parseTacticProof none none tree).run ⟨ .empty, [], [] ⟩
-    let env := snap.env
+def getTopLevelType (state : TreeState) : Option String := Id.run do
     -- Top level type is the one which is never in the `toType` of `state.frames` and has no entry with name in `state.types`
     let allTypesTo := state.frames.map (fun f => f.toType)
     let allTypesFrom := state.frames.map (fun f => f.fromType)
     let mut haveTypes := []
     for (name, type) in state.types.toList do
       haveTypes := type :: haveTypes 
-    let topLevelType := allTypesFrom.filter (fun t => !allTypesTo.contains t && !haveTypes.contains t)
-    let state := {state with types := state.types.insert "top level" topLevelType[0]!}
-    let fragments := findTree "top level" state
-    return s!"{fragments.toJson}"
+    let types := allTypesFrom.filter (fun t => !allTypesTo.contains t && !haveTypes.contains t)
+    types.head?
+ 
+open Server RequestM in
+@[server_rpc_method]
+def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
+  withWaitFindSnapAtPos params.pos fun snap => do
+    let tree := snap.infoTree
+    let (_, state ) ← (parseTacticProof none tree).run ⟨ .empty, [], [] ⟩
+    if let some type := getTopLevelType state then
+      let state := {state with types := state.types.insert "top level" type}
+      let fragments := findTree "top level" state
+      return s!"{fragments.toJson}"
+    else
+      return "No top level type"
 
 @[widget]
 def ppWidget: UserWidgetDefinition := {
