@@ -40,5 +40,6 @@ target paperProofJs (pkg : Package) : FilePath := tsxTarget pkg "paperProof"
 lean_lib PaperProof
 
 lean_lib Example
+lean_lib Parser 
 
 require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "master"

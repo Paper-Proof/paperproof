@@ -5,104 +5,13 @@ import Lean.Elab.InfoTree
 import Lean.Data.Options
 import Lean.Widget
 import Mathlib.Tactic.Linarith
+import Parser
 
 open Lean
 open Lean Elab
 open Lean Meta
 open Lean.Elab.Tactic
 open Lean Widget
-
-def solvedEmoji := "✅"
-
-partial def findSubFrames (ctx: ContextInfo) (infoTree : InfoTree) :=
-  (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
-    match i with
-    | .ofTermInfo _ => some s!"{i.stx.prettyPrint}"
-    | _ => none 
-
-structure Frame where
-  fromType: String
-  toType: String
-  action: String
-  subFrames : List String
-  deriving ToJson
-
-structure LetDefn where
-  name : String
-  defn: String
-  deriving ToJson
-
-structure TreeState where
-  types : PersistentHashMap String String
-  frames : List Frame
-  defns : List LetDefn
-
-instance : ToString Frame where
-  toString f := s!"from: {f.fromType}, action: {f.action} to: {f.toType} subframes: {f.subFrames}"
-
-abbrev FrameStack T := StateT TreeState IO T
-
-def addFrame (frame : Frame) : FrameStack Unit :=
-  modify fun state => {state with frames := frame :: state.frames }
-
-def addDefn (name defn : String) : FrameStack Unit :=
-  modify fun state => {state with defns := {name := name, defn := defn} :: state.defns }
-
-def addName (name type : String) : FrameStack Unit :=
-  modify fun state => {state with types := state.types.insert name type }
-
-def getGoalType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO String :=
-  if let some goal := goals.head? then
-    if let some mDecl := mctx.findDecl? goal then
-      ctx.runMetaM mDecl.lctx do return s!"{← ppExpr mDecl.type}"
-    else panic! "goal is expected to be present in the metavar context"
-  else pure solvedEmoji
-
-def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
-  infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
-    if let .ofTacticInfo tInfo := i then
-      match tInfo.stx with
-      | `(tactic| have $name : $type := $defn) =>
-        if let some goal := tInfo.goalsAfter.head? then
-          if let some mDecl := tInfo.mctxAfter.findDecl? goal then
-            let name ← ctx.ppSyntax mDecl.lctx name
-            let type ← ctx.ppSyntax mDecl.lctx type
-            addName name.pretty type.pretty
-            match defn with
-            | `(by $_) => pure ()
-            | _ =>
-              let defnPretty ← ctx.ppSyntax mDecl.lctx defn
-              let subFrames := children.map (findSubFrames ctx) |>.toList.join |>.filter (· != name.pretty)
-              dbg_trace "subFrames [{name.pretty}] {subFrames}"
-              let t := {fromType := type.pretty, toType := solvedEmoji, action:= s!"exact {defnPretty}", subFrames := subFrames}
-              addFrame t
-      | `(tactic| let $name := $defn) =>
-        addDefn name.raw.prettyPrint.pretty defn.raw.prettyPrint.pretty
-      | `(tactic| intro $name:ident) =>
-        if let some goal := tInfo.goalsAfter.head? then
-          if let some mDecl := tInfo.mctxAfter.findDecl? goal then
-            if let some decl := mDecl.lctx.findFromUserName? name.getId then
-              let introType ← ctx.runMetaM mDecl.lctx $ ppExpr decl.type
-              addName name.raw.prettyPrint.pretty introType.pretty
-          else panic! "goal is expected to be present in the metavar context"
-        else panic! "after intro tactic there should be a goal"
-        let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
-        let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
-        addFrame {fromType,
-                  toType,
-                  action := s!"{i.stx.prettyPrint}",
-                  subFrames := children.map (findSubFrames ctx) |>.toList.join}
-      | `(tactic| apply $_)
-      | `(tactic| exact $_)
-      | `(tactic| refine $_)
-      | `(tactic| linarith $_) =>
-        let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
-        let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
-        addFrame {fromType,
-                  toType,
-                  action := s!"{i.stx.prettyPrint}",
-                  subFrames := children.map (findSubFrames ctx) |>.toList.join}
-      | _ => pure ()
 
 inductive ProofTree where
   | empty : ProofTree 
@@ -120,17 +29,6 @@ partial def ProofTree.toJson : ProofTree → Json
   where
     frameJson (f : Frame) :=
       [("fromType", Json.str f.fromType), ("toType", Json.str f.toType), ("action", Json.str f.action)]
-
-partial def ProofTree.format : ProofTree → MessageData
-  | ProofTree.empty => "empty"
-  | ProofTree.leaf f type => m!"{f}"
-  | ProofTree.node f name ts =>
-    MessageData.group $ printFrame f name
-       ++ MessageData.nest 2 (Format.line ++ MessageData.ofList (ts.map ProofTree.format))
-  where
-    printFrame f name :=
-      (if let some name := name then m!"{name}: " else "")
-      ++ m!"{f.fromType} ====> {f.toType} : [[ {f.action} ]]"
 
 partial def findTree (name : String) (state : TreeState): ProofTree :=
   if name == solvedEmoji then
@@ -166,7 +64,7 @@ open Server RequestM in
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
-    let (_, state ) ← (parseTacticProof tree).run ⟨ .empty, [], [] ⟩
+    let (_, state ) ← (parseTacticProof tree).run default
     if let some type := getTopLevelType state then
       let state := {state with types := state.types.insert "top level" type}
       let fragments := findTree "top level" state
@@ -179,14 +77,3 @@ def ppWidget: UserWidgetDefinition := {
   name := "Paper proof"
   javascript:= include_str "widget" / "dist" / "paperProof.js"
 }
-
--- TODOs
--- [Done] [P0] let definitions should be in the tree too
--- [Done] [P1] It would be also nice to print names before the type if we have them
--- [Done] [P1] Print as JSON so it can be used from TS
--- ==== Then draw that tree using TLDraw: Attempt 1 ============
--- [Done] [P2] We need types of intro'd names like `pln`
--- [P0] !!! I really need to rewrite the code so that it's more readable (see https://github.com/leanprover-community/mathlib4/pull/1218/files)
--- [P3] Definitions should be recursive too
--- ==== Then draw that tree using TLDraw: Attempt 2 ============
--- [P2] refine has ?_ in the type, we should replace it with the type of the mvar
