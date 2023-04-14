@@ -18,8 +18,8 @@ To try the widget
 
 Optionally
 
-5. Run proof server
-6. Open tldraw UI
+5. Run proof server: https://github.com/antonkov/proof-server
+6. Open tldraw UI https://github.com/antonkov/tldraw-nodes
 
 ## Code structure
 
