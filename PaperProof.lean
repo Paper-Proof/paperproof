@@ -4,8 +4,6 @@ import Lean.Elab.Frontend
 import Lean.Elab.InfoTree
 import Lean.Data.Options
 import Lean.Widget
-import Mathlib.Data.Nat.Prime
-import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 
 open Lean
@@ -16,17 +14,11 @@ open Lean Widget
 
 def solvedEmoji := "✅"
 
--- should find all term info nodes which have no children
-partial def findSubFrames (infoTree : InfoTree) : List String :=
-  match infoTree with
-  | InfoTree.node i children =>
-    if children.size == 0 then
-      match i with
-      | .ofTermInfo _ => [s!"{i.stx.prettyPrint}"]
-      | _ => []
-    else
-      children.map findSubFrames |>.toList.join
-  | _ => []
+partial def findSubFrames (ctx: ContextInfo) (infoTree : InfoTree) :=
+  (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
+    match i with
+    | .ofTermInfo _ => some s!"{i.stx.prettyPrint}"
+    | _ => none 
 
 structure Frame where
   fromType: String
@@ -59,25 +51,6 @@ def addDefn (name defn : String) : FrameStack Unit :=
 def addName (name type : String) : FrameStack Unit :=
   modify fun state => {state with types := state.types.insert name type }
 
-def isHaveTerm (info : Info) (children: PersistentArray InfoTree): Option TermInfo :=
-  match info with
-  | .ofTermInfo i => if s!"{i.stx.prettyPrint}".trimLeft.startsWith "let_fun" && children.size == 4 then i else none
-  | _ => none
-
-def isLetTerm(info : Info) : Bool :=
-  match info with
-  | .ofTermInfo i => s!"{i.stx.prettyPrint}".trimLeft.startsWith "let "
-  | _ => false
-
-def isTactic (names: List String) (info : Info) : Option (String × TacticInfo) := do
-  match info with
-  | .ofTacticInfo i => 
-    for name in names do
-      if s!"{i.elaborator}".trimRight.toLower.endsWith name then
-        return (name, i)
-    none
-  | _ => none
-
 def getGoalType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO String :=
   if let some goal := goals.head? then
     if let some mDecl := mctx.findDecl? goal then
@@ -87,24 +60,23 @@ def getGoalType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext)
 
 def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
   infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
-    match i with
-    | .ofTermInfo i =>
-      match i.stx with
-      | `(let_fun $name : $type := $d; $_) =>
-        let name ← ctx.ppSyntax i.lctx name
-        let type ← ctx.ppSyntax i.lctx type
-        addName name.pretty type.pretty
-        match d with
-        | `(by $_) => pure ()
-        | _ =>
-          let dPretty ← ctx.ppSyntax i.lctx d
-          let subFrames := findSubFrames children[1]!
-          let t := {fromType := type.pretty, toType := solvedEmoji, action:= s!"exact {dPretty}", subFrames := subFrames}
-          addFrame t
-      | _ => pure ()
-    | .ofTacticInfo tInfo =>
-      match i.stx with
-      | `(let $name := $defn ; $_ ) =>
+    if let .ofTacticInfo tInfo := i then
+      match tInfo.stx with
+      | `(tactic| have $name : $type := $defn) =>
+        if let some goal := tInfo.goalsAfter.head? then
+          if let some mDecl := tInfo.mctxAfter.findDecl? goal then
+            let name ← ctx.ppSyntax mDecl.lctx name
+            let type ← ctx.ppSyntax mDecl.lctx type
+            addName name.pretty type.pretty
+            match defn with
+            | `(by $_) => pure ()
+            | _ =>
+              let defnPretty ← ctx.ppSyntax mDecl.lctx defn
+              let subFrames := children.map (findSubFrames ctx) |>.toList.join |>.filter (· != name.pretty)
+              dbg_trace "subFrames [{name.pretty}] {subFrames}"
+              let t := {fromType := type.pretty, toType := solvedEmoji, action:= s!"exact {defnPretty}", subFrames := subFrames}
+              addFrame t
+      | `(tactic| let $name := $defn) =>
         addDefn name.raw.prettyPrint.pretty defn.raw.prettyPrint.pretty
       | `(tactic| intro $name:ident) =>
         if let some goal := tInfo.goalsAfter.head? then
@@ -119,7 +91,7 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
         addFrame {fromType,
                   toType,
                   action := s!"{i.stx.prettyPrint}",
-                  subFrames := children.map (fun c => findSubFrames c) |>.toList.join}
+                  subFrames := children.map (findSubFrames ctx) |>.toList.join}
       | `(tactic| apply $_)
       | `(tactic| exact $_)
       | `(tactic| refine $_)
@@ -129,9 +101,8 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
         addFrame {fromType,
                   toType,
                   action := s!"{i.stx.prettyPrint}",
-                  subFrames := children.map (fun c => findSubFrames c) |>.toList.join}
+                  subFrames := children.map (findSubFrames ctx) |>.toList.join}
       | _ => pure ()
-    | _ => pure ()
 
 inductive ProofTree where
   | empty : ProofTree 
