@@ -1,4 +1,3 @@
-import Lean.Elab.Tactic
 import Lean
 import Lean.Environment
 import Lean.Elab.Frontend
@@ -50,11 +49,6 @@ instance : ToString Frame where
   toString f := s!"from: {f.fromType}, action: {f.action} to: {f.toType} subframes: {f.subFrames}"
 
 abbrev FrameStack T := StateT TreeState IO T
-
-def toStrSyntax (infoTree : InfoTree) : String :=
-  match infoTree with
-  | InfoTree.node i _ => s!"{i.stx.prettyPrint}"
-  | _ => s!""
 
 def addFrame (frame : Frame) : FrameStack Unit :=
   modify fun state => {state with frames := frame :: state.frames }
@@ -115,11 +109,17 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
       | _ => panic! "unexpected syntax"
     else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
       if tName == "intro" then
-        if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
-          let type ← ctx.runMetaM i.lctx do
-            let t ← inferType i.expr
-            ppExpr t
-          addName (toStrSyntax children[0]!) s!"{type}"
+        dbg_trace s!"dbg2: {i.stx}"
+        match i.stx with
+        | `(tactic| intro $name:ident) =>
+          if let some goal := tInfo.goalsAfter.head? then
+            if let some mDecl := tInfo.mctxAfter.findDecl? goal then
+              if let some decl := mDecl.lctx.findFromUserName? name.getId then
+                let introType ← ctx.runMetaM mDecl.lctx $ ppExpr decl.type
+                addName name.raw.prettyPrint.pretty introType.pretty
+            else panic! "goal is expected to be present in the metavar context"
+          else panic! "after intro tactic there should be a goal"
+        | _ => panic! "unexpected syntax"
 
       let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
       let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
