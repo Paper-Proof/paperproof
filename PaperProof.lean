@@ -109,31 +109,19 @@ def isTactic (names: List String) (info : Info) : Option (String × TacticInfo) 
     none
   | _ => none
 
-structure Goals where
-  goalsBefore : List MVarId
-  goalsAfter : List MVarId
-  deriving ToJson
-
-def getType (ctx: Option ContextInfo) (tInfo: TacticInfo) (before := false) : FrameStack String :=
-  let goals := if before then tInfo.goalsBefore else tInfo.goalsAfter
-  let mctx := if before then tInfo.mctxBefore else tInfo.mctxAfter
-  if let (some context) := (ctx) then
-    if goals.length > 0 then
-      if let some mDecl := mctx.findDecl? goals[0]! then
-        context.runMetaM mDecl.lctx $ do
-          return s!"{← ppExpr mDecl.type}"
-      else
-        return "XXX"
-    else pure solvedEmoji
+def getType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : FrameStack String :=
+  if let some goal := goals.head? then
+    if let some mDecl := mctx.findDecl? goal then
+      ctx.runMetaM mDecl.lctx do return s!"{← ppExpr mDecl.type}"
+    else panic! "goal is expected to be in metavar context"
   else pure solvedEmoji
-
 
 def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
   infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
     let processTactic (tInfo : TacticInfo) : FrameStack Unit := do
       let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
-      let type ← getType ctx tInfo
-      let beforeGoal ← getType ctx tInfo true
+      let type ← getType ctx tInfo.goalsAfter tInfo.mctxAfter
+      let beforeGoal ← getType ctx tInfo.goalsBefore tInfo.mctxBefore
       let t := {
         fromType := beforeGoal,
         toType := type,
