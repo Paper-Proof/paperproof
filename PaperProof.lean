@@ -87,46 +87,51 @@ def getGoalType (ctx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext)
 
 def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
   infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
-    if isLetTerm i then
-      dbg_trace s!"dbg: {i.stx}"
-      match i.stx with
-      | `(let $name := $defn ; $_ ) =>
-        addDefn name.raw.prettyPrint.pretty defn.raw.prettyPrint.pretty
-      | _ => panic! "unexpected syntax"
-    else if let some ti := isHaveTerm i children then
+    match i with
+    | .ofTermInfo i =>
       match i.stx with
       | `(let_fun $name : $type := $d; $_) =>
-        let name ← ctx.ppSyntax ti.lctx name
-        let type ← ctx.ppSyntax ti.lctx type
+        let name ← ctx.ppSyntax i.lctx name
+        let type ← ctx.ppSyntax i.lctx type
         addName name.pretty type.pretty
         match d with
         | `(by $_) => pure ()
         | _ =>
-          let dPretty ← ctx.ppSyntax ti.lctx d
+          let dPretty ← ctx.ppSyntax i.lctx d
           let subFrames := findSubFrames children[1]!
           let t := {fromType := type.pretty, toType := solvedEmoji, action:= s!"exact {dPretty}", subFrames := subFrames}
           addFrame t
-      | _ => panic! "unexpected syntax"
-    else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
-      if tName == "intro" then
-        dbg_trace s!"dbg2: {i.stx}"
-        match i.stx with
-        | `(tactic| intro $name:ident) =>
-          if let some goal := tInfo.goalsAfter.head? then
-            if let some mDecl := tInfo.mctxAfter.findDecl? goal then
-              if let some decl := mDecl.lctx.findFromUserName? name.getId then
-                let introType ← ctx.runMetaM mDecl.lctx $ ppExpr decl.type
-                addName name.raw.prettyPrint.pretty introType.pretty
-            else panic! "goal is expected to be present in the metavar context"
-          else panic! "after intro tactic there should be a goal"
-        | _ => panic! "unexpected syntax"
-
-      let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
-      let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
-      addFrame {fromType,
-                toType,
-                action := s!"{i.stx.prettyPrint}",
-                subFrames := children.map (fun c => findSubFrames c) |>.toList.join}
+      | _ => pure ()
+    | .ofTacticInfo tInfo =>
+      match i.stx with
+      | `(let $name := $defn ; $_ ) =>
+        addDefn name.raw.prettyPrint.pretty defn.raw.prettyPrint.pretty
+      | `(tactic| intro $name:ident) =>
+        if let some goal := tInfo.goalsAfter.head? then
+          if let some mDecl := tInfo.mctxAfter.findDecl? goal then
+            if let some decl := mDecl.lctx.findFromUserName? name.getId then
+              let introType ← ctx.runMetaM mDecl.lctx $ ppExpr decl.type
+              addName name.raw.prettyPrint.pretty introType.pretty
+          else panic! "goal is expected to be present in the metavar context"
+        else panic! "after intro tactic there should be a goal"
+        let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
+        let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
+        addFrame {fromType,
+                  toType,
+                  action := s!"{i.stx.prettyPrint}",
+                  subFrames := children.map (fun c => findSubFrames c) |>.toList.join}
+      | `(tactic| apply $_)
+      | `(tactic| exact $_)
+      | `(tactic| refine $_)
+      | `(tactic| linarith $_) =>
+        let fromType ← getGoalType ctx tInfo.goalsBefore tInfo.mctxBefore
+        let toType ← getGoalType ctx tInfo.goalsAfter tInfo.mctxAfter
+        addFrame {fromType,
+                  toType,
+                  action := s!"{i.stx.prettyPrint}",
+                  subFrames := children.map (fun c => findSubFrames c) |>.toList.join}
+      | _ => pure ()
+    | _ => pure ()
 
 inductive ProofTree where
   | empty : ProofTree 
