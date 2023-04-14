@@ -11,7 +11,10 @@ To try the widget
 3. Change cursor to different thereorem or write new proofs
 4. See parsed tree in the infoview
 
-Optionally 5. Run proof server 6. Open tldraw UI
+Optionally
+
+5. Run proof server
+6. Open tldraw UI
 
 ## Code structure
 
