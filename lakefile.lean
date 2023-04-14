@@ -39,5 +39,6 @@ target paperProofJs (pkg : Package) : FilePath := tsxTarget pkg "paperProof"
 @[default_target]
 lean_lib PaperProof
 
+lean_lib Example
+
 require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "master"
-require tactictree from "./tactictree"

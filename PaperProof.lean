@@ -32,23 +32,6 @@ def printInfo (info : Info) : MessageData :=
   | .ofCustomInfo _ => m!"custom info"
   | _ => m!"other info"
 
-def goDeeper (info : Info) : Bool :=
-  match info with
-  | .ofTacticInfo i => 
-    if s!"{i.stx.prettyPrint}".startsWith "let" then
-      false
-    else
-      true
-  | _ => true
-
-def isSameSpan (infoTree : InfoTree) (fromPos toPos : String.Pos) : Bool :=
-  match infoTree with
-  | InfoTree.node i _ =>
-    let fromPos' := i.stx.getPos?.get!
-    let toPos' := i.stx.getTailPos?.get!
-    fromPos == fromPos' && toPos == toPos'
-  | _ => false
-
 -- should find all term info nodes which have no children
 partial def findSubFrames (infoTree : InfoTree) : List String :=
   match infoTree with
@@ -111,7 +94,7 @@ def isHaveTerm (info : Info) (children: PersistentArray InfoTree): Option TermIn
   | .ofTermInfo i => if s!"{i.stx.prettyPrint}".trimLeft.startsWith "let_fun" && children.size == 4 then i else none
   | _ => none
 
-def isLetTerm(info : Info) (children: PersistentArray InfoTree): Bool :=
+def isLetTerm(info : Info) : Bool :=
   match info with
   | .ofTermInfo i => s!"{i.stx.prettyPrint}".trimLeft.startsWith "let "
   | _ => false
@@ -131,19 +114,6 @@ structure Goals where
   goalsAfter : List MVarId
   deriving ToJson
 
-partial def getLCtx (info : Info) (children : PersistentArray InfoTree): Option LocalContext :=
-  match info with
-  | .ofTermInfo i => i.lctx
-  | .ofMacroExpansionInfo i => i.lctx
-  | .ofFieldInfo i => i.lctx
-  | .ofTacticInfo i => if children.size > 0 then
-    -- call recursively because for example on `intro N` we had not term above to set the context.
-    match children[0]! with
-      | .node ii cs => getLCtx ii cs
-      | _ => none
-    else none
-  | _ => none
-
 def getType (ctx: Option ContextInfo) (tInfo: TacticInfo) (before := false) : FrameStack String :=
   let goals := if before then tInfo.goalsBefore else tInfo.goalsAfter
   let mctx := if before then tInfo.mctxBefore else tInfo.mctxAfter
@@ -157,63 +127,43 @@ def getType (ctx: Option ContextInfo) (tInfo: TacticInfo) (before := false) : Fr
     else pure solvedEmoji
   else pure solvedEmoji
 
-partial def postNode (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) (cs : List (Option MessageData)): FrameStack MessageData := do
-  let cs := cs.filterMap id
-  let fromPos := i.stx.getPos?.get!
-  let toPos := i.stx.getTailPos?.get!
 
-  let processTactic (tacticName : String) (tInfo : TacticInfo) : FrameStack MessageData := do
-    let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
-    let type ← getType ctx tInfo
-    let beforeGoal ← getType ctx tInfo true
-    let t := {
-      fromType := beforeGoal,
-      toType := type,
-      action := s!"{i.stx.prettyPrint}",
-      subFrames := subFrames}
-    addFrame t
-    let info := m!"!!!! {tInfo.elaborator} {tacticName} {i.stx.prettyPrint}"
-    return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-
-  if isLetTerm i children then
-    -- Here I somehow need to extract the name and definition and subterms
-    let name := toStrSyntax children[2]!
-    let defn := toStrSyntax children[1]!
-    addDefn name defn
-    let info := printInfo i
-    return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-  else if let some ti := isHaveTerm i children then
-    -- let type := getType ctx lctx i
-    let vals ← children.mapM (fun c => toStrType c ctx ti.lctx)
-    let name := toStrSyntax children[2]!
-    addName name vals[0]!
-    if vals[1]!.trimLeft.startsWith "by" then
-      let info := "BBB" ++ printInfo i
-      let r := cs[1]!
-      return info ++ r
-    else
-      let subFrames := findSubFrames children[1]!
-      let t := {fromType := vals[0]!, toType := solvedEmoji, action:= s!"exact {vals[1]!}", subFrames := subFrames}
+def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
+  infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
+    let processTactic (tInfo : TacticInfo) : FrameStack Unit := do
+      let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
+      let type ← getType ctx tInfo
+      let beforeGoal ← getType ctx tInfo true
+      let t := {
+        fromType := beforeGoal,
+        toType := type,
+        action := s!"{i.stx.prettyPrint}",
+        subFrames := subFrames}
       addFrame t
-      let info := m!"Parsed have {t.subFrames}: type: {t.toType}, action: {t.action}"
-      return info
-  else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
-    if tName == "intro" then
-      if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
-        let type ← ctx.runMetaM i.lctx do
-          let t ← inferType i.expr
-          ppExpr t
-        addName (toStrSyntax children[0]!) s!"{type}"
 
-      -- let name := (findSubFrames children[0]!)[0]!
-    processTactic tName tInfo
-  else
-    let info := if children.size == 1 && isSameSpan children[0]! fromPos toPos ||
-                    children.size == 2 && i.stx.prettyPrint.pretty.trimLeft.startsWith "focus" then
-                m!"" else printInfo i
-    return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
+    if isLetTerm i then
+      -- Here I somehow need to extract the name and definition and subterms
+      let name := toStrSyntax children[2]!
+      let defn := toStrSyntax children[1]!
+      addDefn name defn
+    else if let some ti := isHaveTerm i children then
+      -- let type := getType ctx lctx i
+      let vals ← children.mapM (fun c => toStrType c ctx ti.lctx)
+      let name := toStrSyntax children[2]!
+      addName name vals[0]!
+      if !vals[1]!.trimLeft.startsWith "by" then
+        let subFrames := findSubFrames children[1]!
+        let t := {fromType := vals[0]!, toType := solvedEmoji, action:= s!"exact {vals[1]!}", subFrames := subFrames}
+        addFrame t
+    else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
+      if tName == "intro" then
+        if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
+          let type ← ctx.runMetaM i.lctx do
+            let t ← inferType i.expr
+            ppExpr t
+          addName (toStrSyntax children[0]!) s!"{type}"
+      processTactic tInfo
 
-def parseTacticProof (infoTree : InfoTree) : FrameStack (Option MessageData) := infoTree.visitM (postNode := postNode)
 
 -- Questions:
 -- 1) How to get a source code for the definiton?
@@ -272,65 +222,6 @@ partial def findTree (name : String) (state : TreeState): ProofTree :=
     else 
       .leaf name (state.types.findD name "$$$$")
 
-elab "#buildTree" : command => do
-  let filename := "Example.lean"
-  let content ← IO.FS.readFile filename
-  let opts := Options.empty
-  let inputCtx := Parser.mkInputContext content filename
-  let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header opts messages inputCtx 0
-  let env := env.setMainModule `Init
-  let mut commandState := Command.mkState env messages opts
-
-  let s ← IO.processCommands inputCtx parserState { commandState with infoState.enabled := true }
-  for msg in s.commandState.messages.toList do
-    IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
-  let tree := s.commandState.infoState.trees[0]!
-  let (pp, state ) ← (parseTacticProof tree).run ⟨ .empty, [], [] ⟩
-  let env := s.commandState.env
-  let expr := (env.find? `infinitude_of_primes).get!.toConstantVal.type
-  let type ← if let (.context ctx _) := tree then ctx.runMetaM {} (ppExpr expr) else return ()
-  let state := {state with types := state.types.insert "top level" s!"{type}"}
-  let fragments := findTree "top level" state
-  logInfo m!"{pp}"
-  logInfo "----------------"
-  for (name, type) in state.types.toList do
-    logInfo s!"{name} : {type}"
-  logInfo "----------------"
-  for frame in state.frames do
-    logInfo s!"{frame}"
-
-#buildTree
-
-theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
-  intro n
-  exact ⟨ n + n, rfl ⟩ 
-}
-
-theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
-  intro N
-
-  let M := Nat.factorial N + 1
-  let p := Nat.minFac M
-
-  have pp : Nat.Prime p := by {
-    apply Nat.minFac_prime
-    have fac_pos: 0 < Nat.factorial N := Nat.factorial_pos N
-    linarith
-  }
-  have ppos: p ≥ N := by {
-    apply by_contradiction
-    intro pln
-    have h₁ : p ∣ Nat.factorial N := by  {
-      refine pp.dvd_factorial.mpr ?_
-      exact le_of_not_ge pln
-    }
-    have h₂ : p ∣ Nat.factorial N + 1 := Nat.minFac_dvd M
-    have h : p ∣ 1 := (Nat.dvd_add_right h₁).mp $ h₂
-    exact Nat.Prime.not_dvd_one pp h
-  }
-  exact ⟨ p, ppos, pp ⟩
-
 structure GetPpContextParams where
   pos : Lsp.Position
   deriving FromJson, ToJson
@@ -342,7 +233,7 @@ def getTopLevelType (state : TreeState) : Option String := Id.run do
     let allTypesTo := state.frames.map (fun f => f.toType)
     let allTypesFrom := state.frames.map (fun f => f.fromType)
     let mut haveTypes := []
-    for (name, type) in state.types.toList do
+    for (_, type) in state.types.toList do
       haveTypes := type :: haveTypes 
     let types := allTypesFrom.filter (fun t => !allTypesTo.contains t && !haveTypes.contains t)
     types.head?

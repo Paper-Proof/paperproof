@@ -1,11 +1,17 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
-import TacticTree
+import PaperProof
 
 import Lean
-open Lean Widget
- 
+
+#widget ppWidget .null
+
+ theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
+  intro n
+  exact ⟨ n + n, rfl ⟩ 
+}
+
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N
 
@@ -29,10 +35,3 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
     exact Nat.Prime.not_dvd_one pp h
   }
   exact ⟨ p, ppos, pp ⟩
-
-theorem th : ∀ {a b : Prop}, a ∧ b → b ∧ a := by
-  intro a b h
-  exact ⟨ h.right, h.left ⟩
-
-structure SomeProps where
-  position: Lsp.Position
