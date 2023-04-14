@@ -157,71 +157,63 @@ def getType (ctx: Option ContextInfo) (tInfo: TacticInfo) (before := false) : Fr
     else pure solvedEmoji
   else pure solvedEmoji
 
+partial def postNode (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) (cs : List (Option MessageData)): FrameStack MessageData := do
+  let cs := cs.filterMap id
+  let fromPos := i.stx.getPos?.get!
+  let toPos := i.stx.getTailPos?.get!
 
-partial def parseTacticProof (ctx : Option ContextInfo) (infoTree : InfoTree) (name: String := "top level") : FrameStack MessageData := do
-  match infoTree with
-  | InfoTree.node i children =>
-    let fromPos := i.stx.getPos?.get!
-    let toPos := i.stx.getTailPos?.get!
+  let processTactic (tacticName : String) (tInfo : TacticInfo) : FrameStack MessageData := do
+    let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
+    let type ← getType ctx tInfo
+    let beforeGoal ← getType ctx tInfo true
+    let t := {
+      fromType := beforeGoal,
+      toType := type,
+      action := s!"{i.stx.prettyPrint}",
+      subFrames := subFrames}
+    addFrame t
+    let info := m!"!!!! {tInfo.elaborator} {tacticName} {i.stx.prettyPrint}"
+    return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
 
-    let processTactic (tacticName : String) (tInfo : TacticInfo) : FrameStack MessageData := do
-      let subFrames := children.map (fun c => findSubFrames c) |>.toList.join
-      let type ← getType ctx tInfo
-      let beforeGoal ← getType ctx tInfo true
-      let t := {
-        fromType := beforeGoal,
-        toType := type,
-        action := s!"{i.stx.prettyPrint}",
-        subFrames := subFrames}
-      addFrame t
-      let info := m!"!!!! {tInfo.elaborator} {tacticName} {i.stx.prettyPrint}"
-      let cs := (← children.mapM (parseTacticProof ctx)) |>.toList
-      return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-
-    if children.size == 1 && isSameSpan children[0]! fromPos toPos then
-      parseTacticProof ctx children[0]! -- this is helpful only for tree output, not parsing
-    else if children.size == 2 && i.stx.prettyPrint.pretty.trimLeft.startsWith "focus" then
-      parseTacticProof ctx children[1]! -- same as above
-    else if isLetTerm i children then
-      -- Here I somehow need to extract the name and definition and subterms
-      let name := toStrSyntax children[2]!
-      let defn := toStrSyntax children[1]!
-      addDefn name defn
-      let info := printInfo i
-      let cs := (← children.mapM (parseTacticProof ctx)) |>.toList
-      return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-    else if let some ti := isHaveTerm i children then
-      -- let type := getType ctx lctx i
-      let vals ← children.mapM (fun c => toStrType c ctx ti.lctx)
-      let name := toStrSyntax children[2]!
-      addName name vals[0]!
-      if vals[1]!.trimLeft.startsWith "by" then
-        let info := "BBB" ++ printInfo i
-        let r ← parseTacticProof ctx children[1]!
-        return info ++ r
-      else
-        let subFrames := findSubFrames children[1]!
-        let t := {fromType := vals[0]!, toType := solvedEmoji, action:= s!"exact {vals[1]!}", subFrames := subFrames}
-        addFrame t
-        let info := m!"Parsed have {t.subFrames}: type: {t.toType}, action: {t.action}"
-        return info
-    else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
-      if tName == "intro" then
-        if let some ctx := ctx then
-          if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
-            let type ← ctx.runMetaM i.lctx do
-              let t ← inferType i.expr
-              ppExpr t
-            addName (toStrSyntax children[0]!) s!"{type}"
-
-        -- let name := (findSubFrames children[0]!)[0]!
-      processTactic tName tInfo
+  if isLetTerm i children then
+    -- Here I somehow need to extract the name and definition and subterms
+    let name := toStrSyntax children[2]!
+    let defn := toStrSyntax children[1]!
+    addDefn name defn
+    let info := printInfo i
+    return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
+  else if let some ti := isHaveTerm i children then
+    -- let type := getType ctx lctx i
+    let vals ← children.mapM (fun c => toStrType c ctx ti.lctx)
+    let name := toStrSyntax children[2]!
+    addName name vals[0]!
+    if vals[1]!.trimLeft.startsWith "by" then
+      let info := "BBB" ++ printInfo i
+      let r := cs[1]!
+      return info ++ r
     else
-      let info := printInfo i
-      let cs := (← children.mapM (parseTacticProof ctx)) |>.toList
-      return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
-  | InfoTree.context ctx t => parseTacticProof ctx t 
-  | _ => return m!"+++++++"
+      let subFrames := findSubFrames children[1]!
+      let t := {fromType := vals[0]!, toType := solvedEmoji, action:= s!"exact {vals[1]!}", subFrames := subFrames}
+      addFrame t
+      let info := m!"Parsed have {t.subFrames}: type: {t.toType}, action: {t.action}"
+      return info
+  else if let some ⟨ tName, tInfo ⟩ := isTactic ["apply", "exact", "intro", "refine", "linarith_1"] i then
+    if tName == "intro" then
+      if let InfoTree.node (.ofTermInfo i) _ := children[0]! then
+        let type ← ctx.runMetaM i.lctx do
+          let t ← inferType i.expr
+          ppExpr t
+        addName (toStrSyntax children[0]!) s!"{type}"
+
+      -- let name := (findSubFrames children[0]!)[0]!
+    processTactic tName tInfo
+  else
+    let info := if children.size == 1 && isSameSpan children[0]! fromPos toPos ||
+                    children.size == 2 && i.stx.prettyPrint.pretty.trimLeft.startsWith "focus" then
+                m!"" else printInfo i
+    return MessageData.group $ info ++ MessageData.nest 2 (Format.line ++ MessageData.ofList cs)
+
+def parseTacticProof (infoTree : InfoTree) : FrameStack (Option MessageData) := infoTree.visitM (postNode := postNode)
 
 -- Questions:
 -- 1) How to get a source code for the definiton?
@@ -294,20 +286,19 @@ elab "#buildTree" : command => do
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
   let tree := s.commandState.infoState.trees[0]!
-  let (pp, state ) ← (parseTacticProof none tree).run ⟨ .empty, [], [] ⟩
+  let (pp, state ) ← (parseTacticProof tree).run ⟨ .empty, [], [] ⟩
   let env := s.commandState.env
   let expr := (env.find? `infinitude_of_primes).get!.toConstantVal.type
   let type ← if let (.context ctx _) := tree then ctx.runMetaM {} (ppExpr expr) else return ()
   let state := {state with types := state.types.insert "top level" s!"{type}"}
   let fragments := findTree "top level" state
-  logInfo m!"{fragments.toJson}"
+  logInfo m!"{pp}"
   logInfo "----------------"
   for (name, type) in state.types.toList do
     logInfo s!"{name} : {type}"
   logInfo "----------------"
   for frame in state.frames do
     logInfo s!"{frame}"
-  logInfo pp
 
 #buildTree
 
@@ -361,7 +352,7 @@ open Server RequestM in
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
-    let (_, state ) ← (parseTacticProof none tree).run ⟨ .empty, [], [] ⟩
+    let (_, state ) ← (parseTacticProof tree).run ⟨ .empty, [], [] ⟩
     if let some type := getTopLevelType state then
       let state := {state with types := state.types.insert "top level" type}
       let fragments := findTree "top level" state
