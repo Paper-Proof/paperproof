@@ -45,9 +45,9 @@ Progress tracker in Notion https://safe-roof-f44.notion.site/Magic-paper-47f3f2c
 - [Done] [P0] let definitions should be in the tree too
 - [Done] [P1] It would be also nice to print names before the type if we have them
 - [Done] [P1] Print as JSON so it can be used from TS
-- ==== Then draw that tree using TLDraw: Attempt 1 ============
+- [Done] Then draw that tree using TLDraw: Attempt 1 ============
 - [Done] [P2] We need types of intro'd names like `pln`
 - [Done] [P0] !!! I really need to rewrite the code so that it's more readable (see https://github.com/leanprover-community/mathlib4/pull/1218/files)
+- [WAI] [P2] ~~refine has ?\_ in the type, we should replace it with the type of the mvar~~ It's actually not a problem, it's a refine syntax which turns ?\_ into goals so it's already displayed. There is a placeholder syntax in Lean with \_ but we don't have to support it yet.
+
 - [P2] Definitions should be recursive too
-- ==== Then draw that tree using TLDraw: Attempt 2 ============
-- [P2] refine has ?\_ in the type, we should replace it with the type of the mvar

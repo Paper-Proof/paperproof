@@ -27,7 +27,7 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
     apply by_contradiction
     intro pln
     have h₁ : p ∣ Nat.factorial N := by  {
-      refine pp.dvd_factorial.mpr ?_
+      apply pp.dvd_factorial.mpr
       exact le_of_not_ge pln
     }
     have h₂ : p ∣ Nat.factorial N + 1 := Nat.minFac_dvd M
