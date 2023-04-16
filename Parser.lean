@@ -64,6 +64,20 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
          getPPContext ctx tInfo.goalsAfter tInfo.mctxAfter else
          getPPContext ctx tInfo.goalsBefore tInfo.mctxBefore 
 
+      /- Always determine type of the definition after it's elaborated to the expression. For example in:
+        `have h : ∀ k, ¬2 * k = 1 := by ...`
+        if we use ppTerm on the type syntax we will get
+        `∀ k, ¬2 * k = 1`
+        however inside the `by` block the goal would contain the elaborated type
+        `∀ (k : ℕ), ¬2 * k = 1`.
+        For the tree to properly connect to the proof inside the `by` blocks they should be the same which
+        can be achieved if the elaborated Expr instead of Syntax is printed instead. -/
+      let ppType (name : TSyntax `ident) : FrameStack Format := do
+        let mDecl := getFirstGoal tInfo.goalsAfter tInfo.mctxAfter |>.get!
+        if let some decl := mDecl.lctx.findFromUserName? name.getId then
+          return (← ppExprWithInfos ppContext decl.type).fmt
+        else return s!"Ident {name} not found for ppType"
+
       -- Record the edge from the goal before the tactic to the goal after the tactic
       let addGoalChangeFrame : FrameStack Unit := do
         let fromType ← getGoalType ppContext tInfo.goalsBefore tInfo.mctxBefore
@@ -77,12 +91,12 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
       | `(tactic| let $name := $defn) =>
         addDefn (← ppTerm ppContext name) (← ppTerm ppContext defn)
 
-      | `(tactic| have $name : $type := by $_) =>
-        addName (← ppTerm ppContext name) (← ppTerm ppContext type)
+      | `(tactic| have $name : $_ := by $_) =>
+        addName (← ppTerm ppContext name) (← ppType name)
 
-      | `(tactic| have $name : $type := $defn) =>
-        let name ← ppTerm ppContext name
-        let type ← ppTerm ppContext type
+      | `(tactic| have $name : $_ := $defn) =>
+        let type ← ppType name
+        let name ← ppTerm ppContext name 
         addName name type
         -- Add an artificial edge for the let definition into term if it wasn't defined via `by` like it was via an `by exact`
         let t := {fromType := type.pretty,
@@ -92,9 +106,7 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
         addFrame t
 
       | `(tactic| intro $name:ident) =>
-        let mDecl := getFirstGoal tInfo.goalsAfter tInfo.mctxAfter |>.get!
-        if let some decl := mDecl.lctx.findFromUserName? name.getId then
-          addName (← ppTerm ppContext name) (← ppExprWithInfos ppContext decl.type).fmt
+        addName (← ppTerm ppContext name) (← ppType name) 
         addGoalChangeFrame
 
       | `(tactic| apply $_)
