@@ -7,49 +7,53 @@ import App from "./tldraw_stuff/App.tsx";
 
 
 export default function () {
-  // const editorConnection = useContext(EditorContext);
-  // const rs = useContext(RpcContext);
-  // const [location, setLocation] = useState<Location | undefined>(undefined);
+  const editorConnection = useContext(EditorContext);
+  const rs = useContext(RpcContext);
+  const [location, setLocation] = useState<Location | undefined>(undefined);
 
-  // useEffect(() => {
-  //   return editorConnection.events.changedCursorLocation.on((loc) => {
-  //     setLocation(loc);
-  //   }).dispose;
-  // }, [rs]);
+  useEffect(() => {
+    return editorConnection.events.changedCursorLocation.on((loc) => {
+      setLocation(loc);
+    }).dispose;
+  }, [rs]);
 
-  // const response = useAsync<any>(async () => {
-  //   if (!location) {
-  //     return Promise.reject();
-  //   }
-  //   const context = await rs.call("getPpContext", {
-  //     pos: location.range.start,
-  //   });
-  //   try {
-  //     await fetch("http://localhost:3000/sendTypes", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: context as string,
-  //     });
-  //   } catch (e) {
-  //     console.log("ERROR FROM POST", e);
-  //   }
+  const response = useAsync<any>(async () => {
+    if (!location) {
+      return Promise.reject();
+    }
+    const context = await rs.call("getPpContext", {
+      pos: location.range.start,
+    });
+    // try {
+    //   await fetch("http://localhost:3000/sendTypes", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: context as string,
+    //   });
+    // } catch (e) {
+    //   console.log("ERROR FROM POST", e);
+    // }
 
-  //   return context;
-  // }, [location]);
+    return context;
+  }, [location]);
 
-  // if (response.state === "loading") {
-  //   return <div>loading...</div>;
-  // }
+  console.log("We got this from tsxxxxxxxxxxxxxxxxxxxxx")
 
-  // if (response.state === "rejected") {
-  //   return <div>Error: {anyToString(response.error)}</div>;
-  // }
+  // console.log()
 
-  // return <div>{response.value}</div>;
+  if (response.state === "loading") {
+    return <div>loading...</div>;
+  } else if (response.state === "rejected") {
+    return <div>Error: {anyToString(response.error)}</div>;
+  } else {
+    return <section>
+      <h1>Tsss</h1>
+      <App proofTree={JSON.parse(response.value)} />
+    </section>;
 
-  // return <App/>;
-  return <App/>;
 
+
+  }
 }
 
 

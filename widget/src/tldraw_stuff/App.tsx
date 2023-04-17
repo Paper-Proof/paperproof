@@ -39,147 +39,147 @@ import { machine } from './state/machine'
 // TODO import this later
 // import './styles.css'
 
-const proofTree: ProofTree = {
-  toType: '∃ p, p ≥ N ∧ Nat.Prime p',
-  name: 'top level',
-  fromType: '∀ (N : ℕ), ∃ p, p ≥ N ∧ Nat.Prime p',
-  children: [
-    {
-      toType: '✅',
-      name: '',
-      fromType: '∃ p, p ≥ N ∧ Nat.Prime p',
-      children: [
-        { type: '', name: '✅' },
-        { type: '$$$$', name: ' Exists.intro ' },
-        { type: '', name: 'p := Nat.minFac  M ' },
-        { type: '$$$$', name: ' And.intro ' },
-        {
-          toType: '¬p ≥ N → False',
-          name: 'ppos',
-          fromType: 'p ≥ N',
-          children: [
-            {
-              toType: 'False',
-              name: '',
-              fromType: '¬p ≥ N → False',
-              children: [
-                {
-                  toType: '✅',
-                  name: '',
-                  fromType: 'False',
-                  children: [
-                    { type: '', name: '✅' },
-                    { type: '$$$$', name: 'Nat.Prime.not_dvd_one' },
-                    {
-                      toType: 'M ≠ 1',
-                      name: 'pp',
-                      fromType: 'Nat.Prime p',
-                      children: [
-                        {
-                          toType: '✅',
-                          name: '',
-                          fromType: 'M ≠ 1',
-                          children: [{ type: '', name: '✅' }],
-                          action: ' linarith ',
-                        },
-                        { type: '$$$$', name: 'Nat.minFac_prime' },
-                      ],
-                      action: 'apply  Nat.minFac_prime ',
-                    },
-                    {
-                      toType: '✅',
-                      name: 'h',
-                      fromType: 'p ∣ 1',
-                      children: [
-                        { type: '', name: '✅' },
-                        { type: '$$$$', name: 'Nat.dvd_add_right' },
-                        {
-                          toType: 'p ≤ N',
-                          name: 'h₁',
-                          fromType: 'p ∣ Nat.factorial N',
-                          children: [
-                            {
-                              toType: '✅',
-                              name: '',
-                              fromType: 'p ≤ N',
-                              children: [
-                                { type: '', name: '✅' },
-                                { type: '$$$$', name: 'le_of_not_ge' },
-                                { type: '¬p ≥ N', name: 'pln' },
-                              ],
-                              action: 'exact le_of_not_ge  pln ',
-                            },
-                            {
-                              toType: 'M ≠ 1',
-                              name: 'pp',
-                              fromType: 'Nat.Prime p',
-                              children: [
-                                {
-                                  toType: '✅',
-                                  name: '',
-                                  fromType: 'M ≠ 1',
-                                  children: [{ type: '', name: '✅' }],
-                                  action: ' linarith ',
-                                },
-                                { type: '$$$$', name: 'Nat.minFac_prime' },
-                              ],
-                              action: 'apply  Nat.minFac_prime ',
-                            },
-                            { type: '$$$$', name: 'dvd_factorial' },
-                            { type: '$$$$', name: 'mpr' },
-                            { type: '$$$$', name: '? _ ' },
-                          ],
-                          action: 'refine pp.dvd_factorial.mpr ? _ ',
-                        },
-                        { type: '$$$$', name: 'mp' },
-                        {
-                          toType: '✅',
-                          name: 'h₂',
-                          fromType: 'p ∣ Nat.factorial N + 1',
-                          children: [
-                            { type: '', name: '✅' },
-                            { type: '$$$$', name: 'Nat.minFac_dvd' },
-                            { type: '', name: 'M := Nat.factorial N +  1 ' },
-                          ],
-                          action: 'exact Nat.minFac_dvd M',
-                        },
-                      ],
-                      action: 'exact Iff.mp (Nat.dvd_add_right h₁) h₂',
-                    },
-                  ],
-                  action: 'exact Nat.Prime.not_dvd_one pp  h ',
-                },
-                { type: '¬p ≥ N', name: 'pln' },
-              ],
-              action: 'intro  pln ',
-            },
-            { type: '$$$$', name: 'by_contradiction' },
-          ],
-          action: 'apply  by_contradiction ',
-        },
-        {
-          toType: 'M ≠ 1',
-          name: 'pp',
-          fromType: 'Nat.Prime p',
-          children: [
-            {
-              toType: '✅',
-              name: '',
-              fromType: 'M ≠ 1',
-              children: [{ type: '', name: '✅' }],
-              action: ' linarith ',
-            },
-            { type: '$$$$', name: 'Nat.minFac_prime' },
-          ],
-          action: 'apply  Nat.minFac_prime ',
-        },
-      ],
-      action: 'exact ⟨ p, ppos, pp  ⟩ ',
-    },
-    { type: 'ℕ', name: 'N' },
-  ],
-  action: 'intro  N ',
-}
+// const proofTree: ProofTree = {
+//   toType: '∃ p, p ≥ N ∧ Nat.Prime p',
+//   name: 'top level',
+//   fromType: '∀ (N : ℕ), ∃ p, p ≥ N ∧ Nat.Prime p',
+//   children: [
+//     {
+//       toType: '✅',
+//       name: '',
+//       fromType: '∃ p, p ≥ N ∧ Nat.Prime p',
+//       children: [
+//         { type: '', name: '✅' },
+//         { type: '$$$$', name: ' Exists.intro ' },
+//         { type: '', name: 'p := Nat.minFac  M ' },
+//         { type: '$$$$', name: ' And.intro ' },
+//         {
+//           toType: '¬p ≥ N → False',
+//           name: 'ppos',
+//           fromType: 'p ≥ N',
+//           children: [
+//             {
+//               toType: 'False',
+//               name: '',
+//               fromType: '¬p ≥ N → False',
+//               children: [
+//                 {
+//                   toType: '✅',
+//                   name: '',
+//                   fromType: 'False',
+//                   children: [
+//                     { type: '', name: '✅' },
+//                     { type: '$$$$', name: 'Nat.Prime.not_dvd_one' },
+//                     {
+//                       toType: 'M ≠ 1',
+//                       name: 'pp',
+//                       fromType: 'Nat.Prime p',
+//                       children: [
+//                         {
+//                           toType: '✅',
+//                           name: '',
+//                           fromType: 'M ≠ 1',
+//                           children: [{ type: '', name: '✅' }],
+//                           action: ' linarith ',
+//                         },
+//                         { type: '$$$$', name: 'Nat.minFac_prime' },
+//                       ],
+//                       action: 'apply  Nat.minFac_prime ',
+//                     },
+//                     {
+//                       toType: '✅',
+//                       name: 'h',
+//                       fromType: 'p ∣ 1',
+//                       children: [
+//                         { type: '', name: '✅' },
+//                         { type: '$$$$', name: 'Nat.dvd_add_right' },
+//                         {
+//                           toType: 'p ≤ N',
+//                           name: 'h₁',
+//                           fromType: 'p ∣ Nat.factorial N',
+//                           children: [
+//                             {
+//                               toType: '✅',
+//                               name: '',
+//                               fromType: 'p ≤ N',
+//                               children: [
+//                                 { type: '', name: '✅' },
+//                                 { type: '$$$$', name: 'le_of_not_ge' },
+//                                 { type: '¬p ≥ N', name: 'pln' },
+//                               ],
+//                               action: 'exact le_of_not_ge  pln ',
+//                             },
+//                             {
+//                               toType: 'M ≠ 1',
+//                               name: 'pp',
+//                               fromType: 'Nat.Prime p',
+//                               children: [
+//                                 {
+//                                   toType: '✅',
+//                                   name: '',
+//                                   fromType: 'M ≠ 1',
+//                                   children: [{ type: '', name: '✅' }],
+//                                   action: ' linarith ',
+//                                 },
+//                                 { type: '$$$$', name: 'Nat.minFac_prime' },
+//                               ],
+//                               action: 'apply  Nat.minFac_prime ',
+//                             },
+//                             { type: '$$$$', name: 'dvd_factorial' },
+//                             { type: '$$$$', name: 'mpr' },
+//                             { type: '$$$$', name: '? _ ' },
+//                           ],
+//                           action: 'refine pp.dvd_factorial.mpr ? _ ',
+//                         },
+//                         { type: '$$$$', name: 'mp' },
+//                         {
+//                           toType: '✅',
+//                           name: 'h₂',
+//                           fromType: 'p ∣ Nat.factorial N + 1',
+//                           children: [
+//                             { type: '', name: '✅' },
+//                             { type: '$$$$', name: 'Nat.minFac_dvd' },
+//                             { type: '', name: 'M := Nat.factorial N +  1 ' },
+//                           ],
+//                           action: 'exact Nat.minFac_dvd M',
+//                         },
+//                       ],
+//                       action: 'exact Iff.mp (Nat.dvd_add_right h₁) h₂',
+//                     },
+//                   ],
+//                   action: 'exact Nat.Prime.not_dvd_one pp  h ',
+//                 },
+//                 { type: '¬p ≥ N', name: 'pln' },
+//               ],
+//               action: 'intro  pln ',
+//             },
+//             { type: '$$$$', name: 'by_contradiction' },
+//           ],
+//           action: 'apply  by_contradiction ',
+//         },
+//         {
+//           toType: 'M ≠ 1',
+//           name: 'pp',
+//           fromType: 'Nat.Prime p',
+//           children: [
+//             {
+//               toType: '✅',
+//               name: '',
+//               fromType: 'M ≠ 1',
+//               children: [{ type: '', name: '✅' }],
+//               action: ' linarith ',
+//             },
+//             { type: '$$$$', name: 'Nat.minFac_prime' },
+//           ],
+//           action: 'apply  Nat.minFac_prime ',
+//         },
+//       ],
+//       action: 'exact ⟨ p, ppos, pp  ⟩ ',
+//     },
+//     { type: 'ℕ', name: 'N' },
+//   ],
+//   action: 'intro  N ',
+// }
 
 declare const window: Window & { api: Api }
 
@@ -343,7 +343,8 @@ const onKeyUp: TLKeyboardEventHandler = (key, info, e) => {
 }
 
 interface AppProps {
-  onMount?: (api: Api) => void
+  onMount?: (api: Api) => void,
+  proofTree: ProofTree
 }
 
 function toGoodFormat(s: { type: string; v: string }[]): string[] {
@@ -375,8 +376,15 @@ function toGoodFormat(s: { type: string; v: string }[]): string[] {
 
 let lastId = 0
 
-export default function App({ onMount }: AppProps) {
+export default function App({ onMount, proofTree }: AppProps) {
   const appState = useStateDesigner(machine)
+
+  console.log("_______________________________________")
+  console.log({proofTree})
+
+
+  
+  // return <h2>APP goddamnit</h2>
 
   React.useEffect(() => {
     const engine = Engine.create()
@@ -415,21 +423,21 @@ export default function App({ onMount }: AppProps) {
     Events.on(constraint, 'enddrag', (e) => {
       e.body.collisionFilter.mask = ~0
     })
-    Events.on(engine, 'afterUpdate', () => {
-      const { point, zoom } = appState.data.pageState.camera
-      render.options.hasBounds = true
-      render.bounds.min.x = -point[0]
-      render.bounds.min.y = -point[1]
-      render.bounds.max.x = render.bounds.min.x + window.innerWidth / zoom
-      render.bounds.max.y = render.bounds.min.y + window.innerHeight / zoom
-      constraint.mouse.offset = { x: -point[0], y: -point[1] }
-      constraint.mouse.scale = { x: 1 / zoom, y: 1 / zoom }
-      if (appState.data.overlays.eraseLine.length > 0) {
-        constraint.collisionFilter.mask = 0
-      } else {
-        constraint.collisionFilter.mask = ~0
-      }
-    })
+    // Events.on(engine, 'afterUpdate', () => {
+    //   const { point, zoom } = appState.data.pageState.camera
+    //   render.options.hasBounds = true
+    //   render.bounds.min.x = -point[0]
+    //   render.bounds.min.y = -point[1]
+    //   render.bounds.max.x = render.bounds.min.x + window.innerWidth / zoom
+    //   render.bounds.max.y = render.bounds.min.y + window.innerHeight / zoom
+    //   constraint.mouse.offset = { x: -point[0], y: -point[1] }
+    //   constraint.mouse.scale = { x: 1 / zoom, y: 1 / zoom }
+    //   if (appState.data.overlays.eraseLine.length > 0) {
+    //     constraint.collisionFilter.mask = 0
+    //   } else {
+    //     constraint.collisionFilter.mask = ~0
+    //   }
+    // })
 
     const tick = () => {
       const shapes = Object.values(appState.data.page.shapes)
@@ -466,7 +474,7 @@ export default function App({ onMount }: AppProps) {
       appState.send('APPLY_FORCES', { bodies: engine.world.bodies })
       // console.log('tick', engine.world.bodies[0].position.y)
     }
-    const int = setInterval(() => tick(), 1000 / 60)
+    const int = setInterval(() => tick(), 10000) //1000 / 60)
     return () => {
       clearInterval(int)
     }

@@ -79,3 +79,9 @@ def ppWidget: UserWidgetDefinition := {
 }
 
 #widget ppWidget .null
+
+
+theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
+  intro n
+  exact ⟨ n + n, rfl ⟩ 
+}
