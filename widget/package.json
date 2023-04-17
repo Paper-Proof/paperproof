@@ -10,17 +10,34 @@
   "author": "Anton Kovsharov",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-alias": "^5.0.0",
     "@rollup/plugin-commonjs": "^22.0.1",
-    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-replace": "^4.0.0",
     "@rollup/plugin-typescript": "^8.3.4",
-    "rollup": "^3.19.1",
+    "rollup": "^2.68.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5"
   },
   "dependencies": {
     "@leanprover/infoview": "^0.4.2",
+    "@stitches/react": "^1.2.8",
+    "@tldraw/core": "^1.23.2",
+    "@tldraw/intersect": "^1.9.2",
+    "@tldraw/vec": "^1.9.2",
     "@types/react": "^18.0.28",
-    "react": "^18.2.0"
+    "axios": "^1.3.5",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
+    "immer": "^10.0.0",
+    "lodash": "^4.17.21",
+    "matter-js": "^0.19.0",
+    "nanoid": "^4.0.2",
+    "perfect-freehand": "^1.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-feather": "^2.0.10",
+    "state-designer": "^3.0.0",
+    "url": "^0.11.0"
   }
 }

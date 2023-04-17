@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { ArrowUpRight, Circle, Edit2, MousePointer, Square, X, Zap } from 'react-feather'
 import { machine } from 'state/machine'
-import styled from 'stitches.config'
+import styled from '../stitches.config'
 
 interface ToolbarProps {
   activeStates: string[]

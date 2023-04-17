@@ -8,7 +8,7 @@ import {
   TLPointerEventHandler,
   TLWheelEventHandler,
 } from '@tldraw/core'
-import axios from 'axios'
+// import axios from 'axios'
 import {
   Bodies,
   Composite,
@@ -25,11 +25,14 @@ import { ProofTree } from './shapes/node'
 import { createNodeShape } from './state/actions'
 import { Api } from './state/api'
 import { mutables } from './state/mutables'
-import styled from 'stitches.config'
+import styled from './stitches.config'
 import { TitleLinks } from './components/TitleLinks'
 import { Toolbar } from './components/Toolbar'
 import { getShapeUtils, shapeUtils } from './shapes'
 import { machine } from './state/machine'
+
+
+
 
 
 
@@ -481,45 +484,45 @@ export default function App({ onMount }: AppProps) {
         proofTree,
       })
     }
-    function setupStuff() {
-      axios
-        .get('http://192.168.1.185:3001/getTypes')
-        .then((res) => {
-          const proofTree: ProofTree = res.data.data
-          const id = Number(res.data.id)
-          if (id > lastId) {
-            api.reset()
-            lastId = id
-            appState.send('CREATE_NODE_SHAPE', {
-              pos: [450, 150],
-              name: 'someName',
-              proofTree,
-            })
+    // function setupStuff() {
+    //   axios
+    //     .get('http://192.168.1.185:3001/getTypes')
+    //     .then((res) => {
+    //       const proofTree: ProofTree = res.data.data
+    //       const id = Number(res.data.id)
+    //       if (id > lastId) {
+    //         api.reset()
+    //         lastId = id
+    //         appState.send('CREATE_NODE_SHAPE', {
+    //           pos: [450, 150],
+    //           name: 'someName',
+    //           proofTree,
+    //         })
 
-            /*            let i = 0
-            for (const hyp of data) {
-              console.log('dbg type', toGoodFormat(hyp.type))
-              for (const name of hyp.names) {
-                if (i < 10) {
-                  appState.send('CREATE_NODE_SHAPE', {
-                    pos: [450 + 150 * i, 150],
-                    name,
-                    type: toGoodFormat(hyp.type),
-                  })
-                  i += 1
-                } else {
-                  break
-                }
-              }
-            }*/
-          }
-        })
-        .catch((e) => {
-          console.log('dbg Error ', e)
-        })
-      setTimeout(() => setupStuff(), 200)
-    }
-    setupStuff()
+    //         /*            let i = 0
+    //         for (const hyp of data) {
+    //           console.log('dbg type', toGoodFormat(hyp.type))
+    //           for (const name of hyp.names) {
+    //             if (i < 10) {
+    //               appState.send('CREATE_NODE_SHAPE', {
+    //                 pos: [450 + 150 * i, 150],
+    //                 name,
+    //                 type: toGoodFormat(hyp.type),
+    //               })
+    //               i += 1
+    //             } else {
+    //               break
+    //             }
+    //           }
+    //         }*/
+    //       }
+    //     })
+    //     .catch((e) => {
+    //       console.log('dbg Error ', e)
+    //     })
+    //   setTimeout(() => setupStuff(), 200)
+    // }
+    // setupStuff()
   }, [])
 
   const hideBounds = appState.isInAny('transformingSelection', 'translating', 'creating')

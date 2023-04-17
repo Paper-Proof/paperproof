@@ -77,3 +77,5 @@ def ppWidget: UserWidgetDefinition := {
   name := "Paper proof"
   javascript:= include_str "widget" / "dist" / "paperProof.js"
 }
+
+#widget ppWidget .null
