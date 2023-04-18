@@ -77,3 +77,11 @@ def ppWidget: UserWidgetDefinition := {
   name := "Paper proof"
   javascript:= include_str "widget" / "dist" / "paperProof.js"
 }
+
+#widget ppWidget .null
+
+
+theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
+  intro n
+  exact ⟨ n + n, rfl ⟩ 
+}

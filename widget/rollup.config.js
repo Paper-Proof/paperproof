@@ -2,6 +2,8 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
+import alias from '@rollup/plugin-alias';
+import path from 'path';
 
 export default (cliArgs) => {
   const tsxName = cliArgs.tsxName;
@@ -27,6 +29,14 @@ export default (cliArgs) => {
       }),
       nodeResolve({
         browser: true,
+      }),
+
+      alias({
+        entries: [
+          { find: 'shapes', replacement: path.resolve(__dirname, 'src/tldraw_stuff/shapes') },
+          { find: 'components', replacement: path.resolve(__dirname, 'src/tldraw_stuff/components') },
+          { find: 'state', replacement: path.resolve(__dirname, 'src/tldraw_stuff/state') },
+        ]
       }),
       replace({
         "typeof window": JSON.stringify("object"),
