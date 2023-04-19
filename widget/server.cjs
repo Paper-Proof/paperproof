@@ -4,12 +4,11 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express()
-const port = 3666
+const port = 3000
 
 
 // Serve static files from the 'widget/dist' directory
-app.use('/paperProof-widget', express.static(path.join(__dirname, 'widget', 'dist')));
-
+app.use('/paperProof-widget', express.static(path.join(__dirname, 'dist')));
 
 const allowedOrigins = ['localhost:5431']
 app.use(cors({
@@ -27,18 +26,14 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
 let hyps = [];
 let curId = 1;
 
 app.post('/sendTypes', (req, res) => {
   const data = req.body;
   hyps = { data, id: curId++ };
-  console.log('Receved', data);
-  res.send(`Receved ${data}`);
+  console.log('Recieved', data);
+  res.send(`Recieved ${data}`);
 });
 
 app.get('/getTypes', (req, res) => {
@@ -65,8 +60,8 @@ function getInlineHtmlWithJsTag(jsUrl) {
 }
 
 
-app.get('/my-page', (req, res) => {
-  const myJsUrl = '/paperProof-widget/indexIpad.js'
+app.get('/', (req, res) => {
+  const myJsUrl = '/paperProof-widget/indexBrowser.js'
   const myHtml = getInlineHtmlWithJsTag(myJsUrl);
   res.send(myHtml);
 });

@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "watchIpad": "rollup --environment NODE_ENV:production --config --watch --configIpad",
-    "watchVscode": "rollup --environment NODE_ENV:production --config --watch --configVscode"
+    "watchBrowser": "rollup --environment NODE_ENV:production --config --watch --configBrowser",
+    "watchExtension": "rollup --environment NODE_ENV:production --config --watch --configExtension",
+    "buildBrowser": "rollup --environment NODE_ENV:production --config --configBrowser",
+    "buildExtension": "rollup --environment NODE_ENV:production --config --configExtension"
   },
   "main": "index.js",
   "author": "Anton Kovsharov",
@@ -15,6 +17,7 @@
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-replace": "^4.0.0",
     "@rollup/plugin-typescript": "^8.3.4",
+    "express": "^4.18.2",
     "rollup": "^2.68.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5"
