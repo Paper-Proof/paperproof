@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "watch": "rollup --environment NODE_ENV:production --config --watch",
-    "build": "rollup --environment NODE_ENV:production --config"
+    "watchIpad": "rollup --environment NODE_ENV:production --config --watch --configIpad",
+    "watchVscode": "rollup --environment NODE_ENV:production --config --watch --configVscode"
   },
   "main": "index.js",
   "author": "Anton Kovsharov",
