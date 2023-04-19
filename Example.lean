@@ -9,7 +9,12 @@ import Lean
 
 #widget ppWidget .null
 
-theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
+theorem mini_example : true = true := by
+  have ⟨a, b⟩: ∃ c, c = 2 := by sorry
+  have ⟨c, d⟩: ∃ e, e = 2 := ⟨2, rfl⟩ 
+  exact rfl
+
+theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n
   exact ⟨ n + n, rfl ⟩ 
 }
@@ -41,6 +46,7 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
 -- TODO: Parser doesn't work for this theorem yet
 -- 1) "tactic rw" changing hypothesis should work
 -- 2) Destructuring in have's intro's rintro's should work
+-- https://github.com/leanprover/lean4/blob/8a302e6135bc1b0f1f2901702664c56cd424ebc2/src/Init/Tactics.lean
 theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   apply not_exists.mpr
   intro ⟨n, d, _, coprime⟩ h
@@ -57,7 +63,9 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
     sorry
   have ⟨d', h₃⟩ : ∃ d', d = 2 * d' := by sorry
   rw [h₂, h₃] at h₁
+  have r : (∀ k, ¬ 2 * k = 1) := by sorry 
   rw [Nat.coprime_iff_gcd_eq_one, h₂, h₃] at coprime
   rw [Nat.gcd_mul_left] at coprime
-  have r : ∀ k, ¬ 2 * k = 1 := by sorry
   apply r _ coprime
+
+#check Nat.noConfusion

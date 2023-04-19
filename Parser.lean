@@ -3,12 +3,16 @@ import Lean.Environment
 import Lean.Elab.Frontend
 import Lean.Elab.InfoTree
 import Lean.Data.Options
+import Lean.Parser.Term
+import Lean.Elab.Do
+import Lean.Elab.Quotation.Util
 import Mathlib.Tactic.Linarith
 
 open Lean
 open Lean Elab
 open Lean Meta
 open Lean.Elab.Tactic
+open Lean.Elab.Term
 
 def solvedEmoji := "✅"
 
@@ -57,6 +61,17 @@ def getGoalType (ppContext: PPContext) (goals : List MVarId) (mctx : MetavarCont
     return (← ppExprWithInfos ppContext mDecl.type).fmt.pretty
   else pure solvedEmoji
 
+partial def findPatternVars (stx : Syntax) : Array Name := Id.run do
+  let mut ids := #[]
+  for stx in stx.topDown do
+    if stx.isIdent then
+      ids := ids.push stx.getId
+  return ids
+
+def findNode (ctx : ContextInfo) (children : PersistentArray InfoTree)
+             (p : ContextInfo → Info → PersistentArray InfoTree → Option α) : Option α :=
+  children.map (fun c => (InfoTree.context ctx c).deepestNodes p) |>.toList.join.head?
+
 def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
   infoTree.visitM' fun (ctx : ContextInfo) (i: Info) (children : PersistentArray InfoTree) => do
     if let .ofTacticInfo tInfo := i then
@@ -90,6 +105,30 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
       match tInfo.stx with
       | `(tactic| let $name := $defn) =>
         addDefn (← ppTerm ppContext name) (← ppTerm ppContext defn)
+
+      -- Cases like: have ⟨n', h₂⟩ : ∃ n', n.natAbs = 2 * n' := ...
+      | `(tactic| have $decl:letPatDecl) =>
+        -- `have` with a pattern match creates a synthetic hole for the overall pattern during elaboration.
+        -- We need to know the type of the full pattern, e.g. ⟨n, hn⟩ so we can connect it with edges in the proof subtree.
+        -- To find the type we look for the elaborated term and infer it's type.
+        -- TODO: This feels like overkill, is there a better way? Other solution I can think of is that the tree is built
+        -- recursively and an unmatched `fromType` from a subtee is treated as the type of the `have` which will guarantee that
+        -- they will connect accordingly. However, this will make term constructed `have`s a separate case, and with omitted
+        -- type annotation we will need to elaborate the term to get the type anyway.
+        -- We can also consider the case `have ⟨ kkk, r ⟩  : (2 = 2) ∧ (∀ k, ¬ 2 * k = 1) := ⟨ rfl, by sorry ⟩` where `by sorry`
+        -- will generate `(fromType, toType)` pair which has no place to connect, maybe recursive tree construction is more
+        -- straightforward.
+        let optExpr := findNode ctx children fun ctx i _ =>
+          match i with
+          | .ofTermInfo ti => if ti.elaborator == `Lean.Elab.Term.elabSyntheticHole then
+                                    some (ctx.runMetaM ti.lctx $ inferType ti.expr) else none
+          | _ => none
+        if let some expr := optExpr then
+          let type ← ppExprWithInfos ppContext (← expr)
+          let pat := decl.raw[0]
+          -- For example `⟨a, b⟩: ∃ c, c = 2`, will point `a` and `b` to `∃ c, c = 2`
+          for name in findPatternVars pat do
+            addName s!"{name}" type.fmt
 
       | `(tactic| have $name : $_ := by $_) =>
         addName (← ppTerm ppContext name) (← ppType name)
