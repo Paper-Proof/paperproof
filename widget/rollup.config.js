@@ -52,6 +52,7 @@ export default (cliArgs) => {
         format: "iife",
         // Hax: apparently setting `global` makes some CommonJS modules work ¯\_(ツ)_/¯
         intro: "const global = window",
+        sourcemap: true,
       },
       plugins
     };
@@ -62,6 +63,7 @@ export default (cliArgs) => {
         dir: "dist",
         format: "es",
         intro: "const global = window",
+        sourcemap: true,
       },
       external: ["react", "react-dom", "@leanprover/infoview"],
       plugins
