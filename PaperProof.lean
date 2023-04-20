@@ -75,13 +75,18 @@ def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) :
 @[widget]
 def ppWidget: UserWidgetDefinition := {
   name := "Paper proof"
-  javascript:= include_str "widget" / "dist" / "paperProof.js"
+  javascript:= include_str "widget" / "dist" / "indexExtension.js"
 }
 
-#widget ppWidget .null
+structure PaperProofProps where
+  kind : String
+  deriving ToJson, FromJson, Inhabited
 
+#widget ppWidget (toJson { kind := "browser" : PaperProofProps})
+
+-- #widget ppWidget (toJson { kind := "extension" : PaperProofProps})
 
 theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n
-  exact ⟨ n + n, rfl ⟩ 
+  exact ⟨ n + n, rfl ⟩
 }

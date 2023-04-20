@@ -1,5 +1,4 @@
 import { useStateDesigner } from '@state-designer/react'
-
 import {
   Renderer,
   TLBounds,
@@ -8,7 +7,6 @@ import {
   TLPointerEventHandler,
   TLWheelEventHandler,
 } from '@tldraw/core'
-// import axios from 'axios'
 import {
   Bodies,
   Composite,
@@ -21,165 +19,158 @@ import {
   World,
 } from 'matter-js'
 import * as React from 'react'
-import { ProofTree } from './shapes/node'
-import { createNodeShape } from './state/actions'
-import { Api } from './state/api'
-import { mutables } from './state/mutables'
+import { ProofTree } from 'shapes/node'
+import { createNodeShape } from 'state/actions'
+import { Api } from 'state/api'
+import { mutables } from 'state/mutables'
 import styled from './stitches.config'
 import { TitleLinks } from './components/TitleLinks'
 import { Toolbar } from './components/Toolbar'
 import { getShapeUtils, shapeUtils } from './shapes'
 import { machine } from './state/machine'
-
-
-
-
-
-
-// TODO import this later
 // import './styles.css'
 
-// const proofTree: ProofTree = {
-//   toType: '∃ p, p ≥ N ∧ Nat.Prime p',
-//   name: 'top level',
-//   fromType: '∀ (N : ℕ), ∃ p, p ≥ N ∧ Nat.Prime p',
-//   children: [
-//     {
-//       toType: '✅',
-//       name: '',
-//       fromType: '∃ p, p ≥ N ∧ Nat.Prime p',
-//       children: [
-//         { type: '', name: '✅' },
-//         { type: '$$$$', name: ' Exists.intro ' },
-//         { type: '', name: 'p := Nat.minFac  M ' },
-//         { type: '$$$$', name: ' And.intro ' },
-//         {
-//           toType: '¬p ≥ N → False',
-//           name: 'ppos',
-//           fromType: 'p ≥ N',
-//           children: [
-//             {
-//               toType: 'False',
-//               name: '',
-//               fromType: '¬p ≥ N → False',
-//               children: [
-//                 {
-//                   toType: '✅',
-//                   name: '',
-//                   fromType: 'False',
-//                   children: [
-//                     { type: '', name: '✅' },
-//                     { type: '$$$$', name: 'Nat.Prime.not_dvd_one' },
-//                     {
-//                       toType: 'M ≠ 1',
-//                       name: 'pp',
-//                       fromType: 'Nat.Prime p',
-//                       children: [
-//                         {
-//                           toType: '✅',
-//                           name: '',
-//                           fromType: 'M ≠ 1',
-//                           children: [{ type: '', name: '✅' }],
-//                           action: ' linarith ',
-//                         },
-//                         { type: '$$$$', name: 'Nat.minFac_prime' },
-//                       ],
-//                       action: 'apply  Nat.minFac_prime ',
-//                     },
-//                     {
-//                       toType: '✅',
-//                       name: 'h',
-//                       fromType: 'p ∣ 1',
-//                       children: [
-//                         { type: '', name: '✅' },
-//                         { type: '$$$$', name: 'Nat.dvd_add_right' },
-//                         {
-//                           toType: 'p ≤ N',
-//                           name: 'h₁',
-//                           fromType: 'p ∣ Nat.factorial N',
-//                           children: [
-//                             {
-//                               toType: '✅',
-//                               name: '',
-//                               fromType: 'p ≤ N',
-//                               children: [
-//                                 { type: '', name: '✅' },
-//                                 { type: '$$$$', name: 'le_of_not_ge' },
-//                                 { type: '¬p ≥ N', name: 'pln' },
-//                               ],
-//                               action: 'exact le_of_not_ge  pln ',
-//                             },
-//                             {
-//                               toType: 'M ≠ 1',
-//                               name: 'pp',
-//                               fromType: 'Nat.Prime p',
-//                               children: [
-//                                 {
-//                                   toType: '✅',
-//                                   name: '',
-//                                   fromType: 'M ≠ 1',
-//                                   children: [{ type: '', name: '✅' }],
-//                                   action: ' linarith ',
-//                                 },
-//                                 { type: '$$$$', name: 'Nat.minFac_prime' },
-//                               ],
-//                               action: 'apply  Nat.minFac_prime ',
-//                             },
-//                             { type: '$$$$', name: 'dvd_factorial' },
-//                             { type: '$$$$', name: 'mpr' },
-//                             { type: '$$$$', name: '? _ ' },
-//                           ],
-//                           action: 'refine pp.dvd_factorial.mpr ? _ ',
-//                         },
-//                         { type: '$$$$', name: 'mp' },
-//                         {
-//                           toType: '✅',
-//                           name: 'h₂',
-//                           fromType: 'p ∣ Nat.factorial N + 1',
-//                           children: [
-//                             { type: '', name: '✅' },
-//                             { type: '$$$$', name: 'Nat.minFac_dvd' },
-//                             { type: '', name: 'M := Nat.factorial N +  1 ' },
-//                           ],
-//                           action: 'exact Nat.minFac_dvd M',
-//                         },
-//                       ],
-//                       action: 'exact Iff.mp (Nat.dvd_add_right h₁) h₂',
-//                     },
-//                   ],
-//                   action: 'exact Nat.Prime.not_dvd_one pp  h ',
-//                 },
-//                 { type: '¬p ≥ N', name: 'pln' },
-//               ],
-//               action: 'intro  pln ',
-//             },
-//             { type: '$$$$', name: 'by_contradiction' },
-//           ],
-//           action: 'apply  by_contradiction ',
-//         },
-//         {
-//           toType: 'M ≠ 1',
-//           name: 'pp',
-//           fromType: 'Nat.Prime p',
-//           children: [
-//             {
-//               toType: '✅',
-//               name: '',
-//               fromType: 'M ≠ 1',
-//               children: [{ type: '', name: '✅' }],
-//               action: ' linarith ',
-//             },
-//             { type: '$$$$', name: 'Nat.minFac_prime' },
-//           ],
-//           action: 'apply  Nat.minFac_prime ',
-//         },
-//       ],
-//       action: 'exact ⟨ p, ppos, pp  ⟩ ',
-//     },
-//     { type: 'ℕ', name: 'N' },
-//   ],
-//   action: 'intro  N ',
-// }
+const proofTree: ProofTree = {
+  toType: '∃ p, p ≥ N ∧ Nat.Prime p',
+  name: 'top level',
+  fromType: '∀ (N : ℕ), ∃ p, p ≥ N ∧ Nat.Prime p',
+  children: [
+    {
+      toType: '✅',
+      name: '',
+      fromType: '∃ p, p ≥ N ∧ Nat.Prime p',
+      children: [
+        { type: '', name: '✅' },
+        { type: '$$$$', name: ' Exists.intro ' },
+        { type: '', name: 'p := Nat.minFac  M ' },
+        { type: '$$$$', name: ' And.intro ' },
+        {
+          toType: '¬p ≥ N → False',
+          name: 'ppos',
+          fromType: 'p ≥ N',
+          children: [
+            {
+              toType: 'False',
+              name: '',
+              fromType: '¬p ≥ N → False',
+              children: [
+                {
+                  toType: '✅',
+                  name: '',
+                  fromType: 'False',
+                  children: [
+                    { type: '', name: '✅' },
+                    { type: '$$$$', name: 'Nat.Prime.not_dvd_one' },
+                    {
+                      toType: 'M ≠ 1',
+                      name: 'pp',
+                      fromType: 'Nat.Prime p',
+                      children: [
+                        {
+                          toType: '✅',
+                          name: '',
+                          fromType: 'M ≠ 1',
+                          children: [{ type: '', name: '✅' }],
+                          action: ' linarith ',
+                        },
+                        { type: '$$$$', name: 'Nat.minFac_prime' },
+                      ],
+                      action: 'apply  Nat.minFac_prime ',
+                    },
+                    {
+                      toType: '✅',
+                      name: 'h',
+                      fromType: 'p ∣ 1',
+                      children: [
+                        { type: '', name: '✅' },
+                        { type: '$$$$', name: 'Nat.dvd_add_right' },
+                        {
+                          toType: 'p ≤ N',
+                          name: 'h₁',
+                          fromType: 'p ∣ Nat.factorial N',
+                          children: [
+                            {
+                              toType: '✅',
+                              name: '',
+                              fromType: 'p ≤ N',
+                              children: [
+                                { type: '', name: '✅' },
+                                { type: '$$$$', name: 'le_of_not_ge' },
+                                { type: '¬p ≥ N', name: 'pln' },
+                              ],
+                              action: 'exact le_of_not_ge  pln ',
+                            },
+                            {
+                              toType: 'M ≠ 1',
+                              name: 'pp',
+                              fromType: 'Nat.Prime p',
+                              children: [
+                                {
+                                  toType: '✅',
+                                  name: '',
+                                  fromType: 'M ≠ 1',
+                                  children: [{ type: '', name: '✅' }],
+                                  action: ' linarith ',
+                                },
+                                { type: '$$$$', name: 'Nat.minFac_prime' },
+                              ],
+                              action: 'apply  Nat.minFac_prime ',
+                            },
+                            { type: '$$$$', name: 'dvd_factorial' },
+                            { type: '$$$$', name: 'mpr' },
+                            { type: '$$$$', name: '? _ ' },
+                          ],
+                          action: 'refine pp.dvd_factorial.mpr ? _ ',
+                        },
+                        { type: '$$$$', name: 'mp' },
+                        {
+                          toType: '✅',
+                          name: 'h₂',
+                          fromType: 'p ∣ Nat.factorial N + 1',
+                          children: [
+                            { type: '', name: '✅' },
+                            { type: '$$$$', name: 'Nat.minFac_dvd' },
+                            { type: '', name: 'M := Nat.factorial N +  1 ' },
+                          ],
+                          action: 'exact Nat.minFac_dvd M',
+                        },
+                      ],
+                      action: 'exact Iff.mp (Nat.dvd_add_right h₁) h₂',
+                    },
+                  ],
+                  action: 'exact Nat.Prime.not_dvd_one pp  h ',
+                },
+                { type: '¬p ≥ N', name: 'pln' },
+              ],
+              action: 'intro  pln ',
+            },
+            { type: '$$$$', name: 'by_contradiction' },
+          ],
+          action: 'apply  by_contradiction ',
+        },
+        {
+          toType: 'M ≠ 1',
+          name: 'pp',
+          fromType: 'Nat.Prime p',
+          children: [
+            {
+              toType: '✅',
+              name: '',
+              fromType: 'M ≠ 1',
+              children: [{ type: '', name: '✅' }],
+              action: ' linarith ',
+            },
+            { type: '$$$$', name: 'Nat.minFac_prime' },
+          ],
+          action: 'apply  Nat.minFac_prime ',
+        },
+      ],
+      action: 'exact ⟨ p, ppos, pp  ⟩ ',
+    },
+    { type: 'ℕ', name: 'N' },
+  ],
+  action: 'intro  N ',
+}
 
 declare const window: Window & { api: Api }
 
@@ -376,15 +367,8 @@ function toGoodFormat(s: { type: string; v: string }[]): string[] {
 
 let lastId = 0
 
-export default function App({ onMount, proofTree }: AppProps) {
+export default function App({ onMount }: AppProps) {
   const appState = useStateDesigner(machine)
-
-  console.log("_______________________________________")
-  console.log({proofTree})
-
-
-  
-  // return <h2>APP goddamnit</h2>
 
   React.useEffect(() => {
     const engine = Engine.create()
@@ -423,61 +407,61 @@ export default function App({ onMount, proofTree }: AppProps) {
     Events.on(constraint, 'enddrag', (e) => {
       e.body.collisionFilter.mask = ~0
     })
-    // Events.on(engine, 'afterUpdate', () => {
-    //   const { point, zoom } = appState.data.pageState.camera
-    //   render.options.hasBounds = true
-    //   render.bounds.min.x = -point[0]
-    //   render.bounds.min.y = -point[1]
-    //   render.bounds.max.x = render.bounds.min.x + window.innerWidth / zoom
-    //   render.bounds.max.y = render.bounds.min.y + window.innerHeight / zoom
-    //   constraint.mouse.offset = { x: -point[0], y: -point[1] }
-    //   constraint.mouse.scale = { x: 1 / zoom, y: 1 / zoom }
-    //   if (appState.data.overlays.eraseLine.length > 0) {
-    //     constraint.collisionFilter.mask = 0
-    //   } else {
-    //     constraint.collisionFilter.mask = ~0
-    //   }
-    // })
-
-    const tick = () => {
-      const shapes = Object.values(appState.data.page.shapes)
-      for (const shape of shapes) {
-        if (shape.type !== 'node') {
-          continue
-        }
-        for (const body of engine.world.bodies) {
-          if (!shapes.some((s) => s.id == body.label)) {
-            World.remove(engine.world, body)
-          }
-        }
-        if (!engine.world.bodies.some((b) => b.label == shape.id)) {
-          const bds = utils.getBounds(shape)
-          const category =
-            shape.vars.length > 0 && shape.vars[0].startsWith('∀')
-              ? FUNCTION_CATEGORY
-              : OBJECT_CATEGORY
-          const box = Bodies.rectangle(
-            bds.minX + bds.width / 2,
-            bds.minY + bds.height / 2,
-            bds.width,
-            bds.height,
-            {
-              label: shape.id,
-              inertia: Infinity,
-              frictionAir: 0.1,
-              collisionFilter: { category, mask: ~0 },
-            }
-          )
-          World.add(engine.world, box)
-        }
+    Events.on(engine, 'afterUpdate', () => {
+      const { point, zoom } = appState.data.pageState.camera
+      render.options.hasBounds = true
+      render.bounds.min.x = -point[0]
+      render.bounds.min.y = -point[1]
+      render.bounds.max.x = render.bounds.min.x + window.innerWidth / zoom
+      render.bounds.max.y = render.bounds.min.y + window.innerHeight / zoom
+      constraint.mouse.offset = { x: -point[0], y: -point[1] }
+      constraint.mouse.scale = { x: 1 / zoom, y: 1 / zoom }
+      if (appState.data.overlays.eraseLine.length > 0) {
+        constraint.collisionFilter.mask = 0
+      } else {
+        constraint.collisionFilter.mask = ~0
       }
-      appState.send('APPLY_FORCES', { bodies: engine.world.bodies })
-      // console.log('tick', engine.world.bodies[0].position.y)
-    }
-    const int = setInterval(() => tick(), 10000) //1000 / 60)
-    return () => {
-      clearInterval(int)
-    }
+    })
+
+    // const tick = () => {
+    //   const shapes = Object.values(appState.data.page.shapes)
+    //   for (const shape of shapes) {
+    //     if (shape.type !== 'node') {
+    //       continue
+    //     }
+    //     for (const body of engine.world.bodies) {
+    //       if (!shapes.some((s) => s.id == body.label)) {
+    //         World.remove(engine.world, body)
+    //       }
+    //     }
+    //     if (!engine.world.bodies.some((b) => b.label == shape.id)) {
+    //       const bds = utils.getBounds(shape)
+    //       const category =
+    //         shape.vars.length > 0 && shape.vars[0].startsWith('∀')
+    //           ? FUNCTION_CATEGORY
+    //           : OBJECT_CATEGORY
+    //       const box = Bodies.rectangle(
+    //         bds.minX + bds.width / 2,
+    //         bds.minY + bds.height / 2,
+    //         bds.width,
+    //         bds.height,
+    //         {
+    //           label: shape.id,
+    //           inertia: Infinity,
+    //           frictionAir: 0.1,
+    //           collisionFilter: { category, mask: ~0 },
+    //         }
+    //       )
+    //       World.add(engine.world, box)
+    //     }
+    //   }
+    //   appState.send('APPLY_FORCES', { bodies: engine.world.bodies })
+    //   // console.log('tick', engine.world.bodies[0].position.y)
+    // }
+    // const int = setInterval(() => tick(), 1000 / 60)
+    // return () => {
+    //   clearInterval(int)
+    // }
   }, [])
 
   React.useEffect(() => {
@@ -492,44 +476,45 @@ export default function App({ onMount, proofTree }: AppProps) {
         proofTree,
       })
     }
-    // function setupStuff() {
-    //   axios
-    //     .get('http://192.168.1.185:3001/getTypes')
-    //     .then((res) => {
-    //       const proofTree: ProofTree = res.data.data
-    //       const id = Number(res.data.id)
-    //       if (id > lastId) {
-    //         api.reset()
-    //         lastId = id
-    //         appState.send('CREATE_NODE_SHAPE', {
-    //           pos: [450, 150],
-    //           name: 'someName',
-    //           proofTree,
-    //         })
+    // drawTree()
+    function setupStuff() {
+      fetch('http://localhost:3000/getTypes')
+        .then(response => response.json())
+        .then(res => {
+          const proofTree: ProofTree = res.data
+          const id = Number(res.data.id)
+          if (id > lastId) {
+            api.reset()
+            lastId = id
+            appState.send('CREATE_NODE_SHAPE', {
+              pos: [450, 150],
+              name: 'someName',
+              proofTree,
+            })
 
-    //         /*            let i = 0
-    //         for (const hyp of data) {
-    //           console.log('dbg type', toGoodFormat(hyp.type))
-    //           for (const name of hyp.names) {
-    //             if (i < 10) {
-    //               appState.send('CREATE_NODE_SHAPE', {
-    //                 pos: [450 + 150 * i, 150],
-    //                 name,
-    //                 type: toGoodFormat(hyp.type),
-    //               })
-    //               i += 1
-    //             } else {
-    //               break
-    //             }
-    //           }
-    //         }*/
-    //       }
-    //     })
-    //     .catch((e) => {
-    //       console.log('dbg Error ', e)
-    //     })
-    //   setTimeout(() => setupStuff(), 200)
-    // }
+            /*            let i = 0
+            for (const hyp of data) {
+              console.log('dbg type', toGoodFormat(hyp.type))
+              for (const name of hyp.names) {
+                if (i < 10) {
+                  appState.send('CREATE_NODE_SHAPE', {
+                    pos: [450 + 150 * i, 150],
+                    name,
+                    type: toGoodFormat(hyp.type),
+                  })
+                  i += 1
+                } else {
+                  break
+                }
+              }
+            }*/
+          }
+        })
+        .catch((e) => {
+          console.log('dbg Error ', e)
+        })
+      setTimeout(() => setupStuff(), 200)
+    }
     // setupStuff()
   }, [])
 
@@ -539,7 +524,7 @@ export default function App({ onMount, proofTree }: AppProps) {
   const firstShape = firstShapeId ? appState.data.page.shapes[firstShapeId] : null
   const hideResizeHandles = firstShape
     ? appState.data.pageState.selectedIds.length === 1 &&
-      (shapeUtils[firstShape.type] as any).hideResizeHandles
+    (shapeUtils[firstShape.type] as any).hideResizeHandles
     : false
 
   const numGhosts = Object.values(appState.data.page.shapes).filter((s) => s.isGhost).length

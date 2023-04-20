@@ -20,23 +20,35 @@ To try the widget
 
 ## Code structure
 
-- Example.lean contains example theorems and can be used for testing
-- Parser.lean contains the parser of InfoTree's into internal TreeState format
-- PaperProof.lean defines the widget which constructs a proof tree from the TreeState and sends JSON to the TypeScript code
-- widgets/src/paperProof.tsx queries the server method each time cursor changes, displays to infoview and sends to the server which displays in tldraw
+- `Example.lean` - contains example theorems and can be used for testing
+- `Parser.lean` - contains the parser of InfoTree's into internal TreeState format
+- `PaperProof.lean` - defines the widget which constructs a proof tree from the TreeState and sends JSON to the TypeScript code
+- `widget/src/indexBrowser.tsx` - displays the proof tree in the browser at `localhost:3000`.
+- `widget/src/indexExtension.tsx` - displays the proof tree in the VSCode InfoView.
+- `widget/server.cjs` - the Node server that stores and returns our `InfoTree`s; and renders the browser app at `localhost:3000`.
 
 ## Development
 
-To get started with development, you will need to run these commands first:
+PaperProof can run both on in the browser (== on ipad) and as a VSCode extension.  
+Now, you would usually want to develop the extension in the browser, there is just less clicking this way.
 
-```bash
-cd widget
-yarn install
-```
+### Develop while looking at the browser
 
-For development run `yarn dev` in command line (it will watch changes in widget ts files and automatically rebuild). Development requires [watchexec](https://watchexec.github.io/), which can be installed by running `cargo install watchexec-cli` if you have Rust toolchain available.
+First, do `cd widget` and run `yarn install`. Then:
 
-Run `lean4.restartFile` from VSCode when in Lean file to pick up a new widget version.
+- `yarn run watchBrowser` - this compiles the browser app.
+- `node server.cjs` - this starts the node server that 1. memorizes the `InfoTree` information that the browser app then queries 2. renders the browser app at http://localhost:3000.
+- `yarn run buildExtension` - this builds the VsCode extension once - we need this because someone needs to send the `InfoTree` information to `server.cjs`. If you prefer copypasting your `InfoTree`s you can do without it.
+
+With this setup, you don't need to manually rebuild anything (unless you touch `indexExtension.tsx`, which you should need to do rarely if ever).
+
+### Develop while looking at the VSCode extension
+
+First, do `cd widget` and run `yarn install`. Then:
+
+- `yarn run watchExtension` - this compiles the VSCode extension.
+
+That's it. But don't be deceived - every time you update your tldraw code, you will need to execute `lean4.restartFile` from VSCode in the `PaperProof.lean`; and click around a few times. Also - vscode seems to cache stuff? In general - it's a slower development cycle.
 
 ## TODO
 
