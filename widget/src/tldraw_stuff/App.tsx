@@ -23,7 +23,7 @@ import { ProofTree } from 'shapes/node'
 import { createNodeShape } from 'state/actions'
 import { Api } from 'state/api'
 import { mutables } from 'state/mutables'
-// import styled from 'stitches.config'
+import styled from './stitches.config'
 import { TitleLinks } from './components/TitleLinks'
 import { Toolbar } from './components/Toolbar'
 import { getShapeUtils, shapeUtils } from './shapes'
@@ -530,7 +530,7 @@ export default function App({ onMount }: AppProps) {
   const numGhosts = Object.values(appState.data.page.shapes).filter((s) => s.isGhost).length
 
   return (
-    <div>
+    <AppContainer>
       <canvas id="mcanvas" className="tl-overlay" style={{ zIndex: 200 }}></canvas>
       <Renderer
         shapeUtils={shapeUtils} // Required
@@ -569,17 +569,17 @@ export default function App({ onMount }: AppProps) {
         lastEvent={appState.data.pageState.camera.zoom + ''}
       />
       <TitleLinks />
-    </div>
+    </AppContainer>
   )
 }
 
-// const AppContainer = styled('div', {
-//   position: 'fixed',
-//   top: '0px',
-//   left: '0px',
-//   right: '0px',
-//   bottom: '0px',
-//   width: '100%',
-//   height: '100%',
-//   zIndex: 101,
-// })
+const AppContainer = styled('div', {
+  position: 'fixed',
+  top: '0px',
+  left: '0px',
+  right: '0px',
+  bottom: '0px',
+  width: '100%',
+  height: '100%',
+  zIndex: 101,
+})
