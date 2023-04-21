@@ -44,6 +44,7 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   exact ⟨ p, ppos, pp ⟩
 
 -- TODO: Parser doesn't work for this theorem yet
+-- At the current stage of the proof, it should render like this: https://gcdnb.pbrd.co/images/ElpHkUUB5HjM.jpg?o=1
 -- 1) "tactic rw" changing hypothesis should work
 -- 2) Destructuring in have's intro's rintro's should work
 -- https://github.com/leanprover/lean4/blob/8a302e6135bc1b0f1f2901702664c56cd424ebc2/src/Init/Tactics.lean

@@ -151,6 +151,7 @@ def parseTacticProof (infoTree : InfoTree) : FrameStack Unit :=
       | `(tactic| apply $_)
       | `(tactic| exact $_)
       | `(tactic| refine $_)
+      | `(tactic| sorry)
       | `(tactic| linarith $_) =>
         addGoalChangeFrame
 
