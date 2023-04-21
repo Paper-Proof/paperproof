@@ -334,8 +334,8 @@ const onKeyUp: TLKeyboardEventHandler = (key, info, e) => {
 }
 
 interface AppProps {
-  onMount?: (api: Api) => void,
-  proofTree: ProofTree
+  onMount?: (api: Api) => void;
+  proofTree?: ProofTree;
 }
 
 function toGoodFormat(s: { type: string; v: string }[]): string[] {

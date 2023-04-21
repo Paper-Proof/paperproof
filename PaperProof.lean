@@ -82,7 +82,8 @@ structure PaperProofProps where
   kind : String
   deriving ToJson, FromJson, Inhabited
 
-#widget ppWidget (toJson { kind := "browser" : PaperProofProps})
+def forBrowser := (toJson { kind := "browser" : PaperProofProps})
+#widget ppWidget forBrowser
 
 -- #widget ppWidget (toJson { kind := "extension" : PaperProofProps})
 

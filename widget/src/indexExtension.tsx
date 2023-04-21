@@ -3,9 +3,8 @@ import { useContext, useEffect, useState } from "react";
 import { EditorContext, RpcContext, useAsync } from "@leanprover/infoview";
 import { Location } from "vscode-languageserver-protocol";
 import App from "./tldraw_stuff/App";
-import * as ReactDOM from "react-dom";
 
-export default function (props) {
+export default function (props: { kind: "browser" | "extension" }) {
   const editorConnection = useContext(EditorContext);
   const rs = useContext(RpcContext);
   const [location, setLocation] = useState<Location | undefined>(undefined);
@@ -33,7 +32,7 @@ export default function (props) {
         body: context as string,
       }).catch((error) => {
         setServerError(serverError);
-      })
+      });
     }
 
     return context;
@@ -49,12 +48,16 @@ export default function (props) {
     return <div>Error: {anyToString(response.error)}</div>;
   } else {
     if (props.kind === "browser") {
-      return <section>
-        <h2>Just sent this InfoTree to the node server:</h2>
-        <pre><code>{response.value}</code></pre>
-      </section>;
+      return (
+        <section>
+          <h2>Just sent this InfoTree to the node server:</h2>
+          <pre>
+            <code>{response.value}</code>
+          </pre>
+        </section>
+      );
     } else {
-      return <App proofTree={JSON.parse(response.value)}/>
+      return <App proofTree={JSON.parse(response.value)} />;
     }
   }
 }
