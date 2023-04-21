@@ -515,7 +515,7 @@ export default function App({ onMount }: AppProps) {
         })
       setTimeout(() => setupStuff(), 200)
     }
-    // setupStuff()
+    setupStuff()
   }, [])
 
   const hideBounds = appState.isInAny('transformingSelection', 'translating', 'creating')

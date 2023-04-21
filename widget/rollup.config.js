@@ -42,7 +42,7 @@ const plugins = [
 export default (cliArgs) => {
   // lakesare: We're compiling our tldraw code for browser & vscode's extension separately, because:
   // - vscode expects our code to be a module ({ format: "es" }, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#javascript.statements.import)
-  // - we could add it to the browser app via `<script type="module"/>`, but that would require externalizing ["react", "react-dom", "@leanprover/infoview"] somehow and I didn't want to google how to set this up. ALSO we would want 2 separate source files either way - one for browser, `indexBrowser.tsx` (that mounts the react component to out localhost:3000 html page); and one for the vscode extension, `indexExtension.tsx` (that just exports the react component).
+  // - we could add it to the browser app via `<script type="module"/>`, but that would require externalizing ["react", "react-dom", "@leanprover/infoview"] somehow and I didn't want to google how to set this up. ALSO we would want 2 separate source files either way - one for browser, `indexBrowser.tsx` (that mounts the react component to out localhost:3000 html page); and one for the vscode extension, `indexExtension.tsx` (that just exports the react component). ALSO - sourcemaps, as described below!
 
   if (cliArgs.configBrowser) {
     return {
@@ -63,7 +63,9 @@ export default (cliArgs) => {
         dir: "dist",
         format: "es",
         intro: "const global = window",
-        sourcemap: true,
+        // !!! Enabling sourcemaps in the extension code leads to the mysterious `Error: Failed to construct 'URL': Invalid URL`, beware!
+        // If you like sourcemaps just develop in the browser.
+        sourcemap: false,
       },
       external: ["react", "react-dom", "@leanprover/infoview"],
       plugins
