@@ -1,8 +1,7 @@
 import { TLBounds, TLBoundsHandle, TLBoundsWithCenter, Utils } from '@tldraw/core'
-import type { Shape } from 'shapes'
-import type { ArrowShape } from 'shapes/arrow'
-import { AppData, INITIAL_DATA } from './constants'
-import { makeHistory } from './history'
+import type { Shape } from "shapes";
+import { AppData, INITIAL_DATA } from "./constants";
+import { makeHistory } from "./history";
 
 /*
 This file contains the "mutable" part of our application's state.
@@ -12,25 +11,24 @@ state, so we can throw it all into a regular object.
 */
 
 interface Mutables {
-  snapshot: AppData
-  rendererBounds: TLBounds
-  viewport: TLBounds
-  history: ReturnType<typeof makeHistory>
-  initialPoint: number[]
-  currentPoint: number[]
-  previousPoint: number[]
-  initialShape?: Shape
-  isCloning: boolean
-  pointedShapeId?: string
-  pointedHandleId?: keyof ArrowShape['handles']
-  pointedBoundsHandleId?: TLBoundsHandle
-  initialCommonBounds?: TLBounds
-  rawPoints: number[][]
+  snapshot: AppData;
+  rendererBounds: TLBounds;
+  viewport: TLBounds;
+  history: ReturnType<typeof makeHistory>;
+  initialPoint: number[];
+  currentPoint: number[];
+  previousPoint: number[];
+  initialShape?: Shape;
+  isCloning: boolean;
+  pointedShapeId?: string;
+  pointedBoundsHandleId?: TLBoundsHandle;
+  initialCommonBounds?: TLBounds;
+  rawPoints: number[][];
   snapInfo?: {
-    initialBounds: TLBoundsWithCenter
-    all: TLBoundsWithCenter[]
-    others: TLBoundsWithCenter[]
-  }
+    initialBounds: TLBoundsWithCenter;
+    all: TLBoundsWithCenter[];
+    others: TLBoundsWithCenter[];
+  };
 }
 
 export const mutables: Mutables = {
@@ -50,8 +48,7 @@ export const mutables: Mutables = {
   rawPoints: [],
   isCloning: false,
   pointedShapeId: undefined,
-  pointedHandleId: undefined,
   pointedBoundsHandleId: undefined,
   initialCommonBounds: undefined,
   snapInfo: undefined,
-}
+};

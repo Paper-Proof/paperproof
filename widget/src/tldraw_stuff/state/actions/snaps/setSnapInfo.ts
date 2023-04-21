@@ -9,10 +9,7 @@ export const setSnapInfo: Action = (data, payload: TLPointerInfo) => {
 
   Object.values(data.page.shapes).forEach((shape) => {
     const bounds = Utils.getBoundsWithCenter(getShapeUtils(shape).getRotatedBounds(shape))
-    all.push(bounds)
-    if (!(data.pageState.selectedIds.includes(shape.id) || shape.type === 'arrow')) {
-      others.push(bounds)
-    }
+    all.push(bounds);
   })
 
   const initialBounds = Utils.getBoundsWithCenter(

@@ -133,18 +133,6 @@ export class Api {
     return this.machine.data.page.bindings[id]
   }
 
-  createArrowBetweenShapes = (startId: string, endId: string) => {
-    const arrowId = nanoid()
-    const startBindingId = nanoid()
-    const endBindingId = nanoid()
-    this.createShapes({ id: arrowId, type: 'arrow' })
-    this.createBindings(
-      { id: startBindingId, fromId: arrowId, toId: startId, handleId: 'start' },
-      { id: endBindingId, fromId: arrowId, toId: endId, handleId: 'end' }
-    )
-    return this
-  }
-
   send: typeof machine.send
 
   isIn: typeof machine.isIn

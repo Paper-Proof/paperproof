@@ -23,405 +23,139 @@ import { ProofTree } from 'shapes/node'
 import { createNodeShape } from 'state/actions'
 import { Api } from 'state/api'
 import { mutables } from 'state/mutables'
-import styled from './stitches.config'
-import { TitleLinks } from './components/TitleLinks'
-import { Toolbar } from './components/Toolbar'
-import { getShapeUtils, shapeUtils } from './shapes'
-import { machine } from './state/machine'
+import styled from "./stitches.config";
+import { getShapeUtils, shapeUtils } from "./shapes";
+import { machine } from "./state/machine";
 // import './styles.css'
 
-const proofTree: ProofTree = {
-  toType: '∃ p, p ≥ N ∧ Nat.Prime p',
-  name: 'top level',
-  fromType: '∀ (N : ℕ), ∃ p, p ≥ N ∧ Nat.Prime p',
-  children: [
-    {
-      toType: '✅',
-      name: '',
-      fromType: '∃ p, p ≥ N ∧ Nat.Prime p',
-      children: [
-        { type: '', name: '✅' },
-        { type: '$$$$', name: ' Exists.intro ' },
-        { type: '', name: 'p := Nat.minFac  M ' },
-        { type: '$$$$', name: ' And.intro ' },
-        {
-          toType: '¬p ≥ N → False',
-          name: 'ppos',
-          fromType: 'p ≥ N',
-          children: [
-            {
-              toType: 'False',
-              name: '',
-              fromType: '¬p ≥ N → False',
-              children: [
-                {
-                  toType: '✅',
-                  name: '',
-                  fromType: 'False',
-                  children: [
-                    { type: '', name: '✅' },
-                    { type: '$$$$', name: 'Nat.Prime.not_dvd_one' },
-                    {
-                      toType: 'M ≠ 1',
-                      name: 'pp',
-                      fromType: 'Nat.Prime p',
-                      children: [
-                        {
-                          toType: '✅',
-                          name: '',
-                          fromType: 'M ≠ 1',
-                          children: [{ type: '', name: '✅' }],
-                          action: ' linarith ',
-                        },
-                        { type: '$$$$', name: 'Nat.minFac_prime' },
-                      ],
-                      action: 'apply  Nat.minFac_prime ',
-                    },
-                    {
-                      toType: '✅',
-                      name: 'h',
-                      fromType: 'p ∣ 1',
-                      children: [
-                        { type: '', name: '✅' },
-                        { type: '$$$$', name: 'Nat.dvd_add_right' },
-                        {
-                          toType: 'p ≤ N',
-                          name: 'h₁',
-                          fromType: 'p ∣ Nat.factorial N',
-                          children: [
-                            {
-                              toType: '✅',
-                              name: '',
-                              fromType: 'p ≤ N',
-                              children: [
-                                { type: '', name: '✅' },
-                                { type: '$$$$', name: 'le_of_not_ge' },
-                                { type: '¬p ≥ N', name: 'pln' },
-                              ],
-                              action: 'exact le_of_not_ge  pln ',
-                            },
-                            {
-                              toType: 'M ≠ 1',
-                              name: 'pp',
-                              fromType: 'Nat.Prime p',
-                              children: [
-                                {
-                                  toType: '✅',
-                                  name: '',
-                                  fromType: 'M ≠ 1',
-                                  children: [{ type: '', name: '✅' }],
-                                  action: ' linarith ',
-                                },
-                                { type: '$$$$', name: 'Nat.minFac_prime' },
-                              ],
-                              action: 'apply  Nat.minFac_prime ',
-                            },
-                            { type: '$$$$', name: 'dvd_factorial' },
-                            { type: '$$$$', name: 'mpr' },
-                            { type: '$$$$', name: '? _ ' },
-                          ],
-                          action: 'refine pp.dvd_factorial.mpr ? _ ',
-                        },
-                        { type: '$$$$', name: 'mp' },
-                        {
-                          toType: '✅',
-                          name: 'h₂',
-                          fromType: 'p ∣ Nat.factorial N + 1',
-                          children: [
-                            { type: '', name: '✅' },
-                            { type: '$$$$', name: 'Nat.minFac_dvd' },
-                            { type: '', name: 'M := Nat.factorial N +  1 ' },
-                          ],
-                          action: 'exact Nat.minFac_dvd M',
-                        },
-                      ],
-                      action: 'exact Iff.mp (Nat.dvd_add_right h₁) h₂',
-                    },
-                  ],
-                  action: 'exact Nat.Prime.not_dvd_one pp  h ',
-                },
-                { type: '¬p ≥ N', name: 'pln' },
-              ],
-              action: 'intro  pln ',
-            },
-            { type: '$$$$', name: 'by_contradiction' },
-          ],
-          action: 'apply  by_contradiction ',
-        },
-        {
-          toType: 'M ≠ 1',
-          name: 'pp',
-          fromType: 'Nat.Prime p',
-          children: [
-            {
-              toType: '✅',
-              name: '',
-              fromType: 'M ≠ 1',
-              children: [{ type: '', name: '✅' }],
-              action: ' linarith ',
-            },
-            { type: '$$$$', name: 'Nat.minFac_prime' },
-          ],
-          action: 'apply  Nat.minFac_prime ',
-        },
-      ],
-      action: 'exact ⟨ p, ppos, pp  ⟩ ',
-    },
-    { type: 'ℕ', name: 'N' },
-  ],
-  action: 'intro  N ',
-}
-
-declare const window: Window & { api: Api }
+declare const window: Window & { api: Api };
 
 const onHoverShape: TLPointerEventHandler = (info, e) => {
-  machine.send('HOVERED_SHAPE', info)
-}
+  machine.send("HOVERED_SHAPE", info);
+};
 
 const onUnhoverShape: TLPointerEventHandler = (info, e) => {
-  machine.send('UNHOVERED_SHAPE', info)
-}
+  machine.send("UNHOVERED_SHAPE", info);
+};
 
 const onPointShape: TLPointerEventHandler = (info, e) => {
-  machine.send('POINTED_SHAPE', info)
-}
+  machine.send("POINTED_SHAPE", info);
+};
 
 const onPointCanvas: TLPointerEventHandler = (info, e) => {
-  machine.send('POINTED_CANVAS', info)
-}
+  machine.send("POINTED_CANVAS", info);
+};
 
 const onPointBounds: TLPointerEventHandler = (info, e) => {
-  machine.send('POINTED_BOUNDS', info)
-}
+  machine.send("POINTED_BOUNDS", info);
+};
 
 const onPointHandle: TLPointerEventHandler = (info, e) => {
-  machine.send('POINTED_HANDLE', info)
-}
+  machine.send("POINTED_HANDLE", info);
+};
 
 const onPointerDown: TLPointerEventHandler = (info, e) => {
-  machine.send('STARTED_POINTING', info)
-}
+  machine.send("STARTED_POINTING", info);
+};
 
 const onPointerUp: TLPointerEventHandler = (info, e) => {
-  machine.send('STOPPED_POINTING', info)
-}
+  machine.send("STOPPED_POINTING", info);
+};
 
 const onPointerMove: TLPointerEventHandler = (info, e) => {
-  machine.send('MOVED_POINTER', info)
-}
+  machine.send("MOVED_POINTER", info);
+};
 
 const onPan: TLWheelEventHandler = (info, e) => {
-  machine.send('PANNED', info)
-}
+  machine.send("PANNED", info);
+};
 
 const onPinchStart: TLPinchEventHandler = (info, e) => {
-  machine.send('STARTED_PINCHING', info)
-}
+  machine.send("STARTED_PINCHING", info);
+};
 
 const onPinch: TLPinchEventHandler = (info, e) => {
-  machine.send('PINCHED', info)
-}
+  machine.send("PINCHED", info);
+};
 
 const onPinchEnd: TLPinchEventHandler = (info, e) => {
-  machine.send('STOPPED_PINCHING', info)
-}
+  machine.send("STOPPED_PINCHING", info);
+};
 
 const onZoom: TLWheelEventHandler = (info, e) => {
-  machine.send('ZOOM_BY', info)
-}
+  machine.send("ZOOM_BY", info);
+};
 
 const onPointBoundsHandle: TLPinchEventHandler = (info, e) => {
-  machine.send('POINTED_BOUNDS_HANDLE', info)
-}
+  machine.send("POINTED_BOUNDS_HANDLE", info);
+};
 
 const onBoundsChange = (bounds: TLBounds) => {
-  machine.send('RESIZED', { bounds })
-}
-
-const onKeyDown: TLKeyboardEventHandler = (key, info, e) => {
-  switch (key) {
-    case 'Alt':
-    case 'Meta':
-    case 'Control':
-    case 'Shift': {
-      machine.send('TOGGLED_MODIFIER', info)
-      break
-    }
-    case 'Backspace': {
-      machine.send('DELETED', info)
-      break
-    }
-    case 'Escape': {
-      machine.send('CANCELLED', info)
-      break
-    }
-    case '0': {
-      machine.send('ZOOMED_TO_ACTUAL', info)
-      break
-    }
-    case '1': {
-      machine.send('ZOOMED_TO_FIT', info)
-      break
-    }
-    case '2': {
-      machine.send('ZOOMED_TO_SELECTION', info)
-      break
-    }
-    case '=': {
-      if (info.metaKey || info.ctrlKey) {
-        e.preventDefault()
-        machine.send('ZOOMED_IN', info)
-      }
-      break
-    }
-    case '-': {
-      if (info.metaKey || info.ctrlKey) {
-        e.preventDefault()
-        machine.send('ZOOMED_OUT', info)
-      }
-      break
-    }
-    case 's':
-    case 'v': {
-      machine.send('SELECTED_TOOL', { name: 'select' })
-      break
-    }
-    case 'r':
-    case 'b': {
-      machine.send('SELECTED_TOOL', { name: 'box' })
-      break
-    }
-    case 'd': {
-      machine.send('SELECTED_TOOL', { name: 'pencil' })
-      break
-    }
-    case 'e': {
-      machine.send('SELECTED_TOOL', { name: 'eraser' })
-      break
-    }
-    case 'a': {
-      if (info.metaKey || info.ctrlKey) {
-        machine.send('SELECTED_ALL')
-        e.preventDefault()
-      } else {
-        machine.send('SELECTED_TOOL', { name: 'arrow' })
-      }
-      break
-    }
-    case 'z': {
-      if (info.metaKey || info.ctrlKey) {
-        if (info.shiftKey) {
-          machine.send('REDO')
-        } else {
-          machine.send('UNDO')
-        }
-      }
-      break
-    }
-  }
-}
-
-const onKeyUp: TLKeyboardEventHandler = (key, info, e) => {
-  switch (key) {
-    case 'Alt':
-    case 'Meta':
-    case 'Control':
-    case 'Shift': {
-      machine.send('TOGGLED_MODIFIER', info)
-      break
-    }
-  }
-}
+  machine.send("RESIZED", { bounds });
+};
 
 interface AppProps {
   onMount?: (api: Api) => void;
   proofTree?: ProofTree;
 }
 
-function toGoodFormat(s: { type: string; v: string }[]): string[] {
-  // forall eps, forall eps > 0 - should go to -> forall eps > 0
-  let currentType = 'dd'
-  let buffer: string[] = []
-  const res: string[] = []
-  function flush() {
-    if (buffer.length) {
-      // If it starts with introduction, but follow with condition - remove it, e.g. forall eps : Nat
-      if (buffer.length > 1 && buffer[0].match(/^\p{L}($| : )/u)) {
-        buffer = buffer.slice(1)
-      }
-      res.push(currentType + buffer.join(' '))
-    }
-  }
-  for (const { type, v } of s) {
-    if (type == currentType) {
-      buffer.push(v)
-    } else {
-      flush()
-      buffer = [v]
-      currentType = type
-    }
-  }
-  flush()
-  return res
-}
-
-let lastId = 0
+let lastId = 0;
 
 export default function App({ onMount }: AppProps) {
-  const appState = useStateDesigner(machine)
+  const appState = useStateDesigner(machine);
 
   React.useEffect(() => {
-    const engine = Engine.create()
-    engine.gravity = { x: 0, y: 0, scale: 1 }
-    Runner.run(engine)
+    const engine = Engine.create();
+    engine.gravity = { x: 0, y: 0, scale: 1 };
+    Runner.run(engine);
 
-    const utils = getShapeUtils('node')
-    const canvas = document.getElementsByClassName('tl-canvas')
+    const utils = getShapeUtils("node");
+    const canvas = document.getElementsByClassName("tl-canvas");
 
     const render = Render.create({
-      canvas: document.getElementById('mcanvas') as HTMLCanvasElement,
+      canvas: document.getElementById("mcanvas") as HTMLCanvasElement,
       engine,
-      options: { wireframeBackground: 'transparent' },
-    })
+      options: { wireframeBackground: "transparent" },
+    });
     function setRenderSize() {
-      render.options.width = window.innerWidth
-      render.options.height = window.innerHeight
-      render.canvas.width = window.innerWidth
-      render.canvas.height = window.innerHeight
+      render.options.width = window.innerWidth;
+      render.options.height = window.innerHeight;
+      render.canvas.width = window.innerWidth;
+      render.canvas.height = window.innerHeight;
     }
-    setRenderSize()
-    window.addEventListener('resize', setRenderSize)
+    setRenderSize();
+    window.addEventListener("resize", setRenderSize);
 
-    const FUNCTION_CATEGORY = 0b1
-    const OBJECT_CATEGORY = 0b10
-    const MOUSE_CATEGORY = 0b100
+    const FUNCTION_CATEGORY = 0b1;
+    const OBJECT_CATEGORY = 0b10;
+    const MOUSE_CATEGORY = 0b100;
 
-    Render.run(render)
-    const mouse = Mouse.create(canvas[0] as HTMLElement)
-    const constraint = MouseConstraint.create(engine, { mouse })
-    constraint.collisionFilter.category = MOUSE_CATEGORY
-    World.add(engine.world, constraint)
-    Events.on(constraint, 'startdrag', (e) => {
-      e.body.collisionFilter.mask = ~0 ^ FUNCTION_CATEGORY
-    })
-    Events.on(constraint, 'enddrag', (e) => {
-      e.body.collisionFilter.mask = ~0
-    })
-    Events.on(engine, 'afterUpdate', () => {
-      const { point, zoom } = appState.data.pageState.camera
-      render.options.hasBounds = true
-      render.bounds.min.x = -point[0]
-      render.bounds.min.y = -point[1]
-      render.bounds.max.x = render.bounds.min.x + window.innerWidth / zoom
-      render.bounds.max.y = render.bounds.min.y + window.innerHeight / zoom
-      constraint.mouse.offset = { x: -point[0], y: -point[1] }
-      constraint.mouse.scale = { x: 1 / zoom, y: 1 / zoom }
+    Render.run(render);
+    const mouse = Mouse.create(canvas[0] as HTMLElement);
+    const constraint = MouseConstraint.create(engine, { mouse });
+    constraint.collisionFilter.category = MOUSE_CATEGORY;
+    World.add(engine.world, constraint);
+    Events.on(constraint, "startdrag", (e) => {
+      e.body.collisionFilter.mask = ~0 ^ FUNCTION_CATEGORY;
+    });
+    Events.on(constraint, "enddrag", (e) => {
+      e.body.collisionFilter.mask = ~0;
+    });
+    Events.on(engine, "afterUpdate", () => {
+      const { point, zoom } = appState.data.pageState.camera;
+      render.options.hasBounds = true;
+      render.bounds.min.x = -point[0];
+      render.bounds.min.y = -point[1];
+      render.bounds.max.x = render.bounds.min.x + window.innerWidth / zoom;
+      render.bounds.max.y = render.bounds.min.y + window.innerHeight / zoom;
+      constraint.mouse.offset = { x: -point[0], y: -point[1] };
+      constraint.mouse.scale = { x: 1 / zoom, y: 1 / zoom };
       if (appState.data.overlays.eraseLine.length > 0) {
-        constraint.collisionFilter.mask = 0
+        constraint.collisionFilter.mask = 0;
       } else {
-        constraint.collisionFilter.mask = ~0
+        constraint.collisionFilter.mask = ~0;
       }
-    })
+    });
 
     // const tick = () => {
     //   const shapes = Object.values(appState.data.page.shapes)
@@ -462,11 +196,11 @@ export default function App({ onMount }: AppProps) {
     // return () => {
     //   clearInterval(int)
     // }
-  }, [])
+  }, []);
 
   React.useEffect(() => {
-    const api = new Api(appState)
-    onMount?.(api)
+    const api = new Api(appState);
+    onMount?.(api);
     window["api"] = api;
     // antonkov: Extremely weird, but without another setInterval before setupStuff interval would only be called once
     setInterval(() => console.log("Super weird"), 100 * 1000 * 1000);
@@ -493,22 +227,25 @@ export default function App({ onMount }: AppProps) {
     }
     const int = setInterval(() => setupStuff(), 200);
     return () => clearInterval(int);
-  }, [])
+  }, []);
 
-  const hideBounds = appState.isInAny('transformingSelection', 'translating', 'creating')
+  const hideBounds = appState.isInAny(
+    "transformingSelection",
+    "translating",
+    "creating"
+  );
 
-  const firstShapeId = appState.data.pageState.selectedIds[0]
-  const firstShape = firstShapeId ? appState.data.page.shapes[firstShapeId] : null
-  const hideResizeHandles = firstShape
-    ? appState.data.pageState.selectedIds.length === 1 &&
-    (shapeUtils[firstShape.type] as any).hideResizeHandles
-    : false
-
-  const numGhosts = Object.values(appState.data.page.shapes).filter((s) => s.isGhost).length
+  const numGhosts = Object.values(appState.data.page.shapes).filter(
+    (s) => s.isGhost
+  ).length;
 
   return (
     <AppContainer>
-      <canvas id="mcanvas" className="tl-overlay" style={{ zIndex: 200 }}></canvas>
+      <canvas
+        id="mcanvas"
+        className="tl-overlay"
+        style={{ zIndex: 200 }}
+      ></canvas>
       <Renderer
         shapeUtils={shapeUtils} // Required
         page={appState.data.page} // Required
@@ -532,22 +269,15 @@ export default function App({ onMount }: AppProps) {
         onPinch={onPinch}
         onPointerUp={onPointerUp}
         onBoundsChange={onBoundsChange}
-        onKeyDown={onKeyDown}
-        onKeyUp={onKeyUp}
         onZoom={onZoom}
         hideBounds={hideBounds}
         hideHandles={hideBounds}
-        hideResizeHandles={hideResizeHandles}
+        hideResizeHandles={true}
         hideIndicators={hideBounds}
         hideBindingHandles={true}
       />
-      <Toolbar
-        activeStates={appState.active}
-        lastEvent={appState.data.pageState.camera.zoom + ''}
-      />
-      <TitleLinks />
     </AppContainer>
-  )
+  );
 }
 
 const AppContainer = styled('div', {
