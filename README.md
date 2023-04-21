@@ -37,13 +37,11 @@ Now, you would usually want to develop the extension in the browser, there is ju
 
 First, do `cd widget` and run `yarn install`. Then:
 
-- `yarn run watchBrowser` - this compiles the browser app.
-- `node server.cjs` - this starts the node server that
+- `yarn run watchBrowser` - this compiles both the browser app and the reduced version of the vscode extension (this reduced version just sends `InfoTree`s to our node server as you hover over the lines in a proof).
+- `node server.cjs` - this starts the node server that 1. memorizes the `InfoTree` information that the browser app then queries 2. renders the browser app at http://localhost:3000..
+- `node server.cjs` - this starts the node server that:
   1. memorizes the `InfoTree` information which widget sends and the browser app later queries
   2. renders the browser app at http://localhost:3000.
-- `yarn run buildExtension` - this builds the VsCode extension once - we need this because someone needs to send the `InfoTree` information to `server.cjs`. If you prefer copypasting your `InfoTree`s you can do without it.
-
-With this setup, you don't need to manually rebuild anything (unless you touch `indexExtension.tsx`, which you should need to do rarely if ever).
 
 ### Develop while looking at the VSCode extension
 

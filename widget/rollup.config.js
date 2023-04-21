@@ -69,17 +69,30 @@ export default (cliArgs) => {
   // - we could add it to the browser app via `<script type="module"/>`, but that would require externalizing ["react", "react-dom", "@leanprover/infoview"] somehow and I didn't want to google how to set this up. ALSO we would want 2 separate source files either way - one for browser, `indexBrowser.tsx` (that mounts the react component to out localhost:3000 html page); and one for the vscode extension, `indexExtension.tsx` (that just exports the react component). ALSO - sourcemaps, as described below!
 
   if (cliArgs.configBrowser) {
-    return {
-      input: [`src/indexBrowser.tsx`],
-      output: {
-        dir: "dist",
-        format: "iife",
-        // Hax: apparently setting `global` makes some CommonJS modules work ¯\_(ツ)_/¯
-        intro: "const global = window",
-        sourcemap: true,
+    return [
+      {
+        input: `src/indexBrowser.tsx`, 
+        output: {
+          file: 'dist/indexBrowser.js',
+          format: 'iife',
+          // Hax: apparently setting `global` makes some CommonJS modules work ¯\_(ツ)_/¯
+          intro: "const global = window",
+          sourcemap: true,
+        },
+        plugins
       },
-      plugins,
-    };
+      {
+        input: `src/extensionAsApi.tsx`,
+        output: {
+          file: 'dist/extensionAsApi.js',
+          format: "es",
+          intro: "const global = window",
+          sourcemap: false,
+        },
+        external: ["react", "react-dom", "@leanprover/infoview"],
+        plugins
+      },
+    ]
   } else {
     return {
       input: [`src/indexExtension.tsx`],
