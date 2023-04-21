@@ -467,55 +467,32 @@ export default function App({ onMount }: AppProps) {
   React.useEffect(() => {
     const api = new Api(appState)
     onMount?.(api)
-    window['api'] = api
-    function drawTree() {
-      api.reset()
-      appState.send('CREATE_NODE_SHAPE', {
-        pos: [450, 150],
-        name: 'someName',
-        proofTree,
-      })
-    }
-    // drawTree()
+    window["api"] = api;
+    // antonkov: Extremely weird, but without another setInterval before setupStuff interval would only be called once
+    setInterval(() => console.log("Super weird"), 100 * 1000 * 1000);
     function setupStuff() {
-      fetch('http://localhost:3000/getTypes')
-        .then(response => response.json())
-        .then(res => {
-          const proofTree: ProofTree = res.data
-          const id = Number(res.data.id)
+      fetch("getTypes")
+        .then((response) => response.json())
+        .then((res) => {
+          const proofTree: ProofTree = res.data;
+          const id = Number(res.id);
+          console.log(id);
           if (id > lastId) {
-            api.reset()
-            lastId = id
-            appState.send('CREATE_NODE_SHAPE', {
+            api.reset();
+            lastId = id;
+            appState.send("CREATE_NODE_SHAPE", {
               pos: [450, 150],
-              name: 'someName',
+              name: "someName",
               proofTree,
-            })
-
-            /*            let i = 0
-            for (const hyp of data) {
-              console.log('dbg type', toGoodFormat(hyp.type))
-              for (const name of hyp.names) {
-                if (i < 10) {
-                  appState.send('CREATE_NODE_SHAPE', {
-                    pos: [450 + 150 * i, 150],
-                    name,
-                    type: toGoodFormat(hyp.type),
-                  })
-                  i += 1
-                } else {
-                  break
-                }
-              }
-            }*/
+            });
           }
         })
         .catch((e) => {
-          console.log('dbg Error ', e)
-        })
-      setTimeout(() => setupStuff(), 200)
+          console.log("dbg Error ", e);
+        });
     }
-    setupStuff()
+    const int = setInterval(() => setupStuff(), 200);
+    return () => clearInterval(int);
   }, [])
 
   const hideBounds = appState.isInAny('transformingSelection', 'translating', 'creating')

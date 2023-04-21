@@ -2,25 +2,17 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
-import alias from '@rollup/plugin-alias';
-import path from 'path';
+import path from "path";
 
 const plugins = [
   typescript({
     tsconfig: "./tsconfig.json",
     outputToFilesystem: false,
-    sourceMap: false,
+    sourceMap: true,
   }),
   nodeResolve({
     browser: true,
-    modulePaths: [path.resolve(__dirname, 'node_modules')]
-  }),
-  alias({
-    entries: [
-      { find: 'shapes', replacement: path.resolve(__dirname, 'src/tldraw_stuff/shapes') },
-      { find: 'components', replacement: path.resolve(__dirname, 'src/tldraw_stuff/components') },
-      { find: 'state', replacement: path.resolve(__dirname, 'src/tldraw_stuff/state') },
-    ]
+    modulePaths: [path.resolve(__dirname, "node_modules")],
   }),
   replace({
     "typeof window": JSON.stringify("object"),
@@ -34,7 +26,39 @@ const plugins = [
     // Note: one alternative, https://github.com/FredKSchott/rollup-plugin-polyfill-node
     // does not seem to work.
     ignore: [
-      "process", "events", "stream", "util", "path", "buffer", "querystring", "url", "string_decoder", "punycode", "http", "https", "os", "assert", "constants", "timers", "console", "vm", "zlib", "tty", "domain", "dns", "dgram", "child_process", "cluster", "module", "net", "readline", "repl", "tls", "fs", "crypto", "perf_hooks"
+      "process",
+      "events",
+      "stream",
+      "util",
+      "path",
+      "buffer",
+      "querystring",
+      "url",
+      "string_decoder",
+      "punycode",
+      "http",
+      "https",
+      "os",
+      "assert",
+      "constants",
+      "timers",
+      "console",
+      "vm",
+      "zlib",
+      "tty",
+      "domain",
+      "dns",
+      "dgram",
+      "child_process",
+      "cluster",
+      "module",
+      "net",
+      "readline",
+      "repl",
+      "tls",
+      "fs",
+      "crypto",
+      "perf_hooks",
     ],
   }),
 ];
@@ -54,7 +78,7 @@ export default (cliArgs) => {
         intro: "const global = window",
         sourcemap: true,
       },
-      plugins
+      plugins,
     };
   } else {
     return {
@@ -68,7 +92,7 @@ export default (cliArgs) => {
         sourcemap: false,
       },
       external: ["react", "react-dom", "@leanprover/infoview"],
-      plugins
+      plugins,
     };
-  };
+  }
 };

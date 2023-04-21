@@ -85,9 +85,5 @@ structure PaperProofProps where
 def forBrowser := (toJson { kind := "browser" : PaperProofProps})
 #widget ppWidget forBrowser
 
+-- antonkov: For tests go to Example.lean
 -- #widget ppWidget (toJson { kind := "extension" : PaperProofProps})
-
-theorem th : ∀ (N : ℕ), ∃ M, N + N = M := by {
-  intro n
-  exact ⟨ n + n, rfl ⟩
-}

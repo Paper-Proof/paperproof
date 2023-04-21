@@ -8,7 +8,9 @@ const port = 3000
 
 
 // Serve static files from the 'widget/dist' directory
-app.use('/paperProof-widget', express.static(path.join(__dirname, 'dist')));
+app.use("/paperProof-widget", express.static(path.join(__dirname, "dist")));
+// For source maps
+app.use("/src", express.static(path.join(__dirname, "src")));
 
 const allowedOrigins = ['localhost:5431']
 app.use(cors({
