@@ -73,17 +73,21 @@ def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) :
       return "No top level type"
 
 @[widget]
-def ppWidget: UserWidgetDefinition := {
+def paperProofApi: UserWidgetDefinition := {
+  name := "Paper proof API"
+  javascript:= include_str "widget" / "dist" / "extensionAsApi.js"
+}
+
+@[widget]
+def paperProof: UserWidgetDefinition := {
   name := "Paper proof"
   javascript:= include_str "widget" / "dist" / "indexExtension.js"
 }
 
-structure PaperProofProps where
-  kind : String
-  deriving ToJson, FromJson, Inhabited
+-- Use this if you want to look at localhost:3000
+#widget paperProofApi .null
 
-def forBrowser := (toJson { kind := "browser" : PaperProofProps})
-#widget ppWidget forBrowser
+-- Use this if you want to look at VSCode webview
+-- #widget paperProof .null
 
 -- antonkov: For tests go to Example.lean
--- #widget ppWidget (toJson { kind := "extension" : PaperProofProps})
