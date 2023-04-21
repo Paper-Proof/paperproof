@@ -7,7 +7,7 @@ import PaperProof
 
 import Lean
 
-#widget ppWidget forBrowser
+#widget paperProofApi .null
 
 theorem mini_example : true = true := by
   have ⟨a, b⟩: ∃ c, c = 2 := by sorry
