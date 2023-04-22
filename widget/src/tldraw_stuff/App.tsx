@@ -19,10 +19,8 @@ import {
   World,
 } from 'matter-js'
 import * as React from 'react'
-import { ProofTree } from 'shapes/node'
-import { createNodeShape } from 'state/actions'
-import { Api } from 'state/api'
-import { mutables } from 'state/mutables'
+import { ProofTree } from "shapes/node";
+import { Api } from "state/api";
 import styled from "./stitches.config";
 import { getShapeUtils, shapeUtils } from "./shapes";
 import { machine } from "./state/machine";
@@ -212,13 +210,15 @@ export default function App({ onMount }: AppProps) {
           const id = Number(res.id);
           console.log(id);
           if (id > lastId) {
-            api.reset();
-            lastId = id;
-            appState.send("CREATE_NODE_SHAPE", {
-              pos: [450, 150],
-              name: "someName",
+            api.selectAll();
+            api.delete();
+            api.createShapes({
+              type: "node",
+              id: "proofTree",
+              point: [450, 150],
               proofTree,
             });
+            lastId = id;
           }
         })
         .catch((e) => {
@@ -228,16 +228,6 @@ export default function App({ onMount }: AppProps) {
     const int = setInterval(() => setupStuff(), 200);
     return () => clearInterval(int);
   }, []);
-
-  const hideBounds = appState.isInAny(
-    "transformingSelection",
-    "translating",
-    "creating"
-  );
-
-  const numGhosts = Object.values(appState.data.page.shapes).filter(
-    (s) => s.isGhost
-  ).length;
 
   return (
     <AppContainer>
@@ -270,10 +260,7 @@ export default function App({ onMount }: AppProps) {
         onPointerUp={onPointerUp}
         onBoundsChange={onBoundsChange}
         onZoom={onZoom}
-        hideBounds={hideBounds}
-        hideHandles={hideBounds}
         hideResizeHandles={true}
-        hideIndicators={hideBounds}
         hideBindingHandles={true}
       />
     </AppContainer>

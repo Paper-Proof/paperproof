@@ -19,19 +19,10 @@ export const machine = createState({
     ZOOMED_OUT: "zoomOut",
     ZOOM_BY: "zoomBy",
     RESIZED: "setViewport",
-    RESET: {
-      do: "loadNewDocument",
-      to: "select.idle",
-    },
-    LOADED_DOCUMENT: {
-      do: "loadDocument",
-      to: "select.idle",
-    },
     // These events are called from the API only, see api.ts
     CREATED_SHAPES: ["createShapes", "addToHistory"],
     UPDATED_SHAPES: ["updateShapes", "addToHistory"],
     DELETED_SHAPES: ["deleteShapes", "addToHistory"],
-    CREATE_NODE_SHAPE: ["createNodeShape", "addToHistory"],
     APPLY_FORCES: ["applyForces", "addToHistory"],
   },
   initial: "select",
@@ -39,7 +30,7 @@ export const machine = createState({
     node: {
       on: {
         STARTED_POINTING: {
-          do: ["createNodeShape", "addToHistory"],
+          do: ["addToHistory"],
           to: "select",
         },
       },
@@ -48,7 +39,7 @@ export const machine = createState({
       initial: "idle",
       states: {
         idle: {
-          onEnter: ["clearPointedShape", "clearPerformanceMode"],
+          onEnter: ["clearPointedShape"],
           on: {
             SELECTED_ALL: "selectAllShapes",
             DESELECTED_ALL: "deselectAllShapes",
@@ -91,17 +82,6 @@ export const machine = createState({
                 },
               },
             },
-            boundsHandle: {
-              on: {
-                MOVED_POINTER: {
-                  if: "hasLeftDeadZone",
-                  to: "transforming",
-                },
-                STOPPED_POINTING: {
-                  to: "select.idle",
-                },
-              },
-            },
             bounds: {
               on: {
                 MOVED_POINTER: {
@@ -134,8 +114,7 @@ export const machine = createState({
           },
         },
         translating: {
-          onEnter: [/*'setSnapInfo', */ "setTranslatePerformanceMode"],
-          onExit: [/*'clearSnapInfo', 'clearSnapLines', */ "clearIsCloning"],
+          onExit: ["clearIsCloning"],
           on: {
             CANCELLED: {
               do: "restoreSnapshot",
@@ -150,38 +129,13 @@ export const machine = createState({
           states: {
             shapes: {
               on: {
-                // Disabled because updates are handled by the physics engine and synced back to shapes
-                // TOGGLED_MODIFIER: ['translateSelectedShapes', 'updateBoundShapes'],
-                // MOVED_POINTER: ['translateSelectedShapes', 'updateBoundShapes'],
-                // PANNED: ['translateSelectedShapes', 'updateBoundShapes'],
+                // Disable for the physics engine
+                TOGGLED_MODIFIER: ["translateSelectedShapes"],
+                MOVED_POINTER: ["translateSelectedShapes"],
+                PANNED: ["translateSelectedShapes"],
               },
             },
             handle: {},
-          },
-        },
-        transforming: {
-          onEnter: [
-            "setSnapInfo",
-            "setInitialCommonBounds",
-            "setTransformPerformanceMode",
-          ],
-          onExit: [
-            "clearSnapInfo",
-            "clearSnapLines",
-            "clearPointedBoundsHandle",
-          ],
-          on: {
-            TOGGLED_MODIFIER: ["transformSelectedShapes"],
-            MOVED_POINTER: ["transformSelectedShapes"],
-            PANNED: ["transformSelectedShapes"],
-            CANCELLED: {
-              do: "restoreSnapshot",
-              to: "select.idle",
-            },
-            STOPPED_POINTING: {
-              do: "addToHistory",
-              to: "select.idle",
-            },
           },
         },
         brushSelecting: {
@@ -195,128 +149,6 @@ export const machine = createState({
             },
             STOPPED_POINTING: {
               to: "select.idle",
-            },
-          },
-        },
-      },
-    },
-    eraser: {
-      initial: "idle",
-      states: {
-        idle: {
-          on: {
-            UNDO: "undo",
-            REDO: "redo",
-            SELECTED_ALL: { do: "selectAllShapes", to: "select" },
-            STARTED_POINTING: {
-              do: "setInitialPoint",
-              to: "eraser.pointing",
-            },
-            CANCELLED: {
-              to: "select",
-            },
-          },
-        },
-        pointing: {
-          on: {
-            MOVED_POINTER: {
-              if: "hasLeftDeadZone",
-              to: "eraser.erasing",
-            },
-            STOPPED_POINTING: {
-              do: ["eraseShapesAtPoint", "addToHistory"],
-              to: "select",
-            },
-          },
-        },
-        erasing: {
-          onEnter: ["setSnapshot"],
-          on: {
-            MOVED_POINTER: "eraseShapes",
-            PANNED: "eraseShapes",
-            CANCELLED: {
-              do: "restoreSnapshot",
-              to: "select",
-            },
-            STOPPED_POINTING: {
-              do: ["eraseGhostShapes", "addToHistory"],
-              to: "eraser.idle",
-            },
-          },
-        },
-      },
-    },
-    pencil: {
-      onEnter: "setTransformPerformanceMode",
-      initial: "idle",
-      states: {
-        idle: {
-          on: {
-            UNDO: "undo",
-            REDO: "redo",
-            SELECTED_ALL: { do: "selectAllShapes", to: "select" },
-            STARTED_POINTING: {
-              do: "setInitialPoint",
-              to: "pencil.creating",
-            },
-            CANCELLED: {
-              to: "select",
-            },
-          },
-        },
-        creating: {
-          onEnter: ["createPencilShape", "setSnapshot"],
-          on: {
-            TOGGLED_MODIFIER: "extendPencilShape",
-            MOVED_POINTER: "extendPencilShape",
-            PANNED: "extendPencilShape",
-            CANCELLED: {
-              do: "deleteSelectedShapes",
-            },
-            STOPPED_POINTING: {
-              do: ["deselectAllShapes", "addToHistory"],
-              to: "pencil.idle",
-            },
-          },
-        },
-      },
-    },
-    box: {
-      onEnter: "setTransformPerformanceMode",
-      initial: "idle",
-      states: {
-        idle: {
-          on: {
-            STARTED_POINTING: {
-              do: "setInitialPoint",
-              to: "box.pointing",
-            },
-          },
-        },
-        pointing: {
-          on: {
-            MOVED_POINTER: {
-              if: "hasLeftDeadZone",
-              to: "box.creating",
-            },
-            STOPPED_POINTING: {
-              to: "box.idle",
-            },
-          },
-        },
-        creating: {
-          onEnter: ["createBoxShape", "setSnapshot"],
-          on: {
-            TOGGLED_MODIFIER: "transformSelectedShapes",
-            MOVED_POINTER: "transformSelectedShapes",
-            PANNED: "transformSelectedShapes",
-            CANCELLED: {
-              do: "deleteSelectedShapes",
-              to: "select",
-            },
-            STOPPED_POINTING: {
-              do: "addToHistory",
-              to: "select",
             },
           },
         },
