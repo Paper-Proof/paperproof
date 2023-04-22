@@ -9,7 +9,6 @@ export const machine = createState({
   data: INITIAL_DATA,
   on: {
     MOVED_POINTER: "updatePointer",
-    SELECTED_TOOL: { to: (_, payload) => payload.name },
     STARTED_POINTING: ["setInitialPoint", "setSnapshot"],
     PANNED: "panCamera",
     PINCHED: "pinchCamera",
@@ -19,7 +18,6 @@ export const machine = createState({
     RESIZED: "setViewport",
     // These events are called from the API only, see api.ts
     CREATED_SHAPES: ["createShapes"],
-    UPDATED_SHAPES: ["updateShapes"],
     DELETED_SHAPES: ["deleteShapes"],
     APPLY_FORCES: ["applyForces"],
   },
