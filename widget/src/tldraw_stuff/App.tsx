@@ -212,12 +212,15 @@ export default function App({ onMount }: AppProps) {
           if (id > lastId) {
             api.selectAll();
             api.delete();
-            api.createShapes({
-              type: "node",
-              id: "proofTree",
-              point: [450, 150],
-              proofTree,
-            });
+            api.createShapes(
+              {
+                type: "node",
+                id: "proofTree",
+                point: [450, 150],
+                proofTree,
+              },
+              { type: "node", point: [100, 100], vars: ["p", "q", "r"] }
+            );
             lastId = id;
           }
         })

@@ -13,8 +13,6 @@ export const machine = createState({
     STARTED_POINTING: ["setInitialPoint", "setSnapshot"],
     PANNED: "panCamera",
     PINCHED: "pinchCamera",
-    ZOOMED_TO_SELECTION: "zoomToSelection",
-    ZOOMED_TO_FIT: "zoomToFit",
     ZOOMED_IN: "zoomIn",
     ZOOMED_OUT: "zoomOut",
     ZOOM_BY: "zoomBy",

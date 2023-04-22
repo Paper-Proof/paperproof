@@ -58,16 +58,6 @@ export class Api {
     return this
   }
 
-  zoomToFit = () => {
-    this.machine.send('ZOOMED_TO_FIT')
-    return this
-  }
-
-  zoomToSelection = () => {
-    this.machine.send('ZOOMED_TO_SELECTION')
-    return this
-  }
-
   zoomIn = () => {
     this.machine.send('ZOOMED_IN')
     return this
