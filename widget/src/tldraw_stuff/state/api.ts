@@ -78,21 +78,6 @@ export class Api {
     return this
   }
 
-  undo = () => {
-    this.machine.send('UNDO')
-    return this
-  }
-
-  redo = () => {
-    this.machine.send('REDO')
-    return this
-  }
-
-  selectTool = (name: string) => {
-    this.machine.send('SELECTED_TOOL', { name })
-    return this
-  }
-
   createShapes = (...shapes: (Partial<Shape> & Pick<Shape, 'type'>)[]) => {
     this.machine.send('CREATED_SHAPES', { shapes })
     return this

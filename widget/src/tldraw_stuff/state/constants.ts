@@ -33,19 +33,14 @@ export const INITIAL_PAGE_STATE: TLPageState = {
 }
 
 export const INITIAL_DATA = {
-  id: 'myDocument',
+  id: "myDocument",
   version: VERSION,
   page: INITIAL_PAGE,
   pageState: INITIAL_PAGE_STATE,
   overlays: {
-    snapLines: [] as TLSnapLine[],
     eraseLine: [] as TLSnapLine,
   },
-  meta: {
-    isDarkMode: false,
-  },
-  performanceMode: undefined as TLPerformanceMode | undefined,
-}
+};
 
 export type AppDocument = {
   id: string

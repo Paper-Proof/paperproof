@@ -20,21 +20,13 @@ export const machine = createState({
     ZOOM_BY: "zoomBy",
     RESIZED: "setViewport",
     // These events are called from the API only, see api.ts
-    CREATED_SHAPES: ["createShapes", "addToHistory"],
-    UPDATED_SHAPES: ["updateShapes", "addToHistory"],
-    DELETED_SHAPES: ["deleteShapes", "addToHistory"],
-    APPLY_FORCES: ["applyForces", "addToHistory"],
+    CREATED_SHAPES: ["createShapes"],
+    UPDATED_SHAPES: ["updateShapes"],
+    DELETED_SHAPES: ["deleteShapes"],
+    APPLY_FORCES: ["applyForces"],
   },
   initial: "select",
   states: {
-    node: {
-      on: {
-        STARTED_POINTING: {
-          do: ["addToHistory"],
-          to: "select",
-        },
-      },
-    },
     select: {
       initial: "idle",
       states: {
@@ -44,17 +36,12 @@ export const machine = createState({
             SELECTED_ALL: "selectAllShapes",
             DESELECTED_ALL: "deselectAllShapes",
             CANCELLED: ["deselectAllShapes"],
-            DELETED: ["deleteSelectedShapes", "addToHistory"],
-            UNDO: "undo",
-            REDO: "redo",
+            DELETED: ["deleteSelectedShapes"],
             HOVERED_SHAPE: "setHoveredShape",
             UNHOVERED_SHAPE: "clearHoveredShape",
             POINTED_CANVAS: [
               {
-                unless: "isPressingShiftKey",
                 do: "setInitialPoint",
-              },
-              {
                 to: "pointing.canvas",
               },
             ],
@@ -77,7 +64,7 @@ export const machine = createState({
               on: {
                 MOVED_POINTER: ["updateEraseLine", "eraseShapes"],
                 STOPPED_POINTING: {
-                  do: ["splitGhostShapes", "clearEraseLine", "addToHistory"],
+                  do: ["splitGhostShapes", "clearEraseLine"],
                   to: "select.idle",
                 },
               },
@@ -114,14 +101,13 @@ export const machine = createState({
           },
         },
         translating: {
-          onExit: ["clearIsCloning"],
           on: {
             CANCELLED: {
               do: "restoreSnapshot",
               to: "select.idle",
             },
             STOPPED_POINTING: {
-              do: ["unwrapGhostShape", "addToHistory"],
+              do: ["unwrapGhostShape"],
               to: "select.idle",
             },
           },
@@ -138,20 +124,6 @@ export const machine = createState({
             handle: {},
           },
         },
-        brushSelecting: {
-          onExit: "clearBrush",
-          on: {
-            TOGGLED_MODIFIER: "updateBrush",
-            MOVED_POINTER: "updateBrush",
-            PANNED: "updateBrush",
-            CANCELLED: {
-              to: "select.idle",
-            },
-            STOPPED_POINTING: {
-              to: "select.idle",
-            },
-          },
-        },
       },
     },
   },
@@ -164,9 +136,6 @@ export const machine = createState({
     },
     shapeIsPointed(data, payload: { target: string }) {
       return mutables.pointedShapeId === payload.target;
-    },
-    isPressingShiftKey(data, payload: { shiftKey: boolean }) {
-      return payload.shiftKey;
     },
   },
   actions, // See actions folder

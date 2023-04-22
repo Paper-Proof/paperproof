@@ -1,2 +1,1 @@
-export * from './clearIsCloning'
-export * from './translateSelectedShapes'
+export * from "./translateSelectedShapes";

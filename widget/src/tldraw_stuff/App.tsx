@@ -231,7 +231,7 @@ export default function App({ onMount }: AppProps) {
 
   return (
     <AppContainer>
-      <canvas
+      <canvas // For rendering what the physics engine sees
         id="mcanvas"
         className="tl-overlay"
         style={{ zIndex: 200 }}
@@ -240,9 +240,6 @@ export default function App({ onMount }: AppProps) {
         shapeUtils={shapeUtils} // Required
         page={appState.data.page} // Required
         pageState={appState.data.pageState} // Required
-        performanceMode={appState.data.performanceMode}
-        meta={appState.data.meta}
-        snapLines={appState.data.overlays.snapLines}
         eraseLine={appState.data.overlays.eraseLine}
         onPointShape={onPointShape}
         onPointBounds={onPointBounds}
