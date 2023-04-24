@@ -38,7 +38,6 @@ Now, you would usually want to develop the extension in the browser, there is ju
 First, do `cd widget` and run `yarn install`. Then:
 
 - `yarn run watchBrowser` - this compiles both the browser app and the reduced version of the vscode extension (this reduced version just sends `InfoTree`s to our node server as you hover over the lines in a proof).
-- `node server.cjs` - this starts the node server that 1. memorizes the `InfoTree` information that the browser app then queries 2. renders the browser app at http://localhost:3000..
 - `node server.cjs` - this starts the node server that:
   1. memorizes the `InfoTree` information which widget sends and the browser app later queries
   2. renders the browser app at http://localhost:3000.
