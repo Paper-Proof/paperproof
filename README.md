@@ -1,6 +1,6 @@
 # Paper proof Lean widget
 
-![Screen Recording 2023-04-15 at 00 22 03](https://user-images.githubusercontent.com/2538570/232170163-3ef1def1-932d-4f4e-ad0e-ffaaffead01a.gif)
+https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD
 
 ## Overview
 
