@@ -6,6 +6,7 @@ import Lean.Data.Options
 import Lean.Widget
 import Mathlib.Tactic.Linarith
 import Parser
+import BetterParser
 
 open Lean
 open Lean Elab
@@ -64,13 +65,8 @@ open Server RequestM in
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
-    let (_, state ) ← (parseTacticProof tree).run default
-    if let some type := getTopLevelType state then
-      let state := {state with types := state.types.insert "top level" type}
-      let fragments := findTree "top level" state
-      return s!"{fragments.toJson}"
-    else
-      return "No top level type"
+    let tactics := parse tree
+    return s!"{tactics.map toJson}"
 
 @[widget]
 def paperProofApi: UserWidgetDefinition := {
