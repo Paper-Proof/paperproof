@@ -65,7 +65,7 @@ open Server RequestM in
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
-    let tactics := parse tree
+    let tactics ← parse tree
     return s!"{tactics.map toJson}"
 
 @[widget]
