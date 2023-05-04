@@ -64,6 +64,7 @@ open Server RequestM in
 @[server_rpc_method]
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
   withWaitFindSnapAtPos params.pos fun snap => do
+    dbg_trace "Start getPpContext"
     let tree := snap.infoTree
     let tactics ← parse tree
     return s!"{tactics.map toJson}"

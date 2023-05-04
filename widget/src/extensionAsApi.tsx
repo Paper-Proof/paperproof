@@ -1,26 +1,26 @@
 import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { EditorContext, RpcContext, useAsync } from "@leanprover/infoview";
-import { Location } from "vscode-languageserver-protocol";
+import { Position } from "vscode-languageserver-protocol";
 
 export default function () {
   const editorConnection = useContext(EditorContext);
   const rs = useContext(RpcContext);
-  const [location, setLocation] = useState<Location | undefined>(undefined);
+  const [position, setPosition] = useState<Position | undefined>(undefined);
   const [serverError, setServerError] = useState(null);
 
   useEffect(() => {
     return editorConnection.events.changedCursorLocation.on((loc) => {
-      setLocation(loc);
+      setPosition(loc?.range.start);
     }).dispose;
   }, [rs]);
 
   const response = useAsync<any>(async () => {
-    if (!location) {
+    if (!position) {
       return Promise.reject();
     }
     const context = await rs.call("getPpContext", {
-      pos: location.range.start,
+      pos: position,
     });
 
     setServerError(null);
@@ -33,7 +33,7 @@ export default function () {
     });
 
     return context;
-  }, [location]);
+  }, [JSON.stringify(position)]);
 
   if (serverError) {
     return <div>Server error: {anyToString(serverError)}</div>;
@@ -47,6 +47,7 @@ export default function () {
     return (
       <section>
         <h2>Just sent this InfoTree to the node server:</h2>
+        <span> Position: {JSON.stringify(position)} </span>
         <pre>
           <code>{response.value}</code>
         </pre>
