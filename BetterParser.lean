@@ -1,9 +1,11 @@
 import Lean.Data.Json
 import Lean.Elab.InfoTree
+import Lean.Elab.Tactic
 import Mathlib.Tactic.Linarith
 
 open Lean
 open Lean.Elab
+open Tactic
 
 structure TacticApplication where
   tacticName : String
@@ -17,7 +19,13 @@ def isUserTactic (t : Syntax) : Bool :=
     true
   else
     false
- 
+
+partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
+  (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
+    match i with
+    | .ofTermInfo ti  => if let .fvar id := ti.expr then some id else none
+    | _ => none 
+
 partial def parse : (infoTree : InfoTree) → IO (List TacticApplication) :=
   go none
 where go
@@ -26,6 +34,7 @@ where go
       let getGoals := fun (goals : List MVarId) (mctx : MetavarContext) =>
         goals.filterMap mctx.findDecl?
             |>.mapM fun decl => do
+          -- do as ppGoal does
           let ppContext := ctx.toPPContext decl.lctx
           return (← ppExprWithInfos ppContext decl.type).fmt.pretty
 
@@ -33,7 +42,7 @@ where go
       if !isUserTactic tInfo.stx then
         let as ← cs.toList.mapM (go <| i.updateContext? ctx)
         return as.join
- 
+      
       match tInfo.stx with
       | `(tactic| apply $_)
       | `(tactic| exact $_)
@@ -41,11 +50,18 @@ where go
       | `(tactic| sorry)
       | `(tactic| linarith)
       | `(tactic| intro $_:ident) =>
+        let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
+          | throw <| IO.userError "tactic applied to no goals"
+        
+        -- Find names to get decls
+        let fvarIds := cs.toList.map (findFVars ctx) |>.join
+        let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
+          
         return [{
           tacticName := s!"{tInfo.stx}",
           goalsBefore := ← getGoals tInfo.goalsBefore tInfo.mctxBefore,
           goalsAfter := ← getGoals tInfo.goalsAfter tInfo.mctxAfter,
-          tacticDependsOn := []
+          tacticDependsOn := fvars.map fun decl => s!"{decl.userName}"
           }]
       | `(tactic| have $name : $_ := $_) =>
         let as ← cs.toList.mapM (go <| i.updateContext? ctx)
