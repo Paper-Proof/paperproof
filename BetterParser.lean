@@ -7,10 +7,25 @@ open Lean
 open Lean.Elab
 open Tactic
 
+structure Hypothesis where
+  username : String
+  type : String
+  value : Option String
+  -- unique identifier for the hypothesis, fvarId
+  id : String
+  deriving Inhabited, ToJson
+
+structure GoalInfo where
+  type : String
+  hyps : List Hypothesis 
+  -- unique identifier for the goal, mvarId
+  id : String
+  deriving Inhabited, ToJson
+
 structure TacticApplication where
   tacticName : String
-  goalsBefore : List String
-  goalsAfter : List String
+  goalsBefore : List GoalInfo
+  goalsAfter : List GoalInfo 
   tacticDependsOn : List String
   deriving Inhabited, ToJson
 
@@ -32,11 +47,22 @@ where go
   | some ctx, .node i cs => do
     if let .ofTacticInfo tInfo := i then
       let getGoals := fun (goals : List MVarId) (mctx : MetavarContext) =>
-        goals.filterMap mctx.findDecl?
-            |>.mapM fun decl => do
-          -- do as ppGoal does
+        goals.mapM fun id => do
+          let some decl := mctx.findDecl? id
+            | throw <| IO.userError "goal decl not found"
           let ppContext := ctx.toPPContext decl.lctx
-          return (← ppExprWithInfos ppContext decl.type).fmt.pretty
+          let hyps ← decl.lctx.foldlM (init := []) (fun acc decl => do
+            if decl.isAuxDecl || decl.isImplementationDetail then
+              return acc
+            let type ← ppExprWithInfos ppContext decl.type
+            let value ← decl.value?.mapM (ppExprWithInfos ppContext)
+            return ({
+              username := decl.userName.toString,
+              type := type.fmt.pretty,
+              value := value.map (·.fmt.pretty), 
+              id := decl.fvarId.name.toString
+              } : Hypothesis) ::acc)
+          return ⟨ (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩ 
 
       -- shortcut if it's not a tactic user wrote
       if !isUserTactic tInfo.stx then
@@ -49,6 +75,7 @@ where go
       | `(tactic| refine $_)
       | `(tactic| sorry)
       | `(tactic| linarith)
+      | `(tactic| rw [$_] at $_)
       | `(tactic| intro $_:ident) =>
         let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
           | throw <| IO.userError "tactic applied to no goals"
