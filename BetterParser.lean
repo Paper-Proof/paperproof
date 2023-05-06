@@ -23,17 +23,11 @@ structure GoalInfo where
   deriving Inhabited, ToJson
 
 structure TacticApplication where
-  tacticName : String
+  tacticString : String
   goalsBefore : List GoalInfo
   goalsAfter : List GoalInfo 
   tacticDependsOn : List String
   deriving Inhabited, ToJson
-
-def isUserTactic (t : Syntax) : Bool :=
-  if let .original .. := t.getHeadInfo then
-    true
-  else
-    false
 
 partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
   (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
@@ -65,9 +59,9 @@ where go
           return ⟨ (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩ 
 
       -- shortcut if it's not a tactic user wrote
-      if !isUserTactic tInfo.stx then
-        let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-        return as.join
+      let some tacticString := tInfo.stx.getSubstring?.map (·.toString.trim)
+        |  let as ← cs.toList.mapM (go <| i.updateContext? ctx)
+           return as.join
       
       match tInfo.stx with
       | `(tactic| apply $_)
@@ -85,7 +79,7 @@ where go
         let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
           
         return [{
-          tacticName := s!"{tInfo.stx}",
+          tacticString,
           goalsBefore := ← getGoals tInfo.goalsBefore tInfo.mctxBefore,
           goalsAfter := ← getGoals tInfo.goalsAfter tInfo.mctxAfter,
           tacticDependsOn := fvars.map fun decl => s!"{decl.userName}"
@@ -93,7 +87,7 @@ where go
       | `(tactic| have $name : $_ := $_) =>
         let as ← cs.toList.mapM (go <| i.updateContext? ctx)
         return {
-          tacticName := s!"have {name}",
+          tacticString := s!"have {name.getId}",
           goalsBefore := ← getGoals tInfo.goalsBefore tInfo.mctxBefore,
           goalsAfter := ← getGoals tInfo.goalsAfter tInfo.mctxAfter,
           tacticDependsOn := []
