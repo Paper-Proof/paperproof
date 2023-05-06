@@ -19,6 +19,10 @@ theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
   exact ⟨ n + n, rfl ⟩ 
 }
 
+example : (a = b) → (b = c) → (c = d)  → (a = d) := by
+  intro ab bc cd
+  rw [ab, bc, cd] 
+
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N
 
@@ -52,7 +56,7 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   apply not_exists.mpr
   intro ⟨n, d, _, coprime⟩ h
   have h₁ : n * n = 2 * d * d:= by
-    rw [Rat.mul_def, ← Rat.normalize_self 2, Rat.normalize_eq_iff] at h
+    rw [← Rat.normalize_self 2, Rat.mul_def, Rat.normalize_eq_iff] at h
     simp at h
     linarith
   rw [← Int.natAbs_mul_self'] at h₁

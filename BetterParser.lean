@@ -64,13 +64,32 @@ where go
            return as.join
       
       match tInfo.stx with
-      | `(tactic| apply $_)
-      | `(tactic| exact $_)
-      | `(tactic| refine $_)
-      | `(tactic| sorry)
-      | `(tactic| linarith)
-      | `(tactic| rw [$_] at $_)
-      | `(tactic| intro $_:ident) =>
+      | `(tactic| have $_:letPatDecl)
+      | `(tactic| have $_ : $_ := $_) =>
+        let as ← cs.toList.mapM (go <| i.updateContext? ctx)
+        return {
+          tacticString := tacticString.splitOn ":=" |>.head!.trim,
+          goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
+          goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
+          tacticDependsOn := []
+          } :: as.join
+      | _ =>
+        let as ← cs.toList.mapM (go <| i.updateContext? ctx) |>.map List.join
+        if !as.isEmpty then
+          -- If it's a tactic combinator, i.e. there are more granular tactics in the subtree,
+          -- we return subtactic results instead.
+          -- However we might need to prettify some results.
+          match tInfo.stx with
+          | `(tactic| rw [$_,*] $(_)?)
+          | `(tactic| rewrite [$_,*] $(_)?) =>
+            let prettify (tStr : String) :=
+              let res := tStr.trim.dropRightWhile (· == ',')
+              -- rw puts final rfl on the "]" token
+              if res == "]" then "rfl" else res
+            return as.map fun a => { a with tacticString := s!"rw {prettify a.tacticString}" }
+          | _ => return as
+
+        -- Otherwise it's tactics like `apply`, `exact`, `simp`, etc.
         let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
           | throw <| IO.userError "tactic applied to no goals"
         
@@ -84,18 +103,6 @@ where go
           goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
           tacticDependsOn := fvars.map fun decl => s!"{decl.userName}"
           }]
-      | `(tactic| have $_:letPatDecl)
-      | `(tactic| have $_ : $_ := $_) =>
-        let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-        return {
-          tacticString := tacticString.splitOn " := " |>.head!,
-          goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
-          goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
-          tacticDependsOn := []
-          } :: as.join
-      | _ =>
-        let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-        return as.join
     else
       let as ← cs.toList.mapM (go <| i.updateContext? ctx)
       return as.join
