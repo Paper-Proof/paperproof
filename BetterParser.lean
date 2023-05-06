@@ -35,29 +35,29 @@ partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
     | .ofTermInfo ti  => if let .fvar id := ti.expr then some id else none
     | _ => none 
 
+def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO (List GoalInfo) := do
+  goals.mapM fun id => do
+    let some decl := mctx.findDecl? id
+      | throw <| IO.userError "goal decl not found"
+    let ppContext := ctx.toPPContext decl.lctx
+    let hyps ← decl.lctx.foldlM (init := []) (fun acc decl => do
+      if decl.isAuxDecl || decl.isImplementationDetail then
+        return acc
+      let type ← ppExprWithInfos ppContext decl.type
+      let value ← decl.value?.mapM (ppExprWithInfos ppContext)
+      return ({
+        username := decl.userName.toString,
+        type := type.fmt.pretty,
+        value := value.map (·.fmt.pretty), 
+        id := decl.fvarId.name.toString
+        } : Hypothesis) ::acc)
+    return ⟨ (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩ 
+
 partial def parse : (infoTree : InfoTree) → IO (List TacticApplication) :=
   go none
 where go
   | some ctx, .node i cs => do
     if let .ofTacticInfo tInfo := i then
-      let getGoals := fun (goals : List MVarId) (mctx : MetavarContext) =>
-        goals.mapM fun id => do
-          let some decl := mctx.findDecl? id
-            | throw <| IO.userError "goal decl not found"
-          let ppContext := ctx.toPPContext decl.lctx
-          let hyps ← decl.lctx.foldlM (init := []) (fun acc decl => do
-            if decl.isAuxDecl || decl.isImplementationDetail then
-              return acc
-            let type ← ppExprWithInfos ppContext decl.type
-            let value ← decl.value?.mapM (ppExprWithInfos ppContext)
-            return ({
-              username := decl.userName.toString,
-              type := type.fmt.pretty,
-              value := value.map (·.fmt.pretty), 
-              id := decl.fvarId.name.toString
-              } : Hypothesis) ::acc)
-          return ⟨ (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩ 
-
       -- shortcut if it's not a tactic user wrote
       let some tacticString := tInfo.stx.getSubstring?.map (·.toString.trim)
         |  let as ← cs.toList.mapM (go <| i.updateContext? ctx)
@@ -80,16 +80,17 @@ where go
           
         return [{
           tacticString,
-          goalsBefore := ← getGoals tInfo.goalsBefore tInfo.mctxBefore,
-          goalsAfter := ← getGoals tInfo.goalsAfter tInfo.mctxAfter,
+          goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
+          goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
           tacticDependsOn := fvars.map fun decl => s!"{decl.userName}"
           }]
-      | `(tactic| have $name : $_ := $_) =>
+      | `(tactic| have $_:letPatDecl)
+      | `(tactic| have $_ : $_ := $_) =>
         let as ← cs.toList.mapM (go <| i.updateContext? ctx)
         return {
-          tacticString := s!"have {name.getId}",
-          goalsBefore := ← getGoals tInfo.goalsBefore tInfo.mctxBefore,
-          goalsAfter := ← getGoals tInfo.goalsAfter tInfo.mctxAfter,
+          tacticString := tacticString.splitOn " := " |>.head!,
+          goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
+          goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
           tacticDependsOn := []
           } :: as.join
       | _ =>
