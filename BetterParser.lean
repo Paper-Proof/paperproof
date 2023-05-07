@@ -63,7 +63,10 @@ where go
   | some ctx, .node i cs => do
     if let .ofTacticInfo tInfo := i then
       -- shortcut if it's not a tactic user wrote
-      let some tacticString := tInfo.stx.getSubstring?.map (·.toString.trim)
+      -- \n trim to avoid empty lines/comments until next tactic,
+      -- especially at the end of theorem it will capture comment for the next one
+      let some tacticString := tInfo.stx.getSubstring?.map
+            (·.toString |>.splitOn "\n" |>.head!.trim)
         |  let as ← cs.toList.mapM (go <| i.updateContext? ctx)
            return as.join
       

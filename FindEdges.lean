@@ -12,7 +12,17 @@ structure SimpleEdge where
 inductive Edge :=
   | simple (e : SimpleEdge)
   | haveDecl (name : String) (edges : List Edge)
-  deriving Inhabited, ToJson
+  deriving Inhabited
+
+partial def toJsonEdge : Edge -> Json
+  | Edge.simple e => toJson e
+  | Edge.haveDecl name edges => Json.mkObj [
+      ("name", toJson name),
+      ("edges", Json.arr $ edges.toArray.map toJsonEdge)]
+
+-- instance ToJson for SimpleEdge
+instance : ToJson Edge where
+  toJson := toJsonEdge
 
 partial def findEdges (steps : List ProofStep) : List Edge :=
   steps.bind (fun s => Id.run do
