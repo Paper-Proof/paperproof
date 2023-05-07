@@ -1,7 +1,6 @@
 import Lean.Data.Json
 import Lean.Elab.InfoTree
 import Lean.Elab.Tactic
-import Mathlib.Tactic.Linarith
 
 open Lean
 open Lean.Elab
@@ -29,6 +28,11 @@ structure TacticApplication where
   tacticDependsOn : List String
   deriving Inhabited, ToJson
 
+inductive ProofStep := 
+  | tacticApp (t : TacticApplication)
+  | haveDecl (name : String) (subSteps : List ProofStep)
+  deriving Inhabited, ToJson
+
 partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
   (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
     match i with
@@ -52,8 +56,8 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
         id := decl.fvarId.name.toString
         } : Hypothesis) ::acc)
     return ⟨ (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩ 
-
-partial def parse : (infoTree : InfoTree) → IO (List TacticApplication) :=
+  
+partial def parse : (infoTree : InfoTree) → IO (List ProofStep) :=
   go none
 where go
   | some ctx, .node i cs => do
@@ -67,12 +71,7 @@ where go
       | `(tactic| have $_:letPatDecl)
       | `(tactic| have $_ : $_ := $_) =>
         let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-        return {
-          tacticString := tacticString.splitOn ":=" |>.head!.trim,
-          goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
-          goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
-          tacticDependsOn := []
-          } :: as.join
+        return [.haveDecl (tacticString.splitOn ":=" |>.head!.trim) as.join]
       | _ =>
         let as ← cs.toList.mapM (go <| i.updateContext? ctx) |>.map List.join
         if !as.isEmpty then
@@ -86,7 +85,10 @@ where go
               let res := tStr.trim.dropRightWhile (· == ',')
               -- rw puts final rfl on the "]" token
               if res == "]" then "rfl" else res
-            return as.map fun a => { a with tacticString := s!"rw {prettify a.tacticString}" }
+            return as.map fun a => 
+              match a with
+              | .tacticApp a => .tacticApp { a with tacticString := s!"rw {prettify a.tacticString}" }
+              | x => x
           | _ => return as
 
         -- Otherwise it's tactics like `apply`, `exact`, `simp`, etc.
@@ -97,7 +99,7 @@ where go
         let fvarIds := cs.toList.map (findFVars ctx) |>.join
         let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
           
-        return [{
+        return [.tacticApp {
           tacticString,
           goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
           goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,

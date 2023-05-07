@@ -7,6 +7,7 @@ import Lean.Widget
 import Mathlib.Tactic.Linarith
 import Parser
 import BetterParser
+import FindEdges
 
 open Lean
 open Lean Elab
@@ -66,7 +67,8 @@ def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) :
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
     let tactics ← parse tree
-    return s!"{tactics.map toJson}"
+    -- return s!"{tactics.map toJson}"
+    return s!"{(findEdges tactics).map toJson}"
 
 @[widget]
 def paperProofApi: UserWidgetDefinition := {

@@ -72,5 +72,3 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   rw [Nat.coprime_iff_gcd_eq_one, h₂, h₃] at coprime
   rw [Nat.gcd_mul_left] at coprime
   apply r _ coprime
-
-#check Nat.noConfusion
