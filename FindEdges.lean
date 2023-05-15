@@ -7,6 +7,7 @@ structure SimpleEdge where
   tacticString : String
   fromNode : String
   toNode : String
+  hypName : Option String
   deriving Inhabited, ToJson
 
 inductive Edge :=
@@ -34,14 +35,16 @@ partial def findEdges (steps : List ProofStep) : List Edge :=
         return [Edge.simple {
           tacticString := t.tacticString,
           fromNode := goalBefore.type,
-          toNode := "⊢"
+          toNode := "⊢",
+          hypName := none
         }]
       return t.goalsAfter.bind fun goalAfter =>
         let betweenGoals : List Edge := if goalBefore.type != goalAfter.type then
         [Edge.simple {
           tacticString := t.tacticString,
           fromNode := goalBefore.type,
-          toNode := goalAfter.type
+          toNode := goalAfter.type,
+          hypName := none
         }] else []
         let hyps := [goalBefore.hyps, goalAfter.hyps].join.map (·.username) |>.eraseDups
         let betweenHyps := hyps.filterMap fun hyp =>
@@ -53,14 +56,16 @@ partial def findEdges (steps : List ProofStep) : List Edge :=
                 some $ .simple {
                   tacticString := t.tacticString,
                   fromNode := hypBefore.type,
-                  toNode := hypAfter.type
+                  toNode := hypAfter.type,
+                  hypName := some hyp
                 }
               else none
           | none, some hypAfter =>
                 some $ .simple {
                   tacticString := t.tacticString,
                   fromNode := "⊢",
-                  toNode := hypAfter.type
+                  toNode := hypAfter.type,
+                  hypName := some hyp
                 }     
           | _, _ => none
         [betweenGoals, betweenHyps].bind id
