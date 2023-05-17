@@ -29,8 +29,7 @@ partial def findEdges (steps : List ProofStep) : List Edge :=
   steps.bind (fun s => Id.run do
     match s with
     | ProofStep.tacticApp t => 
-      let [goalBefore] := t.goalsBefore
-        | panic! "Expected one goal before"
+      let goalBefore := t.goalsBefore.head!
       if t.goalsAfter.isEmpty then
         return [Edge.simple {
           tacticString := t.tacticString,

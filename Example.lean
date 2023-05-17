@@ -23,6 +23,13 @@ example : (a = b) → (b = c) → (c = d)  → (a = d) := by
   intro ab bc cd
   rw [ab, bc, cd] 
 
+theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro
+  exact hp
+  apply And.intro
+  exact hq
+  exact hp
+
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N
 
