@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "watchBrowser": "rollup --environment NODE_ENV:production --config --watch --configBrowser",
-    "watchExtension": "rollup --environment NODE_ENV:production --config --watch --configExtension",
+    "watchInfoview": "rollup --environment NODE_ENV:production --config --watch --configInfoview",
     "buildBrowser": "rollup --environment NODE_ENV:production --config --configBrowser",
-    "buildExtension": "rollup --environment NODE_ENV:production --config --configExtension"
+    "buildInfoview": "rollup --environment NODE_ENV:production --config --configInfoview"
   },
   "main": "index.js",
   "author": "Anton Kovsharov",

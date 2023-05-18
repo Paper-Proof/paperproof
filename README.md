@@ -25,13 +25,14 @@ Later simplified production version will be supported.
 - `Parser.lean` - contains the parser of InfoTree's into internal TreeState format
 - `PaperProof.lean` - defines the widget which constructs a proof tree from the TreeState and sends JSON to the TypeScript code
 - `widget/src/indexBrowser.tsx` - displays the proof tree in the browser at `localhost:3000`.
-- `widget/src/indexExtension.tsx` - sends the tree to the server and displays the proof tree in the VSCode InfoView.
+- `widget/src/indexInfoview.tsx` - TODO: supposed to query Lean server and display the tree in the Lean
+Infoview,
 - `widget/server.cjs` - the Node server that stores and returns our `InfoTree`s; and renders the browser app at `localhost:3000`.
 
 ## Development
 
-PaperProof can run both on in the browser (== on ipad) and as a VSCode extension.  
-Now, you would usually want to develop the extension in the browser, there is just less clicking this way.
+PaperProof runs in the browser (== on ipad).
+It's considered to be running as a Lean Infoview widget as well but not fully supported yet.
 
 ### Develop while looking at the browser [prefferred]
 
@@ -42,11 +43,15 @@ First, do `cd widget` and run `yarn install`. Then:
   1. memorizes the `InfoTree` information which widget sends and the browser app later queries
   2. renders the browser app at http://localhost:3000.
 
-### Develop while looking at the VSCode extension
+### Develop while looking at the Lean Infoview
+
+NOTE: That's not recommended for developement and currently doesn't display anything.
+Lean Infoview allows only a single JS file for the widget but tldraw requires css and assets.
+Since now we use tldraw for rendering - Lean Infoview doesn't display anything.
 
 First, do `cd widget` and run `yarn install`. Then:
 
-- `yarn run watchExtension` - this compiles the VSCode extension.
+- `yarn run watchInfoview` - this compiles the VSCode extension.
 
 That's it. But don't be deceived - every time you update your tldraw code, you will need to execute `lean4.restartFile` from VSCode in the `PaperProof.lean`; and click around a few times. Also - vscode seems to cache stuff? In general - it's a slower development cycle.
 

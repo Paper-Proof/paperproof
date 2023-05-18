@@ -79,7 +79,7 @@ def paperProofApi: UserWidgetDefinition := {
 }
 
 @[widget]
-def paperProof: UserWidgetDefinition := {
+def paperProofLeanInfoview: UserWidgetDefinition := {
   name := "Paper proof"
   javascript:= include_str "widget" / "dist" / "indexExtension.js"
 }
@@ -87,7 +87,11 @@ def paperProof: UserWidgetDefinition := {
 -- Use this if you want to look at localhost:3000
 #widget paperProofApi .null
 
--- Use this if you want to look at VSCode webview
--- #widget paperProof .null
+-- Use this if you want to look at Lean infoview 
+-- antonkov: Currently doesn't work properly and maybe removed altogether later.
+-- If we would want to implement it in infoview it will need to be a single js file
+-- which implies that we can't use tldraw because it needs assets and css to be
+-- served as well.
+-- #widget paperProofLeanInfoview .null
 
 -- antonkov: For tests go to Example.lean
