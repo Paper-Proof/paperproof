@@ -41,5 +41,7 @@ lean_lib PaperProof
 
 lean_lib Example
 lean_lib Parser 
+lean_lib BetterParser
+lean_lib FindEdges 
 
 require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "master"
