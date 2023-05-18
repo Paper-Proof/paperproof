@@ -8,40 +8,40 @@ const port = 3000
 
 
 // Serve static files from the 'widget/dist' directory
-app.use("/paperProof-widget", express.static(path.join(__dirname, "dist")));
+app.use("/", express.static(path.join(__dirname, "dist")));
 // For source maps
 app.use("/src", express.static(path.join(__dirname, "src")));
 
-const allowedOrigins = ['localhost:5431']
-app.use(cors({
-  origin: function (origin, callback) {
-    return callback(null, true);
-    /*if (!origin) return callback(null, true);
+const allowedOrigins = ["localhost:5431"];
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      return callback(null, true);
+      /*if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
     return callback(null, true);*/
-  }
-
-}));
+    },
+  })
+);
 
 app.use(bodyParser.json());
 
 let hyps = [];
 let curId = 1;
 
-app.post('/sendTypes', (req, res) => {
+app.post("/sendTypes", (req, res) => {
   const data = req.body;
   hyps = { data, id: curId++ };
-  console.log('Recieved', data);
+  console.log("Recieved", data);
   res.send(`Recieved ${data}`);
 });
 
-app.get('/getTypes', (req, res) => {
+app.get("/getTypes", (req, res) => {
   res.send(hyps);
 });
-
 
 function getInlineHtmlWithJsTag(jsUrl) {
   const html = `
@@ -49,10 +49,9 @@ function getInlineHtmlWithJsTag(jsUrl) {
     <html>
       <head>
         <meta charset="utf-8">
-        <title>My Page</title>
+        <title>Paper proof</title>
       </head>
       <body>
-        <h1>Hello, world!</h1>
         <div id="root"></div>
         <script src="${jsUrl}"></script>
       </body>
@@ -61,9 +60,8 @@ function getInlineHtmlWithJsTag(jsUrl) {
   return html;
 }
 
-
-app.get('/', (req, res) => {
-  const myJsUrl = '/paperProof-widget/indexBrowser.js'
+app.get("/", (req, res) => {
+  const myJsUrl = "/indexBrowser.js";
   const myHtml = getInlineHtmlWithJsTag(myJsUrl);
   res.send(myHtml);
 });

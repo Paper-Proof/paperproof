@@ -2,9 +2,11 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
+import postcss from "rollup-plugin-postcss";
 import path from "path";
 
 const plugins = [
+  postcss({}),
   typescript({
     tsconfig: "./tsconfig.json",
     outputToFilesystem: false,
@@ -64,38 +66,38 @@ const plugins = [
 ];
 
 export default (cliArgs) => {
-  // lakesare: We're compiling our tldraw code for browser & vscode's extension separately, because:
+  // lakesare: We're compiling our tldraw code for browser & lean infoview separately, because:
   // - vscode expects our code to be a module ({ format: "es" }, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#javascript.statements.import)
-  // - we could add it to the browser app via `<script type="module"/>`, but that would require externalizing ["react", "react-dom", "@leanprover/infoview"] somehow and I didn't want to google how to set this up. ALSO we would want 2 separate source files either way - one for browser, `indexBrowser.tsx` (that mounts the react component to out localhost:3000 html page); and one for the vscode extension, `indexExtension.tsx` (that just exports the react component). ALSO - sourcemaps, as described below!
+  // - we could add it to the browser app via `<script type="module"/>`, but that would require externalizing ["react", "react-dom", "@leanprover/infoview"] somehow and I didn't want to google how to set this up. ALSO we would want 2 separate source files either way - one for browser, `indexBrowser.tsx` (that mounts the react component to out localhost:3000 html page); and one for the lean infoview, `indexInfoview.tsx` (that just exports the react component). ALSO - sourcemaps, as described below!
 
   if (cliArgs.configBrowser) {
     return [
       {
-        input: `src/indexBrowser.tsx`, 
+        input: `src/indexBrowser.tsx`,
         output: {
-          file: 'dist/indexBrowser.js',
-          format: 'iife',
+          file: "dist/indexBrowser.js",
+          format: "iife",
           // Hax: apparently setting `global` makes some CommonJS modules work ¯\_(ツ)_/¯
           intro: "const global = window",
           sourcemap: true,
         },
-        plugins
+        plugins,
       },
       {
         input: `src/extensionAsApi.tsx`,
         output: {
-          file: 'dist/extensionAsApi.js',
+          file: "dist/extensionAsApi.js",
           format: "es",
           intro: "const global = window",
           sourcemap: false,
         },
         external: ["react", "react-dom", "@leanprover/infoview"],
-        plugins
+        plugins,
       },
-    ]
+    ];
   } else {
     return {
-      input: [`src/indexExtension.tsx`],
+      input: [`src/indexInfoview.tsx`],
       output: {
         dir: "dist",
         format: "es",

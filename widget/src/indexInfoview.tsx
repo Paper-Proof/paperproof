@@ -2,7 +2,7 @@ import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { EditorContext, RpcContext, useAsync } from "@leanprover/infoview";
 import { Location } from "vscode-languageserver-protocol";
-import App from "./tldraw_stuff/App";
+// import App from "./tldraw_stuff/App";
 
 export default function () {
   const editorConnection = useContext(EditorContext);
@@ -30,7 +30,11 @@ export default function () {
   } else if (response.state === "rejected") {
     return <div>Error: {anyToString(response.error)}</div>;
   } else {
-    return <App proofTree={JSON.parse(response.value)} />;
+    <div>
+      It will need to draw the tree without tldraw somehow because it has to be
+      a single JS file without any assets (Infoview doesn't serve anything
+      except a single JS file)
+    </div>;
   }
 }
 

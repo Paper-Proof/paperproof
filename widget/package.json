@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "watchBrowser": "rollup --environment NODE_ENV:production --config --watch --configBrowser",
-    "watchExtension": "rollup --environment NODE_ENV:production --config --watch --configExtension",
+    "watchInfoview": "rollup --environment NODE_ENV:production --config --watch --configInfoview",
     "buildBrowser": "rollup --environment NODE_ENV:production --config --configBrowser",
-    "buildExtension": "rollup --environment NODE_ENV:production --config --configExtension"
+    "buildInfoview": "rollup --environment NODE_ENV:production --config --configInfoview"
   },
   "main": "index.js",
   "author": "Anton Kovsharov",
@@ -20,29 +20,27 @@
     "@types/matter-js": "^0.18.2",
     "@types/react-dom": "^18.0.11",
     "express": "^4.18.2",
+    "postcss": "^8.4.23",
     "rollup": "^2.68.0",
+    "rollup-plugin-postcss": "^4.0.2",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5"
   },
   "dependencies": {
     "@leanprover/infoview": "^0.4.2",
     "@stitches/react": "^1.2.8",
-    "@tldraw/core": "^1.23.2",
-    "@tldraw/intersect": "^1.9.2",
-    "@tldraw/vec": "^1.9.2",
+    "@tldraw/tldraw": "^2.0.0-alpha.12",
     "@types/react": "^18.0.28",
     "axios": "^1.3.5",
     "cors": "^2.8.5",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
     "lodash": "^4.17.21",
-    "matter-js": "^0.19.0",
-    "nanoid": "^4.0.2",
-    "perfect-freehand": "^1.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
-    "state-designer": "^3.0.0",
+    "signia": "^0.1.4",
+    "signia-react": "^0.1.4",
     "url": "^0.11.0"
   }
 }
