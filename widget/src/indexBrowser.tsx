@@ -1,12 +1,19 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import App from "./tldraw_stuff/App";
+import { Tldraw } from "@tldraw/tldraw";
+import "@tldraw/tldraw/editor.css";
+import "@tldraw/tldraw/ui.css";
 
 ReactDOM.render(
   <React.StrictMode>
-    <h1>MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</h1>
-    <h2>And some new stufff!</h2>
-    <App/>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+      }}
+    >
+      <Tldraw />
+    </div>
   </React.StrictMode>,
-  document.getElementById('root')
-)
+  document.getElementById("root")
+);
