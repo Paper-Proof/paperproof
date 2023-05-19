@@ -23,6 +23,99 @@ type NodeLayer = Node[];
 
 type Tree = { nodes: NodeLayer[]; tactics: Tactic[] };
 
+const exampleIntro: Tree = {
+  nodes: [
+    [
+      {
+        text: "A -> B -> C",
+        id: "abc",
+        subNodes: [
+          [
+            { text: "A", id: "a" },
+            { text: "B", id: "b" },
+          ],
+          [{ text: "C", id: "c" }],
+        ],
+      },
+    ],
+  ],
+  tactics: [
+    {
+      text: "intros a b",
+      fromNodeIds: [],
+      dependsOnIds: [],
+      toNodeIds: ["a", "b"],
+    },
+    {
+      text: "intros a b",
+      fromNodeIds: ["c"],
+      dependsOnIds: [],
+      toNodeIds: ["abc"],
+    },
+  ],
+};
+
+const exampleSimpleHave: Tree = {
+  nodes: [
+    [
+      {
+        text: "Nat.Prime p",
+        id: "prime",
+        subNodes: [[{ text: "M != 1", id: "m!=1" }]],
+      },
+    ],
+    // `pp` and `prime` nodes can be visually merged when drawing,
+    // we keep it as a 2 separate nodes in the data model to make the code
+    // simper and uniform with the pattern matching version of have.
+    [{ text: "Nat.Prime p", name: "pp", id: "pp" }],
+  ],
+  tactics: [
+    {
+      text: "apply Nat.minFac_prime",
+      fromNodeIds: ["m!=1"],
+      dependsOnIds: [],
+      toNodeIds: ["prime"],
+    },
+    {
+      text: "have pp : Nat.Prime p",
+      fromNodeIds: ["prime"],
+      dependsOnIds: [],
+      toNodeIds: ["pp"],
+    },
+  ],
+};
+
+const exampleHaveWithPattern: Tree = {
+  nodes: [
+    [
+      {
+        text: "∃ d', d = 2 * d'",
+        id: "haveFrame",
+        subNodes: [[{ text: "d = 2 * 0", id: "d=2*0" }]],
+      },
+    ],
+    [
+      { text: "Nat", name: "d'", id: "d'" },
+      { text: "d = 2 * d'", name: "h₃", id: "d=2*d'" },
+    ],
+  ],
+  tactics: [
+    {
+      text: "have ⟨d', h₃⟩ : ∃ d', d = 2 * d'",
+      fromNodeIds: ["haveFrame"],
+      dependsOnIds: [],
+      toNodeIds: ["d'", "d=2*d'"],
+    },
+    {
+      text: "use 0",
+      fromNodeIds: ["d=2*0"],
+      dependsOnIds: [],
+      toNodeIds: ["haveFrame"],
+    },
+  ],
+};
+
+
 const example: Tree = {
   nodes: [
     [
