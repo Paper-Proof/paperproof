@@ -3,6 +3,10 @@
   "displayName": "tactictree",
   "description": "Extension which queries Lean server each time cursor position changes and sends context to the web server",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antonkov/paper-proof"
+  },
   "engines": {
     "vscode": "^1.78.0"
   },

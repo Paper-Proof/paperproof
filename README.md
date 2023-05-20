@@ -9,7 +9,22 @@ Currently working on the readonly milestone allowing to visually explore "tactic
 
 In future potentially with LLMs and visual transformers trying to understand user intent from sketches, formalize to Lean and assist the user. (like in OpenAI GPT 4 demo)
 
-## How to use
+## How to use as VSCode Extension 
+
+1. Install the extension from extension folder
+
+`code --install-extension tactictree-0.0.1.vsix`
+
+2. Run the server
+
+`node widget/server.cjs`
+
+2. Open `Example.lean`
+
+3. Toggle the view with "Toggle Tactic Tree" command (Ctrl+Shift+P) or open in browser on
+http://localhost:3000
+
+## How to use as Lean Infoview widget [old]
 
 https://youtu.be/n7-vmiRPtyQ
 
