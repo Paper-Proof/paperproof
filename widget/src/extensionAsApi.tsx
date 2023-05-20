@@ -2,6 +2,7 @@ import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { EditorContext, RpcContext, useAsync } from "@leanprover/infoview";
 import { Position } from "vscode-languageserver-protocol";
+// TODO: Remove this file and rename widget to App
 
 export default function () {
   const editorConnection = useContext(EditorContext);

@@ -73,13 +73,13 @@ def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) :
 @[widget]
 def paperProofApi: UserWidgetDefinition := {
   name := "Paper proof API"
-  javascript:= include_str "widget" / "dist" / "extensionAsApi.js"
+  javascript:= include_str ".." / "widget" / "dist" / "extensionAsApi.js"
 }
 
 @[widget]
 def paperProofLeanInfoview: UserWidgetDefinition := {
   name := "Paper proof"
-  javascript:= include_str "widget" / "dist" / "indexExtension.js"
+  javascript:= include_str ".." / "widget" / "dist" / "indexExtension.js"
 }
 
 -- Use this if you want to look at localhost:3000

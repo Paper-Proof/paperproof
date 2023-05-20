@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { EditorContext, RpcContext, useAsync } from "@leanprover/infoview";
 import { Location } from "vscode-languageserver-protocol";
 // import App from "./tldraw_stuff/App";
+// TODO: Remove this file and rename widget to App
 
 export default function () {
   const editorConnection = useContext(EditorContext);
