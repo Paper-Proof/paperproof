@@ -176,6 +176,8 @@ const example: Tree = {
 
 export default function Example() {
   const handleMount = (app: App) => {
+    app.updateInstanceState({ isFocusMode: true });
+
     const inBetweenMargin = 20;
     const framePadding = 20;
 
@@ -325,8 +327,12 @@ export default function Example() {
 
     drawNodes(undefined, [0, 0], nodes);
 
-    // Zoom the camera to fit both shapes
-    app.zoomToFit();
+    setTimeout(() => {
+      app.zoomToFit({ duration: 100 });
+    }, 200);
+    addEventListener("resize", (event) => {
+      app.zoomToFit({ duration: 100 });
+    });
   };
 
   return (
