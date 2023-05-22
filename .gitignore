@@ -1,9 +1,8 @@
-build
-lake-packages
-node_modules
-widget/dist
-widget/node_modules
-yarn.lock
+**/build
+**/lake-packages
+**/dist
+**/node_modules
+**/yarn.lock
 .vscode
 .DS_Store
 

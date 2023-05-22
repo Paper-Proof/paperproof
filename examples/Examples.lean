@@ -7,8 +7,6 @@ import PaperProof
 
 import Lean
 
-#widget paperProofApi .null
-
 theorem mini_example : true = true := by
   have ⟨a, b⟩: ∃ c, c = 2 := by sorry
   have ⟨c, d⟩: ∃ e, e = 2 := ⟨2, rfl⟩ 

@@ -1,28 +1,43 @@
-{"version": 4,
- "packagesDir": "lake-packages",
- "packages":
- [{"path": {"name": "tactictree", "dir": "././tactictree"}},
-  {"git":
-   {"url": "https://github.com/leanprover-community/mathlib4",
-    "subDir?": null,
-    "rev": "1f7abb829f7f8aa9fd5bcd2400945f18015006a3",
-    "name": "mathlib",
-    "inputRev?": "master"}},
-  {"git":
-   {"url": "https://github.com/gebner/quote4",
-    "subDir?": null,
-    "rev": "7ae096b232087096ff0243a2b70d32720d2621ae",
-    "name": "Qq",
-    "inputRev?": "master"}},
-  {"git":
-   {"url": "https://github.com/JLimperg/aesop",
-    "subDir?": null,
-    "rev": "071464ac36e339afb7a87640aa1f8121f707a59a",
-    "name": "aesop",
-    "inputRev?": "master"}},
-  {"git":
-   {"url": "https://github.com/leanprover/std4",
-    "subDir?": null,
-    "rev": "5507f9d8409f93b984ce04eccf4914d534e6fca2",
-    "name": "std",
-    "inputRev?": "main"}}]}
+{
+  "version": 4,
+  "packagesDir": "lake-packages",
+  "packages": [
+    {
+      "git": {
+        "url": "https://github.com/leanprover-community/mathlib4",
+        "subDir?": null,
+        "rev": "1f7abb829f7f8aa9fd5bcd2400945f18015006a3",
+        "name": "mathlib",
+        "inputRev?": "master"
+      }
+    },
+    {
+      "git": {
+        "url": "https://github.com/gebner/quote4",
+        "subDir?": null,
+        "rev": "7ae096b232087096ff0243a2b70d32720d2621ae",
+        "name": "Qq",
+        "inputRev?": "master"
+      }
+    },
+    {
+      "git": {
+        "url": "https://github.com/JLimperg/aesop",
+        "subDir?": null,
+        "rev": "071464ac36e339afb7a87640aa1f8121f707a59a",
+        "name": "aesop",
+        "inputRev?": "master"
+      }
+    },
+    {
+      "git": {
+        "url": "https://github.com/leanprover/std4",
+        "subDir?": null,
+        "rev": "5507f9d8409f93b984ce04eccf4914d534e6fca2",
+        "name": "std",
+        "inputRev?": "main"
+      }
+    },
+    { "path": { "name": "PaperProof", "dir": "./../lean" } }
+  ]
+}
