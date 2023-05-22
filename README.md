@@ -27,8 +27,6 @@ code --install-extension extension/tactictree-0.0.1.vsix
 cd app; yarn dev
 ```
 
-2. Open `examples/` folder in VSCode (so Lean works properly)
-
 3. Toggle the view with "Toggle Tactic Tree" command (Ctrl+Shift+P) or open in browser on
 http://localhost:3000
 
@@ -39,7 +37,7 @@ http://localhost:3000
 the proof tree.
 - `extension/` - contains the VSCode extension which queries the Lean server method defined in `lean/` each time the cursor position changes
 and sends the proof tree to the browser app defines in `app/`.
-- `examples/` - contains example theorems and can be used for testing.
+- `Examples.lean` - contains example theorems and can be used for testing.
 
 ## Links
 

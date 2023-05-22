@@ -38,6 +38,6 @@
         "inputRev?": "main"
       }
     },
-    { "path": { "name": "PaperProof", "dir": "./../lean" } }
+    { "path": { "name": "PaperProof", "dir": "./lean" } }
   ]
 }
