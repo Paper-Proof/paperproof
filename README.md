@@ -30,6 +30,11 @@ cd app; yarn dev
 3. Toggle the view with "Toggle Tactic Tree" command (Ctrl+Shift+P) or open in browser on
 http://localhost:3000
 
+## Reload 
+
+As you iterate on code reload the browser page
+or "Toggle Tactic Tree" to hide and show again.
+
 ## Code structure
 
 - `lean/` - defines the custom Lean server method which parses the InfoTree into appropriate format for visualization.
