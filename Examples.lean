@@ -153,3 +153,20 @@ example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
   exact ⟨xt, xs⟩
   
   sorry
+
+theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
+  apply Iff.intro
+  intro h
+  cases h.right
+  exact Or.inl ⟨h.left, ‹q›⟩
+
+  exact Or.inr ⟨h.left, ‹r›⟩
+  intro h
+  cases h
+
+  rename_i hpq
+  exact ⟨hpq.left, Or.inl hpq.right⟩
+
+  rename_i hpr
+  exact ⟨hpr.left, Or.inr hpr.right⟩
+  
