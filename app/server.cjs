@@ -7,8 +7,9 @@ const app = express()
 const port = 3000
 
 
-// Serve static files from the 'widget/dist' directory
+// Serve static files from the 'app/dist' directory
 app.use("/", express.static(path.join(__dirname, "dist")));
+app.use("/", express.static(path.join(__dirname, "assets")));
 // For source maps
 app.use("/src", express.static(path.join(__dirname, "src")));
 

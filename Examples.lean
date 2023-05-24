@@ -8,26 +8,10 @@ import Mathlib.Data.Set.Basic
 
 import Lean
 
-theorem mini_example : true = true := by
-  have ⟨a, b⟩: ∃ c, c = 2 := by sorry
-  have ⟨c, d⟩: ∃ e, e = 2 := ⟨2, rfl⟩ 
-  exact rfl
-
 theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n
   exact ⟨ n + n, rfl ⟩ 
 }
-
-example : (a = b) → (b = c) → (c = d)  → (a = d) := by
-  intro ab bc cd
-  rw [ab, bc, cd] 
-
-theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
-  apply And.intro
-  exact hp
-  apply And.intro
-  exact hq
-  exact hp
 
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N
@@ -79,8 +63,24 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   rw [Nat.gcd_mul_left] at coprime
   apply r _ coprime
 
+theorem mini_example : true = true := by
+  have ⟨a, b⟩: ∃ c, c = 2 := by sorry
+  have ⟨c, d⟩: ∃ e, e = 2 := ⟨2, rfl⟩ 
+  exact rfl
+
+example : (a = b) → (b = c) → (c = d)  → (a = d) := by
+  intro ab bc cd
+  rw [ab, bc, cd] 
+
+theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro
+  exact hp
+  apply And.intro
+  exact hq
+  exact hp
+
 example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
-  intro hello
+  intro hello 
   intro hi
   intro aaa
   cases aaa
