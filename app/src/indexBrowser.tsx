@@ -11,6 +11,7 @@ import {
 } from "@tldraw/tldraw";
 import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
+import { toEdges } from "./converter";
 
 type Node = { text: string; id: string; name?: string; subNodes?: NodeLayer[] };
 type Tactic = {
@@ -22,167 +23,48 @@ type Tactic = {
 
 type NodeLayer = Node[];
 
-type Tree = { nodes: NodeLayer[]; tactics: Tactic[] };
+interface GoalNode {
+  text: string;
+  id: string;
+}
 
-const exampleIntro: Tree = {
-  nodes: [
-    [
-      {
-        text: "A -> B -> C",
-        id: "abc",
-        subNodes: [
-          [
-            { text: "A", id: "a" },
-            { text: "B", id: "b" },
-          ],
-          [{ text: "C", id: "c" }],
-        ],
-      },
-    ],
-  ],
-  tactics: [
-    {
-      text: "intros a b",
-      fromNodeIds: [],
-      dependsOnIds: [],
-      toNodeIds: ["a", "b"],
-    },
-    {
-      text: "intros a b",
-      fromNodeIds: ["c"],
-      dependsOnIds: [],
-      toNodeIds: ["abc"],
-    },
-  ],
-};
+interface HypNode {
+  text: string;
+  name: string;
+  id: string;
+}
 
-const exampleSimpleHave: Tree = {
-  nodes: [
-    [
-      {
-        text: "Nat.Prime p",
-        id: "prime",
-        subNodes: [[{ text: "M != 1", id: "m!=1" }]],
-      },
-    ],
-    // `pp` and `prime` nodes can be visually merged when drawing,
-    // we keep it as a 2 separate nodes in the data model to make the code
-    // simper and uniform with the pattern matching version of have.
-    [{ text: "Nat.Prime p", name: "pp", id: "pp" }],
-  ],
-  tactics: [
-    {
-      text: "apply Nat.minFac_prime",
-      fromNodeIds: ["m!=1"],
-      dependsOnIds: [],
-      toNodeIds: ["prime"],
-    },
-    {
-      text: "have pp : Nat.Prime p",
-      fromNodeIds: ["prime"],
-      dependsOnIds: [],
-      toNodeIds: ["pp"],
-    },
-  ],
-};
+type HypLayer = HypNode[];
 
-const exampleHaveWithPattern: Tree = {
-  nodes: [
-    [
-      {
-        text: "∃ d', d = 2 * d'",
-        id: "haveFrame",
-        subNodes: [[{ text: "d = 2 * 0", id: "d=2*0" }]],
-      },
-    ],
-    [
-      { text: "Nat", name: "d'", id: "d'" },
-      { text: "d = 2 * d'", name: "h₃", id: "d=2*d'" },
-    ],
-  ],
-  tactics: [
-    {
-      text: "have ⟨d', h₃⟩ : ∃ d', d = 2 * d'",
-      fromNodeIds: ["haveFrame"],
-      dependsOnIds: [],
-      toNodeIds: ["d'", "d=2*d'"],
-    },
-    {
-      text: "use 0",
-      fromNodeIds: ["d=2*0"],
-      dependsOnIds: [],
-      toNodeIds: ["haveFrame"],
-    },
-  ],
-};
+interface Window {
+  id: number;
+  parentId: number | null;
+  goalNodes: GoalNode[];
+  hypNodes: HypLayer[];
+}
 
-const example: Tree = {
-  nodes: [
-    [
-      { text: "p", name: "hp", id: "hp" },
-      { text: "q", name: "hq", id: "hq" },
-    ],
-    [
-      { text: "q", id: "q" },
-      { text: "p", id: "p2" },
-    ],
-    [
-      { text: "p", id: "p" },
-      {
-        text: "q ∧ p",
-        id: "qp",
-      },
-    ],
-    [
-      {
-        text: "p ∧ q ∧ p",
-        id: "pqp",
-      },
-    ],
-  ],
-  tactics: [
-    {
-      text: "exact hq",
-      dependsOnIds: ["hq"],
-      fromNodeIds: [],
-      toNodeIds: ["q"],
-    },
-    {
-      text: "exact hp",
-      dependsOnIds: ["hp"],
-      fromNodeIds: [],
-      toNodeIds: ["p"],
-    },
-    {
-      text: "exact hp",
-      dependsOnIds: ["hp"],
-      fromNodeIds: [],
-      toNodeIds: ["p2"],
-    },
-    {
-      text: "apply And.intro",
-      dependsOnIds: [],
-      fromNodeIds: ["q", "p2"],
-      toNodeIds: ["qp"],
-    },
-    {
-      text: "apply And.intro",
-      dependsOnIds: [],
-      fromNodeIds: ["q", "qp"],
-      toNodeIds: ["pqp"],
-    },
-  ],
-};
+interface NewTactic {
+  text: string;
+  dependsOnIds: string[];
+  goalArrows: { fromId: string; toId: string }[];
+  hypArrows: { fromId: string | null; toId: string }[];
+  // hmm
+  isSuccess: boolean | string;
+}
 
-function render(app: App, proofTree: string) {
-  console.log("Handle mount called");
+interface Format {
+  windows: Window[];
+  tactics: NewTactic[];
+}
+
+function render(app: App, proofTree: Format) {
   app.updateInstanceState({ isFocusMode: true });
 
   const inBetweenMargin = 20;
   const framePadding = 20;
 
   type Size = [number, number];
-  const { nodes, tactics } = example;
+  const { tactics } = proofTree;
 
   function vStack(margin: number, ...boxes: Size[]): Size {
     const w = Math.max(...boxes.map((b) => b[0]));
@@ -255,14 +137,7 @@ function render(app: App, proofTree: string) {
 
   function getSize(node: Node): [number, number] {
     const sizes: Size[] = [];
-    const [toValueTactic, fromValueTactic] = getTactics(node, tactics);
-    if (toValueTactic) {
-      sizes.push(getTextSize(toValueTactic.text));
-    }
     sizes.push(getTextSize(node.text));
-    if (fromValueTactic) {
-      sizes.push(getTextSize(fromValueTactic.text));
-    }
     const frameSize: Size = node.subNodes
       ? getFrameSize(node.subNodes)
       : [0, 0];
@@ -285,56 +160,75 @@ function render(app: App, proofTree: string) {
 
   function drawNodes(
     parentId: TLParentId | undefined,
-    [x0, y0]: [number, number],
-    layers: NodeLayer[]
-  ) {
-    let y = y0;
-    for (const layer of layers) {
-      let x = x0;
+    window: Window,
+    format: Format
+  ): Size {
+    let rows: Size[] = [];
+    let y = framePadding;
+    for (const layer of window.hypNodes) {
+      const sizes: Size[] = [];
+      let x = framePadding;
       for (const node of layer) {
-        const sizes: Size[] = [];
-        let dy = 0;
-        const [toValueTactic, fromValueTactic] = getTactics(node, tactics);
-        if (toValueTactic) {
-          const size: Size = drawNode(
-            parentId,
-            toValueTactic.text,
-            [x, y],
-            "tactic"
-          );
-          sizes.push(size);
-          dy += size[1];
-        }
-        const valueSize = drawNode(parentId, node.text, [x, y + dy]);
-        sizes.push(valueSize);
-        dy += valueSize[1];
-        if (fromValueTactic) {
-          const size: Size = drawNode(
-            parentId,
-            fromValueTactic.text,
-            [x, y + dy],
-            "tactic"
-          );
-          sizes.push(size);
-          dy += size[1];
-        }
-
-        x += vStack(0, ...sizes)[0] + inBetweenMargin;
+        // For cases h._@.Examples._hyg.1162
+        const hypName = node.name.split(".")[0];
+        const size: Size = drawNode(parentId, `${hypName}: ${node.text}`, [
+          x,
+          y,
+        ]);
+        sizes.push(size);
+        x += size[0] + inBetweenMargin;
       }
-      y += getTreeSize([layer])[1] + inBetweenMargin;
+      rows.push(hStack(inBetweenMargin, ...sizes));
+      y += hStack(0, ...sizes)[1] + inBetweenMargin;
     }
+    const subWindows = format.windows.filter((w) => w.parentId == window.id);
+    let x = framePadding;
+    const frameSizes: Size[] = [];
+    for (const subWindow of subWindows) {
+      const frameId = app.createShapeId();
+      app.createShapes([
+        {
+          id: frameId,
+          type: "frame",
+          x,
+          y,
+          parentId,
+          props: { name: "F" },
+        },
+      ]);
+      const [w, h] = drawNodes(frameId, subWindow, format);
+      frameSizes.push([w, h]);
+      app.updateShapes([{ id: frameId, type: "frame", props: { w, h } }]);
+      x += w + inBetweenMargin;
+    }
+    if (frameSizes.length > 0) {
+      const frames = hStack(inBetweenMargin, ...frameSizes);
+      rows.push(frames);
+      y += frames[1] + inBetweenMargin;
+    }
+    for (const goalNode of [...window.goalNodes].reverse()) {
+      const goalSize: Size = drawNode(parentId, goalNode.text, [
+        framePadding,
+        y,
+      ]);
+      rows.push(goalSize);
+      y += goalSize[1] + inBetweenMargin;
+    }
+    const size = vStack(inBetweenMargin, ...rows);
+    return [size[0] + 2 * framePadding, size[1] + 2 * framePadding];
   }
 
-  console.log("draw node", proofTree);
-  drawNode(undefined, proofTree, [0, -100]);
-  drawNodes(undefined, [0, 0], nodes);
+  const root = proofTree.windows.find((w) => w.parentId == null);
+  if (root) {
+    drawNodes(undefined, root, proofTree);
+  }
 }
 
-export default function Example({ proofTree }: { proofTree: string | null }) {
+export default function Example({ proofTree }: { proofTree: Format | null }) {
   console.log("Example called");
   const [app, setApp] = useState<App | null>(null);
   if (app) {
-    render(app, proofTree ?? "No value");
+    render(app, proofTree ?? { windows: [], tactics: [] });
   }
   const handleMount = (app: App) => {
     setTimeout(() => {
@@ -361,7 +255,7 @@ export default function Example({ proofTree }: { proofTree: string | null }) {
 let lastId = 0;
 
 function Main() {
-  const [proofTree, setProofTree] = useState<string | null>(null);
+  const [proofTree, setProofTree] = useState<Format | null>(null);
   useEffect(() => {
     function getTypes() {
       fetch("getTypes")
@@ -371,8 +265,8 @@ function Main() {
           const id = Number(res.id);
           if (id > lastId) {
             if (proofTree.length > 0) {
-              console.log(id, proofTree[0].fromNode);
-              setProofTree(proofTree[0].fromNode);
+              console.log(id, proofTree);
+              setProofTree(toEdges(proofTree));
             } else {
               console.log("Empty proof");
             }

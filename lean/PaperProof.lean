@@ -20,5 +20,5 @@ def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) :
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
     let tactics ← parse tree
-    -- return s!"{tactics.map toJson}"
-    return s!"{(findEdges tactics).map toJson}"
+    return s!"{tactics.map toJson}"
+    -- return s!"{(findEdges tactics).map toJson}"

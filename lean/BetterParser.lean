@@ -15,6 +15,7 @@ structure Hypothesis where
   deriving Inhabited, ToJson
 
 structure GoalInfo where
+  username : String
   type : String
   hyps : List Hypothesis 
   -- unique identifier for the goal, mvarId
@@ -55,7 +56,7 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
         value := value.map (·.fmt.pretty), 
         id := decl.fvarId.name.toString
         } : Hypothesis) ::acc)
-    return ⟨ (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩ 
+    return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
   
 partial def parse : (infoTree : InfoTree) → IO (List ProofStep) :=
   go none
@@ -106,7 +107,7 @@ where go
           tacticString,
           goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
           goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
-          tacticDependsOn := fvars.map fun decl => s!"{decl.userName}"
+          tacticDependsOn := fvars.map fun decl => s!"{decl.fvarId.name.toString}"
           }]
     else
       let as ← cs.toList.mapM (go <| i.updateContext? ctx)

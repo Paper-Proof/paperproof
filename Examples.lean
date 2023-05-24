@@ -77,3 +77,17 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   rw [Nat.coprime_iff_gcd_eq_one, h₂, h₃] at coprime
   rw [Nat.gcd_mul_left] at coprime
   apply r _ coprime
+
+example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
+  intro hello
+  intro hi
+  intro aaa
+  cases aaa
+
+  left
+  apply hello
+  assumption
+
+  right
+  apply hi
+  assumption
