@@ -1,12 +1,10 @@
 # Paper proof
 
 <div align="left">
-  <a href="https://www.youtube.com/watch?v=FKni19OCqH0&ab_channel=AntonKovsharov">
-      <img src="https://img.youtube.com/vi/FKni19OCqH0/0.jpg">
+  <a href="https://www.youtube.com/watch?v=_SrJxtdejgQ&ab_channel=AntonKovsharov">
+      <img src="https://img.youtube.com/vi/_SrJxtdejgQ/0.jpg">
   </a>
 </div>
-
-https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD
 
 ## Overview
 
