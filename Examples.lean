@@ -79,20 +79,6 @@ theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
   exact hq
   exact hp
 
-example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
-  intro hello 
-  intro hi
-  intro aaa
-  cases aaa
-
-  left
-  apply hello
-  assumption
-
-  right
-  apply hi
-  assumption
-
 theorem commutativityOfIntersections (s t : Set Nat) : s ∩ t = t ∩ s := by
   ext x
   apply Iff.intro

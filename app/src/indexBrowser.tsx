@@ -180,14 +180,21 @@ function render(app: App, proofTree: Format) {
       const sizes: Size[] = [];
       let x = framePadding;
       for (const node of layer) {
+        const tactic = format.tactics.find((t) =>
+          t.hypArrows.some((a) => a.toId == node.id)
+        );
+        const tacticSize = tactic
+          ? [drawNode(parentId, tactic.text, [x, y], "tactic")]
+          : [];
         // For cases h._@.Examples._hyg.1162
         const hypName = node.name.includes(".")
           ? `${node.name.split(".")[0]}✝`
           : node.name;
-        const size: Size = drawNode(parentId, `${hypName}: ${node.text}`, [
+        const hypSize: Size = drawNode(parentId, `${hypName}: ${node.text}`, [
           x,
-          y,
+          y + vStack(0, ...tacticSize)[1],
         ]);
+        const size = vStack(0, ...tacticSize, hypSize);
         sizes.push(size);
         x += size[0] + inBetweenMargin;
       }
