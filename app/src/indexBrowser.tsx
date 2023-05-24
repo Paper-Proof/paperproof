@@ -53,6 +53,7 @@ interface NewTactic {
   hypArrows: { fromId: string | null; toId: string }[];
   // hmm
   isSuccess: boolean | string;
+  successGoalId?: string;
 }
 
 interface Format {
@@ -75,12 +76,14 @@ function render(app: App, proofTree: Format) {
   const { tactics } = proofTree;
 
   function vStack(margin: number, ...boxes: Size[]): Size {
+    if (boxes.length == 0) return [0, 0];
     const w = Math.max(...boxes.map((b) => b[0]));
     const h = boxes.map((b) => b[1]).reduce((x, y) => x + y);
     return [w, h + (boxes.length - 1) * margin];
   }
 
   function hStack(margin: number, ...boxes: Size[]): Size {
+    if (boxes.length == 0) return [0, 0];
     const w = boxes.map((b) => b[0]).reduce((x, y) => x + y);
     const h = Math.max(...boxes.map((b) => b[1]));
     return [w + (boxes.length - 1) * margin, h];
@@ -178,7 +181,9 @@ function render(app: App, proofTree: Format) {
       let x = framePadding;
       for (const node of layer) {
         // For cases h._@.Examples._hyg.1162
-        const hypName = node.name.split(".")[0];
+        const hypName = node.name.includes(".")
+          ? `${node.name.split(".")[0]}✝`
+          : node.name;
         const size: Size = drawNode(parentId, `${hypName}: ${node.text}`, [
           x,
           y,
@@ -214,14 +219,25 @@ function render(app: App, proofTree: Format) {
       rows.push(frames);
       y += frames[1] + inBetweenMargin;
     }
+    const goals: Size[] = [];
     for (const goalNode of [...window.goalNodes].reverse()) {
+      const tactic = tactics.find(
+        (t) =>
+          t.goalArrows.some((a) => a.fromId == goalNode.id) ||
+          t.successGoalId == goalNode.id
+      );
+      const tacticSize: Size[] = tactic
+        ? [drawNode(parentId, tactic.text, [framePadding, y], "tactic")]
+        : [];
       const goalSize: Size = drawNode(parentId, goalNode.text, [
         framePadding,
-        y,
+        y + vStack(0, ...tacticSize)[1],
       ]);
-      rows.push(goalSize);
-      y += goalSize[1] + inBetweenMargin;
+      const size = vStack(0, ...tacticSize, goalSize);
+      goals.push(size);
+      y += size[1];
     }
+    rows.push(vStack(0, ...goals));
     const size = vStack(inBetweenMargin, ...rows);
     return [size[0] + 2 * framePadding, size[1] + 2 * framePadding];
   }
@@ -273,7 +289,9 @@ function Main() {
           if (id > lastId) {
             if (proofTree.length > 0) {
               console.log(id, proofTree);
-              setProofTree(toEdges(proofTree));
+              const edges = toEdges(proofTree);
+              console.log("Converted", edges);
+              setProofTree(edges);
             } else {
               console.log("Empty proof");
             }
