@@ -60,7 +60,7 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
     }
 
     function getColor(text: string) {
-      const x = hash(text + "ac");
+      const x = hash(text + "coolcolor");
       const h = Math.abs(x * 107) % 360;
       const s = 58 + (x % 18);
       const l = 90 + (h % 5);

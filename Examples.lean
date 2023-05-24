@@ -156,3 +156,8 @@ theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :
   rename_i hpr
   exact ⟨hpr.left, Or.inr hpr.right⟩
   
+example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
+  apply Iff.intro
+  intro h
+  cases h.right
+  exact Or.inl ⟨h.left, ‹q›⟩

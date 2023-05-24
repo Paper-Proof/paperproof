@@ -93,7 +93,7 @@ function render(app: App, proofTree: Format) {
     parentId: TLParentId | undefined,
     text: string,
     [x, y]: [number, number],
-    type: "value" | "tactic" = "value"
+    type: "value" | "tactic" | "redvalue" = "value"
   ): Size => {
     const [w, h] = getSize({ text, id: "aa" });
     app.createShapes([
@@ -109,6 +109,8 @@ function render(app: App, proofTree: Format) {
           h,
           ...(type == "value"
             ? { dash: "draw", fill: "solid", color: "light-green" }
+            : type == "redvalue"
+            ? { dash: "draw", fill: "solid", color: "light-red" }
             : { dash: "dotted", fill: "none", color: "grey" }),
           size: "m",
           text,
@@ -213,7 +215,7 @@ function render(app: App, proofTree: Format) {
           x,
           y,
           parentId,
-          props: { name: subWindow.id.toString() },
+          props: { name: subWindow.goalNodes[0].text },
         },
       ]);
       const [w, h] = drawNodes(frameId, subWindow, format);
@@ -227,6 +229,9 @@ function render(app: App, proofTree: Format) {
       y += frames[1] + inBetweenMargin;
     }
     const goals: Size[] = [];
+    const proved = tactics.some(
+      (t) => t.successGoalId == window.goalNodes[0].id
+    );
     for (const goalNode of [...window.goalNodes].reverse()) {
       const tactic = tactics.find(
         (t) =>
@@ -236,10 +241,12 @@ function render(app: App, proofTree: Format) {
       const tacticSize: Size[] = tactic
         ? [drawNode(parentId, tactic.text, [framePadding, y], "tactic")]
         : [];
-      const goalSize: Size = drawNode(parentId, goalNode.text, [
-        framePadding,
-        y + vStack(0, ...tacticSize)[1],
-      ]);
+      const goalSize: Size = drawNode(
+        parentId,
+        goalNode.text,
+        [framePadding, y + vStack(0, ...tacticSize)[1]],
+        proved ? "value" : "redvalue"
+      );
       const size = vStack(0, ...tacticSize, goalSize);
       goals.push(size);
       y += size[1];
