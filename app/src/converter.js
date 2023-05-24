@@ -1,8 +1,8 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const util = require('util');
+// import { createRequire } from 'module';
+// const require = createRequire(import.meta.url);
+// const util = require('util');
 
-import infoTreeExample from './infoTreeExample.js';
+// import infoTreeExample from './infoTreeExample.js';
 
 const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
@@ -214,5 +214,5 @@ export const toEdges = (infoTreeVast) => {
 }
 
 
-const edges = toEdges(infoTreeExample)
-console.log(util.inspect(edges, { depth: null }));
+// const edges = toEdges(infoTreeExample)
+// console.log(util.inspect(edges, { depth: null }));
