@@ -27,7 +27,7 @@ code --install-extension extension/tactictree-0.0.1.vsix
 cd app; yarn dev
 ```
 
-3. Toggle the view with "Toggle Tactic Tree" command (Ctrl+Shift+P) or open in browser on
+3. Toggle the view with "Tactic Tree: Toggle" command (Ctrl+Shift+P) or open in browser on
 http://localhost:3000
 
 ## Reload 
