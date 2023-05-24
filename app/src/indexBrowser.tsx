@@ -8,10 +8,13 @@ import {
   TEXT_PROPS,
   TLParentId,
   Tldraw,
+  TldrawEditorConfig,
+  toolbarItem,
 } from "@tldraw/tldraw";
 import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
 import { toEdges } from "./converter";
+import { WindowShape } from "./window";
 
 type Node = { text: string; id: string; name?: string; subNodes?: NodeLayer[] };
 type Tactic = {
@@ -56,6 +59,11 @@ interface Format {
   windows: Window[];
   tactics: NewTactic[];
 }
+
+const config = new TldrawEditorConfig({
+  shapes: [WindowShape],
+  allowUnknownShapes: true,
+});
 
 function render(app: App, proofTree: Format) {
   app.updateInstanceState({ isFocusMode: true });
@@ -189,16 +197,16 @@ function render(app: App, proofTree: Format) {
       app.createShapes([
         {
           id: frameId,
-          type: "frame",
+          type: "window",
           x,
           y,
           parentId,
-          props: { name: "F" },
+          props: { name: subWindow.id.toString() },
         },
       ]);
       const [w, h] = drawNodes(frameId, subWindow, format);
       frameSizes.push([w, h]);
-      app.updateShapes([{ id: frameId, type: "frame", props: { w, h } }]);
+      app.updateShapes([{ id: frameId, type: "window", props: { w, h } }]);
       x += w + inBetweenMargin;
     }
     if (frameSizes.length > 0) {
@@ -239,7 +247,6 @@ export default function Example({ proofTree }: { proofTree: Format | null }) {
     });
     setApp(app);
   };
-
   return (
     <div
       style={{
@@ -247,7 +254,7 @@ export default function Example({ proofTree }: { proofTree: Format | null }) {
         inset: 0,
       }}
     >
-      <Tldraw onMount={handleMount}></Tldraw>
+      <Tldraw onMount={handleMount} config={config}></Tldraw>
     </div>
   );
 }
