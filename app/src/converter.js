@@ -8,13 +8,13 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
   let prettyHypArrows = [];
 
-  // 1. Determine what new hypotheses we wanna draw
+  // 1. Determine which hypotheses disappeared and appeared username-wise
   const hypsBeforeUsernames = hypsBefore.map((hyp) => hyp.username);
   const hypsAfterUsernames  = hypsBefore.map((hyp) => hyp.username);
   const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsAfterUsernames.includes(hyp.username));
   const hypsAfterThatAppeared     = hypsAfter.filter((hyp) => !hypsBeforeUsernames.includes(hyp.username));
 
-  // 2. Draw the hypotheses!
+  // 2. Draw them!
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
   if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
     // done :-)
@@ -49,7 +49,7 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
     });
   }
 
-  // 3. Then, independently, draw all the `.type` changes for hyps that stayed the same!
+  // 3. Then, independently, draw all the `.type` changes for hyps that stayed with the same username!
   hypsAfter.forEach((hypAfter) => {
     const hypBeforeWithSameUsername = hypsBefore.find((hypBefore) => hypBefore.username == hypAfter.username);
     if (hypBeforeWithSameUsername && hypBeforeWithSameUsername.type !== hypAfter.type) {
@@ -76,7 +76,6 @@ const getWindowByGoalId = (windows, goalId) => {
   )
 }
 
-
 export const toEdges = (infoTreeVast) => {
   const infoTree = infoTreeVast.map((li) => li.tacticApp.t);
 
@@ -84,12 +83,12 @@ export const toEdges = (infoTreeVast) => {
     windows: [],
     tactics: []
   }
+  let newWindowId = 0;
 
+  // First of all, draw the INITIAL hypotheses and goal.
   const initialMainGoal = infoTree[0].goalsBefore[0];
-  // First of all, draw the INITIAL hypotheses and goals.
-  let newId = 0
   let initialWindow = {
-    id: newId,
+    id: newWindowId,
     parentId: null,
     goalNodes: [
       {
@@ -106,28 +105,20 @@ export const toEdges = (infoTreeVast) => {
     ]
   };
   pretty.windows.push(initialWindow);
-  let currentWindow = initialWindow;
 
   // Then, draw all the other tactics and hypotheses and goals.
   infoTree.forEach((tactic) => {
-    let prettyGoalArrows  = [];
-
     // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
     // Is it fair to assume? So far seems good.
     const mainGoalBefore = tactic.goalsBefore[0];
+    const currentWindow = getWindowByGoalId(pretty.windows, mainGoalBefore.id);
 
-    // 1. Determine what new goals we wanna draw
-    const irrelevantGoalNames = tactic.goalsBefore
-      .filter((goalBefore) =>
-        goalBefore.username !== mainGoalBefore.username
-      )
-      .map((goalBefore) => goalBefore.username);
     const relevantGoalsAfter = tactic.goalsAfter
       .filter((goalAfter) =>
-        !irrelevantGoalNames.includes(goalAfter.username)
+        !tactic.goalsBefore.find((goalBefore) => goalBefore.username === goalAfter.username) ||
+        mainGoalBefore.username === goalAfter.username
       );
 
-    // 2. Draw the goals!
     // - we solved the goal!
     if (relevantGoalsAfter.length === 0) {
       const nextGoal = tactic.goalsAfter[0];
@@ -137,18 +128,18 @@ export const toEdges = (infoTreeVast) => {
         dependsOnIds : tactic.tacticDependsOn,
         goalArrows   : [],
         hypArrows    : [],
+        // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
+        // .dependsOnIds will convey all the information we want to see.
         isSuccess    : nextGoal ? '🎉' : 'For all goals, 🎉!',
         successGoalId: mainGoalBefore.id
       });
-
-      if (nextGoal) {
-        currentWindow = getWindowByGoalId(pretty.windows, nextGoal.id);
-      }
-
-      return;
+    }
     // - we updated the goal!
-    } else if (relevantGoalsAfter.length === 1) { 
+    else if (relevantGoalsAfter.length === 1) { 
       const updatedGoal = relevantGoalsAfter[0];
+
+      // 1. Draw goal nodes and arrows
+      let prettyGoalArrows = [];
       if (mainGoalBefore.type !== updatedGoal.type) {
         currentWindow.goalNodes.push({
           text: updatedGoal.type,
@@ -159,71 +150,61 @@ export const toEdges = (infoTreeVast) => {
           toId: updatedGoal.id
         }];
       }
+
+      // 2. Draw hypothesis nodes and arrows
+      const hypsBefore = mainGoalBefore.hyps;
+      const hypsAfter  = updatedGoal.hyps;
+      let [prettyHypNodes, prettyHypArrows] = drawNewHypotheses(hypsBefore, hypsAfter);
+      if (prettyHypNodes.length > 0) {
+        currentWindow.hypNodes.push(prettyHypNodes);
+      }
+
+      pretty.tactics.push({
+        text         : tactic.tacticString,
+        dependsOnIds : tactic.tacticDependsOn,
+        goalArrows   : prettyGoalArrows,
+        hypArrows    : prettyHypArrows,
+        isSuccess    : false
+      });
+    }
     // - we forked the goal!
-    } else {
-      prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
+    else {
+      // 1. Draw goal nodes and arrows
+      const prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
         fromId: mainGoalBefore.id,
         toId: goal.id
       }));
 
+      const prettyHypArrows = [];
       // We are creating new child windows
-      const childWindows = relevantGoalsAfter.map((goal) => ({
-        id: ++newId,
-        parentId: currentWindow.id,
-        goalNodes: [
-          {
-            text: goal.type,
-            id: goal.id
-          }
-        ],
-        hypNodes: []
-      }));
-      pretty.windows.push(...childWindows)
-      // We are moving into the first of child windows
-      currentWindow = childWindows[0];
-
-      // Sometimes, when we fork the goal, we update other goals' hypotheses too!
-      // For example, `cases (h: P ∨ Q)` would do this.
-      // So - the tactic always works on the current goal; with one exception for when it forks the goals.
-      // So we should call "4. Draw the hypotheses!" per each goal.
-      // TODO
-      // Per each (childGoal, index):
-      // 1. find its newly created window
-      // 2. in that window, draw hypotheses
-      // TODO
-      relevantGoalsAfter.forEach((goalAfter, index) => {
-        // We don't need to do this for the current window - we'll do this below.
-        if (index === 0) return;
-
+      const childWindows = relevantGoalsAfter.map((goal) => {
         const hypsBefore = mainGoalBefore.hyps;
-        const hypsAfter  = goalAfter.hyps;
-        let [prettyHypNodes, prettyHypArrows] = drawNewHypotheses(hypsBefore, hypsAfter);
+        const hypsAfter  = goal.hyps;
+        const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypotheses(hypsBefore, hypsAfter);
+        prettyHypArrows.push(...prettyHypArrowsForAChild);
 
-        if (prettyHypNodes.length > 0) {
-          const childWindow = getWindowByGoalId(pretty.windows, goalAfter.id);
-          childWindow.hypNodes.push(prettyHypNodes);
+        return {
+          id: ++newWindowId,
+          parentId: currentWindow.id,
+          goalNodes: [
+            {
+              text: goal.type,
+              id: goal.id
+            }
+          ],
+          hypNodes: prettyHypNodes.length > 0 ? [prettyHypNodes] : []
         }
       });
+      pretty.windows.push(...childWindows);
+
+      pretty.tactics.push({
+        text         : tactic.tacticString,
+        dependsOnIds : tactic.tacticDependsOn,
+        goalArrows   : prettyGoalArrows,
+        hypArrows    : prettyHypArrows,
+        isSuccess    : false
+      });
     }
-
-    const hypsBefore = tactic.goalsBefore[0].hyps;
-    const hypsAfter  = tactic.goalsAfter[0].hyps;
-    let [prettyHypNodes, prettyHypArrows] = drawNewHypotheses(hypsBefore, hypsAfter);
-
-    if (prettyHypNodes.length > 0) {
-      currentWindow.hypNodes.push(prettyHypNodes);
-    }
-
-    pretty.tactics.push({
-      text         : tactic.tacticString,
-      dependsOnIds : tactic.tacticDependsOn,
-      goalArrows   : prettyGoalArrows,
-      hypArrows    : prettyHypArrows,
-      // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
-      // dependsOnIds will convey all the information we want to see.
-      isSuccess    : false
-    });
-    // TODO write what goal it closes
   })
 
   return pretty
