@@ -147,6 +147,7 @@ export const toEdges = (infoTreeVast) => {
         goalArrows: [],
         hypArrows: [],
         isSuccess: nextGoal ? "🎉" : "For all goals, 🎉!",
+        successGoalId: mainGoalBefore.id
       });
 
       if (nextGoal) {
