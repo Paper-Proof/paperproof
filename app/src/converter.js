@@ -18,8 +18,9 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
   if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
     // done :-)
+  }
   // - if 0 hypotheses disappeared, and X hypotheses appeared, draw { null → id } arrows [many nulls!]
-  } else if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length > 0) {
+  else if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length > 0) {
     const newHypNodes = hypsAfterThatAppeared.map((hyp) => ({
       text: hyp.type,
       name: hyp.username,
@@ -31,14 +32,16 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
       fromId: null,
       toId: hypNode.id
     }));
+  }
   // - if X hypotheses disappeared, and 0 hypotheses appeared, draw { id → null } arrows [many nulls!]
-  } else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
+  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
     prettyHypArrows = hypsBeforeThatDisappeared.map((hyp) => ({
       fromId: hyp.id,
       toId: null
     }));
+  }
   // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
-  } else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
+  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
     hypsBeforeThatDisappeared.forEach((hypBefore) => {
       hypsAfterThatAppeared.forEach((hypAfter) => {
         prettyHypArrows.push({
@@ -168,7 +171,7 @@ export const toEdges = (infoTreeVast) => {
       });
     }
     // - we forked the goal!
-    else {
+    else if (relevantGoalsAfter.length > 1) {
       // 1. Draw goal nodes and arrows
       const prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
         fromId: mainGoalBefore.id,
