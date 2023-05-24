@@ -4,6 +4,7 @@ import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 import Std.Data.Int.Basic
 import PaperProof
+import Mathlib.Data.Set.Basic
 
 import Lean
 
@@ -91,3 +92,64 @@ example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
   right
   apply hi
   assumption
+
+theorem commutativityOfIntersections (s t : Set Nat) : s ∩ t = t ∩ s := by
+  ext x
+  apply Iff.intro
+  intro h1
+  rw [Set.inter_comm]
+  exact h1
+  intro h1
+  rw [Set.inter_comm]
+  exact h1
+
+example : a ∧ b → m ∧ n → a ∧ b := by
+  intro hi
+  intro hello
+  apply And.intro
+  -- cases hi
+  clear hi
+  sorry
+  sorry
+  -- exact hi.left
+
+example (f : Nat → Nat) (a : Nat) (h : a + 0 = 0) : f a = f 0 := by
+  rw [Nat.add_zero] at h
+  rw [h]
+
+example : (a = b) → (b = c) → (c = d)  → (a = d) := by
+  intro ab
+  intro bc
+  intro cd
+  -- rw [ab, bc, cd] 
+  rw [ab]
+  rw [bc]
+  rw [cd]
+
+theorem simple : ∀ (N : ℕ), ∃ M, N + N = M := by
+  intro n
+  use n + n
+
+example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
+  intro hello
+  intro hi
+  intro aaa
+  cases aaa
+  
+  left
+  apply hello
+  assumption
+
+  right
+  apply hi
+  assumption
+
+example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
+  ext x
+  simp only [Set.mem_inter_iff]
+  apply Iff.intro
+  
+  rintro ⟨xs, xt⟩
+  exact ⟨xt, xs⟩
+  
+  sorry
