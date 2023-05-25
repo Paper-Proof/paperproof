@@ -301,9 +301,9 @@ function Main() {
           const proofTree = res.data;
           const id = Number(res.id);
           if (id > lastId) {
-            if (proofTree.length > 0) {
+            if (proofTree.steps.length > 0) {
               console.log(id, proofTree);
-              const edges = toEdges(proofTree);
+              const edges = toEdges(proofTree.steps);
               console.log("Converted", edges);
               setProofTree(edges);
             } else {

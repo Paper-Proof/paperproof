@@ -31,7 +31,9 @@ structure TacticApplication where
 
 inductive ProofStep := 
   | tacticApp (t : TacticApplication)
-  | haveDecl (name : String) (subSteps : List ProofStep)
+  | haveDecl (t: TacticApplication)
+    (initialGoal: String)
+    (subSteps : List ProofStep)
   deriving Inhabited, ToJson
 
 partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
@@ -57,61 +59,76 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
         id := decl.fvarId.name.toString
         } : Hypothesis) ::acc)
     return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
+
+structure Proof where
+  statement : String
+  steps : List ProofStep
+  deriving Inhabited, ToJson 
+
+def getInitialGoal (steps: List ProofStep) : Option String :=
+  let goals := match steps.head? with
+    | .none => []
+    | .some (.tacticApp t) => t.goalsBefore
+    | .some (.haveDecl t _ _) => t.goalsBefore
+  goals.head?.bind fun g => g.type
   
-partial def parse : (infoTree : InfoTree) → IO (List ProofStep) :=
-  go none
+partial def parse (infoTree : InfoTree) : IO Proof := do
+  let steps ← go none infoTree
+  let some statement := getInitialGoal steps 
+    | throw <| IO.userError "initial goal is expected for theorem"
+  return {statement, steps}
 where go
   | some ctx, .node i cs => do
+    let as ← cs.toList.mapM (go <| i.updateContext? ctx) |>.map List.join
     if let .ofTacticInfo tInfo := i then
       -- shortcut if it's not a tactic user wrote
       -- \n trim to avoid empty lines/comments until next tactic,
       -- especially at the end of theorem it will capture comment for the next one
       let some tacticString := tInfo.stx.getSubstring?.map
             (·.toString |>.splitOn "\n" |>.head!.trim)
-        |  let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-           return as.join
+        | return as
+      let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
+        | throw <| IO.userError "tactic applied to no goals"
       
-      match tInfo.stx with
-      | `(tactic| have $_:letPatDecl)
-      | `(tactic| have $_ : $_ := $_) =>
-        let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-        return [.haveDecl (tacticString.splitOn ":=" |>.head!.trim) as.join]
-      | _ =>
-        let as ← cs.toList.mapM (go <| i.updateContext? ctx) |>.map List.join
-        if !as.isEmpty then
-          -- If it's a tactic combinator, i.e. there are more granular tactics in the subtree,
-          -- we return subtactic results instead.
-          -- However we might need to prettify some results.
-          match tInfo.stx with
-          | `(tactic| rw [$_,*] $(_)?)
-          | `(tactic| rewrite [$_,*] $(_)?) =>
-            let prettify (tStr : String) :=
-              let res := tStr.trim.dropRightWhile (· == ',')
-              -- rw puts final rfl on the "]" token
-              if res == "]" then "rfl" else res
-            return as.map fun a => 
-              match a with
-              | .tacticApp a => .tacticApp { a with tacticString := s!"rw {prettify a.tacticString}" }
-              | x => x
-          | _ => return as
-
-        -- Otherwise it's tactics like `apply`, `exact`, `simp`, etc.
-        let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
-          | throw <| IO.userError "tactic applied to no goals"
-        
-        -- Find names to get decls
-        let fvarIds := cs.toList.map (findFVars ctx) |>.join
-        let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
-          
-        return [.tacticApp {
+      -- Find names to get decls
+      let fvarIds := cs.toList.map (findFVars ctx) |>.join
+      let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
+      let tacticApp: TacticApplication := {
           tacticString,
           goalsBefore := ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore,
           goalsAfter := ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter,
           tacticDependsOn := fvars.map fun decl => s!"{decl.fvarId.name.toString}"
-          }]
+          }
+      if as.isEmpty then
+        -- When `as` is non-empty it's a tactic combinator, i.e. there are more granular tactics
+        -- in the subtree. For example `have` with `by` or `rw [a,b]`
+        -- Otherwise it's a tactic like `apply`, `exact`, `simp`, or a simple `have` defined in term mode etc.
+        return [.tacticApp tacticApp]
+      
+      -- It's a tactic combinator
+      match tInfo.stx with
+      -- TODO: can we grab all have's as one pattern match branch?
+      | `(tactic| have $_:letPatDecl)
+      | `(tactic| have $_ : $_ := $_) =>
+        let some initialGoal := getInitialGoal as
+          | throw <| IO.userError "initial goal is expected for have"
+        return [.haveDecl
+                    tacticApp
+                    initialGoal
+                    as]
+      | `(tactic| rw [$_,*] $(_)?)
+      | `(tactic| rewrite [$_,*] $(_)?) =>
+        let prettify (tStr : String) :=
+          let res := tStr.trim.dropRightWhile (· == ',')
+          -- rw puts final rfl on the "]" token
+          if res == "]" then "rfl" else res
+        return as.map fun a => 
+          match a with
+          | .tacticApp a => .tacticApp { a with tacticString := s!"rw {prettify a.tacticString}" }
+          | x => x
+      | _ => return as
     else
-      let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-      return as.join
+      return as
   | none, .node .. => panic! "unexpected context-free info tree node"
   | _, .context ctx t => go ctx t
   | _, .hole .. => pure []

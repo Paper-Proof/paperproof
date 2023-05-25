@@ -20,11 +20,9 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   let p := Nat.minFac M
 
   have pp : Nat.Prime p := by {
-    apply Nat.minFac_prime
-    have fac_pos: 0 < Nat.factorial N := Nat.factorial_pos N
-    linarith
+    sorry
   }
-  have ppos: p ≥ N := by {
+  have ppos: p ≥ N := by
     apply by_contradiction
     intro pln
     have h₁ : p ∣ Nat.factorial N := by  {
@@ -34,7 +32,6 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
     have h₂ : p ∣ Nat.factorial N + 1 := Nat.minFac_dvd M
     have h : p ∣ 1 := (Nat.dvd_add_right h₁).mp $ h₂
     exact Nat.Prime.not_dvd_one pp h
-  }
   exact ⟨ p, ppos, pp ⟩
 
 -- TODO: Parser doesn't work for this theorem yet

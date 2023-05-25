@@ -3,7 +3,6 @@ import Lean.Elab.InfoTree
 import Lean.Data.Options
 import Lean.Widget
 import BetterParser
-import FindEdges
 
 open Lean Elab
 open Lean Meta
@@ -19,6 +18,5 @@ open Server RequestM in
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
-    let tactics ← parse tree
-    return s!"{tactics.map toJson}"
-    -- return s!"{(findEdges tactics).map toJson}"
+    let th ← parse tree
+    return s!"{toJson th}"
