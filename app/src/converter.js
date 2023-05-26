@@ -5,7 +5,6 @@
 // import { infoTreeExample_5 } from './infoTreeExample.js';
 
 let windowId;
-let latestParentWindowId;
 
 const newWindowId = () => {
   return windowId++;
@@ -104,7 +103,7 @@ const addToEquivalentGoalIds = (pretty, beforeId, afterId) => {
   }
 }
 
-const handleTacticApp = (tactic, pretty) => {
+const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const mainGoalBefore = tactic.goalsBefore[0];
@@ -168,6 +167,13 @@ const handleTacticApp = (tactic, pretty) => {
     const hypsBefore = mainGoalBefore.hyps;
     const hypsAfter  = updatedGoal.hyps;
     let [prettyHypNodes, prettyHypArrows] = drawNewHypotheses(hypsBefore, hypsAfter);
+
+    if (haveWindowId) {
+      prettyHypNodes.forEach((hypNode) => {
+        hypNode.haveWindowId = haveWindowId
+      });
+    }
+
     if (prettyHypNodes.length > 0) {
       currentWindow.hypNodes.push(prettyHypNodes);
     }
@@ -255,17 +261,45 @@ const recursive = (subSteps, pretty) => {
       handleTacticApp(subStep.tacticApp.t, pretty);
     } else if (subStep.haveDecl) {
 
-      // 1. handle this `have := ~` as a tactic - this will create the goal, and later we can connect created fvarIds with this window.
-      handleTacticApp(subStep.haveDecl.t, pretty);
+      const haveWindowId = newWindowId();
+
+      // 1. handle this `have hi := ~` as a tactic -
+      // that *will* change the goal, and that's important to record, future tactics will reference it!
+      handleTacticApp(subStep.haveDecl.t, pretty, haveWindowId);
+      // 2. that will also add `hi` as a hypothesis.
+      // Now, we have a hypothesis
+      // 
+      // `h₁: p ∣ Nat.factorial N`
+      // 
+      // and we have a window
+      // 
+      // {
+      //   "haveName": "have h₁ : p ∣ Nat.factorial N := by",
+      //   "id": 5,
+      //   "parentId": 4,
+      //   "parentHypId": 
+      //   "goalNodes": [
+      //     {
+      //       "text": "p ∣ Nat.factorial N",
+      //       "id": "_uniq.1811"
+      //     },
+      //     {
+      //       "text": "p ≤ N",
+      //       "id": "_uniq.1822"
+      //     }
+      //   ],
+      //   "hypNodes": []
+      // }
+      // 
+      // We want to attach this windowId to the hypothesis.
 
       const intitialGoal = getInitialGoal(subStep.haveDecl.subSteps);
 
       const initialWindow = {
-        haveName: subStep.haveDecl.t.tacticString,
-        id: newWindowId(),
+        id: haveWindowId,
         // Parent window is such that has our goalId as a hypothesis.
         // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
-        parentId: latestParentWindowId,
+        parentId: "haveWindow",
         goalNodes: [
           {
             text: intitialGoal.type,
@@ -277,16 +311,13 @@ const recursive = (subSteps, pretty) => {
       };
       pretty.windows.push(initialWindow);
 
-      latestParentWindowId = initialWindow.id;
       recursive(subStep.haveDecl.subSteps, pretty);
-      latestParentWindowId = initialWindow.parentId;
     }
   })
 }
 
 export const toEdges = (infoTreeVast) => {
   windowId = 1;
-  latestParentWindowId = 1;
 
   const pretty = {
     equivalentGoalIds: {},
@@ -301,9 +332,8 @@ export const toEdges = (infoTreeVast) => {
   // Then, draw all the other tactics and hypotheses and goals.
   recursive(infoTreeVast, pretty);
 
-  return pretty
+  return pretty;
 }
-
 
 // const edges = toEdges(infoTreeExample_5)
 // console.log(util.inspect(edges, { depth: null }));
