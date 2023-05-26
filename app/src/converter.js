@@ -221,6 +221,11 @@ const handleTacticApp = (tactic, pretty) => {
 }
 
 const drawInitialGoal = (initialMainGoal, pretty) => {
+  const hypNodes = initialMainGoal.hyps.map((hyp) => ({
+    text: hyp.type,
+    name: hyp.username,
+    id  : hyp.id
+  }));
   const initialWindow = {
     id: newWindowId(),
     parentId: null,
@@ -230,13 +235,7 @@ const drawInitialGoal = (initialMainGoal, pretty) => {
         id  : initialMainGoal.id
       }
     ],
-    hypNodes: [
-      initialMainGoal.hyps.map((hyp) => ({
-        text: hyp.type,
-        name: hyp.username,
-        id  : hyp.id
-      }))
-    ]
+    hypNodes: hypNodes.length > 0 ? [hypNodes] : []
   };
   pretty.windows.push(initialWindow);
 }
