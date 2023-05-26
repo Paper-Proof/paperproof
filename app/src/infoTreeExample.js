@@ -3364,4 +3364,714 @@ const infoTreeExample_3 = [
   }
 ]
 
-export { infoTreeExample_1, infoTreeExample_2, infoTreeExample_3 }
+const infoTreeExample_4 = [
+  {
+    // have hehe : p := by
+    "haveDecl": {
+      "subSteps": [
+        {
+          // have easy : true := by trivial
+          "haveDecl": {
+            "subSteps": [
+              {
+                "tacticApp": {
+                  "t": {
+                    "tacticString": "trivial",
+                    "tacticDependsOn": [],
+                    "goalsBefore": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "true = true",
+                        "id": "_uniq.14662",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "r",
+                            "type": "Prop",
+                            "id": "_uniq.14640"
+                          },
+                          {
+                            "value": null,
+                            "username": "q",
+                            "type": "Prop",
+                            "id": "_uniq.14639"
+                          },
+                          {
+                            "value": null,
+                            "username": "p",
+                            "type": "Prop",
+                            "id": "_uniq.14638"
+                          }
+                        ]
+                      }
+                    ],
+                    "goalsAfter": []
+                  }
+                }
+              }
+            ],
+            "name": "have easy : true"
+          }
+        },
+        {
+          "tacticApp": {
+            "t": {
+              "tacticString": "sorry",
+              "tacticDependsOn": [],
+              "goalsBefore": [
+                {
+                  "username": "[anonymous]",
+                  "type": "p",
+                  "id": "_uniq.14664",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "easy",
+                      "type": "true = true",
+                      "id": "_uniq.14663"
+                    },
+                    {
+                      "value": null,
+                      "username": "r",
+                      "type": "Prop",
+                      "id": "_uniq.14640"
+                    },
+                    {
+                      "value": null,
+                      "username": "q",
+                      "type": "Prop",
+                      "id": "_uniq.14639"
+                    },
+                    {
+                      "value": null,
+                      "username": "p",
+                      "type": "Prop",
+                      "id": "_uniq.14638"
+                    }
+                  ]
+                }
+              ],
+              "goalsAfter": []
+            }
+          }
+        }
+      ],
+      "name": "have hehe : p"
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "sorry",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r",
+            "id": "_uniq.14646",
+            "hyps": [
+              {
+                "value": null,
+                "username": "hehe",
+                "type": "p",
+                "id": "_uniq.14645"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.14640"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.14639"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.14638"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": []
+      }
+    }
+  }
+]
+
+// infinitude of primes, except without lets and {} for now.
+const infoTreeExample_5 = [
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "intro N",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "∀ (N : ℕ), ∃ p, p ≥ N ∧ Nat.Prime p",
+            "id": "_uniq.296",
+            "hyps": []
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "[anonymous]",
+            "type": "∃ p, p ≥ N ∧ Nat.Prime p",
+            "id": "_uniq.298",
+            "hyps": [
+              {
+                "value": null,
+                "username": "N",
+                "type": "ℕ",
+                "id": "_uniq.297"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "haveDecl": {
+      "subSteps": [
+        {
+          "tacticApp": {
+            "t": {
+              "tacticString": "apply Nat.minFac_prime",
+              "tacticDependsOn": [],
+              "goalsBefore": [
+                {
+                  "username": "[anonymous]",
+                  "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                  "id": "_uniq.357",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ],
+              "goalsAfter": [
+                {
+                  "username": "n1",
+                  "type": "Nat.factorial N + 1 ≠ 1",
+                  "id": "_uniq.372",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "haveDecl": {
+            "subSteps": [
+              {
+                "tacticApp": {
+                  "t": {
+                    "tacticString": "exact Nat.factorial_pos N",
+                    "tacticDependsOn": [
+                      "_uniq.297"
+                    ],
+                    "goalsBefore": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "0 < Nat.factorial N",
+                        "id": "_uniq.407",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "N",
+                            "type": "ℕ",
+                            "id": "_uniq.297"
+                          }
+                        ]
+                      }
+                    ],
+                    "goalsAfter": []
+                  }
+                }
+              }
+            ],
+            "name": "have fac_pos: 0 < Nat.factorial N"
+          }
+        },
+        {
+          "tacticApp": {
+            "t": {
+              "tacticString": "linarith",
+              "tacticDependsOn": [],
+              "goalsBefore": [
+                {
+                  "username": "n1",
+                  "type": "Nat.factorial N + 1 ≠ 1",
+                  "id": "_uniq.409",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "fac_pos",
+                      "type": "0 < Nat.factorial N",
+                      "id": "_uniq.408"
+                    },
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ],
+              "goalsAfter": []
+            }
+          }
+        }
+      ],
+      "name": "have pp : Nat.Prime (Nat.minFac (Nat.factorial N + 1))"
+    }
+  },
+  {
+    "haveDecl": {
+      "subSteps": [
+        {
+          "tacticApp": {
+            "t": {
+              "tacticString": "apply by_contradiction",
+              "tacticDependsOn": [],
+              "goalsBefore": [
+                {
+                  "username": "[anonymous]",
+                  "type": "Nat.minFac (Nat.factorial N + 1) ≥ N",
+                  "id": "_uniq.3593",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "pp",
+                      "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                      "id": "_uniq.358"
+                    },
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ],
+              "goalsAfter": [
+                {
+                  "username": "a._@.Mathlib.Logic.Basic._hyg.1241",
+                  "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N → False",
+                  "id": "_uniq.3600",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "pp",
+                      "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                      "id": "_uniq.358"
+                    },
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "tacticApp": {
+            "t": {
+              "tacticString": "intro pln",
+              "tacticDependsOn": [],
+              "goalsBefore": [
+                {
+                  "username": "a._@.Mathlib.Logic.Basic._hyg.1241",
+                  "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N → False",
+                  "id": "_uniq.3600",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "pp",
+                      "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                      "id": "_uniq.358"
+                    },
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ],
+              "goalsAfter": [
+                {
+                  "username": "a._@.Mathlib.Logic.Basic._hyg.1241",
+                  "type": "False",
+                  "id": "_uniq.3602",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "pln",
+                      "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                      "id": "_uniq.3601"
+                    },
+                    {
+                      "value": null,
+                      "username": "pp",
+                      "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                      "id": "_uniq.358"
+                    },
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "haveDecl": {
+            "subSteps": [
+              {
+                "tacticApp": {
+                  "t": {
+                    "tacticString": "apply pp.dvd_factorial.mpr",
+                    "tacticDependsOn": [
+                      "_uniq.358"
+                    ],
+                    "goalsBefore": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N",
+                        "id": "_uniq.3654",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "pln",
+                            "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                            "id": "_uniq.3601"
+                          },
+                          {
+                            "value": null,
+                            "username": "pp",
+                            "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                            "id": "_uniq.358"
+                          },
+                          {
+                            "value": null,
+                            "username": "N",
+                            "type": "ℕ",
+                            "id": "_uniq.297"
+                          }
+                        ]
+                      }
+                    ],
+                    "goalsAfter": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "Nat.minFac (Nat.factorial N + 1) ≤ N",
+                        "id": "_uniq.3665",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "pln",
+                            "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                            "id": "_uniq.3601"
+                          },
+                          {
+                            "value": null,
+                            "username": "pp",
+                            "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                            "id": "_uniq.358"
+                          },
+                          {
+                            "value": null,
+                            "username": "N",
+                            "type": "ℕ",
+                            "id": "_uniq.297"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "tacticApp": {
+                  "t": {
+                    "tacticString": "exact le_of_not_ge pln",
+                    "tacticDependsOn": [
+                      "_uniq.3601"
+                    ],
+                    "goalsBefore": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "Nat.minFac (Nat.factorial N + 1) ≤ N",
+                        "id": "_uniq.3665",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "pln",
+                            "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                            "id": "_uniq.3601"
+                          },
+                          {
+                            "value": null,
+                            "username": "pp",
+                            "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                            "id": "_uniq.358"
+                          },
+                          {
+                            "value": null,
+                            "username": "N",
+                            "type": "ℕ",
+                            "id": "_uniq.297"
+                          }
+                        ]
+                      }
+                    ],
+                    "goalsAfter": []
+                  }
+                }
+              }
+            ],
+            "name": "have h₁ : (Nat.minFac (Nat.factorial N + 1)) ∣ Nat.factorial N"
+          }
+        },
+        {
+          "haveDecl": {
+            "subSteps": [
+              {
+                "tacticApp": {
+                  "t": {
+                    "tacticString": "exact Nat.minFac_dvd (Nat.factorial N + 1)",
+                    "tacticDependsOn": [
+                      "_uniq.297"
+                    ],
+                    "goalsBefore": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N + 1",
+                        "id": "_uniq.3838",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "h₁",
+                            "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N",
+                            "id": "_uniq.3655"
+                          },
+                          {
+                            "value": null,
+                            "username": "pln",
+                            "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                            "id": "_uniq.3601"
+                          },
+                          {
+                            "value": null,
+                            "username": "pp",
+                            "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                            "id": "_uniq.358"
+                          },
+                          {
+                            "value": null,
+                            "username": "N",
+                            "type": "ℕ",
+                            "id": "_uniq.297"
+                          }
+                        ]
+                      }
+                    ],
+                    "goalsAfter": []
+                  }
+                }
+              }
+            ],
+            "name": "have h₂ : (Nat.minFac (Nat.factorial N + 1)) ∣ Nat.factorial N + 1"
+          }
+        },
+        {
+          "haveDecl": {
+            "subSteps": [
+              {
+                "tacticApp": {
+                  "t": {
+                    "tacticString": "exact (Nat.dvd_add_right h₁).mp $ h₂",
+                    "tacticDependsOn": [
+                      "_uniq.3655",
+                      "_uniq.3839"
+                    ],
+                    "goalsBefore": [
+                      {
+                        "username": "[anonymous]",
+                        "type": "Nat.minFac (Nat.factorial N + 1) ∣ 1",
+                        "id": "_uniq.3940",
+                        "hyps": [
+                          {
+                            "value": null,
+                            "username": "h₂",
+                            "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N + 1",
+                            "id": "_uniq.3839"
+                          },
+                          {
+                            "value": null,
+                            "username": "h₁",
+                            "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N",
+                            "id": "_uniq.3655"
+                          },
+                          {
+                            "value": null,
+                            "username": "pln",
+                            "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                            "id": "_uniq.3601"
+                          },
+                          {
+                            "value": null,
+                            "username": "pp",
+                            "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                            "id": "_uniq.358"
+                          },
+                          {
+                            "value": null,
+                            "username": "N",
+                            "type": "ℕ",
+                            "id": "_uniq.297"
+                          }
+                        ]
+                      }
+                    ],
+                    "goalsAfter": []
+                  }
+                }
+              }
+            ],
+            "name": "have h : (Nat.minFac (Nat.factorial N + 1)) ∣ 1"
+          }
+        },
+        {
+          "tacticApp": {
+            "t": {
+              "tacticString": "exact Nat.Prime.not_dvd_one pp h",
+              "tacticDependsOn": [
+                "_uniq.358",
+                "_uniq.3941"
+              ],
+              "goalsBefore": [
+                {
+                  "username": "a._@.Mathlib.Logic.Basic._hyg.1241",
+                  "type": "False",
+                  "id": "_uniq.3942",
+                  "hyps": [
+                    {
+                      "value": null,
+                      "username": "h",
+                      "type": "Nat.minFac (Nat.factorial N + 1) ∣ 1",
+                      "id": "_uniq.3941"
+                    },
+                    {
+                      "value": null,
+                      "username": "h₂",
+                      "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N + 1",
+                      "id": "_uniq.3839"
+                    },
+                    {
+                      "value": null,
+                      "username": "h₁",
+                      "type": "Nat.minFac (Nat.factorial N + 1) ∣ Nat.factorial N",
+                      "id": "_uniq.3655"
+                    },
+                    {
+                      "value": null,
+                      "username": "pln",
+                      "type": "¬Nat.minFac (Nat.factorial N + 1) ≥ N",
+                      "id": "_uniq.3601"
+                    },
+                    {
+                      "value": null,
+                      "username": "pp",
+                      "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                      "id": "_uniq.358"
+                    },
+                    {
+                      "value": null,
+                      "username": "N",
+                      "type": "ℕ",
+                      "id": "_uniq.297"
+                    }
+                  ]
+                }
+              ],
+              "goalsAfter": []
+            }
+          }
+        }
+      ],
+      "name": "have ppos: (Nat.minFac (Nat.factorial N + 1)) ≥ N"
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "exact ⟨ (Nat.minFac (Nat.factorial N + 1)), ppos, pp ⟩",
+        "tacticDependsOn": [
+          "_uniq.297",
+          "_uniq.3594",
+          "_uniq.358"
+        ],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "∃ p, p ≥ N ∧ Nat.Prime p",
+            "id": "_uniq.3595",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ppos",
+                "type": "Nat.minFac (Nat.factorial N + 1) ≥ N",
+                "id": "_uniq.3594"
+              },
+              {
+                "value": null,
+                "username": "pp",
+                "type": "Nat.Prime (Nat.minFac (Nat.factorial N + 1))",
+                "id": "_uniq.358"
+              },
+              {
+                "value": null,
+                "username": "N",
+                "type": "ℕ",
+                "id": "_uniq.297"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": []
+      }
+    }
+  }
+]
+
+export { infoTreeExample_1, infoTreeExample_2, infoTreeExample_3, infoTreeExample_4, infoTreeExample_5 }
