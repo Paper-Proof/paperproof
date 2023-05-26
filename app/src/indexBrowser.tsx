@@ -35,6 +35,7 @@ interface HypNode {
   text: string;
   name: string;
   id: string;
+  haveWindowId?: number;
 }
 
 type HypLayer = HypNode[];
@@ -185,18 +186,45 @@ function render(app: App, proofTree: Format) {
         const tactic = format.tactics.find((t) =>
           t.hypArrows.some((a) => a.toId == node.id)
         );
-        const tacticSize = tactic
-          ? [drawNode(parentId, tactic.text, [x, y], "tactic")]
-          : [];
+        const nodes: Size[] = [];
+        const haveWindow = format.windows.find(
+          (w) => node.haveWindowId && w.id == node.haveWindowId
+        );
+        if (haveWindow) {
+          const frameId = app.createShapeId();
+          app.createShapes([
+            {
+              id: frameId,
+              type: "window",
+              x,
+              y: y + vStack(0, ...nodes)[1],
+              parentId,
+              props: { name: haveWindow.id },
+            },
+          ]);
+          const [w, h] = drawNodes(frameId, haveWindow, format);
+          nodes.push([w, h]);
+          app.updateShapes([{ id: frameId, type: "window", props: { w, h } }]);
+        }
+        if (tactic) {
+          const sz = drawNode(
+            parentId,
+            tactic.text,
+            [x, y + vStack(0, ...nodes)[1]],
+            "tactic"
+          );
+          nodes.push(sz);
+        }
         // For cases h._@.Examples._hyg.1162
         const hypName = node.name.includes(".")
           ? `${node.name.split(".")[0]}✝`
           : node.name;
         const hypSize: Size = drawNode(parentId, `${hypName}: ${node.text}`, [
           x,
-          y + vStack(0, ...tacticSize)[1],
+          y + vStack(0, ...nodes)[1],
         ]);
-        const size = vStack(0, ...tacticSize, hypSize);
+        nodes.push(hypSize);
+        const size = vStack(0, ...nodes);
         sizes.push(size);
         x += size[0] + inBetweenMargin;
       }
