@@ -1,8 +1,394 @@
 // works
 const infoTreeExample_1 = []
 
-// infinitude of primes, except without lets and {} for now.
-const infoTreeExample_2 = []
+// TODO, rw of hypothesis doesn't work
+// example : (b = c) → (b = a) → (a = d) := by
+//   intro bc ba
+//   rw [ba] at bc
+//   sorry
+const infoTreeExample_2 = [
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "intro bc ba",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "b = c → b = a → a = d",
+            "id": "_uniq.7422",
+            "hyps": [
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "[anonymous]",
+            "type": "a = d",
+            "id": "_uniq.7428",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ba",
+                "type": "b = a",
+                "id": "_uniq.7427"
+              },
+              {
+                "value": null,
+                "username": "bc",
+                "type": "b = c",
+                "id": "_uniq.7424"
+              },
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "rw ba",
+        "tacticDependsOn": [
+          "_uniq.7424",
+          "_uniq.7427"
+        ],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "a = d",
+            "id": "_uniq.7428",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ba",
+                "type": "b = a",
+                "id": "_uniq.7427"
+              },
+              {
+                "value": null,
+                "username": "bc",
+                "type": "b = c",
+                "id": "_uniq.7424"
+              },
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "[anonymous]",
+            "type": "a = d",
+            "id": "_uniq.7446",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ba",
+                "type": "b = a",
+                "id": "_uniq.7443"
+              },
+              {
+                "value": null,
+                "username": "bc",
+                "type": "a = c",
+                "id": "_uniq.7440"
+              },
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "rw rfl",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "a = d",
+            "id": "_uniq.7446",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ba",
+                "type": "b = a",
+                "id": "_uniq.7443"
+              },
+              {
+                "value": null,
+                "username": "bc",
+                "type": "a = c",
+                "id": "_uniq.7440"
+              },
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "[anonymous]",
+            "type": "a = d",
+            "id": "_uniq.7446",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ba",
+                "type": "b = a",
+                "id": "_uniq.7443"
+              },
+              {
+                "value": null,
+                "username": "bc",
+                "type": "a = c",
+                "id": "_uniq.7440"
+              },
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "sorry",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "a = d",
+            "id": "_uniq.7446",
+            "hyps": [
+              {
+                "value": null,
+                "username": "ba",
+                "type": "b = a",
+                "id": "_uniq.7443"
+              },
+              {
+                "value": null,
+                "username": "bc",
+                "type": "a = c",
+                "id": "_uniq.7440"
+              },
+              {
+                "value": null,
+                "username": "d",
+                "type": "α✝",
+                "id": "_uniq.7421"
+              },
+              {
+                "value": null,
+                "username": "a",
+                "type": "α✝",
+                "id": "_uniq.7420"
+              },
+              {
+                "value": null,
+                "username": "c",
+                "type": "α✝",
+                "id": "_uniq.7419"
+              },
+              {
+                "value": null,
+                "username": "b",
+                "type": "α✝",
+                "id": "_uniq.7418"
+              },
+              {
+                "value": null,
+                "username": "α._@.Examples._hyg.1026",
+                "type": "Sort ?u.7410",
+                "id": "_uniq.7417"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": []
+      }
+    }
+  }
+]
 
 // TODO
 // Make sure renames work (they likely don't).

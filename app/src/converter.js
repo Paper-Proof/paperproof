@@ -68,7 +68,7 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
         id  : hypAfter.id
       });
       prettyHypArrows.push({
-        fromId: hypBefore.id,
+        fromId: hypBeforeWithSameUsername.id,
         toId: hypAfter.id
       });
     }
