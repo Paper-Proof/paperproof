@@ -4,8 +4,8 @@
 // 
 // import { infoTreeExample_5 } from './infoTreeExample.js';
 
-let windowId = 1;
-let latestParentWindowId = 1;
+let windowId;
+let latestParentWindowId;
 
 const newWindowId = () => {
   return windowId++;
@@ -286,6 +286,9 @@ const recursive = (subSteps, pretty) => {
 }
 
 export const toEdges = (infoTreeVast) => {
+  windowId = 1;
+  latestParentWindowId = 1;
+
   const pretty = {
     equivalentGoalIds: {},
     windows: [],
