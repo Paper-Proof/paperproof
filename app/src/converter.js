@@ -1,8 +1,8 @@
 // import { createRequire } from 'module';
 // const require = createRequire(import.meta.url);
 // const util = require('util');
-
-import { infoTreeExample_5 } from './infoTreeExample.js';
+// 
+// import { infoTreeExample_5 } from './infoTreeExample.js';
 
 let windowId = 1;
 let latestParentWindowId = 1;
@@ -80,18 +80,37 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
 
 // Any window is uniquely associated with a goal id.
 // A particular goal id only ever belongs to some window. 
-const getWindowByGoalId = (windows, goalId) => {
-  return windows.find((w) =>
+const getWindowByGoalId = (pretty, goalId) => {
+  return pretty.windows.find((w) =>
     w.goalNodes.find((g) => g.id === goalId)
   )
+}
+
+const getRepresentativeGoalId = (pretty, id) => {
+  const representativeId = Object.keys(pretty.equivalentGoalIds).find((representativeId) =>
+    pretty.equivalentGoalIds[representativeId].find((inferiorId) => inferiorId === id)
+  );
+  return representativeId ? representativeId : id;
+}
+
+// We always wanna talk to the representative of our equivalent goals.
+// Representative goal id is the one that's actually drawn. 
+const addToEquivalentGoalIds = (pretty, beforeId, afterId) => {
+  const existingGoal = pretty.equivalentGoalIds[getRepresentativeGoalId(pretty, beforeId)];
+  if (existingGoal) {
+    existingGoal.push(afterId)
+  } else {
+    pretty.equivalentGoalIds[beforeId] = [afterId];
+  }
 }
 
 const handleTacticApp = (tactic, pretty) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const mainGoalBefore = tactic.goalsBefore[0];
+  const representativeGoalId = getRepresentativeGoalId(pretty, mainGoalBefore.id);
 
-  const currentWindow = getWindowByGoalId(pretty.windows, mainGoalBefore.id);
+  const currentWindow = getWindowByGoalId(pretty, representativeGoalId);
 
   if (!currentWindow) {
     console.log("Couldn't find a window to place this tactic into.");
@@ -116,7 +135,7 @@ const handleTacticApp = (tactic, pretty) => {
       // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
       // .dependsOnIds will convey all the information we want to see.
       isSuccess    : nextGoal ? '🎉' : 'For all goals, 🎉!',
-      successGoalId: mainGoalBefore.id
+      successGoalId: representativeGoalId
     });
   }
   // - we updated the goal!
@@ -131,14 +150,19 @@ const handleTacticApp = (tactic, pretty) => {
     // In such cases, we still want to put this goalNode into our window - to enable future tactics to find this window by goal id.
     // Also: future tactics might well be referencing that id! So we, of course, need to mark it as equivalent to other goal ids.
     // TODO mark these goalIds as equivalent.
-    currentWindow.goalNodes.push({
-      text: updatedGoal.type,
-      id  : updatedGoal.id
-    });
-    prettyGoalArrows = [{
-      fromId: mainGoalBefore.id,
-      toId: updatedGoal.id
-    }];
+    if (mainGoalBefore.type === updatedGoal.type) {
+      // add to equivalentGoalIds
+      addToEquivalentGoalIds(pretty, mainGoalBefore.id, updatedGoal.id)
+    } else {
+      currentWindow.goalNodes.push({
+        text: updatedGoal.type,
+        id  : updatedGoal.id
+      });
+      prettyGoalArrows = [{
+        fromId: representativeGoalId,
+        toId: updatedGoal.id
+      }];
+    }
 
     // 2. Draw hypothesis nodes and arrows
     const hypsBefore = mainGoalBefore.hyps;
@@ -160,7 +184,7 @@ const handleTacticApp = (tactic, pretty) => {
   else if (relevantGoalsAfter.length > 1) {
     // 1. Draw goal nodes and arrows
     const prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
-      fromId: mainGoalBefore.id,
+      fromId: representativeGoalId,
       toId: goal.id
     }));
 
@@ -263,6 +287,7 @@ const recursive = (subSteps, pretty) => {
 
 export const toEdges = (infoTreeVast) => {
   const pretty = {
+    equivalentGoalIds: {},
     windows: [],
     tactics: []
   }
