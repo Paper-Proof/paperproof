@@ -88,7 +88,9 @@ where go
             (·.toString |>.splitOn "\n" |>.head!.trim)
         | return as
       let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
-        | throw <| IO.userError "tactic applied to no goals"
+        -- For example a tactic like `done` just ensures there are no unsolved goals,
+        -- however has no information for the tactic tree
+        | return as
       
       -- Find names to get decls
       let fvarIds := cs.toList.map (findFVars ctx) |>.join

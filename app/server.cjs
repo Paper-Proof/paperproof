@@ -28,7 +28,7 @@ app.use(
   })
 );
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
 
 let hyps = [];
 let curId = 1;

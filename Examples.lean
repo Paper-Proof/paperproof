@@ -182,3 +182,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
     have easy : true := by trivial
     sorry 
   sorry 
+
+example : (a = b) → (a = c) → c → a := by
+  intros ab ac
+  rw [ab] at ac
+  intro c
