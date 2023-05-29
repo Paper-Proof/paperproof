@@ -47,7 +47,9 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
     let some decl := mctx.findDecl? id
       | throw <| IO.userError "goal decl not found"
     let ppContext := ctx.toPPContext decl.lctx
-    let hyps ← decl.lctx.foldlM (init := []) (fun acc decl => do
+    -- to get tombstones in name ✝ for unreachable hypothesis
+    let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
+    let hyps ← lctx.foldlM (init := []) (fun acc decl => do
       if decl.isAuxDecl || decl.isImplementationDetail then
         return acc
       let type ← ppExprWithInfos ppContext decl.type
