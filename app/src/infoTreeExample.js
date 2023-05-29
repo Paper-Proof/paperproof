@@ -393,7 +393,1200 @@ const infoTreeExample_2 = [
 // TODO
 // Make sure renames work (they likely don't).
 // Make sure 3 nested windows work.
-const infoTreeExample_3 = []
+const infoTreeExample_3 =[
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "apply Iff.intro",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "[anonymous]",
+            "type": "p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8448",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mp",
+            "type": "p ∧ (q ∨ r) → p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8456",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "intro h",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "mp",
+            "type": "p ∧ (q ∨ r) → p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8456",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mp",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8461",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "cases h.right",
+        "tacticDependsOn": [
+          "_uniq.8460"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mp",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8461",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mp.inl",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8516",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1713",
+                "type": "q",
+                "id": "_uniq.8502"
+              },
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mp.inr",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8530",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1715",
+                "type": "r",
+                "id": "_uniq.8517"
+              },
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "exact Or.inl ⟨h.left, ‹q›⟩",
+        "tacticDependsOn": [
+          "_uniq.8460"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mp.inl",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8516",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1713",
+                "type": "q",
+                "id": "_uniq.8502"
+              },
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mp.inr",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8530",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1715",
+                "type": "r",
+                "id": "_uniq.8517"
+              },
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mp.inr",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8530",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1715",
+                "type": "r",
+                "id": "_uniq.8517"
+              },
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "exact Or.inr ⟨h.left, ‹r›⟩",
+        "tacticDependsOn": [
+          "_uniq.8460"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mp.inr",
+            "type": "p ∧ q ∨ p ∧ r",
+            "id": "_uniq.8530",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1715",
+                "type": "r",
+                "id": "_uniq.8517"
+              },
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ (q ∨ r)",
+                "id": "_uniq.8460"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "intro h",
+        "tacticDependsOn": [],
+        "goalsBefore": [
+          {
+            "username": "mpr",
+            "type": "p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)",
+            "id": "_uniq.8457",
+            "hyps": [
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mpr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8556",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ q ∨ p ∧ r",
+                "id": "_uniq.8555"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "cases h",
+        "tacticDependsOn": [
+          "_uniq.8555"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mpr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8556",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h",
+                "type": "p ∧ q ∨ p ∧ r",
+                "id": "_uniq.8555"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mpr.inl",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8600",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1749",
+                "type": "p ∧ q",
+                "id": "_uniq.8586"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8614",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1751",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "rename_i hpq",
+        "tacticDependsOn": [
+          "_uniq.8586"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mpr.inl",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8600",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1749",
+                "type": "p ∧ q",
+                "id": "_uniq.8586"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8614",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1751",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mpr.inl",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8615",
+            "hyps": [
+              {
+                "value": null,
+                "username": "hpq",
+                "type": "p ∧ q",
+                "id": "_uniq.8586"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8614",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1751",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "exact ⟨hpq.left, Or.inl hpq.right⟩",
+        "tacticDependsOn": [
+          "_uniq.8586",
+          "_uniq.8586"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mpr.inl",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8615",
+            "hyps": [
+              {
+                "value": null,
+                "username": "hpq",
+                "type": "p ∧ q",
+                "id": "_uniq.8586"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          },
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8614",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1751",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8614",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1751",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "rename_i hpr",
+        "tacticDependsOn": [
+          "_uniq.8601"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8614",
+            "hyps": [
+              {
+                "value": null,
+                "username": "h._@.Examples._hyg.1751",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": [
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8628",
+            "hyps": [
+              {
+                "value": null,
+                "username": "hpr",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tacticApp": {
+      "t": {
+        "tacticString": "exact ⟨hpr.left, Or.inr hpr.right⟩",
+        "tacticDependsOn": [
+          "_uniq.8601",
+          "_uniq.8601"
+        ],
+        "goalsBefore": [
+          {
+            "username": "mpr.inr",
+            "type": "p ∧ (q ∨ r)",
+            "id": "_uniq.8628",
+            "hyps": [
+              {
+                "value": null,
+                "username": "hpr",
+                "type": "p ∧ r",
+                "id": "_uniq.8601"
+              },
+              {
+                "value": null,
+                "username": "r",
+                "type": "Prop",
+                "id": "_uniq.8447"
+              },
+              {
+                "value": null,
+                "username": "q",
+                "type": "Prop",
+                "id": "_uniq.8446"
+              },
+              {
+                "value": null,
+                "username": "p",
+                "type": "Prop",
+                "id": "_uniq.8445"
+              }
+            ]
+          }
+        ],
+        "goalsAfter": []
+      }
+    }
+  }
+]
 
 // infinitude of primes, without {}
 const infoTreeExample_4 = [

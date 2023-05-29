@@ -10,15 +10,51 @@ const newWindowId = () => {
   return windowId++;
 }
 
+const getHypChangesByUsername = (hypsBefore, hypsAfter) => {
+  const hypsBeforeUsernames = hypsBefore.map((hyp) => hyp.username);
+  const hypsAfterUsernames  = hypsAfter.map((hyp) => hyp.username);
+  const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsAfterUsernames.includes(hyp.username));
+  const hypsAfterThatAppeared     = hypsAfter.filter((hyp) => !hypsBeforeUsernames.includes(hyp.username));
+  return [hypsBeforeThatDisappeared, hypsAfterThatAppeared];
+}
+
+// Handle a special case: the `rename/rename_i` tactic
+// Notice how we're only calling this method in `1 goal => 1 goal` cases. It's theoretically possible that the hypothesis username would change with unchanged id on bifurcations, but then we'd have bigger problems (we'll want to create fake ids to know how to draw arrows!) - let's wait for this situation to arise.
+const drawRenamedHypotheses = (currentWindow, hypsBefore, hypsAfter) => {
+  const [hypsBeforeThatDisappeared, hypsAfterThatAppeared] = getHypChangesByUsername(hypsBefore, hypsAfter);
+
+  // In renames, the hypothesis `id` stays the same, and its `username` changes.
+  const isRename =
+    hypsBeforeThatDisappeared.length === hypsAfterThatAppeared.length &&
+    hypsBeforeThatDisappeared.every((h1) => hypsAfterThatAppeared.find((h2) => h1.id === h2.id)) &&
+    hypsBeforeThatDisappeared.some((h1) => hypsAfterThatAppeared.find((h2) =>
+      h1.id === h2.id && h1.username !== h2.username
+    ));
+
+  if (isRename) {
+    hypsAfterThatAppeared.forEach((renamedHyp) => {
+      // 1. Find the hypNode in our window that we want to rename
+      currentWindow.hypNodes.forEach((hypLevel) => {
+        hypLevel.forEach((existingHypNode) => {
+          // 2. Update its name
+          if (existingHypNode.id === renamedHyp.id) {
+            existingHypNode.name = renamedHyp.username;
+          }
+        })
+      });
+    });
+    return true;
+  } else {
+    return false;
+  }
+}
+
 const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
   let prettyHypArrows = [];
 
   // 1. Determine which hypotheses disappeared and appeared username-wise
-  const hypsBeforeUsernames = hypsBefore.map((hyp) => hyp.username);
-  const hypsAfterUsernames  = hypsBefore.map((hyp) => hyp.username);
-  const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsAfterUsernames.includes(hyp.username));
-  const hypsAfterThatAppeared     = hypsAfter.filter((hyp) => !hypsBeforeUsernames.includes(hyp.username));
+  const [hypsBeforeThatDisappeared, hypsAfterThatAppeared] = getHypChangesByUsername(hypsBefore, hypsAfter);
 
   // 2. Draw them!
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
@@ -173,7 +209,10 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     // 2. Draw hypothesis nodes and arrows
     const hypsBefore = mainGoalBefore.hyps;
     const hypsAfter  = updatedGoal.hyps;
-    let [prettyHypNodes, prettyHypArrows] = drawNewHypotheses(hypsBefore, hypsAfter);
+    const isRename = drawRenamedHypotheses(currentWindow, hypsBefore, hypsAfter);
+    let [prettyHypNodes, prettyHypArrows] = isRename ?
+      [[], []] :
+      drawNewHypotheses(hypsBefore, hypsAfter);
 
     if (haveWindowId) {
       prettyHypNodes.forEach((hypNode) => {
