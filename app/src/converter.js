@@ -48,6 +48,13 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   }
   // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
+    const newHypNodes = hypsAfterThatAppeared.map((hyp) => ({
+      text: hyp.type,
+      name: hyp.username,
+      id  : hyp.id
+    }));
+    prettyHypNodes.push(...newHypNodes);
+
     hypsBeforeThatDisappeared.forEach((hypBefore) => {
       hypsAfterThatAppeared.forEach((hypAfter) => {
         prettyHypArrows.push({
