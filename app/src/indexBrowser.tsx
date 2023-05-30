@@ -21,6 +21,10 @@ interface Element {
   draw: (x: number, y: number) => void;
 }
 
+function emptyEl(): Element {
+  return { size: [0, 0], draw: () => { } };
+}
+
 function vStack(margin: number, ...boxes: Element[]): Element {
   if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
   return {
@@ -53,6 +57,37 @@ function hStack(margin: number, ...boxes: Element[]): Element {
       }
     },
   };
+}
+
+function transpose(rows: Element[][]): Element[][] {
+  if (rows.length == 0) return [];
+  const cols: Element[][] = [];
+  for (let i = 0; i < rows[0].length; i++) {
+    cols.push(rows.map((row) => row[i]));
+  }
+  return cols;
+}
+
+function grid(vMargin: number, hMargin: number, ...rows: Element[][]): Element {
+  if (rows.length == 0) return { size: [0, 0], draw: () => { } };
+  const rowSizes = rows.map((row) => hStack(hMargin, ...row).size);
+  const colSizes = transpose(rows).map((col) => vStack(vMargin, ...col).size);
+  return {
+    size: [
+      colSizes.map((s) => s[0]).reduce((x, y) => x + y) + (colSizes.length - 1) * hMargin,
+      rowSizes.map((s) => s[1]).reduce((x, y) => x + y) + (rowSizes.length - 1) * vMargin,
+    ],
+    draw(x0, y) {
+      for (let i = 0; i < rows.length; i++) {
+        let x = x0;
+        for (let j = 0; j < rows[i].length; j++) {
+          rows[i][j].draw(x, y);
+          x += colSizes[j][0] + hMargin;
+        }
+        y += rowSizes[i][1] + vMargin;
+      }
+    }
+  }
 }
 
 type Node = { text: string; id: string; name?: string; subNodes?: NodeLayer[] };
@@ -165,7 +200,7 @@ function render(app: App, proofTree: Format) {
       ]);
       nodes.draw(framePadding, framePadding);
     };
-    return {size: [w, h], draw};
+    return { size: [w, h], draw };
   }
 
   function getTextSize(text: string): [number, number] {
@@ -209,37 +244,51 @@ function render(app: App, proofTree: Format) {
       }
     }
     for (const rwSeq of rwSeqs) {
-      const rwRows: Element[] = []
+      const colNames: string[] = [];
       for (const layer of rwSeq) {
-        const rwRowEls: Element[] = [];
-        for (const node of [...layer.reverse()]) {
-          const tactic = format.tactics.find((t) =>
-            t.hypArrows.some((a) => a.toId == node.id)
-          );
-          const nodes: Element[] = [];
-          const haveWindow = format.windows.find(
-            (w) => node.haveWindowId && w.id == node.haveWindowId
-          );
-          if (haveWindow) {
-            nodes.push(createWindow(parentId, haveWindow, format));
+        for (const node of layer) {
+          if (!colNames.includes(node.name)) {
+            colNames.push(node.name);
           }
-          if (tactic) {
-            nodes.push(createNode(
-              parentId,
-              tactic.text,
-              "tactic"
-            ));
-          }
-          // For cases h._@.Examples._hyg.1162
-          const hypName = node.name.includes(".")
-            ? `${node.name.split(".")[0]}✝`
-            : node.name;
-          nodes.push(createNode(parentId, `${hypName}: ${node.text}`));
-          rwRowEls.push(vStack(0, ...nodes));
         }
-        rwRows.push(hStack(inBetweenMargin, ...rwRowEls));
       }
-      rows.push(vStack(0, ...rwRows));
+
+      const g: Element[][] = []
+      for (const colName of colNames) {
+        const col: Element[] = [];
+        for (const layer of rwSeq) {
+          const node = layer.find((n) => n.name == colName);
+          if (node) {
+            const tactic = format.tactics.find((t) =>
+              t.hypArrows.some((a) => a.toId == node.id)
+            );
+            const nodes: Element[] = [];
+            const haveWindow = format.windows.find(
+              (w) => node.haveWindowId && w.id == node.haveWindowId
+            );
+            if (haveWindow) {
+              nodes.push(createWindow(parentId, haveWindow, format));
+            }
+            if (tactic) {
+              nodes.push(createNode(
+                parentId,
+                tactic.text,
+                "tactic"
+              ));
+            }
+            // For cases h._@.Examples._hyg.1162
+            const hypName = node.name.includes(".")
+              ? `${node.name.split(".")[0]}✝`
+              : node.name;
+            nodes.push(createNode(parentId, `${hypName}: ${node.text}`));
+            col.push(vStack(0, ...nodes));
+          } else {
+            col.push(emptyEl());
+          }
+        }
+        g.push(col);
+      }
+      rows.push(grid(0, inBetweenMargin, ...transpose(g)));
     }
     const subWindows = format.windows.filter((w) => w.parentId == window.id);
     const frames: Element[] = [];
@@ -259,7 +308,7 @@ function render(app: App, proofTree: Format) {
           t.goalArrows.some((a) => a.fromId == goalNode.id) ||
           t.successGoalId == goalNode.id
       );
-      const tacticEls : Element[] = tactic
+      const tacticEls: Element[] = tactic
         ? [createNode(parentId, tactic.text, "tactic")]
         : [];
       const goalEl: Element = createNode(
