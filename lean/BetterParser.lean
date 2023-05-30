@@ -128,7 +128,7 @@ where go
           if res == "]" then "rfl" else res
         return as.map fun a => 
           match a with
-          | .tacticApp a => .tacticApp { a with tacticString := s!"rw {prettify a.tacticString}" }
+          | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
           | x => x
       | _ => return as
     else
