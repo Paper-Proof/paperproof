@@ -49,12 +49,25 @@ const drawRenamedHypotheses = (currentWindow, hypsBefore, hypsAfter) => {
   }
 }
 
+// Sometimes, the hypothesis id stays the same, but the username changes.
+// The only case we where saw this happening are rewrites that mark the old hyp name with a tombstone, e.g. `coprime✝`m if they cannot clean it up (see https://github.com/leanprover/lean4/blob/5661b15e35285a4ed11e0d1d70a960117ea501a9/src/Lean/Meta/Tactic/Replace.lean#L89).
+// In such cases, we want to modify the hyp's id with the username, so that our tactic's `{ fromId: ~, toId: ~ }` knows what it's referencing.
+const handleTombstonedHypotheses = (hypsBefore, hypsAfterThatAppeared) => {
+  hypsAfterThatAppeared.forEach((hypAfter) => {
+    const hypBeforeWithSameId = hypsBefore.find((hypBefore) => hypBefore.id == hypAfter.id);
+    if (hypBeforeWithSameId && hypAfter.username !== hypBeforeWithSameId.username) {
+      hypAfter.id = `${hypAfter.id}-${hypAfter.username}`;
+    }
+  });
+}
+
 const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
   let prettyHypArrows = [];
 
   // 1. Determine which hypotheses disappeared and appeared username-wise
   const [hypsBeforeThatDisappeared, hypsAfterThatAppeared] = getHypChangesByUsername(hypsBefore, hypsAfter);
+  handleTombstonedHypotheses(hypsBefore, hypsAfterThatAppeared);
 
   // 2. Draw them!
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
