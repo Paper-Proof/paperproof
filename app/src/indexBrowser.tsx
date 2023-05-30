@@ -16,6 +16,45 @@ import "@tldraw/tldraw/ui.css";
 import { toEdges } from "./converter";
 import { WindowShape } from "./window";
 
+interface Element {
+  size: [number, number];
+  draw: (x: number, y: number) => void;
+}
+
+function vStack(margin: number, ...boxes: Element[]): Element {
+  if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
+  return {
+    size: [
+      Math.max(...boxes.map((b) => b.size[0])),
+      boxes.map((b) => b.size[1]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,
+    ],
+    draw(x, y) {
+      let dy = 0;
+      for (const box of boxes) {
+        box.draw(x, y + dy);
+        dy += box.size[1] + margin;
+      }
+    },
+  };
+}
+
+function hStack(margin: number, ...boxes: Element[]): Element {
+  if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
+  return {
+    size: [
+      boxes.map((b) => b.size[0]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,
+      Math.max(...boxes.map((b) => b.size[1])),
+    ],
+    draw(x, y) {
+      let dx = 0;
+      for (const box of boxes) {
+        box.draw(x + dx, y);
+        dx += box.size[0] + margin;
+      }
+    },
+  };
+}
+
 type Node = { text: string; id: string; name?: string; subNodes?: NodeLayer[] };
 type Tactic = {
   text: string;
@@ -73,64 +112,60 @@ function render(app: App, proofTree: Format) {
   const inBetweenMargin = 20;
   const framePadding = 20;
 
-  type Size = [number, number];
   const { tactics } = proofTree;
 
-  function vStack(margin: number, ...boxes: Size[]): Size {
-    if (boxes.length == 0) return [0, 0];
-    const w = Math.max(...boxes.map((b) => b[0]));
-    const h = boxes.map((b) => b[1]).reduce((x, y) => x + y);
-    return [w, h + (boxes.length - 1) * margin];
-  }
-
-  function hStack(margin: number, ...boxes: Size[]): Size {
-    if (boxes.length == 0) return [0, 0];
-    const w = boxes.map((b) => b[0]).reduce((x, y) => x + y);
-    const h = Math.max(...boxes.map((b) => b[1]));
-    return [w + (boxes.length - 1) * margin, h];
-  }
-
-  const drawNode = (
+  const createNode = (
     parentId: TLParentId | undefined,
     text: string,
-    [x, y]: [number, number],
     type: "value" | "tactic" | "redvalue" = "value"
-  ): Size => {
-    const [w, h] = getSize({ text, id: "aa" });
-    app.createShapes([
-      {
-        id: app.createShapeId(),
-        type: "geo",
-        x,
-        y,
-        parentId,
-        props: {
-          geo: "rectangle",
-          w,
-          h,
-          ...(type == "value"
-            ? { dash: "draw", fill: "solid", color: "light-green" }
-            : type == "redvalue"
-              ? { dash: "draw", fill: "solid", color: "light-red" }
-              : { dash: "dotted", fill: "none", color: "grey" }),
-          size: "m",
-          text,
-        },
-      },
-    ]);
-    return [w, h];
+  ): Element => {
+    const [w, h] = getTextSize(text);
+    return {
+      size: [w, h],
+      draw(x, y) {
+        app.createShapes([
+          {
+            id: app.createShapeId(),
+            type: "geo",
+            x,
+            y,
+            parentId,
+            props: {
+              geo: "rectangle",
+              w,
+              h,
+              ...(type == "value"
+                ? { dash: "draw", fill: "solid", color: "light-green" }
+                : type == "redvalue"
+                  ? { dash: "draw", fill: "solid", color: "light-red" }
+                  : { dash: "dotted", fill: "none", color: "grey" }),
+              size: "m",
+              text,
+            },
+          },
+        ]);
+      }
+    }
   };
 
-  function getTreeSize(layers: NodeLayer[]): [number, number] {
-    return vStack(
-      inBetweenMargin,
-      ...layers.map((l) => hStack(inBetweenMargin, ...l.map(getSize)))
-    );
-  }
-
-  function getFrameSize(layers: NodeLayer[]): [number, number] {
-    const size = getTreeSize(layers);
-    return [size[0] + framePadding * 2, size[1] + framePadding * 2];
+  const createWindow = (parentId: TLParentId | undefined, window: Window, format: Format): Element => {
+    const frameId = app.createShapeId();
+    const nodes = createNodes(frameId, window, format);
+    const [w, h] = [nodes.size[0] + 2 * framePadding, nodes.size[1] + 2 * framePadding];
+    const draw = (x: number, y: number) => {
+      app.createShapes([
+        {
+          id: frameId,
+          type: "window",
+          x,
+          y,
+          parentId,
+          props: { name: window.id, w, h },
+        },
+      ]);
+      nodes.draw(framePadding, framePadding);
+    };
+    return {size: [w, h], draw};
   }
 
   function getTextSize(text: string): [number, number] {
@@ -149,36 +184,14 @@ function render(app: App, proofTree: Format) {
     ];
   }
 
-  function getSize(node: Node): [number, number] {
-    const sizes: Size[] = [];
-    sizes.push(getTextSize(node.text));
-    const frameSize: Size = node.subNodes
-      ? getFrameSize(node.subNodes)
-      : [0, 0];
-    return vStack(0, frameSize, ...sizes);
-  }
   app.selectAll().deleteShapes();
 
-  function getTactics(
-    node: Node,
-    tactics: Tactic[]
-  ): [Tactic | undefined, Tactic | undefined] {
-    const toValueTactic = tactics.find(
-      (t) => t.toNodeIds.length == 1 && t.toNodeIds.includes(node.id)
-    );
-    const fromValueTactic = tactics.find(
-      (t) => t.fromNodeIds.length == 1 && t.fromNodeIds.includes(node.id)
-    );
-    return [toValueTactic, fromValueTactic];
-  }
-
-  function drawNodes(
+  function createNodes(
     parentId: TLParentId | undefined,
     window: Window,
     format: Format
-  ): Size {
-    let rows: Size[] = [];
-    let y = framePadding;
+  ): Element {
+    let rows: Element[] = [];
     // Layers of hypNodes can have series of `rw` tactics where
     // we should attempt to stack nodes with the same name together.
     // We will assume that nodes in the same layer are generated by
@@ -196,88 +209,47 @@ function render(app: App, proofTree: Format) {
       }
     }
     for (const rwSeq of rwSeqs) {
-      const rwRows: Size[] = []
+      const rwRows: Element[] = []
       for (const layer of rwSeq) {
-        const sizes: Size[] = [];
-        let x = framePadding;
+        const rwRowEls: Element[] = [];
         for (const node of [...layer.reverse()]) {
           const tactic = format.tactics.find((t) =>
             t.hypArrows.some((a) => a.toId == node.id)
           );
-          const nodes: Size[] = [];
+          const nodes: Element[] = [];
           const haveWindow = format.windows.find(
             (w) => node.haveWindowId && w.id == node.haveWindowId
           );
           if (haveWindow) {
-            const frameId = app.createShapeId();
-            app.createShapes([
-              {
-                id: frameId,
-                type: "window",
-                x,
-                y: y + vStack(0, ...nodes)[1],
-                parentId,
-                props: { name: haveWindow.id },
-              },
-            ]);
-            const [w, h] = drawNodes(frameId, haveWindow, format);
-            nodes.push([w, h]);
-            app.updateShapes([{ id: frameId, type: "window", props: { w, h } }]);
+            nodes.push(createWindow(parentId, haveWindow, format));
           }
           if (tactic) {
-            const sz = drawNode(
+            nodes.push(createNode(
               parentId,
               tactic.text,
-              [x, y + vStack(0, ...nodes)[1]],
               "tactic"
-            );
-            nodes.push(sz);
+            ));
           }
           // For cases h._@.Examples._hyg.1162
           const hypName = node.name.includes(".")
             ? `${node.name.split(".")[0]}✝`
             : node.name;
-          const hypSize: Size = drawNode(parentId, `${hypName}: ${node.text}`, [
-            x,
-            y + vStack(0, ...nodes)[1],
-          ]);
-          nodes.push(hypSize);
-          const size = vStack(0, ...nodes);
-          sizes.push(size);
-          x += size[0] + inBetweenMargin;
+          nodes.push(createNode(parentId, `${hypName}: ${node.text}`));
+          rwRowEls.push(vStack(0, ...nodes));
         }
-        rwRows.push(hStack(inBetweenMargin, ...sizes));
-        y += hStack(0, ...sizes)[1];
+        rwRows.push(hStack(inBetweenMargin, ...rwRowEls));
       }
       rows.push(vStack(0, ...rwRows));
-      y += inBetweenMargin;
     }
     const subWindows = format.windows.filter((w) => w.parentId == window.id);
-    let x = framePadding;
-    const frameSizes: Size[] = [];
+    const frames: Element[] = [];
     for (const subWindow of subWindows) {
-      const frameId = app.createShapeId();
-      app.createShapes([
-        {
-          id: frameId,
-          type: "window",
-          x,
-          y,
-          parentId,
-          props: { name: subWindow.goalNodes[0].text },
-        },
-      ]);
-      const [w, h] = drawNodes(frameId, subWindow, format);
-      frameSizes.push([w, h]);
-      app.updateShapes([{ id: frameId, type: "window", props: { w, h } }]);
-      x += w + inBetweenMargin;
+      frames.push(createWindow(parentId, subWindow, format));
     }
-    if (frameSizes.length > 0) {
-      const frames = hStack(inBetweenMargin, ...frameSizes);
-      rows.push(frames);
-      y += frames[1] + inBetweenMargin;
+    if (frames.length > 0) {
+      rows.push(hStack(inBetweenMargin, ...frames));
     }
-    const goals: Size[] = [];
+    const goals: Element[] = [];
     const proved = tactics.some(
       (t) => t.successGoalId == window.goalNodes[0].id
     );
@@ -287,27 +259,24 @@ function render(app: App, proofTree: Format) {
           t.goalArrows.some((a) => a.fromId == goalNode.id) ||
           t.successGoalId == goalNode.id
       );
-      const tacticSize: Size[] = tactic
-        ? [drawNode(parentId, tactic.text, [framePadding, y], "tactic")]
+      const tacticEls : Element[] = tactic
+        ? [createNode(parentId, tactic.text, "tactic")]
         : [];
-      const goalSize: Size = drawNode(
+      const goalEl: Element = createNode(
         parentId,
         goalNode.text,
-        [framePadding, y + vStack(0, ...tacticSize)[1]],
         proved ? "value" : "redvalue"
       );
-      const size = vStack(0, ...tacticSize, goalSize);
-      goals.push(size);
-      y += size[1];
+      goals.push(vStack(0, ...tacticEls, goalEl));
     }
     rows.push(vStack(0, ...goals));
-    const size = vStack(inBetweenMargin, ...rows);
-    return [size[0] + 2 * framePadding, size[1] + 2 * framePadding];
+    return vStack(inBetweenMargin, ...rows);
   }
 
   const root = proofTree.windows.find((w) => w.parentId == null);
   if (root) {
-    drawNodes(undefined, root, proofTree);
+    const el = createNodes(undefined, root, proofTree);
+    el.draw(0, 0);
   }
 }
 
