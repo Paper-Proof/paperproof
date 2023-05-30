@@ -64,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
       tdp.textDocument.uri,
       tdp
     );
+    console.log('Helllo ooo');
     await fetch("http://localhost:3000/sendTypes", {
       method: "POST",
       // eslint-disable-next-line @typescript-eslint/naming-convention

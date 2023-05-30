@@ -187,3 +187,23 @@ example : (a = b) → (a = c) → c → a := by
   intros ab ac
   rw [ab] at ac
   intro c
+
+theorem small_irrational : ¬ ∃ (q : ℚ), q * q = 2 := by
+  apply not_exists.mpr
+  intro ⟨n, d, _, coprime⟩ h
+  have ⟨n', h₂⟩ : ∃ n', n.natAbs = 2 * n' := by sorry
+  have ⟨d', h₃⟩ : ∃ d', d = 2 * d' := by sorry
+  have h₁ : n * n = 2 * d * d:= by sorry
+  rw [← Int.natAbs_mul_self'] at h₁
+  rw [h₂, h₃] at h₁
+  have r : (∀ k, ¬ 2 * k = 1) := by sorry 
+  rw [Nat.coprime_iff_gcd_eq_one, h₂, h₃] at coprime
+  rw [Nat.gcd_mul_left] at coprime
+  apply r _ coprime
+
+example (a b c d e f : ℕ) (h : b = e) (h₂ : e = d): (a = b) → (b = c) → (e = f) → True := by
+  intros ab cd ef
+  rw [h] at *
+  rw [h₂] at *
+
+
