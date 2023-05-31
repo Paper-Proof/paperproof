@@ -93,8 +93,8 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
     hypsBeforeThatDisappeared.forEach((hypBefore) => {
       prettyHypNodes.push({
-        text: "",
-        name: "null",
+        text: null,
+        name: null,
         id  : `${hypBefore.id}-null`
       });
 
