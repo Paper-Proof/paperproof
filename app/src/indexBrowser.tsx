@@ -16,6 +16,8 @@ import "@tldraw/tldraw/ui.css";
 import { toEdges } from "./converter";
 import { WindowShape } from "./window";
 
+const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
+
 interface Element {
   size: [number, number];
   draw: (x: number, y: number) => void;
@@ -194,6 +196,7 @@ function render(app: App, proofTree: Format) {
             parentId,
             props: {
               geo: "rectangle",
+              font: "mono",
               w,
               h,
               ...(type == "value"
@@ -238,14 +241,14 @@ function render(app: App, proofTree: Format) {
     const size = app.textMeasure.measureText({
       ...TEXT_PROPS,
       text,
-      fontFamily: "draw",
+      fontFamily: "mono",
       fontSize: LABEL_FONT_SIZES["m"],
       width: "fit-content",
       padding: "16px",
     });
     return [
       // Don't know how to calculate size correctly yet
-      size.w * 1.3,
+      size.w * 1.6,
       size.h,
     ];
   }
