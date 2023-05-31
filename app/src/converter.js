@@ -130,7 +130,7 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
     }
   });
 
-  return [prettyHypNodes, prettyHypArrows];
+  return [prettyHypNodes.reverse(), prettyHypArrows];
 }
 
 // Any window is uniquely associated with a goal id.
