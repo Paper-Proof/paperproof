@@ -300,7 +300,7 @@ const drawInitialGoal = (initialMainGoal, pretty) => {
         id  : initialMainGoal.id
       }
     ],
-    hypNodes: hypNodes.length > 0 ? [hypNodes] : []
+    hypNodes: hypNodes.length > 0 ? [hypNodes.reverse()] : []
   };
   pretty.windows.push(initialWindow);
 }
