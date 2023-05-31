@@ -306,7 +306,9 @@ function render(app: App, proofTree: Format) {
           t.successGoalId == goalNode.id
       );
       const tacticEls: Element[] = tactic
-        ? [createNode(parentId, tactic.text, "tactic")]
+        ? [createNode(parentId,
+          tactic.text + (tactic.successGoalId ? " 🎉" : ""),
+          "tactic")]
         : [];
       const goalEl: Element = createNode(
         parentId,
