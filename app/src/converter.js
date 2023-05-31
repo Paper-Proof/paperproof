@@ -76,36 +76,44 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
   }
   // - if 0 hypotheses disappeared, and X hypotheses appeared, draw { null → id } arrows [many nulls!]
   else if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length > 0) {
-    const newHypNodes = hypsAfterThatAppeared.map((hyp) => ({
-      text: hyp.type,
-      name: hyp.username,
-      id  : hyp.id
-    }));
-    prettyHypNodes.push(...newHypNodes);
+    hypsAfterThatAppeared.forEach((hypAfter) => {
+      prettyHypNodes.push({
+        text: hypAfter.type,
+        name: hypAfter.username,
+        id  : hypAfter.id
+      });
 
-    prettyHypArrows = newHypNodes.map((hypNode) => ({
-      fromId: null,
-      toId: hypNode.id
-    }));
+      prettyHypArrows.push({
+        fromId: null,
+        toId: hypAfter.id
+      });
+    });
   }
   // - if X hypotheses disappeared, and 0 hypotheses appeared, draw { id → null } arrows [many nulls!]
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
-    prettyHypArrows = hypsBeforeThatDisappeared.map((hyp) => ({
-      fromId: hyp.id,
-      toId: null
-    }));
+    hypsBeforeThatDisappeared.forEach((hypBefore) => {
+      prettyHypNodes.push({
+        text: "",
+        name: "null",
+        id  : `${hypBefore.id}-null`
+      });
+
+      prettyHypArrows.push({
+        fromId: hypBefore.id,
+        toId: `${hypBefore.id}-null`
+      });
+    });
   }
   // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
-    const newHypNodes = hypsAfterThatAppeared.map((hyp) => ({
-      text: hyp.type,
-      name: hyp.username,
-      id  : hyp.id
-    }));
-    prettyHypNodes.push(...newHypNodes);
+    hypsAfterThatAppeared.forEach((hypAfter) => {
+      prettyHypNodes.push({
+        text: hypAfter.type,
+        name: hypAfter.username,
+        id  : hypAfter.id
+      });
 
-    hypsBeforeThatDisappeared.forEach((hypBefore) => {
-      hypsAfterThatAppeared.forEach((hypAfter) => {
+      hypsBeforeThatDisappeared.forEach((hypBefore) => {
         prettyHypArrows.push({
           fromId: hypBefore.id,
           toId: hypAfter.id
@@ -123,6 +131,7 @@ const drawNewHypotheses = (hypsBefore, hypsAfter) => {
         name: hypAfter.username,
         id  : hypAfter.id
       });
+
       prettyHypArrows.push({
         fromId: hypBeforeWithSameUsername.id,
         toId: hypAfter.id
