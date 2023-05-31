@@ -299,9 +299,6 @@ function render(app: App, proofTree: Format) {
       rows.push(hStack(inBetweenMargin, ...frames));
     }
     const goals: Element[] = [];
-    const proved = tactics.some(
-      (t) => t.successGoalId == window.goalNodes[0].id
-    );
     for (const goalNode of [...window.goalNodes].reverse()) {
       const tactic = tactics.find(
         (t) =>
@@ -309,12 +306,14 @@ function render(app: App, proofTree: Format) {
           t.successGoalId == goalNode.id
       );
       const tacticEls: Element[] = tactic
-        ? [createNode(parentId, tactic.text, "tactic")]
+        ? [createNode(parentId,
+          tactic.text + (tactic.successGoalId ? " 🎉" : ""),
+          "tactic")]
         : [];
       const goalEl: Element = createNode(
         parentId,
         goalNode.text,
-        proved ? "value" : "redvalue"
+        "redvalue"
       );
       goals.push(vStack(0, ...tacticEls, goalEl));
     }
