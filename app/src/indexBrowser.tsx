@@ -7,9 +7,9 @@ import {
   LABEL_FONT_SIZES,
   TEXT_PROPS,
   TLParentId,
+  TLShapeId,
   Tldraw,
   TldrawEditorConfig,
-  toolbarItem,
 } from "@tldraw/tldraw";
 import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
@@ -19,6 +19,10 @@ import { WindowShape } from "./window";
 interface Element {
   size: [number, number];
   draw: (x: number, y: number) => void;
+}
+
+interface IdElement extends Element {
+  id: TLShapeId;
 }
 
 function emptyEl(): Element {
@@ -91,12 +95,6 @@ function grid(vMargin: number, hMargin: number, ...rows: Element[][]): Element {
 }
 
 type Node = { text: string; id: string; name?: string; subNodes?: NodeLayer[] };
-type Tactic = {
-  text: string;
-  fromNodeIds: string[];
-  dependsOnIds: string[];
-  toNodeIds: string[];
-};
 
 type NodeLayer = Node[];
 
@@ -121,7 +119,7 @@ interface Window {
   hypNodes: HypLayer[];
 }
 
-interface NewTactic {
+interface Tactic {
   text: string;
   dependsOnIds: string[];
   goalArrows: { fromId: string; toId: string }[];
@@ -133,7 +131,7 @@ interface NewTactic {
 
 interface Format {
   windows: Window[];
-  tactics: NewTactic[];
+  tactics: Tactic[];
 }
 
 const config = new TldrawEditorConfig({
@@ -149,18 +147,45 @@ function render(app: App, proofTree: Format) {
 
   const { tactics } = proofTree;
 
+  const shapeMap = new Map<string, TLShapeId>();
+
+  function drawArrow(from: TLShapeId, to: TLShapeId) {
+    app.createShapes([
+      {
+        id: app.createShapeId(),
+        type: "arrow",
+        props: {
+          start: {
+            type: 'binding', boundShapeId: from,
+            normalizedAnchor: { x: 0.5, y: 1 },
+            isExact: true
+          },
+          end: {
+            type: 'binding', boundShapeId: to,
+            normalizedAnchor: { x: 0.5, y: 0 },
+            isExact: true
+          },
+          color: "grey",
+        },
+      },
+    ]);
+  }
+
   const createNode = (
     parentId: TLParentId | undefined,
     text: string,
-    type: "value" | "tactic" | "redvalue" = "value"
-  ): Element => {
+    type: "value" | "tactic" | "redvalue" = "value",
+    dependsOnIds: TLShapeId[] = [],
+  ): IdElement => {
+    const id = app.createShapeId();
     const [w, h] = getTextSize(text);
     return {
+      id,
       size: [w, h],
       draw(x, y) {
         app.createShapes([
           {
-            id: app.createShapeId(),
+            id,
             type: "geo",
             x,
             y,
@@ -179,6 +204,10 @@ function render(app: App, proofTree: Format) {
             },
           },
         ]);
+
+        for (const dependOnId of dependsOnIds) {
+          drawArrow(dependOnId, id);
+        }
       }
     }
   };
@@ -269,18 +298,24 @@ function render(app: App, proofTree: Format) {
             if (haveWindow) {
               nodes.push(createWindow(parentId, haveWindow, format));
             }
+            let tacticId: IdElement | null = null;
             if (tactic) {
-              nodes.push(createNode(
+              tacticId = createNode(
                 parentId,
                 tactic.text,
-                "tactic"
-              ));
+                "tactic",
+                tactic.hypArrows.flatMap((a) => a.toId == node.id && a.fromId ? shapeMap.get(a.fromId) ?? [] : [])
+                // tactic.dependsOnIds
+              );
+              nodes.push(tacticId);
             }
             // For cases h._@.Examples._hyg.1162
             const hypName = node.name.includes(".")
               ? `${node.name.split(".")[0]}✝`
               : node.name;
-            nodes.push(createNode(parentId, `${hypName}: ${node.text}`));
+            const hypNode = createNode(parentId, `${hypName}: ${node.text}`, 'value', tacticId ? [tacticId.id] : []);
+            nodes.push(hypNode);
+            shapeMap.set(node.id, hypNode.id);
             col.push(vStack(0, ...nodes));
           } else {
             col.push(emptyEl());
@@ -308,7 +343,9 @@ function render(app: App, proofTree: Format) {
       const tacticEls: Element[] = tactic
         ? [createNode(parentId,
           tactic.text + (tactic.successGoalId ? " 🎉" : ""),
-          "tactic")]
+          "tactic",
+          // tactic.dependsOnIds
+        )]
         : [];
       const goalEl: Element = createNode(
         parentId,

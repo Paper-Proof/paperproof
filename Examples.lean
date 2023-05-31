@@ -203,7 +203,12 @@ theorem small_irrational : ¬ ∃ (q : ℚ), q * q = 2 := by
 
 example (a b c d e f : ℕ) (h : b = e) (h₂ : e = d): (a = b) → (b = c) → (e = f) → True := by
   intros ab cd ef
-  rw [h, h₂] at cd
-  exact true
+  rw [h, h₂] at *
+  trivial
+
+example (a b : Prop) : a ∧ b → b ∧ a := by
+  intro ab
+  cases ab
+  apply And.intro <;> assumption
 
 
