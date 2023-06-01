@@ -151,8 +151,8 @@ const getWindowByGoalId = (pretty, goalId) => {
 }
 
 const getRepresentativeGoalId = (pretty, id) => {
-  const representativeId = Object.keys(pretty.equivalentGoalIds).find((representativeId) =>
-    pretty.equivalentGoalIds[representativeId].find((inferiorId) => inferiorId === id)
+  const representativeId = Object.keys(pretty.equivalentIds).find((representativeId) =>
+    pretty.equivalentIds[representativeId].find((inferiorId) => inferiorId === id)
   );
   return representativeId ? representativeId : id;
 }
@@ -160,11 +160,11 @@ const getRepresentativeGoalId = (pretty, id) => {
 // We always wanna talk to the representative of our equivalent goals.
 // Representative goal id is the one that's actually drawn. 
 const addToEquivalentGoalIds = (pretty, beforeId, afterId) => {
-  const existingGoal = pretty.equivalentGoalIds[getRepresentativeGoalId(pretty, beforeId)];
+  const existingGoal = pretty.equivalentIds[getRepresentativeId(pretty, beforeId)];
   if (existingGoal) {
-    existingGoal.push(afterId)
+    existingGoal.push(afterId);
   } else {
-    pretty.equivalentGoalIds[beforeId] = [afterId];
+    pretty.equivalentIds[beforeId] = [afterId];
   }
 }
 
@@ -356,11 +356,20 @@ const recursive = (subSteps, pretty) => {
   })
 }
 
+const postprocess = (pretty) => {
+  pretty.windows.forEach((w) => {
+    w.goalNodes = w.goalNodes.map((goalNode) => ({
+      ...goalNode,
+      ids: pretty.equivalentIds[goalNode.id] || []
+    }));
+  });
+}
+
 export const toEdges = (infoTreeVast) => {
   windowId = 1;
 
   const pretty = {
-    equivalentGoalIds: {},
+    equivalentIds: {},
     windows: [],
     tactics: []
   }
@@ -371,6 +380,8 @@ export const toEdges = (infoTreeVast) => {
 
   // Then, draw all the other tactics and hypotheses and goals.
   recursive(infoTreeVast, pretty);
+
+  postprocess(pretty);
 
   return pretty;
 }
