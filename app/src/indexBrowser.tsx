@@ -143,7 +143,7 @@ const config = new TldrawEditorConfig({
   allowUnknownShapes: true,
 });
 
-function render(app: App, proofTree: Format) {
+function render(app: App, proofTree: Format, currentGoal: string) {
   app.updateInstanceState({ isFocusMode: true });
 
   const inBetweenMargin = 20;
@@ -180,6 +180,7 @@ function render(app: App, proofTree: Format) {
     text: string,
     type: "value" | "tactic" | "redvalue" = "value",
     dependsOnIds: TLShapeId[] = [],
+    ids: string[] = [],
   ): IdElement => {
     const id = app.createShapeId();
     const [w, h] = getTextSize(text);
@@ -187,6 +188,7 @@ function render(app: App, proofTree: Format) {
       id,
       size: [w, h],
       draw(x, y) {
+        const isCurrentGoal = ids.includes(currentGoal);
         app.createShapes([
           {
             id,
@@ -202,7 +204,10 @@ function render(app: App, proofTree: Format) {
               ...(type == "value"
                 ? { dash: "draw", fill: "solid", color: "light-green" }
                 : type == "redvalue"
-                  ? { dash: "draw", fill: "solid", color: "light-red" }
+                  ? (
+                    isCurrentGoal ? {dash: "draw", fill: "pattern", color: "light-blue"} :
+                    { dash: "draw", fill: isCurrentGoal ? "pattern" : "solid", color: "light-red" }
+                  )
                   : { dash: "dotted", fill: "none", color: "grey" }),
               size: "m",
               text,
@@ -358,7 +363,9 @@ function render(app: App, proofTree: Format) {
       const goalEl: Element = createNode(
         parentId,
         goalNode.text,
-        "redvalue"
+        "redvalue",
+        [],
+        [goalNode.id]
       );
       goals.push(vStack(0, ...tacticEls, goalEl));
     }
@@ -373,11 +380,13 @@ function render(app: App, proofTree: Format) {
   }
 }
 
-export default function Example({ proofTree }: { proofTree: Format | null }) {
+export default function Example(
+  { proofTree, currentGoal }:
+    { proofTree: Format | null, currentGoal: string | null }) {
   console.log("Example called");
   const [app, setApp] = useState<App | null>(null);
   if (app) {
-    render(app, proofTree ?? { windows: [], tactics: [] });
+    render(app, proofTree ?? { windows: [], tactics: [] }, currentGoal ?? '');
   }
   const handleMount = (app: App) => {
     setTimeout(() => {
@@ -404,6 +413,7 @@ let lastId = 0;
 
 function Main() {
   const [proofTree, setProofTree] = useState<Format | null>(null);
+  const [currentGoal, setCurrentGoal] = useState<string | null>(null);
   useEffect(() => {
     function getTypes() {
       fetch("getTypes")
@@ -417,6 +427,7 @@ function Main() {
               const edges = toEdges(proofTree.steps);
               console.log("Converted", edges);
               setProofTree(edges);
+              setCurrentGoal(proofTree.goal);
             } else {
               console.log("Empty proof");
             }
@@ -430,7 +441,7 @@ function Main() {
     const interval = setInterval(getTypes, 200);
     return () => clearInterval(interval);
   }, []);
-  return <Example proofTree={proofTree} />;
+  return <Example proofTree={proofTree} currentGoal={currentGoal} />;
 }
 
 ReactDOM.render(

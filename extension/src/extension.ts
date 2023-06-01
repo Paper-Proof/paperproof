@@ -4,19 +4,21 @@ import fetch from "node-fetch";
 
 // Simple request. We don't keep session open and create a new one for each request for now.
 async function simpleRequest(
-  clientProvider: any,
+  method: string,
+  client: any,
   uri: string,
-  tdp: TextDocumentPositionParams
+  tdp: TextDocumentPositionParams,
+  params: any
 ): Promise<any> {
-  const client = clientProvider.findClient(uri);
   const conn = await client.sendRequest("$/lean/rpc/connect", {
     uri,
   });
   return client.sendRequest("$/lean/rpc/call", {
     sessionId: conn.sessionId,
-    method: "getPpContext",
+    method,
+    // TODO: Not sure that is needed
     ...tdp,
-    params: { pos: tdp.position },
+    params
   });
 }
 
@@ -59,17 +61,32 @@ export function activate(context: vscode.ExtensionContext) {
     const clientProvider =
       vscode.extensions.getExtension("leanprover.lean4")?.exports
         .clientProvider;
+    const client = clientProvider.findClient(tdp.textDocument.uri);
+    const uri = tdp.textDocument.uri;
     const context = await simpleRequest(
-      clientProvider,
-      tdp.textDocument.uri,
+      'getPpContext',
+      client,
+      uri,
+      tdp,
+      { pos: tdp.position },
+    );
+    const goalsResponse = await simpleRequest(
+      'Lean.Widget.getInteractiveGoals',
+      client,
+      uri,
+      tdp,
       tdp
     );
-    console.log('Helllo ooo');
+    const goal = goalsResponse.goals.length > 0 ? goalsResponse.goals[0].mvarId : '';
+
+    const body = JSON.parse(context);
+    body['goal'] = goal;
+
     await fetch("http://localhost:3000/sendTypes", {
       method: "POST",
       // eslint-disable-next-line @typescript-eslint/naming-convention
       headers: { "Content-Type": "application/json" },
-      body: context as string,
+      body: JSON.stringify(body),
     });
   });
 
@@ -101,4 +118,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
