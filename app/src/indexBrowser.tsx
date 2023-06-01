@@ -318,7 +318,10 @@ function render(app: App, proofTree: Format) {
             const hypName = node.name.includes(".")
               ? `${node.name.split(".")[0]}✝`
               : node.name;
-            const hypNode = createNode(parentId, `${hypName}: ${node.text}`, 'value', tacticId ? [tacticId.id] : []);
+            const id = localStorage.getItem("dev") === 'true'
+              ? ' ' + node.id
+              : '';
+            const hypNode = createNode(parentId, `${hypName}: ${node.text}${id}`, 'value', tacticId ? [tacticId.id] : []);
             nodes.push(hypNode);
             shapeMap.set(node.id, hypNode.id);
             col.push(vStack(0, ...nodes));
