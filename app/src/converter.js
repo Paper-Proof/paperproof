@@ -329,38 +329,9 @@ const recursive = (subSteps, pretty) => {
     if (subStep.tacticApp) {
       handleTacticApp(subStep.tacticApp.t, pretty);
     } else if (subStep.haveDecl) {
-
       const haveWindowId = newWindowId();
 
-      // 1. handle this `have hi := ~` as a tactic -
-      // that *will* change the goal, and that's important to record, future tactics will reference it!
       handleTacticApp(subStep.haveDecl.t, pretty, haveWindowId);
-      // 2. that will also add `hi` as a hypothesis.
-      // Now, we have a hypothesis
-      // 
-      // `h₁: p ∣ Nat.factorial N`
-      // 
-      // and we have a window
-      // 
-      // {
-      //   "haveName": "have h₁ : p ∣ Nat.factorial N := by",
-      //   "id": 5,
-      //   "parentId": 4,
-      //   "parentHypId": 
-      //   "goalNodes": [
-      //     {
-      //       "text": "p ∣ Nat.factorial N",
-      //       "id": "_uniq.1811"
-      //     },
-      //     {
-      //       "text": "p ≤ N",
-      //       "id": "_uniq.1822"
-      //     }
-      //   ],
-      //   "hypNodes": []
-      // }
-      // 
-      // We want to attach this windowId to the hypothesis.
 
       const intitialGoal = getInitialGoal(subStep.haveDecl.subSteps);
 
