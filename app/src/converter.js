@@ -174,11 +174,14 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
   const mainGoalBefore = tactic.goalsBefore[0];
   const representativeGoalId = getRepresentativeGoalId(pretty, mainGoalBefore.id);
 
-  const currentWindow = getWindowByGoalId(pretty, representativeGoalId);
+  let currentWindow = getWindowByGoalId(pretty, representativeGoalId);
 
   if (!currentWindow) {
+    // return; // 91 lines
+    // currentWindow = pretty.windows[0]; // 191 lines
+    // console.log(currentWindow);
     console.log("Couldn't find a window to place this tactic into.");
-    console.log(util.inspect({ tactic, mainGoalBefore }, { depth: null }));
+    console.log(util.inspect({ windows: pretty.windows, tactic, representativeGoalId }, { depth: null }));
   }
 
   const relevantGoalsAfter = tactic.goalsAfter
@@ -213,9 +216,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     // However sometimes the goal id changes; and the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
     // In such cases, we still want to put this goalNode into our window - to enable future tactics to find this window by goal id.
     // Also: future tactics might well be referencing that id! So we, of course, need to mark it as equivalent to other goal ids.
-    // TODO mark these goalIds as equivalent.
     if (mainGoalBefore.type === updatedGoal.type) {
-      // add to equivalentGoalIds
       addToEquivalentGoalIds(pretty, mainGoalBefore.id, updatedGoal.id)
     } else {
       currentWindow.goalNodes.push({
