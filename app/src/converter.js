@@ -92,16 +92,15 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
   // - if X hypotheses disappeared, and 0 hypotheses appeared, draw { id → null } arrows [many nulls!]
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
     hypsBeforeThatDisappeared.forEach((hypBefore) => {
-      const hypBeforeId = getRepresentativeId(pretty, hypBefore.id);
       prettyHypNodes.push({
         text: null,
         name: null,
-        id  : `${hypBeforeId}-null`
+        id  : `${hypBefore.id}-null`
       });
 
       prettyHypArrows.push({
-        fromId: hypBeforeId,
-        toId: `${hypBeforeId}-null`
+        fromId: hypBefore.id,
+        toId: `${hypBefore.id}-null`
       });
     });
   }
@@ -116,7 +115,7 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
 
       hypsBeforeThatDisappeared.forEach((hypBefore) => {
         prettyHypArrows.push({
-          fromId: getRepresentativeId(pretty, hypBefore.id),
+          fromId: hypBefore.id,
           toId: hypAfter.id
         });
       });
@@ -134,11 +133,22 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
       });
 
       prettyHypArrows.push({
-        fromId: getRepresentativeId(pretty, hypBeforeWithSameUsername.id),
+        fromId: hypBeforeWithSameUsername.id,
         toId: hypAfter.id
       });
     }
   });
+
+  // WHEN THE NODE IS OLD SO WE DID NOT DRAW IT!!! BUT THE ID CHANGED!!!
+  // 1. draw all hypsAfter with new usernames
+  // 2. draw all hypsAfter with old usernames    and new types
+  // 3. do NOT draw hypsAfter with old usernames and old types, but do memorize their ids
+
+  // We never care about id changes, we are only drawing the new node if its username changed, inclusive or if its type changed!
+  // So, if the only thing that changes is an `id`, we want to record that into `equivalentId`s.
+  // Then, in the very end, we should go through all tactics and make sure `{ from, to }` always uses representative ids (that is - the ids of nodes that we actually did draw).
+
+  // if we are NOT drawing the node for which we the id changed - damn, let's record that fact, for continuity!
 
   // 4. Then, independently, record the ids of "same old node, different id" hypotheses (yes, this happens!)
   hypsAfter.forEach((hypAfter) => {
@@ -159,7 +169,7 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
 // A particular goal id only ever belongs to some window. 
 const getWindowByGoalId = (pretty, goalId) => {
   return pretty.windows.find((w) =>
-    w.goalNodes.find((g) => g.id === goalId)
+    w.goalNodes.find((g) => g.id === getRepresentativeId(pretty, goalId))
   )
 }
 
@@ -185,16 +195,15 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const mainGoalBefore = tactic.goalsBefore[0];
-  const representativeGoalId = getRepresentativeId(pretty, mainGoalBefore.id);
 
-  let currentWindow = getWindowByGoalId(pretty, representativeGoalId);
+  let currentWindow = getWindowByGoalId(pretty, mainGoalBefore.id);
 
   if (!currentWindow) {
     // return; // 91 lines
     // currentWindow = pretty.windows[0]; // 191 lines
     // console.log(currentWindow);
     console.log("Couldn't find a window to place this tactic into.");
-    console.log(util.inspect({ windows: pretty.windows, tactic, representativeGoalId }, { depth: null }));
+    console.log(util.inspect({ windows: pretty.windows, tactic }, { depth: null }));
   }
 
   const relevantGoalsAfter = tactic.goalsAfter
@@ -215,7 +224,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
       // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
       // .dependsOnIds will convey all the information we want to see.
       isSuccess    : nextGoal ? '🎉' : 'For all goals, 🎉!',
-      successGoalId: representativeGoalId
+      successGoalId: mainGoalBefore.id
     });
   }
   // - we updated the goal!
@@ -237,7 +246,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
         id  : updatedGoal.id
       });
       prettyGoalArrows = [{
-        fromId: representativeGoalId,
+        fromId: mainGoalBefore.id,
         toId: updatedGoal.id
       }];
     }
@@ -272,7 +281,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
   else if (relevantGoalsAfter.length > 1) {
     // 1. Draw goal nodes and arrows
     const prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
-      fromId: representativeGoalId,
+      fromId: mainGoalBefore.id,
       toId: goal.id
     }));
 
@@ -375,6 +384,26 @@ const postprocess = (pretty) => {
       ...goalNode,
       ids: pretty.equivalentIds[goalNode.id] || []
     }));
+  });
+
+  pretty.tactics.forEach((tactic) => {
+    tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
+      ...goalArrow,
+      fromId: getRepresentativeId(pretty, goalArrow.fromId),
+      toId  : getRepresentativeId(pretty, goalArrow.toId),
+    }));
+
+    tactic.hypArrows = tactic.hypArrows.map((hypArrow) => ({
+      ...hypArrow,
+      fromId: getRepresentativeId(pretty, hypArrow.fromId),
+      toId  : getRepresentativeId(pretty, hypArrow.toId),
+    }));
+
+    tactic.dependsOnIds = tactic.dependsOnIds.map((id) =>
+      getRepresentativeId(pretty, id)
+    );
+
+    tactic.successGoalId = getRepresentativeId(pretty, tactic.successGoalId);
   });
 }
 
