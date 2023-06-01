@@ -19,7 +19,7 @@ In future potentially with LLMs and visual transformers trying to understand use
 
 1. Install the extension from `extension/` folder
 ```console
-code --install-extension extension/tactictree-0.0.1.vsix
+code --install-extension extension/tactictree-0.0.2.vsix
 ```
 
 2. Run the dev server (you might need to run `yarn install` first)

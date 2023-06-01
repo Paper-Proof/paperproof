@@ -2,7 +2,7 @@
   "name": "tactictree",
   "displayName": "tactictree",
   "description": "Extension which queries Lean server each time cursor position changes and sends context to the web server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/antonkov/paper-proof"
@@ -47,7 +47,7 @@
     "mocha": "^10.2.0",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.4",
-    "webpack": "^5.81.0",
+    "webpack": "^5.85.0",
     "webpack-cli": "^5.0.2"
   },
   "dependencies": {
