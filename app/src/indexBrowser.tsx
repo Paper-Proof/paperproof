@@ -180,6 +180,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     text: string,
     type: "value" | "tactic" | "redvalue" = "value",
     dependsOnIds: TLShapeId[] = [],
+    ids: string[] = [],
   ): IdElement => {
     const id = app.createShapeId();
     const [w, h] = getTextSize(text);
@@ -187,7 +188,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
       id,
       size: [w, h],
       draw(x, y) {
-        const isCurrentGoal = text == currentGoal;
+        const isCurrentGoal = ids.includes(currentGoal);
         app.createShapes([
           {
             id,
@@ -362,7 +363,9 @@ function render(app: App, proofTree: Format, currentGoal: string) {
       const goalEl: Element = createNode(
         parentId,
         goalNode.text,
-        "redvalue"
+        "redvalue",
+        [],
+        [goalNode.id]
       );
       goals.push(vStack(0, ...tacticEls, goalEl));
     }
