@@ -56,20 +56,26 @@ const handleTombstonedHypotheses = (hypsBefore, hypsAfterThatAppeared) => {
   hypsAfterThatAppeared.forEach((hypAfter) => {
     const hypBeforeWithSameId = hypsBefore.find((hypBefore) => hypBefore.id == hypAfter.id);
     if (hypBeforeWithSameId && hypAfter.username !== hypBeforeWithSameId.username) {
-      hypAfter.id = `${hypAfter.id}-${hypAfter.username}`;
+      const newId = `${hypAfter.id}-${hypAfter.username}`;
+      // This will make it so that `.dependsOnIds` that are above the renaming will get mislead, but really let's wait for this to happen
+      // addToEquivalentIds(pretty, newId, hypAfter.id);
+      hypAfter.id = newId;
     }
   });
 }
 
 const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
-  let prettyHypArrows = [];
+  const prettyHypArrows = [];
 
   // 1. Determine which hypotheses disappeared and appeared username-wise
+  // 1. Draw all `hypsAfter` that have brand new `.username`s
+  //    [new :username, new :type, new :id]
+  //    [new :username, new :type, old :id] - hopefully doesn't happen
+  //    [new :username, old :type, new :id] - normal situation, type just coincides with smth accidentally
   const [hypsBeforeThatDisappeared, hypsAfterThatAppeared] = getHypChangesByUsername(hypsBefore, hypsAfter);
+  //    [new :username, old :type, old :id] - renames and tombstones, we turn it into [..., new :id] situation
   handleTombstonedHypotheses(hypsBefore, hypsAfterThatAppeared);
-
-  // 2. Draw them!
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
   if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
     // done :-)
@@ -122,7 +128,9 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
     });
   }
 
-  // 3. Then, independently, draw all the `.type` changes for hyps that stayed with the same username!
+  // 2. Draw all `hypsAfter` that have an old `.username`, but their `.type` changed
+  //    [old :username, new :type, new :id]
+  //    [old :username, new :type, old :id] - hopefully doesn't happen
   hypsAfter.forEach((hypAfter) => {
     const hypBeforeWithSameUsername = hypsBefore.find((hypBefore) => hypBefore.username == hypAfter.username);
     if (hypBeforeWithSameUsername && hypBeforeWithSameUsername.type !== hypAfter.type) {
@@ -139,18 +147,8 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
     }
   });
 
-  // WHEN THE NODE IS OLD SO WE DID NOT DRAW IT!!! BUT THE ID CHANGED!!!
-  // 1. draw all hypsAfter with new usernames
-  // 2. draw all hypsAfter with old usernames    and new types
-  // 3. do NOT draw hypsAfter with old usernames and old types, but do memorize their ids
-
-  // We never care about id changes, we are only drawing the new node if its username changed, inclusive or if its type changed!
-  // So, if the only thing that changes is an `id`, we want to record that into `equivalentId`s.
-  // Then, in the very end, we should go through all tactics and make sure `{ from, to }` always uses representative ids (that is - the ids of nodes that we actually did draw).
-
-  // if we are NOT drawing the node for which we the id changed - damn, let's record that fact, for continuity!
-
-  // 4. Then, independently, record the ids of "same old node, different id" hypotheses (yes, this happens!)
+  // 3. Do NOT draw `hypsAfter` that have an old `.username` and an old `.type` - but DO record their ids!
+  //    [old :username, old :type, new :id]
   hypsAfter.forEach((hypAfter) => {
     const hypBeforeWithSameUsername = hypsBefore.find((hypBefore) => hypBefore.username == hypAfter.username);
     if (
@@ -161,6 +159,9 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
       addToEquivalentIds(pretty, hypBeforeWithSameUsername.id, hypAfter.id);
     }
   });
+
+  // 4. For the "hypothesis stayed exactly the same" case we do nothing
+  //    [old :username, old :type, old :id]
 
   return [prettyHypNodes.reverse(), prettyHypArrows];
 }
