@@ -10,72 +10,94 @@ const newWindowId = () => {
   return windowId++;
 }
 
-const getHypChangesByUsername = (hypsBefore, hypsAfter) => {
-  const hypsBeforeUsernames = hypsBefore.map((hyp) => hyp.username);
-  const hypsAfterUsernames  = hypsAfter.map((hyp) => hyp.username);
-  const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsAfterUsernames.includes(hyp.username));
-  const hypsAfterThatAppeared     = hypsAfter.filter((hyp) => !hypsBeforeUsernames.includes(hyp.username));
-  return [hypsBeforeThatDisappeared, hypsAfterThatAppeared];
-}
-
-// Handle a special case: the `rename/rename_i` tactic
-// Notice how we're only calling this method in `1 goal => 1 goal` cases. It's theoretically possible that the hypothesis username would change with unchanged id on bifurcations, but then we'd have bigger problems (we'll want to create fake ids to know how to draw arrows!) - let's wait for this situation to arise.
-const drawRenamedHypotheses = (currentWindow, hypsBefore, hypsAfter) => {
-  const [hypsBeforeThatDisappeared, hypsAfterThatAppeared] = getHypChangesByUsername(hypsBefore, hypsAfter);
-
-  // In renames, the hypothesis `id` stays the same, and its `username` changes.
-  const isRename =
-    hypsBeforeThatDisappeared.length === hypsAfterThatAppeared.length &&
-    hypsBeforeThatDisappeared.every((h1) => hypsAfterThatAppeared.find((h2) => h1.id === h2.id)) &&
-    hypsBeforeThatDisappeared.some((h1) => hypsAfterThatAppeared.find((h2) =>
-      h1.id === h2.id && h1.username !== h2.username
-    ));
-
-  if (isRename) {
-    hypsAfterThatAppeared.forEach((renamedHyp) => {
-      // 1. Find the hypNode in our window that we want to rename
-      currentWindow.hypNodes.forEach((hypLevel) => {
-        hypLevel.forEach((existingHypNode) => {
-          // 2. Update its name
-          if (existingHypNode.id === renamedHyp.id) {
-            existingHypNode.name = renamedHyp.username;
-          }
-        })
-      });
+// These are our weird situations:
+//
+// same id, same usernames, different type
+// same id, different usernames, same type
+// same id, different usernames, different type
+// same id, same usernames, different type
+//
+// Notice how they all concern the situation where something important changed, but the id didn't!
+// In such cases - let's trust Lean that the change is so miniscule it isn't worth the id update.
+//
+// IF we stumble upon the situation where this behaviour is undesirable - let's start creating a complex data structure that creates new fake ids; and makes Lean keep track of them in a way that accounts for window parenthood relationships.
+const weirdSituation = (pretty, hypAfter) => {
+  console.warn("Weird situation! Changing existingHypNode into hypAfter in-place:");
+  const hypAfterId = getRepresentativeId(pretty, hypAfter.id);
+  pretty.windows.forEach((w) => {
+    w.hypNodes.forEach((hypLevel) => {
+      hypLevel.forEach((existingHypNode) => {
+        if (existingHypNode.id === hypAfterId) {
+          console.log({ existingHypNode, hypAfter });
+          existingHypNode.name = hypAfter.username;
+          existingHypNode.text = hypAfter.type;
+        }
+      })
     });
-    return true;
-  } else {
-    return false;
-  }
+  })
 }
 
-// Sometimes, the hypothesis id stays the same, but the username changes.
-// The only case we where saw this happening are rewrites that mark the old hyp name with a tombstone, e.g. `coprime✝`m if they cannot clean it up (see https://github.com/leanprover/lean4/blob/5661b15e35285a4ed11e0d1d70a960117ea501a9/src/Lean/Meta/Tactic/Replace.lean#L89).
-// In such cases, we want to modify the hyp's id with the username, so that our tactic's `{ fromId: ~, toId: ~ }` knows what it's referencing.
-const handleTombstonedHypotheses = (hypsBefore, hypsAfterThatAppeared) => {
-  hypsAfterThatAppeared.forEach((hypAfter) => {
-    const hypBeforeWithSameId = hypsBefore.find((hypBefore) => hypBefore.id == hypAfter.id);
-    if (hypBeforeWithSameId && hypAfter.username !== hypBeforeWithSameId.username) {
-      const newId = `${hypAfter.id}-${hypAfter.username}`;
-      // This will make it so that `.dependsOnIds` that are above the renaming will get mislead, but really let's wait for this to happen
-      // addToEquivalentIds(pretty, newId, hypAfter.id);
-      hypAfter.id = newId;
-    }
-  });
-}
-
-const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
+const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
   const prettyHypArrows = [];
 
-  // 1. Determine which hypotheses disappeared and appeared username-wise
-  // 1. Draw all `hypsAfter` that have brand new `.username`s
-  //    [new :username, new :type, new :id]
-  //    [new :username, new :type, old :id] - hopefully doesn't happen
-  //    [new :username, old :type, new :id] - normal situation, type just coincides with smth accidentally
-  const [hypsBeforeThatDisappeared, hypsAfterThatAppeared] = getHypChangesByUsername(hypsBefore, hypsAfter);
-  //    [new :username, old :type, old :id] - renames and tombstones, we turn it into [..., new :id] situation
-  handleTombstonedHypotheses(hypsBefore, hypsAfterThatAppeared);
+  // 1. Draw hypotheses that are clearly connected to a particular previous hypothesis
+  hypsAfter.forEach((hypAfter) => {
+    const hypBeforeById   = hypsBefore.find((hyp) => hyp.id === hypAfter.id);
+    const hypBeforeByName = hypsBefore.find((hyp) => hyp.username === hypAfter.username);
+
+    if (hypBeforeById) {
+      if      (hypAfter.username === hypBeforeById.username && hypAfter.type === hypBeforeById.type) {
+        // do nothing!
+      }
+      else if (hypAfter.username === hypBeforeById.username && hypAfter.type !== hypBeforeById.type) {
+        weirdSituation(pretty, hypAfter);
+      }
+      else if (hypAfter.username !== hypBeforeById.username && hypAfter.type === hypBeforeById.type) {
+        weirdSituation(pretty, hypAfter);
+      }
+      else if (hypAfter.username !== hypBeforeById.username && hypAfter.type !== hypBeforeById.type) {
+        weirdSituation(pretty, hypAfter);
+      }
+    }
+    else if (hypBeforeByName) {
+      if      (hypAfter.id === hypBeforeByName.id && hypAfter.type === hypBeforeByName.type) {
+        // do nothing!
+      }
+      else if (hypAfter.id === hypBeforeByName.id && hypAfter.type !== hypBeforeByName.type) {
+        weirdSituation(pretty, hypAfter);
+      }
+      else if (hypAfter.id !== hypBeforeByName.id && hypAfter.type === hypBeforeByName.type) {
+        // don't create any new nodes or arrows, just add `hypAfter.id` to equivalentIds
+        addToEquivalentIds(pretty, hypBeforeByName.id, hypAfter.id);
+      }
+      else if (hypAfter.id !== hypBeforeByName.id && hypAfter.type !== hypBeforeByName.type) {
+        // draw a new node, draw an arrow
+        prettyHypNodes.push({
+          text: hypAfter.type,
+          name: hypAfter.username,
+          id  : hypAfter.id
+        });
+
+        prettyHypArrows.push({
+          fromId: hypBeforeByName.id,
+          toId  : hypAfter.id
+        });
+      }
+    }
+  });
+
+  // 2. Draw hypotheses that disappeared and appeared out of nowhere
+  const hypsBeforeThatDisappeared = hypsBefore.filter((hypBefore) =>
+    !hypsAfter.find((hypAfter) => hypBefore.username === hypAfter.username) &&
+    !hypsAfter.find((hypAfter) => hypBefore.id === hypAfter.id)
+  );
+
+  const hypsAfterThatAppeared = hypsAfter.filter((hypAfter) =>
+    !hypsBefore.find((hypBefore) => hypBefore.username === hypAfter.username) &&
+    !hypsBefore.find((hypBefore) => hypBefore.id === hypAfter.id)
+  );
+
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
   if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
     // done :-)
@@ -91,7 +113,7 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
 
       prettyHypArrows.push({
         fromId: null,
-        toId: hypAfter.id
+        toId  : hypAfter.id
       });
     });
   }
@@ -106,7 +128,7 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
 
       prettyHypArrows.push({
         fromId: hypBefore.id,
-        toId: `${hypBefore.id}-null`
+        toId  : `${hypBefore.id}-null`
       });
     });
   }
@@ -122,46 +144,11 @@ const drawNewHypotheses = (pretty, hypsBefore, hypsAfter) => {
       hypsBeforeThatDisappeared.forEach((hypBefore) => {
         prettyHypArrows.push({
           fromId: hypBefore.id,
-          toId: hypAfter.id
+          toId  : hypAfter.id
         });
       });
     });
   }
-
-  // 2. Draw all `hypsAfter` that have an old `.username`, but their `.type` changed
-  //    [old :username, new :type, new :id]
-  //    [old :username, new :type, old :id] - hopefully doesn't happen
-  hypsAfter.forEach((hypAfter) => {
-    const hypBeforeWithSameUsername = hypsBefore.find((hypBefore) => hypBefore.username == hypAfter.username);
-    if (hypBeforeWithSameUsername && hypBeforeWithSameUsername.type !== hypAfter.type) {
-      prettyHypNodes.push({
-        text: hypAfter.type,
-        name: hypAfter.username,
-        id  : hypAfter.id
-      });
-
-      prettyHypArrows.push({
-        fromId: hypBeforeWithSameUsername.id,
-        toId: hypAfter.id
-      });
-    }
-  });
-
-  // 3. Do NOT draw `hypsAfter` that have an old `.username` and an old `.type` - but DO record their ids!
-  //    [old :username, old :type, new :id]
-  hypsAfter.forEach((hypAfter) => {
-    const hypBeforeWithSameUsername = hypsBefore.find((hypBefore) => hypBefore.username == hypAfter.username);
-    if (
-      hypBeforeWithSameUsername &&
-      hypBeforeWithSameUsername.type === hypAfter.type &&
-      hypBeforeWithSameUsername.id !== hypAfter.id
-    ) {
-      addToEquivalentIds(pretty, hypBeforeWithSameUsername.id, hypAfter.id);
-    }
-  });
-
-  // 4. For the "hypothesis stayed exactly the same" case we do nothing
-  //    [old :username, old :type, old :id]
 
   return [prettyHypNodes.reverse(), prettyHypArrows];
 }
@@ -200,11 +187,11 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
   let currentWindow = getWindowByGoalId(pretty, mainGoalBefore.id);
 
   if (!currentWindow) {
-    // return; // 91 lines
     // currentWindow = pretty.windows[0]; // 191 lines
-    // console.log(currentWindow);
-    console.log("Couldn't find a window to place this tactic into.");
-    console.log(util.inspect({ windows: pretty.windows, tactic }, { depth: null }));
+    console.warn("Couldn't find a window to place this tactic into.");
+    console.log({ mainGoalBefore });
+    return; // 91 lines
+    // console.log(util.inspect({ windows: pretty.windows, tactic }, { depth: null }));
   }
 
   const relevantGoalsAfter = tactic.goalsAfter
@@ -255,10 +242,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     // 2. Draw hypothesis nodes and arrows
     const hypsBefore = mainGoalBefore.hyps;
     const hypsAfter  = updatedGoal.hyps;
-    const isRename = drawRenamedHypotheses(currentWindow, hypsBefore, hypsAfter);
-    let [prettyHypNodes, prettyHypArrows] = isRename ?
-      [[], []] :
-      drawNewHypotheses(pretty, hypsBefore, hypsAfter);
+    let [prettyHypNodes, prettyHypArrows] = drawNewHypothesisLayer(pretty, hypsBefore, hypsAfter);
 
     if (haveWindowId) {
       prettyHypNodes.forEach((hypNode) => {
@@ -291,7 +275,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     const childWindows = relevantGoalsAfter.map((goal) => {
       const hypsBefore = mainGoalBefore.hyps;
       const hypsAfter  = goal.hyps;
-      const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypotheses(pretty, hypsBefore, hypsAfter);
+      const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(pretty, hypsBefore, hypsAfter);
       prettyHypArrows.push(...prettyHypArrowsForAChild);
 
       return {
