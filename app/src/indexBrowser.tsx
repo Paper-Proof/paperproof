@@ -360,9 +360,12 @@ function render(app: App, proofTree: Format, currentGoal: string) {
           // tactic.dependsOnIds
         )]
         : [];
+      const id = localStorage.getItem("dev") === 'true'
+        ? ' ' + goalNode.id
+        : '';
       const goalEl: Element = createNode(
         parentId,
-        goalNode.text,
+        goalNode.text + id,
         "redvalue",
         [],
         [goalNode.id]
