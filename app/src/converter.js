@@ -20,7 +20,7 @@ const newWindowId = () => {
 // Notice how they all concern the situation where something important changed, but the id didn't!
 // In such cases - let's trust Lean that the change is so miniscule it isn't worth the id update.
 //
-// IF we stumble upon the situation where this behaviour is undesirable - let's start creating a complex data structure that creates new fake ids; and makes Lean keep track of them in a way that accounts for window parenthood relationships.
+// IF we stumble upon the situation where this behaviour is undesirable - let's create a complex data structure that creates new fake ids; and keep track of them in a way that accounts for window parenthood relationships.
 const weirdSituation = (pretty, hypAfter) => {
   console.warn("Weird situation! Changing existingHypNode into hypAfter in-place:");
   const hypAfterId = getRepresentativeId(pretty, hypAfter.id);
@@ -32,9 +32,9 @@ const weirdSituation = (pretty, hypAfter) => {
           existingHypNode.name = hypAfter.username;
           existingHypNode.text = hypAfter.type;
         }
-      })
+      });
     });
-  })
+  });
 }
 
 const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
@@ -227,7 +227,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     // In such cases, we still want to put this goalNode into our window - to enable future tactics to find this window by goal id.
     // Also: future tactics might well be referencing that id! So we, of course, need to mark it as equivalent to other goal ids.
     if (mainGoalBefore.type === updatedGoal.type) {
-      addToEquivalentIds(pretty, mainGoalBefore.id, updatedGoal.id)
+      addToEquivalentIds(pretty, mainGoalBefore.id, updatedGoal.id);
     } else {
       currentWindow.goalNodes.push({
         text: updatedGoal.type,
@@ -246,7 +246,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
 
     if (haveWindowId) {
       prettyHypNodes.forEach((hypNode) => {
-        hypNode.haveWindowId = haveWindowId
+        hypNode.haveWindowId = haveWindowId;
       });
     }
 
