@@ -23,7 +23,8 @@ const newWindowId = () => {
 // IF we stumble upon the situation where this behaviour is undesirable - let's create a complex data structure that creates new fake ids; and keep track of them in a way that accounts for window parenthood relationships.
 const weirdSituation = (pretty, hypAfter) => {
   console.warn("Weird situation! Changing existingHypNode into hypAfter in-place:");
-  const hypAfterId = getRepresentativeId(pretty, hypAfter.id);
+  // We need a displayed id here [because, unusually enough, we're changing the already-drawn node]
+  const hypAfterId = getDisplayedId(pretty, hypAfter.id);
   pretty.windows.forEach((w) => {
     w.hypNodes.forEach((hypLevel) => {
       hypLevel.forEach((existingHypNode) => {
@@ -157,21 +158,21 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
 // A particular goal id only ever belongs to some window. 
 const getWindowByGoalId = (pretty, goalId) => {
   return pretty.windows.find((w) =>
-    w.goalNodes.find((g) => g.id === getRepresentativeId(pretty, goalId))
+    w.goalNodes.find((g) => g.id === getDisplayedId(pretty, goalId))
   )
 }
 
-const getRepresentativeId = (pretty, id) => {
-  const representativeId = Object.keys(pretty.equivalentIds).find((representativeId) =>
-    pretty.equivalentIds[representativeId].find((inferiorId) => inferiorId === id)
+const getDisplayedId = (pretty, id) => {
+  const displayedId = Object.keys(pretty.equivalentIds).find((displayedId) =>
+    pretty.equivalentIds[displayedId].find((inferiorId) => inferiorId === id)
   );
-  return representativeId ? representativeId : id;
+  return displayedId ? displayedId : id;
 }
 
 // We always wanna talk to the representative of our equivalent goals.
 // Representative goal id is the one that's actually drawn. 
 const addToEquivalentIds = (pretty, beforeId, afterId) => {
-  const existingGoal = pretty.equivalentIds[getRepresentativeId(pretty, beforeId)];
+  const existingGoal = pretty.equivalentIds[getDisplayedId(pretty, beforeId)];
   if (existingGoal) {
     existingGoal.push(afterId);
   } else {
@@ -374,21 +375,21 @@ const postprocess = (pretty) => {
   pretty.tactics.forEach((tactic) => {
     tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
       ...goalArrow,
-      fromId: getRepresentativeId(pretty, goalArrow.fromId),
-      toId  : getRepresentativeId(pretty, goalArrow.toId),
+      fromId: getDisplayedId(pretty, goalArrow.fromId),
+      toId  : getDisplayedId(pretty, goalArrow.toId),
     }));
 
     tactic.hypArrows = tactic.hypArrows.map((hypArrow) => ({
       ...hypArrow,
-      fromId: getRepresentativeId(pretty, hypArrow.fromId),
-      toId  : getRepresentativeId(pretty, hypArrow.toId),
+      fromId: getDisplayedId(pretty, hypArrow.fromId),
+      toId  : getDisplayedId(pretty, hypArrow.toId),
     }));
 
     tactic.dependsOnIds = tactic.dependsOnIds.map((id) =>
-      getRepresentativeId(pretty, id)
+      getDisplayedId(pretty, id)
     );
 
-    tactic.successGoalId = getRepresentativeId(pretty, tactic.successGoalId);
+    tactic.successGoalId = getDisplayedId(pretty, tactic.successGoalId);
   });
 }
 
