@@ -217,3 +217,11 @@ example (p q : Prop) : p ∨ q → q ∨ p := by
   cases h with
   | inl hppp => apply Or.inr; exact hppp
   | inr hqqq => apply Or.inl; exact hqqq
+
+example (h : p = q) : p ∨ q → p := by
+  intro porq
+  cases porq
+  clear h
+  sorry
+  sorry
+
