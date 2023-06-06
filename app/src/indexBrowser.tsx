@@ -109,7 +109,7 @@ interface GoalNode {
 
 interface HypNode {
   text: string;
-  name: string;
+  name: string | null;
   id: string;
   haveWindowId?: number;
 }
@@ -142,6 +142,23 @@ const config = new TldrawEditorConfig({
   shapes: [WindowShape],
   allowUnknownShapes: true,
 });
+
+function getHypNodeText(node: HypNode) {
+  const text = (() => {
+    if (!node.name) {
+      return node.text;
+    }
+    // For cases h._@.Examples._hyg.1162
+    const hypName = node.name.includes(".")
+      ? `${node.name.split(".")[0]}✝`
+      : node.name;
+    return `${hypName}: ${node.text}`;
+  })();
+  const devId = localStorage.getItem("dev") === 'true'
+    ? ' ' + node.id
+    : '';
+  return `${text}${devId}`;
+}
 
 function render(app: App, proofTree: Format, currentGoal: string) {
   app.updateInstanceState({ isFocusMode: true });
@@ -205,8 +222,8 @@ function render(app: App, proofTree: Format, currentGoal: string) {
                 ? { dash: "draw", fill: "solid", color: "light-green" }
                 : type == "redvalue"
                   ? (
-                    isCurrentGoal ? {dash: "draw", fill: "pattern", color: "light-blue"} :
-                    { dash: "draw", fill: isCurrentGoal ? "pattern" : "solid", color: "light-red" }
+                    isCurrentGoal ? { dash: "draw", fill: "pattern", color: "light-blue" } :
+                      { dash: "draw", fill: isCurrentGoal ? "pattern" : "solid", color: "light-red" }
                   )
                   : { dash: "dotted", fill: "none", color: "grey" }),
               size: "m",
@@ -283,20 +300,24 @@ function render(app: App, proofTree: Format, currentGoal: string) {
       }
     }
     for (const rwSeq of rwSeqs) {
-      const colNames: string[] = [];
+      // Column is named by the id of the top node in the column,
+      // since not all nodes have names.
+      const nodeToCol = new Map<string, string>();
       for (const layer of rwSeq) {
         for (const node of layer) {
-          if (!colNames.includes(node.name)) {
-            colNames.push(node.name);
-          }
+          const tactic = format.tactics.find(t => t.hypArrows.some(a => a.toId == node.id));
+          const prevIds = tactic?.hypArrows.flatMap(
+            (a) => a.toId == node.id && a.fromId ? a.fromId : []) ?? []
+          const colName = prevIds.length > 0 ? nodeToCol.get(prevIds[0]) : undefined;
+          nodeToCol.set(node.id, colName ? colName : node.id);
         }
       }
 
       const g: Element[][] = []
-      for (const colName of colNames) {
+      for (const colName of new Set(nodeToCol.values())) {
         const col: Element[] = [];
         for (const layer of rwSeq) {
-          const node = layer.find((n) => n.name == colName);
+          const node = layer.find((n) => nodeToCol.get(n.id) == colName);
           if (node) {
             const tactic = format.tactics.find((t) =>
               t.hypArrows.some((a) => a.toId == node.id)
@@ -319,14 +340,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
               );
               nodes.push(tacticId);
             }
-            // For cases h._@.Examples._hyg.1162
-            const hypName = node.name.includes(".")
-              ? `${node.name.split(".")[0]}✝`
-              : node.name;
-            const id = localStorage.getItem("dev") === 'true'
-              ? ' ' + node.id
-              : '';
-            const hypNode = createNode(parentId, `${hypName}: ${node.text}${id}`, 'value', tacticId ? [tacticId.id] : []);
+            const hypNode = createNode(parentId, getHypNodeText(node), 'value', tacticId ? [tacticId.id] : []);
             nodes.push(hypNode);
             shapeMap.set(node.id, hypNode.id);
             col.push(vStack(0, ...nodes));
