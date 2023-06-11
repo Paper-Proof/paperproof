@@ -49,7 +49,7 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
       | throw <| IO.userError "goal decl not found"
     -- to get tombstones in name ✝ for unreachable hypothesis
     let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
-    let ppContext := ctx.toPPContext lctx
+    let ppContext := {ctx with mctx}.toPPContext lctx
     let hyps ← lctx.foldlM (init := []) (fun acc decl => do
       if decl.isAuxDecl || decl.isImplementationDetail then
         return acc
@@ -145,7 +145,6 @@ where go
         let mut unmatchedGoalIds := (goalsBefore :: (res.map (·.goalsAfter))).join.foldl (fun hs g => hs.erase g.id) newGoalIds
         let unmatchedGoals := (res.map (·.goalsBefore)).join.filter fun g => unmatchedGoalIds.contains g.id
         if !unmatchedGoals.isEmpty then
-          dbg_trace "unmatched goals: {toJson unmatchedGoals}"
           return {result with steps := 
                     .tacticApp {tacticApp with goalsBefore := [goalsBefore[0]!], goalsAfter := unmatchedGoals} :: as}
         return result
