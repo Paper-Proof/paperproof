@@ -211,10 +211,9 @@ example (a b : Prop) : a ∧ b → b ∧ a := by
   cases ab
   apply And.intro <;> assumption
 
--- TODO:lakesare make this work
-example (p q : Prop) (h : e = p) : p ∨ q → q ∨ e := by
+example (p q : Prop) (hep : e = p) : p ∨ q → q ∨ e := by
   intro h
-  cases h with rw[h]
+  cases h with rw[hep]
   | inl hppp =>
       apply Or.inr
       exact hppp
