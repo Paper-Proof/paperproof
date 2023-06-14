@@ -71,6 +71,14 @@ example : (a = b) → (b = c) → (c = d)  → (a = d) := by
   intro ab bc cd
   rw [ab, bc, cd] 
 
+example (p : Prop) (hp : p) : p := by
+  exact hp
+
+theorem test123 (p : Prop) (hp : p) : p ∧ p := by
+  apply And.intro
+  exact hp
+  exact hp
+
 theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
   apply And.intro
   exact hp
@@ -159,11 +167,13 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro h
   cases h.right
-  exact Or.inl ⟨h.left, ‹q›⟩
+  . apply Or.inl; exact ⟨h.left, ‹q›⟩
+  exact Or.inr ⟨h.left, ‹r›⟩
+  sorry
 
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
-  have r : p := by sorry
+  have hr : p := by sorry
   sorry
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
@@ -186,7 +196,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
 example : (a = b) → (a = c) → c → a := by
   intros ab ac
   rw [ab] at ac
-  intro c
+  intro cc
+  sorry
 
 theorem small_irrational : ¬ ∃ (q : ℚ), q * q = 2 := by
   apply not_exists.mpr
