@@ -102,7 +102,7 @@ where go
     let steps := res.map (fun r => r.steps) |>.join
     let allSubGoals := HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
-     -- shortcut if it's not a tactic user wrote
+      -- shortcut if it's not a tactic user wrote
       -- \n trim to avoid empty lines/comments until next tactic,
       -- especially at the end of theorem it will capture comment for the next one
       let some tacticString := tInfo.stx.getSubstring?.map
@@ -161,6 +161,8 @@ where go
         -- Don't add anything new if we already handled it in subtree.
         if steps.map stepGoalsBefore |>.elem goalsBefore then
           return {steps, allGoals}
+        -- It uses allSubGoals instead of allGoals to make tactics like `.` which focus [1, 2, 3] -> [1] goals work.
+        -- TODO: Maybe we should just ignore tactics which goalsAfter is a subset of goalsBefore?
         let orphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allSubGoals steps)
         return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals.toList} :: steps,
                 allGoals}
