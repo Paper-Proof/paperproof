@@ -165,31 +165,15 @@ where go
       | _ =>
         -- Case for `cases` and `induction`.
         let inOrphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allSubGoals steps)
-        if goalsAfter.isEmpty then
-          if inOrphanedGoals.size > 0 then
-            return {steps := .tacticApp {tacticApp with goalsAfter := inOrphanedGoals.toList} :: steps,
-                    allGoals}
-          else
-            let hasAlready := steps.any fun step => stepGoalsBefore step == goalsBefore
-            if hasAlready then
-              return {steps, allGoals}
-            else
-              return {steps := .tacticApp tacticApp :: steps,
-                      allGoals}
-        else 
+        if inOrphanedGoals.size > 0 then
           return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ inOrphanedGoals.toList} :: steps,
                   allGoals}
-        /-
-        let mut steps := steps
-        let inOrphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allGoals steps)
-        if !inOrphanedGoals.isEmpty then
-          steps := .tacticApp {tacticApp with goalsAfter := inOrphanedGoals.toList} :: steps 
-        else if goalsAfter.isEmpty then
-          let outOrphanedGoals := noOutEdgeGoals allGoals steps
-          if !outOrphanedGoals.isEmpty then
-            steps := .tacticApp {tacticApp with goalsBefore := outOrphanedGoals.toList} :: steps 
-        return {steps, allGoals} 
-        -/
+        let hasAlready := steps.any fun step => stepGoalsBefore step == goalsBefore
+        if hasAlready then
+          return {steps, allGoals}
+        else
+          return {steps := .tacticApp tacticApp :: steps,
+                  allGoals}
     else
       return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"
