@@ -51,6 +51,10 @@ def stepGoalsBefore (step : ProofStep) : List GoalInfo := match step with
   | .tacticApp t => t.goalsBefore
   | .haveDecl t _ _ => t.goalsBefore
 
+def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
+  -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
+  (steps.bind stepGoalsAfter).foldl HashSet.erase allGoals
+
 partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
   (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
     match i with
@@ -86,17 +90,7 @@ structure Result where
   steps : List ProofStep
   allGoals : HashSet GoalInfo
 
-def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
-  -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
-  (steps.bind stepGoalsAfter).foldl HashSet.erase allGoals
-
-def noOutEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
-  -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
-  (steps.bind stepGoalsBefore).foldl HashSet.erase allGoals
-
-
 partial def parse (infoTree : InfoTree) : IO Proof := do
-  -- dbg_trace s!"infoTree: {← infoTree.format}"
   let result ← (go none infoTree : IO Result)
   let some statement := (noInEdgeGoals result.allGoals result.steps).toList.head?.map (·.type)
     | throw <| IO.userError "initial goal is expected for theorem"
@@ -141,6 +135,7 @@ where go
       -- TODO: can we grab all have's as one pattern match branch?
       | `(tactic| have $_:letPatDecl)
       | `(tactic| have $_ : $_ := $_) =>
+        -- Something like `have p : a = a := rfl`
         if steps.isEmpty then
           return {steps := [.tacticApp tacticApp],
                   allGoals} 
@@ -163,17 +158,12 @@ where go
                   | x => x,
                 allGoals}
       | _ =>
-        -- Case for `cases` and `induction`.
-        let inOrphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allSubGoals steps)
-        if inOrphanedGoals.size > 0 then
-          return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ inOrphanedGoals.toList} :: steps,
-                  allGoals}
-        let hasAlready := steps.any fun step => stepGoalsBefore step == goalsBefore
-        if hasAlready then
+        -- Don't add anything new if we already handled it in subtree.
+        if steps.map stepGoalsBefore |>.elem goalsBefore then
           return {steps, allGoals}
-        else
-          return {steps := .tacticApp tacticApp :: steps,
-                  allGoals}
+        let orphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allSubGoals steps)
+        return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals.toList} :: steps,
+                allGoals}
     else
       return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"
