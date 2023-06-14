@@ -219,8 +219,22 @@ example (p q : Prop) (hep : e = p) : p ∨ q → q ∨ e := by
       exact hppp
   | inr hqqq => apply Or.inl; exact hqqq
 
+example (l : List α) : (∃ x, x ∈ l) ∨ (l = []) := by
+  match l with
+  | [] => apply Or.inr; rfl
+  | a :: ln => apply Or.inl; use a; apply List.mem_cons_self
+
+theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
+  induction as with
+  | nil          => cases h
+  | cons b bs ih => cases h with
+    | head bs => exact ⟨[], ⟨bs, rfl⟩⟩
+    | tail b h =>
+      match ih h with
+      | ⟨s, ⟨t, h₂⟩⟩ => exact ⟨b :: s, ⟨t, h₂ ▸ rfl⟩⟩
+
 example (p q : Prop) : p → q := by
-  have t : true := by trivial
+  have t : true = true := by trivial
   sorry
 
 example (a : Prop) : a → a := by
