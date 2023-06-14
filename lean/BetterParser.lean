@@ -163,6 +163,8 @@ where go
           return {steps, allGoals}
         -- It uses allSubGoals instead of allGoals to make tactics like `.` which focus [1, 2, 3] -> [1] goals work.
         -- TODO: Maybe we should just ignore tactics which goalsAfter is a subset of goalsBefore?
+        -- But we will need to find a way to understand if tactic actually closed the goal, like `exact ...` and [1, 2] -> [2],
+        -- or just focused it `.` and [1, 2] -> [1].
         let orphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allSubGoals steps)
         return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals.toList} :: steps,
                 allGoals}
