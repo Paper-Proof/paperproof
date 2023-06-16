@@ -18,6 +18,24 @@ import { WindowShape } from "./window";
 
 const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
 
+interface HypTree {
+  level: number;
+  tactic: Element;
+  nodes: { node: Element, tree?: HypTree }[];
+}
+
+/*const example: HypTree = {
+  level: 0,
+  tactic: 1,
+  nodes: [
+    {node: 'a', tree: {level: 2, tactic: 2, nodes: [{node: 'a2'}]}},
+    {node: 'b', tree: {level: 1, tactic: 3, nodes: [
+      {node: 'c', tree: {level: 2, tactic: 4, nodes: [{node: 'c2'}]}},
+      {node: 'd'}
+    ]}}
+  ]
+}*/
+
 interface Element {
   size: [number, number];
   draw: (x: number, y: number) => void;
@@ -76,23 +94,95 @@ function transpose(rows: Element[][]): Element[][] {
   return cols;
 }
 
-function grid(vMargin: number, hMargin: number, ...rows: Element[][]): Element {
-  if (rows.length == 0) return { size: [0, 0], draw: () => { } };
-  const rowSizes = rows.map((row) => hStack(hMargin, ...row).size);
-  const colSizes = transpose(rows).map((col) => vStack(vMargin, ...col).size);
+interface ElementWithParent extends Element {
+  parent: Element;
+}
+
+interface Tree {
+  roots: Element[];
+  subRows: ElementWithParent[][];
+}
+
+function byLevel(hMargin: number, trees: HypTree[]): Element[][] {
+  const rows: Element[][] = [];
+  function visit(t: HypTree) {
+    while (rows.length <= t.level) {
+      rows.push([]);
+    }
+    rows[t.level].push(vStack(0, t.tactic, hStack(hMargin, ...t.nodes.map(n => n.node))));
+    for (const n of t.nodes) {
+      if (n.tree) {
+        visit(n.tree);
+      }
+    }
+  }
+  trees.forEach(visit);
+  return rows;
+}
+
+function sum(a: number[], margin: number = 0): number {
+  if (a.length == 0) {
+    return 0;
+  }
+  return a.reduce((x, y) => x + y) + (a.length - 1) * margin;
+}
+
+function getTreeWidth(hMargin: number, t: HypTree): number {
+  const widths = t.nodes.flatMap(n => n.tree ?
+    [Math.max(n.node.size[0], getTreeWidth(hMargin, n.tree))] : [])
+  return Math.max(t.tactic.size[0], sum(widths, hMargin));
+}
+
+function trees(hMargin: number, ...trees: HypTree[]): Element {
+  if (trees.length == 0) return { size: [0, 0], draw: () => { } };
+  const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, ...row).size[1]);
+  const colWidths = trees.map(t => getTreeWidth(hMargin, t));
+  function draw(x: number, y: number, level: number, t: HypTree) {
+    if (level < t.level) {
+      return draw(x, y + rowHeights[level], level + 1, t);
+    }
+    t.tactic.draw(x, y);
+    for (const node of t.nodes) {
+      node.node.draw(x, y + t.tactic.size[1]);
+      const widths = [node.node.size[0]];
+      if (node.tree) {
+        draw(x, y + rowHeights[level], level + 1, node.tree);
+        widths.push(getTreeWidth(hMargin, node.tree));
+      }
+      x += Math.max(...widths) + hMargin;
+    }
+  }
   return {
     size: [
-      colSizes.map((s) => s[0]).reduce((x, y) => x + y) + (colSizes.length - 1) * hMargin,
-      rowSizes.map((s) => s[1]).reduce((x, y) => x + y) + (rowSizes.length - 1) * vMargin,
+      sum(colWidths, hMargin),
+      sum(rowHeights)
+    ],
+    draw: (x, y) => {
+      for (const tree of trees) {
+        draw(x, y, 0, tree);
+        x += getTreeWidth(hMargin, tree) + hMargin;
+      }
+    }
+  };
+}
+
+function grid(vMargin: number, hMargin: number, ...rows: Element[][]): Element {
+  if (rows.length == 0) return { size: [0, 0], draw: () => { } };
+  const rowHeights = rows.map((row) => hStack(hMargin, ...row).size[1]);
+  const colWidths = transpose(rows).map((col) => vStack(vMargin, ...col).size[0]);
+  return {
+    size: [
+      colWidths.reduce((x, y) => x + y) + (colWidths.length - 1) * hMargin,
+      rowHeights.reduce((x, y) => x + y) + (rowHeights.length - 1) * vMargin,
     ],
     draw(x0, y) {
       for (let i = 0; i < rows.length; i++) {
         let x = x0;
         for (let j = 0; j < rows[i].length; j++) {
           rows[i][j].draw(x, y);
-          x += colSizes[j][0] + hMargin;
+          x += colWidths[j] + hMargin;
         }
-        y += rowSizes[i][1] + vMargin;
+        y += rowHeights[i] + vMargin;
       }
     }
   }
@@ -289,7 +379,9 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     // the same tactic.
     function hasCommonNodes(as: HypLayer[], b: HypLayer) {
       const lastLayer = as[as.length - 1];
-      return lastLayer.some((n) => b.some((m) => n.name == m.name));
+      //return lastLayer.some(a => b.some(n => n.name== a.name));
+      const prevIds = format.tactics.flatMap(t => t.hypArrows.flatMap(a => b.some(toNode => a.toId == toNode.id) && a.fromId ? a.fromId : []));
+      return lastLayer.some(n => prevIds.includes(n.id));
     }
     const rwSeqs: HypLayer[][] = [];
     for (const layer of window.hypNodes) {
@@ -300,57 +392,39 @@ function render(app: App, proofTree: Format, currentGoal: string) {
       }
     }
     for (const rwSeq of rwSeqs) {
-      // Column is named by the id of the top node in the column,
-      // since not all nodes have names.
-      const nodeToCol = new Map<string, string>();
-      for (const layer of rwSeq) {
-        for (const node of layer) {
-          const tactic = format.tactics.find(t => t.hypArrows.some(a => a.toId == node.id));
-          const prevIds = tactic?.hypArrows.flatMap(
-            (a) => a.toId == node.id && a.fromId ? a.fromId : []) ?? []
-          const colName = prevIds.length > 0 ? nodeToCol.get(prevIds[0]) : undefined;
-          nodeToCol.set(node.id, colName ? colName : node.id);
-        }
-      }
-
-      const g: Element[][] = []
-      for (const colName of new Set(nodeToCol.values())) {
-        const col: Element[] = [];
-        for (const layer of rwSeq) {
-          const node = layer.find((n) => nodeToCol.get(n.id) == colName);
-          if (node) {
-            const tactic = format.tactics.find((t) =>
-              t.hypArrows.some((a) => a.toId == node.id)
-            );
-            const nodes: Element[] = [];
-            const haveWindow = format.windows.find(
-              (w) => node.haveWindowId && w.id == node.haveWindowId
-            );
-            if (haveWindow) {
-              nodes.push(createWindow(parentId, haveWindow, format));
+      const topLevelTrees: HypTree[] = [];
+      const nodeToTree = new Map<string, HypTree>();
+      for (let level = rwSeq.length - 1; level >= 0; level--) {
+        const layer = rwSeq[level];
+        const layerTactics = format.tactics.filter(t => t.hypArrows.some(a => layer.some(n => a.toId == n.id)));
+        for (const tactic of layerTactics) {
+          const nodes = layer.filter(n => tactic.hypArrows.some(a => a.toId == n.id));
+          const tacticNode = createNode(
+            parentId,
+            tactic.text,
+            "tactic"
+          );
+          const hTree: HypTree = {tactic: tacticNode, level, nodes: nodes.map(
+            node => {
+              const hypNode = createNode(parentId, getHypNodeText(node), 'value', [tacticNode.id]);
+              return {id: node.id, node: hypNode, tree: nodeToTree.get(node.id)};
             }
-            let tacticId: IdElement | null = null;
-            if (tactic) {
-              tacticId = createNode(
-                parentId,
-                tactic.text,
-                "tactic",
-                tactic.hypArrows.flatMap((a) => a.toId == node.id && a.fromId ? shapeMap.get(a.fromId) ?? [] : [])
-                // tactic.dependsOnIds
-              );
-              nodes.push(tacticId);
-            }
-            const hypNode = createNode(parentId, getHypNodeText(node), 'value', tacticId ? [tacticId.id] : []);
-            nodes.push(hypNode);
-            shapeMap.set(node.id, hypNode.id);
-            col.push(vStack(0, ...nodes));
+          )}
+          // We assume that each tactic has only one fromId
+          // TODO(lakesare): Improve to [fromId, toIds: [...]]
+          const fromIds = new Set(...tactic.hypArrows.map(a => a.fromId ? [a.fromId] : []));
+          if (fromIds.size > 1) {
+            throw new Error("Assumption is wrong. Tactic has more than one fromId");
+          } else if (fromIds.size === 1) {
+            const fromId = fromIds.values().next().value;
+            nodeToTree.set(fromId, hTree)
           } else {
-            col.push(emptyEl());
+            topLevelTrees.push(hTree);
           }
         }
-        g.push(col);
       }
-      rows.push(grid(0, inBetweenMargin, ...transpose(g)));
+      console.log('topLevelTrees', topLevelTrees);
+      rows.push(trees(inBetweenMargin, ...topLevelTrees));
     }
     const subWindows = format.windows.filter((w) => w.parentId == window.id);
     const frames: Element[] = [];

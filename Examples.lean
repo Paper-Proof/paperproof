@@ -259,3 +259,9 @@ example (h : p = q) : p ∨ q → p := by
   sorry
   sorry
 
+-- Example with a grid any multi-out goals
+example (p q r s : Prop) : p ∧ q → r ∧ s → true := by
+  intros hpq hrs
+  cases' hpq with hp hq
+  cases' hrs with hr hs
+  trivial
