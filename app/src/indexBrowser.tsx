@@ -381,6 +381,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
         rwSeqs.push([layer]);
       }
     }
+    // Have window can only be at the top level (since it never desctructs anything but each tactic after first in rwSeq does).
     for (const rwSeq of rwSeqs) {
       const topLevelTrees = new Set<HypTree>();
       const nodeToTree = new Map<string, HypTree>();
@@ -398,8 +399,12 @@ function render(app: App, proofTree: Format, currentGoal: string) {
               tactic.text,
               "tactic"
             );
+            // TODO: Have windows should be on the tactic not nodes.
+            const haveWindows = format.windows
+                                      .filter(w => nodes.some(n => n.haveWindowId == w.id))
+                                      .map(w => createWindow(parentId, w, format));
             const hTree: HypTree = {
-              tactic: tacticNode, level, nodes: nodes.map(
+              tactic: vStack(0, hStack(inBetweenMargin, ...haveWindows), tacticNode), level, nodes: nodes.map(
                 node => {
                   const hypNode = createNode(parentId, getHypNodeText(node), 'value', [tacticNode.id]);
                   const tree = nodeToTree.get(node.id);

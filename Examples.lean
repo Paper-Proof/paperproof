@@ -106,6 +106,7 @@ example : a ∧ b → m ∧ n → a ∧ b := by
   sorry
   -- exact hi.left
 
+-- TODO: It doesn't render top level hyps
 example (f : Nat → Nat) (a : Nat) (h : a + 0 = 0) : f a = f 0 := by
   rw [Nat.add_zero] at h
   rw [h]
@@ -260,8 +261,9 @@ example (h : p = q) : p ∨ q → p := by
   sorry
 
 -- Example with a grid any multi-out goals
-example (p q r s : Prop) : p ∧ q → r ∧ s → true := by
+example (p q r s : Prop) (h : q = s) : p ∧ q → r ∧ s → true := by
   intros hpq hrs
   cases' hpq with hp hq
+  rewrite [h] at hq
   cases' hrs with hr hs
   trivial
