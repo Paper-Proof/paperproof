@@ -398,28 +398,29 @@ function render(app: App, proofTree: Format, currentGoal: string) {
         const layer = rwSeq[level];
         const layerTactics = format.tactics.filter(t => t.hypArrows.some(a => layer.some(n => a.toId == n.id)));
         for (const tactic of layerTactics) {
-          const nodes = layer.filter(n => tactic.hypArrows.some(a => a.toId == n.id));
-          const tacticNode = createNode(
-            parentId,
-            tactic.text,
-            "tactic"
-          );
-          const hTree: HypTree = {tactic: tacticNode, level, nodes: nodes.map(
-            node => {
-              const hypNode = createNode(parentId, getHypNodeText(node), 'value', [tacticNode.id]);
-              return {id: node.id, node: hypNode, tree: nodeToTree.get(node.id)};
-            }
-          )}
-          // We assume that each tactic has only one fromId
           // TODO(lakesare): Improve to [fromId, toIds: [...]]
-          const fromIds = new Set(...tactic.hypArrows.map(a => a.fromId ? [a.fromId] : []));
-          if (fromIds.size > 1) {
-            throw new Error("Assumption is wrong. Tactic has more than one fromId");
-          } else if (fromIds.size === 1) {
-            const fromId = fromIds.values().next().value;
-            nodeToTree.set(fromId, hTree)
-          } else {
-            topLevelTrees.push(hTree);
+          const fromIds = new Set(tactic.hypArrows.map(a => a.fromId));
+          console.log('Taacc', tactic.text, fromIds)
+          for (const fromId of fromIds) {
+            const nodes = layer.filter(n => tactic.hypArrows.some(a => a.fromId == fromId && a.toId == n.id));
+            const tacticNode = createNode(
+              parentId,
+              tactic.text,
+              "tactic"
+            );
+            const hTree: HypTree = {
+              tactic: tacticNode, level, nodes: nodes.map(
+                node => {
+                  const hypNode = createNode(parentId, getHypNodeText(node), 'value', [tacticNode.id]);
+                  return { id: node.id, node: hypNode, tree: nodeToTree.get(node.id) };
+                }
+              )
+            }
+            if (fromId) {
+              nodeToTree.set(fromId, hTree)
+            } else {
+              topLevelTrees.push(hTree);
+            }
           }
         }
       }
