@@ -345,6 +345,8 @@ function render(app: App, proofTree: Format, currentGoal: string) {
 
   app.selectAll().deleteShapes();
 
+  const arrowsToDraw: ({fromId: string, toShapeId: TLShapeId}|{fromShapeId: TLShapeId, toId: string})[] = [];
+
   function createNodes(
     parentId: TLParentId | undefined,
     window: Window,
@@ -384,8 +386,12 @@ function render(app: App, proofTree: Format, currentGoal: string) {
               parentId,
               tactic.text,
               "tactic",
-              `${tactic.id}${fromId}`,
+              `${tactic.id}${fromId}${parentId}`,
             );
+            if (fromId) {
+              arrowsToDraw.push({ fromId, toShapeId: tacticNode.id });
+            }
+            arrowsToDraw.push(...nodes.map(n => ({ fromShapeId: tacticNode.id, toId: n.id })));
             // TODO: Have windows should be on the tactic not nodes.
             const haveWindows = format.windows
                                       .filter(w => nodes.some(n => n.haveWindowId == w.id))
@@ -464,22 +470,17 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     el.draw(0, 0);
   }
   // Draw arrows
-  for (const tactic of proofTree.tactics) {
-    const fromIds = new Set(tactic.hypArrows.map(a => a.fromId));
-    for (const fromId of fromIds) {
-      const tacticId = `${tactic.id}${fromId}`;
-      const toIds = tactic.hypArrows.flatMap(a => a.fromId == fromId ? a.toId : []);
-      const fromShapeId = fromId ? shapeMap.get(fromId) : null;
-      const tacticShapeId = shapeMap.get(tacticId);
-      if (fromShapeId && tacticShapeId) {
-        drawArrow(fromShapeId, tacticShapeId);
+  for (const arrow of arrowsToDraw) {
+    if ('fromId' in arrow) {
+      const fromShapeId = shapeMap.get(arrow.fromId);
+      if (fromShapeId) {
+        drawArrow(fromShapeId, arrow.toShapeId)
       }
-      toIds.forEach(toId => {
-        const toShapeId = shapeMap.get(toId);
-        if (toShapeId && tacticShapeId) {
-          drawArrow(tacticShapeId, toShapeId);
-        }
-      });
+    } else {
+      const toShapeId = shapeMap.get(arrow.toId);
+      if (toShapeId) {
+        drawArrow(arrow.fromShapeId, toShapeId);
+      }
     }
   }
 }
