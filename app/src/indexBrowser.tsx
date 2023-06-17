@@ -287,6 +287,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
             parentId,
             props: {
               geo: "rectangle",
+              // Here we write just 'mono' but in measure text we need to write the actual font family.
               font: "mono",
               w,
               h,
@@ -331,14 +332,13 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     const size = app.textMeasure.measureText({
       ...TEXT_PROPS,
       text,
-      fontFamily: "mono",
+      fontFamily: "tldraw_mono",
       fontSize: LABEL_FONT_SIZES["m"],
       width: "fit-content",
       padding: "16px",
     });
     return [
-      // Don't know how to calculate size correctly yet
-      size.w * 1.6,
+      size.w,
       size.h,
     ];
   }
