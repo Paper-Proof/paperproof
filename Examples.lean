@@ -162,8 +162,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro h
   cases h.right
-  apply Or.inl; exact ⟨h.left, ‹q›⟩
-  exact Or.inr ⟨h.left, ‹r›⟩
+  { apply Or.inl; exact ⟨h.left, ‹q›⟩ }
+  { exact Or.inr ⟨h.left, ‹r›⟩ }
   sorry
 
 
