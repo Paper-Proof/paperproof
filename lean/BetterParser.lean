@@ -61,10 +61,14 @@ partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
     | .ofTermInfo ti  => if let .fvar id := ti.expr then some id else none
     | _ => none 
 
+-- Returns GoalInfo about unassigned goals from the provided list of goals
 def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO (List GoalInfo) := do
-  goals.mapM fun id => do
+  goals.filterMapM fun id => do
     let some decl := mctx.findDecl? id
-      | throw <| IO.userError "goal decl not found"
+      | return none
+    if mctx.eAssignment.contains id ||
+       mctx.dAssignment.contains id then
+      return none
     -- to get tombstones in name ✝ for unreachable hypothesis
     let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
     let ppContext := {ctx with mctx}.toPPContext lctx
@@ -79,7 +83,7 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
         value := value.map (·.fmt.pretty), 
         id := decl.fvarId.name.toString
         } : Hypothesis) ::acc)
-    return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
+    return some ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
 
 structure Proof where
   statement : String
@@ -89,6 +93,15 @@ structure Proof where
 structure Result where
   steps : List ProofStep
   allGoals : HashSet GoalInfo
+
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List GoalInfo × List GoalInfo) := do
+  -- We want to filter out `focus` like tactics which don't do any assignments
+  -- therefore we check all goals on whether they were assigned during the tactic
+  let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
+  let goalsBefore ← getGoals ctx goalMVars tInfo.mctxBefore
+  let goalsAfter ← getGoals ctx goalMVars tInfo.mctxAfter
+  let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
+  return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
 partial def parse (infoTree : InfoTree) : IO Proof := do
   let result ← (go none infoTree : IO Result)
@@ -109,15 +122,16 @@ where go
              (·.toString |>.splitOn "\n" |>.head!.trim)
         | return {steps, allGoals := allSubGoals}
 
-      let goalsBefore ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore
-      let goalsAfter ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter
+      let (goalsBefore, goalsAfter) ← getGoalsChange ctx tInfo
       let allGoals := allSubGoals.insertMany $ goalsBefore ++ goalsAfter
       -- Tactic doesn't change any goals, we shouldn't add it as a proof step.
-      if goalsBefore == goalsAfter then
+      -- For example a tactic like `done` which ensures there are no unsolved goals,
+      -- or `focus` which only leaves one goal, however has no information for the tactic tree
+      -- Note: tactic like `have` changes the goal as it adds something to the context
+      if goalsBefore.isEmpty then
         return {steps, allGoals}
+
       let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
-        -- For example a tactic like `done` just ensures there are no unsolved goals,
-        -- however has no information for the tactic tree
         | return {steps, allGoals}
       
       -- Find names to get decls
