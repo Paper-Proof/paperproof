@@ -36,11 +36,6 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
     exact Nat.Prime.not_dvd_one pp h
   exact ⟨ p, ppos, pp ⟩
 
--- TODO: Parser doesn't work for this theorem yet
--- At the current stage of the proof, it should render like this: https://gcdnb.pbrd.co/images/ElpHkUUB5HjM.jpg?o=1
--- 1) "tactic rw" changing hypothesis should work
--- 2) Destructuring in have's intro's rintro's should work
--- https://github.com/leanprover/lean4/blob/8a302e6135bc1b0f1f2901702664c56cd424ebc2/src/Init/Tactics.lean
 theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   apply not_exists.mpr
   intro ⟨n, d, _, coprime⟩ h
@@ -70,6 +65,14 @@ theorem mini_example : true = true := by
 example : (a = b) → (b = c) → (c = d)  → (a = d) := by
   intro ab bc cd
   rw [ab, bc, cd] 
+
+example (p : Prop) (hp : p) : p := by
+  exact hp
+
+theorem test123 (p : Prop) (hp : p) : p ∧ p := by
+  apply And.intro
+  exact hp
+  exact hp
 
 theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
   apply And.intro
@@ -159,11 +162,13 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro h
   cases h.right
-  exact Or.inl ⟨h.left, ‹q›⟩
+  apply Or.inl; exact ⟨h.left, ‹q›⟩
+  exact Or.inr ⟨h.left, ‹r›⟩
+  sorry
 
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
-  have r : p := by sorry
+  have hr : p := by sorry
   sorry
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
@@ -186,7 +191,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
 example : (a = b) → (a = c) → c → a := by
   intros ab ac
   rw [ab] at ac
-  intro c
+  intro cc
+  sorry
 
 theorem small_irrational : ¬ ∃ (q : ℚ), q * q = 2 := by
   apply not_exists.mpr
@@ -219,8 +225,22 @@ example (p q : Prop) (hep : e = p) : p ∨ q → q ∨ e := by
       exact hppp
   | inr hqqq => apply Or.inl; exact hqqq
 
+example (l : List α) : (∃ x, x ∈ l) ∨ (l = []) := by
+  match l with
+  | [] => apply Or.inr; rfl
+  | a :: ln => apply Or.inl; use a; apply List.mem_cons_self
+
+theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
+  induction as with
+  | nil          => cases h
+  | cons b bs ih => cases h with
+    | head bs => exact ⟨[], ⟨bs, rfl⟩⟩
+    | tail b h =>
+      match ih h with
+      | ⟨s, ⟨t, h₂⟩⟩ => exact ⟨b :: s, ⟨t, h₂ ▸ rfl⟩⟩
+
 example (p q : Prop) : p → q := by
-  have t : true := by trivial
+  have t : true = true := by trivial
   sorry
 
 example (a : Prop) : a → a := by
@@ -234,3 +254,10 @@ example (h : p = q) : p ∨ q → p := by
   sorry
   sorry
 
+-- Example with a grid any multi-out goals
+example (p q r s : Prop) (h : q = s) : p ∧ q → r ∧ s → true := by
+  intros hpq hrs
+  cases' hpq with hp hq
+  rewrite [h] at hq
+  cases' hrs with hr hs
+  trivial

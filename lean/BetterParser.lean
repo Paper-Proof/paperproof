@@ -23,6 +23,12 @@ structure GoalInfo where
   id : String
   deriving Inhabited, ToJson
 
+instance : BEq GoalInfo where
+  beq g1 g2 := g1.id == g2.id
+
+instance : Hashable GoalInfo where
+  hash g := hash g.id
+
 structure TacticApplication where
   tacticString : String
   goalsBefore : List GoalInfo
@@ -36,6 +42,18 @@ inductive ProofStep :=
     (initialGoal: String)
     (subSteps : List ProofStep)
   deriving Inhabited, ToJson
+
+def stepGoalsAfter (step : ProofStep) : List GoalInfo := match step with
+  | .tacticApp t => t.goalsAfter
+  | .haveDecl t _ _ => t.goalsAfter
+
+def stepGoalsBefore (step : ProofStep) : List GoalInfo := match step with
+  | .tacticApp t => t.goalsBefore
+  | .haveDecl t _ _ => t.goalsBefore
+
+def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
+  -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
+  (steps.bind stepGoalsAfter).foldl HashSet.erase allGoals
 
 partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
   (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
@@ -68,42 +86,39 @@ structure Proof where
   steps : List ProofStep
   deriving Inhabited, ToJson 
 
-def getInitialGoal (steps: List ProofStep) : Option String :=
-  let goals := match steps.head? with
-    | .none => []
-    | .some (.tacticApp t) => t.goalsBefore
-    | .some (.haveDecl t _ _) => t.goalsBefore
-  goals.head?.bind fun g => g.type
-
 structure Result where
   steps : List ProofStep
-  goalsBefore : List GoalInfo
-  goalsAfter : List GoalInfo
+  allGoals : HashSet GoalInfo
 
 partial def parse (infoTree : InfoTree) : IO Proof := do
   let result ← (go none infoTree : IO Result)
-  let some statement := getInitialGoal result.steps 
+  let some statement := (noInEdgeGoals result.allGoals result.steps).toList.head?.map (·.type)
     | throw <| IO.userError "initial goal is expected for theorem"
   return {statement, steps := result.steps}
 where go
   | some (ctx : ContextInfo), .node i cs => do
     let newCtx := i.updateContext? ctx
     let res ← cs.toList.mapM (go newCtx)
-    let as := res.map (fun r => r.steps) |>.join
+    let steps := res.map (fun r => r.steps) |>.join
+    let allSubGoals := HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
-      let goalsBefore ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore
-      let goalsAfter ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter
-      let result : Result := {steps := as, goalsBefore, goalsAfter}
       -- shortcut if it's not a tactic user wrote
       -- \n trim to avoid empty lines/comments until next tactic,
       -- especially at the end of theorem it will capture comment for the next one
       let some tacticString := tInfo.stx.getSubstring?.map
-            (·.toString |>.splitOn "\n" |>.head!.trim)
-        | return result
+             (·.toString |>.splitOn "\n" |>.head!.trim)
+        | return {steps, allGoals := allSubGoals}
+
+      let goalsBefore ← getGoals ctx tInfo.goalsBefore tInfo.mctxBefore
+      let goalsAfter ← getGoals ctx tInfo.goalsAfter tInfo.mctxAfter
+      let allGoals := allSubGoals.insertMany $ goalsBefore ++ goalsAfter
+      -- Tactic doesn't change any goals, we shouldn't add it as a proof step.
+      if goalsBefore == goalsAfter then
+        return {steps, allGoals}
       let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
         -- For example a tactic like `done` just ensures there are no unsolved goals,
         -- however has no information for the tactic tree
-        | return result
+        | return {steps, allGoals}
       
       -- Find names to get decls
       let fvarIds := cs.toList.map (findFVars ctx) |>.join
@@ -114,44 +129,48 @@ where go
           goalsAfter,
           tacticDependsOn := fvars.map fun decl => s!"{decl.fvarId.name.toString}"
           }
-      if as.isEmpty then
-        -- When `as` is non-empty it's a tactic combinator, i.e. there are more granular tactics
-        -- in the subtree. For example `have` with `by` or `rw [a,b]`
-        -- Otherwise it's a tactic like `apply`, `exact`, `simp`, or a simple `have` defined in term mode etc.
-        return {result with steps := [.tacticApp tacticApp]} 
-      
+    
       -- It's a tactic combinator
       match tInfo.stx with
       -- TODO: can we grab all have's as one pattern match branch?
       | `(tactic| have $_:letPatDecl)
       | `(tactic| have $_ : $_ := $_) =>
-        let some initialGoal := getInitialGoal as
-          | throw <| IO.userError "initial goal is expected for have"
-        return {result with steps :=
-                  [.haveDecl tacticApp initialGoal as]}
+        -- Something like `have p : a = a := rfl`
+        if steps.isEmpty then
+          return {steps := [.tacticApp tacticApp],
+                  allGoals} 
+ 
+        let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
+        let [initialGoal] := goals.toList
+          -- TODO: have ⟨ p, q ⟩ : (a = a) × (b = b) := ⟨ by rfl, by rfl ⟩ isn't supported yet
+          | throw <| IO.userError s!"exactly one orphaned goal is expected for have with goalsAfter {toJson goalsAfter}, but found {toJson goals.toList}"
+        return {steps := [.haveDecl tacticApp initialGoal.type steps],
+                allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
       | `(tactic| rw [$_,*] $(_)?)
       | `(tactic| rewrite [$_,*] $(_)?) =>
         let prettify (tStr : String) :=
           let res := tStr.trim.dropRightWhile (· == ',')
           -- rw puts final rfl on the "]" token
           if res == "]" then "rfl" else res
-        return {result with steps := as.map fun a => 
-          match a with
-          | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
-          | x => x}
+        return {steps := steps.map fun a => 
+                  match a with
+                  | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
+                  | x => x,
+                allGoals}
       | _ =>
-        -- Case for `cases` and `induction`.
-        let newGoalIds := (res.map (·.goalsBefore)).join.foldl (fun hs g => hs.insert g.id) HashSet.empty
-        let mut unmatchedGoalIds := (goalsBefore :: (res.map (·.goalsAfter))).join.foldl (fun hs g => hs.erase g.id) newGoalIds
-        let unmatchedGoals := (res.map (·.goalsBefore)).join.filter fun g => unmatchedGoalIds.contains g.id
-        if !unmatchedGoals.isEmpty then
-          return {result with steps := 
-                    .tacticApp {tacticApp with goalsBefore := [goalsBefore[0]!], goalsAfter := unmatchedGoals} :: as}
-        return result
+        -- Don't add anything new if we already handled it in subtree.
+        if steps.map stepGoalsBefore |>.elem goalsBefore then
+          return {steps, allGoals}
+        -- It uses allSubGoals instead of allGoals to make tactics like `.` which focus [1, 2, 3] -> [1] goals work.
+        -- TODO: Maybe we should just ignore tactics which goalsAfter is a subset of goalsBefore?
+        -- But we will need to find a way to understand if tactic actually closed the goal, like `exact ...` and [1, 2] -> [2],
+        -- or just focused it `.` and [1, 2] -> [1].
+        let orphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allSubGoals steps)
+        return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals.toList} :: steps,
+                allGoals}
     else
-      -- TODO: It should propagate goals probably.
-      return {goalsBefore := [], goalsAfter := [], steps := as}
+      return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"
   | _, .context ctx t => go ctx t
-  | _, .hole .. => pure {goalsBefore := [], goalsAfter := [], steps := []}
+  | _, .hole .. => pure {steps := [], allGoals := .empty}
     
