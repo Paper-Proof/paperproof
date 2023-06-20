@@ -26,7 +26,7 @@ interface HypTree {
 
 interface Element {
   size: [number, number];
-  draw: (x: number, y: number) => void;
+  draw: (x: number, y: number, prefferedWidth?: number) => void;
 }
 
 interface IdElement extends Element {
@@ -44,10 +44,10 @@ function vStack(margin: number, ...boxes: Element[]): Element {
       Math.max(...boxes.map((b) => b.size[0])),
       boxes.map((b) => b.size[1]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,
     ],
-    draw(x, y) {
+    draw(x, y, prefferedWidth) {
       let dy = 0;
       for (const box of boxes) {
-        box.draw(x, y + dy);
+        box.draw(x, y + dy, prefferedWidth);
         dy += box.size[1] + margin;
       }
     },
@@ -120,7 +120,7 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
     if (level < t.level) {
       return draw(x, y + rowHeights[level], level + 1, t);
     }
-    t.tactic.draw(x, y);
+    const x0 = x;
     for (const node of t.nodes) {
       node.node.draw(x, y + t.tactic.size[1]);
       const widths = [node.node.size[0]];
@@ -130,6 +130,9 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
       }
       x += Math.max(...widths) + hMargin;
     }
+    // We know the preffered width of the tactic only after we draw all the subtree.
+    // This is for cases like `match` or `induction` where the tactic should span all the underlying nodes.
+    t.tactic.draw(x0, y, x - x0 - hMargin);
   }
   return {
     size: [
@@ -276,8 +279,9 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     return {
       id,
       size: [w, h],
-      draw(x, y) {
+      draw(x, y, prefferedWidth?: number) {
         const isCurrentGoal = ids.includes(currentGoal);
+        const effectiveW = !!prefferedWidth && prefferedWidth > w ? prefferedWidth : w;
         app.createShapes([
           {
             id,
@@ -289,7 +293,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
               geo: "rectangle",
               // Here we write just 'mono' but in measure text we need to write the actual font family.
               font: "mono",
-              w,
+              w: effectiveW,
               h,
               ...(type == "value"
                 ? { dash: "draw", fill: "solid", color: "light-green" }
