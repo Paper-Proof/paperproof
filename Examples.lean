@@ -5,7 +5,8 @@ import Mathlib.Tactic.Linarith
 import Std.Data.Int.Basic
 import PaperProof
 import Mathlib.Data.Set.Basic
-
+import Mathlib.Data.Finset.Fold
+import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 
 theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
@@ -267,3 +268,15 @@ example (p q r s : Prop) : p ∧ q → r ∧ s → true := by
   cases hpq
   cases hrs
   trivial
+
+
+-- A typical proof from mathlib
+variable {α β γ : Type _} [CancelCommMonoidWithZero α] [NormalizedGCDMonoid α] {s s₁ s₂ : Finset β} {f : β → α}
+namespace Finset
+def lcm (s : Finset β) (f : β → α) : α :=
+  s.fold GCDMonoid.lcm 1 f
+theorem lcm_congr {f g : β → α} (hs : s₁ = s₂) (hfg : ∀ a ∈ s₂, f a = g a)
+    : s₁.lcm f = s₂.lcm g := by
+  subst hs
+  exact Finset.fold_congr hfg
+
