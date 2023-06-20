@@ -332,7 +332,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     const size = app.textMeasure.measureText({
       ...TEXT_PROPS,
       text,
-      fontFamily: "tldraw_mono",
+      fontFamily: '"tldraw_mono", monospace',
       fontSize: LABEL_FONT_SIZES["m"],
       width: "fit-content",
       padding: "16px",
