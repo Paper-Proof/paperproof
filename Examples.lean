@@ -261,3 +261,9 @@ example (p q r s : Prop) (h : q = s) : p ∧ q → r ∧ s → true := by
   rewrite [h] at hq
   cases' hrs with hr hs
   trivial
+
+example (p q r s : Prop) : p ∧ q → r ∧ s → true := by
+  intros hpq hrs
+  cases hpq
+  cases hrs
+  trivial

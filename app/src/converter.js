@@ -42,12 +42,23 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
   const prettyHypNodes = [];
   const prettyHypArrows = [];
 
+  const hypsAfterMatched = [];
+  const hypsBeforeMatched = [];
+
   // 1. Draw hypotheses that are clearly connected to a particular previous hypothesis
   hypsAfter.forEach((hypAfter) => {
     const hypBeforeById   = hypsBefore.find((hyp) => hyp.id === hypAfter.id);
-    const hypBeforeByName = hypsBefore.find((hyp) => hyp.username === hypAfter.username);
+    const hypBeforeByName = hypsBefore.find((hypBefore) =>
+      (hypBefore.username === hypAfter.username) &&
+      // Only match by username if that hypBefore wasn't already matched by id with someone else.
+      // See github.com/antonkov/paper-proof/issues/10.
+      !(hypsAfter.find((h) => h.id === hypBefore.id && h.id !== hypAfter.id))
+    );
 
     if (hypBeforeById) {
+      hypsAfterMatched.push(hypAfter);
+      hypsBeforeMatched.push(hypBeforeById);
+
       if      (hypAfter.username === hypBeforeById.username && hypAfter.type === hypBeforeById.type) {
         // do nothing!
       }
@@ -62,6 +73,9 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
       }
     }
     else if (hypBeforeByName) {
+      hypsAfterMatched.push(hypAfter);
+      hypsBeforeMatched.push(hypBeforeByName);
+
       if      (hypAfter.id === hypBeforeByName.id && hypAfter.type === hypBeforeByName.type) {
         // do nothing!
       }
@@ -89,15 +103,8 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
   });
 
   // 2. Draw hypotheses that disappeared and appeared out of nowhere
-  const hypsBeforeThatDisappeared = hypsBefore.filter((hypBefore) =>
-    !hypsAfter.find((hypAfter) => hypBefore.username === hypAfter.username) &&
-    !hypsAfter.find((hypAfter) => hypBefore.id === hypAfter.id)
-  );
-
-  const hypsAfterThatAppeared = hypsAfter.filter((hypAfter) =>
-    !hypsBefore.find((hypBefore) => hypBefore.username === hypAfter.username) &&
-    !hypsBefore.find((hypBefore) => hypBefore.id === hypAfter.id)
-  );
+  const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsBeforeMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
+  const hypsAfterThatAppeared = hypsAfter.filter((hyp) => !hypsAfterMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
 
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
   if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
