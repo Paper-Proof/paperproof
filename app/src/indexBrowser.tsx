@@ -477,7 +477,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
 
   const root = proofTree.windows.find((w) => w.parentId == null);
   if (root) {
-    const el = createNodes(undefined, root, proofTree);
+    const el = createWindow(undefined, root, proofTree);
     el.draw(0, 0);
   }
   // Draw arrows
