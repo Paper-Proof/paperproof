@@ -336,12 +336,16 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     }
   }
 
+  function withWidth(width: number, el: Element): Element {
+    return { ...el, draw: (x, y) => { el.draw(x, y, width); } }
+  }
+
   const createWindow = (parentId: TLParentId | undefined, window: Window, format: Format, depth: number): Element => {
     const frameId = app.createShapeId();
-    const nodes = withPadding({ left: framePadding, right: framePadding, top: framePadding, bottom: 0},
+    const nodes = withPadding({ left: framePadding, right: framePadding, top: framePadding, bottom: 0 },
       createNodes(frameId, window, format, depth));
     const title = createNode(frameId, window.goalNodes[0].name, "tactic", "");
-    const layout = vStack(0, nodes, title);
+    const layout = vStack(0, nodes, withWidth(nodes.size[0], title));
     const [w, h] = layout.size;
 
     const draw = (x: number, y: number) => {
@@ -355,7 +359,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
           props: { name: window.id, w, h, depth },
         },
       ]);
-      layout.draw(0, 0, w);
+      layout.draw(0, 0);
     };
     return { size: [w, h], draw };
   }
@@ -476,23 +480,13 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     for (const subWindow of subWindows) {
       frames.push(createWindow(parentId, subWindow, format, depth + 1));
     }
-    if (frames.length > 0) {
-      rows.push(hStack(inBetweenMargin, ...frames));
-    }
-    const goals: Element[] = [];
-    for (const goalNode of [...window.goalNodes].reverse()) {
+    const goalNodes = [...window.goalNodes].reverse();
+    const proof: Element[] = goalNodes.flatMap(goalNode => {
       const tactic = tactics.find(
         (t) =>
           t.goalArrows.some((a) => a.fromId == goalNode.id) ||
           t.successGoalId == goalNode.id
       );
-      const tacticEls: Element[] = tactic
-        ? [createNode(parentId,
-          tactic.text + (tactic.successGoalId ? " 🎉" : ""),
-          "tactic",
-          tactic.id,
-        )]
-        : [];
       const id = localStorage.getItem("dev") === 'true'
         ? ' ' + goalNode.id
         : '';
@@ -503,9 +497,23 @@ function render(app: App, proofTree: Format, currentGoal: string) {
         goalNode.id,
         [goalNode.id]
       );
-      goals.push(vStack(0, ...tacticEls, goalEl));
+      return [tactic ?
+        createNode(parentId,
+          tactic.text + (tactic.successGoalId ? " 🎉" : ""),
+          "tactic",
+          tactic.id,
+        )
+        : [], goalEl].flat();
+    });
+    if (frames.length > 0) {
+      // In such case we want to attach last tactic to the row with frames
+      const framesEl = hStack(inBetweenMargin, ...frames);
+      // We can assume that the first element is a tactic since we have frames.
+      rows.push(vStack(0, framesEl, withWidth(framesEl.size[0], proof[0]), ...proof.slice(1)));
+    } else {
+      const goals = vStack(0, ...proof);
+      rows.push(goals);
     }
-    rows.push(vStack(0, ...goals));
     return vStack(inBetweenMargin, ...rows);
   }
 
