@@ -185,6 +185,7 @@ type Node = { text: string; id: string; name?: string; subNodes?: NodeLayer[] };
 type NodeLayer = Node[];
 
 interface GoalNode {
+  name: string;
   text: string;
   id: string;
 }
@@ -326,10 +327,22 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     }
   };
 
+  function withPadding(padding: { left: number, right: number, top: number, bottom: number }, el: Element): Element {
+    return {
+      size: [el.size[0] + padding.left + padding.right, el.size[1] + padding.top + padding.bottom],
+      draw: (x, y) => {
+        el.draw(x + padding.left, y + padding.top);
+      }
+    }
+  }
+
   const createWindow = (parentId: TLParentId | undefined, window: Window, format: Format, depth: number): Element => {
     const frameId = app.createShapeId();
-    const nodes = createNodes(frameId, window, format, depth);
-    const [w, h] = [nodes.size[0] + 2 * framePadding, nodes.size[1] + 2 * framePadding];
+    const nodes = withPadding({ left: framePadding, right: framePadding, top: framePadding, bottom: 0},
+      createNodes(frameId, window, format, depth));
+    const title = createNode(frameId, window.goalNodes[0].name, "tactic", "");
+    const layout = vStack(0, nodes, title);
+    const [w, h] = layout.size;
 
     const draw = (x: number, y: number) => {
       app.createShapes([
@@ -342,7 +355,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
           props: { name: window.id, w, h, depth },
         },
       ]);
-      nodes.draw(framePadding, framePadding);
+      layout.draw(0, 0, w);
     };
     return { size: [w, h], draw };
   }
