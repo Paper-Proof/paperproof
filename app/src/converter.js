@@ -239,6 +239,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     } else {
       currentWindow.goalNodes.push({
         text: updatedGoal.type,
+        name: updatedGoal.username,
         id  : updatedGoal.id
       });
       prettyGoalArrows = [{
@@ -292,6 +293,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
         goalNodes: [
           {
             text: goal.type,
+            name: goal.username,
             id: goal.id
           }
         ],
@@ -322,6 +324,7 @@ const drawInitialGoal = (initialMainGoal, pretty) => {
     goalNodes: [
       {
         text: initialMainGoal.type,
+        name: initialMainGoal.username,
         id  : initialMainGoal.id
       }
     ],
@@ -348,7 +351,7 @@ const recursive = (subSteps, pretty) => {
 
       handleTacticApp(subStep.haveDecl.t, pretty, haveWindowId);
 
-      const intitialGoal = getInitialGoal(subStep.haveDecl.subSteps);
+      const initialGoal = getInitialGoal(subStep.haveDecl.subSteps);
 
       const initialWindow = {
         id: haveWindowId,
@@ -357,8 +360,9 @@ const recursive = (subSteps, pretty) => {
         parentId: "haveWindow",
         goalNodes: [
           {
-            text: intitialGoal.type,
-            id  : intitialGoal.id
+            text: initialGoal.type,
+            name: initialGoal.username,
+            id  : initialGoal.id
           }
         ],
         // `have`s don't introduce any new hypotheses
@@ -410,8 +414,8 @@ export const toEdges = (infoTreeVast) => {
   }
 
   // First of all, draw the INITIAL hypotheses and goal.
-  const intitialGoal = getInitialGoal(infoTreeVast);
-  drawInitialGoal(intitialGoal, pretty);
+  const initialGoal = getInitialGoal(infoTreeVast);
+  drawInitialGoal(initialGoal, pretty);
 
   // Then, draw all the other tactics and hypotheses and goals.
   recursive(infoTreeVast, pretty);
