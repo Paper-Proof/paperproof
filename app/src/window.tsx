@@ -9,6 +9,26 @@ import {
 } from "@tldraw/tldraw";
 import { TLShape, TLShapeId } from "@tldraw/tlschema";
 
+/*const colors = [
+  "#eceff1",
+  "#cfd8dc",
+  "#b0bec5"
+]*/
+
+// Cool grey material dark palette
+const colors = [
+  "#1f2933",
+  "#323f4b",
+  "#3e4c59",
+  "#52606d",
+  "#616e7c",
+  "#7b8794",
+  "#9aa5b1",
+  "#cbd2d9",
+  "#e4e7eb",
+  "#f5f7fa"
+].reverse()
+
 // Shape Type
 // ----------
 // Every shape needs an opacity prop (for now), but other than that
@@ -19,6 +39,7 @@ type WindowShape = TLBaseShape<
     name: string;
     w: number;
     h: number;
+    depth: number;
     opacity: TLOpacityType;
   }
 >;
@@ -42,30 +63,11 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
   override canEdit = () => true;
 
   override defaultProps(): WindowShape["props"] {
-    return { opacity: "1", w: 160 * 2, h: 90 * 2, name: "none" };
+    return { opacity: "1", w: 160 * 2, h: 90 * 2, name: "none", depth: 0 };
   }
 
   override render(shape: WindowShape) {
     const bounds = this.bounds(shape);
-
-    function hash(text: string) {
-      let hash = 0;
-      if (text.length === 0) return hash;
-      for (let i = 0; i < text.length; i++) {
-        const chr = text.charCodeAt(i);
-        hash = (hash << 5) - hash + chr;
-        hash |= 0; // Convert to 32bit integer
-      }
-      return hash;
-    }
-
-    function getColor(text: string) {
-      const x = hash(text + "coolcolor4");
-      const h = Math.abs(x * 107) % 360;
-      const s = 58 + (x % 18);
-      const l = 90 + (h % 5);
-      return `hsla(${h}, ${s}%, ${l}%, 1)`;
-    }
 
     return (
       <>
@@ -74,12 +76,17 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
             className="tl-hitarea-stroke"
             width={bounds.width}
             height={bounds.height}
+            rx={5}
+            ry={5}
           />
           <rect
             className="tl-frame_body"
             width={bounds.width}
             height={bounds.height}
-            fill={getColor(shape.props.name)}
+            fill={colors[shape.props.depth]}
+            rx={5}
+            ry={5}
+            filter="drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))"
           />
         </SVGContainer>
       </>

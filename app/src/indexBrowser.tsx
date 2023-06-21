@@ -310,11 +310,11 @@ function render(app: App, proofTree: Format, currentGoal: string) {
               w: effectiveW,
               h,
               ...(type == "value"
-                ? { dash: "draw", fill: "solid", color: "light-green" }
+                ? { dash: "solid", fill: "solid", color: "light-green" }
                 : type == "redvalue"
                   ? (
-                    isCurrentGoal ? { dash: "draw", fill: "pattern", color: "light-blue" } :
-                      { dash: "draw", fill: isCurrentGoal ? "pattern" : "solid", color: "light-red" }
+                    isCurrentGoal ? { dash: "solid", fill: "pattern", color: "light-blue" } :
+                      { dash: "solid", fill: isCurrentGoal ? "pattern" : "solid", color: "light-red" }
                   )
                   : { dash: "dotted", fill: "none", color: "grey" }),
               size: "m",
@@ -326,10 +326,29 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     }
   };
 
-  const createWindow = (parentId: TLParentId | undefined, window: Window, format: Format): Element => {
+  const createWindow = (parentId: TLParentId | undefined, window: Window, format: Format, depth: number): Element => {
     const frameId = app.createShapeId();
-    const nodes = createNodes(frameId, window, format);
+    const nodes = createNodes(frameId, window, format, depth);
     const [w, h] = [nodes.size[0] + 2 * framePadding, nodes.size[1] + 2 * framePadding];
+    function hash(text: string) {
+      let hash = 0;
+      if (text.length === 0) return hash;
+      for (let i = 0; i < text.length; i++) {
+        const chr = text.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+      }
+      return hash;
+    }
+
+    function getColor(text: string) {
+      const x = hash(text + "coolcolor4");
+      const h = Math.abs(x * 107) % 360;
+      const s = 58 + (x % 18);
+      const l = 90 + (h % 5);
+      return `hsla(${h}, ${s}%, ${l}%, 1)`;
+    }
+
     const draw = (x: number, y: number) => {
       app.createShapes([
         {
@@ -338,7 +357,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
           x,
           y,
           parentId,
-          props: { name: window.id, w, h },
+          props: { name: window.id, w, h, depth },
         },
       ]);
       nodes.draw(framePadding, framePadding);
@@ -368,7 +387,8 @@ function render(app: App, proofTree: Format, currentGoal: string) {
   function createNodes(
     parentId: TLParentId | undefined,
     window: Window,
-    format: Format
+    format: Format,
+    depth: number
   ): Element {
     let rows: Element[] = [];
     // Layers of hypNodes can have series of `rw` tactics where
@@ -431,7 +451,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
             // TODO: Have windows should be on the tactic not nodes.
             const haveWindows = format.windows
               .filter(w => nodes.some(n => n.haveWindowId == w.id))
-              .map(w => createWindow(parentId, w, format));
+              .map(w => createWindow(parentId, w, format, depth + 1));
             const hTree: HypTree = {
               tactic: vStack(0, hStack(inBetweenMargin, ...haveWindows), tacticNode), level, nodes: nodes.map(
                 node => {
@@ -457,7 +477,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     const subWindows = format.windows.filter((w) => w.parentId == window.id);
     const frames: Element[] = [];
     for (const subWindow of subWindows) {
-      frames.push(createWindow(parentId, subWindow, format));
+      frames.push(createWindow(parentId, subWindow, format, depth + 1));
     }
     if (frames.length > 0) {
       rows.push(hStack(inBetweenMargin, ...frames));
@@ -494,7 +514,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
 
   const root = proofTree.windows.find((w) => w.parentId == null);
   if (root) {
-    const el = createWindow(undefined, root, proofTree);
+    const el = createWindow(undefined, root, proofTree, 0);
     el.draw(0, 0);
   }
   // Draw arrows
