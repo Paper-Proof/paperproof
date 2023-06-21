@@ -121,8 +121,10 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
       return draw(x, y + rowHeights[level], level + 1, t);
     }
     const x0 = x;
+    let lastNodeX = x;
     for (const node of t.nodes) {
       node.node.draw(x, y + t.tactic.size[1]);
+      lastNodeX = x + node.node.size[0];
       const widths = [node.node.size[0]];
       if (node.tree) {
         draw(x, y + rowHeights[level], level + 1, node.tree);
@@ -130,9 +132,9 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
       }
       x += Math.max(...widths) + hMargin;
     }
-    // We know the preffered width of the tactic only after we draw all the subtree.
+    // We know the preffered width of the tactic only after we draw all the nodes (and theire subtrees).
     // This is for cases like `match` or `induction` where the tactic should span all the underlying nodes.
-    t.tactic.draw(x0, y, x - x0 - hMargin);
+    t.tactic.draw(x0, y, lastNodeX - x0);
   }
   return {
     size: [
