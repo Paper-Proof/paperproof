@@ -403,6 +403,9 @@ function render(app: App, proofTree: Format, currentGoal: string) {
           const fromIds = new Set(tactic.hypArrows.map(a => a.fromId));
           for (const fromId of fromIds) {
             const nodes = layer.filter(n => tactic.hypArrows.some(a => a.fromId == fromId && a.toId == n.id));
+            if (nodes.length == 0) {
+              continue;
+            }
             const tacticNode = createNode(
               parentId,
               tactic.text,

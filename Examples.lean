@@ -236,7 +236,7 @@ theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a 
   | nil          => cases h
   | cons b bs ih => cases h with
     | head bs => exact ⟨[], ⟨bs, rfl⟩⟩
-    | tail b h =>
+    | tail someVar h =>
       match ih h with
       | ⟨s, ⟨t, h₂⟩⟩ => exact ⟨b :: s, ⟨t, h₂ ▸ rfl⟩⟩
 
