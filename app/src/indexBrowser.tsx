@@ -16,7 +16,15 @@ import "@tldraw/tldraw/ui.css";
 import { toEdges } from "./converter";
 import { WindowShape } from "./window";
 
-const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
+// TODO: We should use the vscode font for consistency with Lean probably
+// const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
+
+const uiConfig = {
+  // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing
+  // to goals in any way, but determining what hyps are used in what tactics isn't implemented
+  // properly yet, e.g. in linarith.
+  hideNulls: true,
+}
 
 interface HypTree {
   level: number;
@@ -186,6 +194,10 @@ interface HypNode {
   name: string | null;
   id: string;
   haveWindowId?: number;
+}
+
+function shouldHide(node: HypNode) {
+  return uiConfig.hideNulls ? node.id.includes("null") : false;
 }
 
 type HypLayer = HypNode[];
@@ -402,7 +414,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
           // TODO(lakesare): Improve to [fromId, toIds: [...]]
           const fromIds = new Set(tactic.hypArrows.map(a => a.fromId));
           for (const fromId of fromIds) {
-            const nodes = layer.filter(n => tactic.hypArrows.some(a => a.fromId == fromId && a.toId == n.id));
+            const nodes = layer.filter(n => tactic.hypArrows.some(a => a.fromId == fromId && a.toId == n.id)).filter(n => !shouldHide(n));
             if (nodes.length == 0) {
               continue;
             }
