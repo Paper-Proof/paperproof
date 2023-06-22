@@ -384,7 +384,7 @@ const postprocess = (pretty) => {
     }));
   });
 
-  pretty.tactics.forEach((tactic) => {
+  pretty.tactics.forEach((tactic, index) => {
     tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
       ...goalArrow,
       fromId: getDisplayedId(pretty, goalArrow.fromId),
@@ -402,6 +402,8 @@ const postprocess = (pretty) => {
     );
 
     tactic.successGoalId = getDisplayedId(pretty, tactic.successGoalId);
+
+    tactic.id = index;
   });
 }
 

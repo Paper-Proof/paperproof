@@ -582,8 +582,6 @@ function Main() {
             if (proofTree.steps.length > 0) {
               console.log(id, proofTree);
               const edges = toEdges(proofTree.steps);
-              // TODO: Add ids to tactics as we will need that. Make it at converter
-              edges.tactics = edges.tactics.map((t: any, idx: number) => ({ ...t, id: `tactic${idx}` }));
               console.log("Converted", edges);
               setProofTree(edges);
               setCurrentGoal(proofTree.goal);
