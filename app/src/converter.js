@@ -131,7 +131,7 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
     }
 
     // And other hypBefores just disappeared!
-    const restOfHypsBefore = hypsBeforeThatDisappeared.slice(1);
+    const restOfHypsBefore = hypsBeforeThatDisappeared.slice(hypsAfterThatAppeared.length > 0 ? 1 : 0); // lol lmao will need to rewrite ok
     restOfHypsBefore.forEach((hypBefore) => {
       prettyHypNodes.push({
         text: null,
