@@ -96,7 +96,7 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
 
         prettyHypArrows.push({
           fromId: hypBeforeByName.id,
-          toId  : hypAfter.id
+          toIds : [hypAfter.id]
         });
       }
     }
@@ -106,56 +106,57 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
   const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsBeforeMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
   const hypsAfterThatAppeared = hypsAfter.filter((hyp) => !hypsAfterMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
 
-  // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
-  if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
-    // done :-)
-  }
-  // - if 0 hypotheses disappeared, and X hypotheses appeared, draw { null → id } arrows [many nulls!]
-  else if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length > 0) {
+  const branchingHypBefore = hypsBeforeThatDisappeared[0];
+  if (branchingHypBefore) {
+    // One hypBefore branched.
     hypsAfterThatAppeared.forEach((hypAfter) => {
       prettyHypNodes.push({
         text: hypAfter.type,
         name: hypAfter.username,
         id  : hypAfter.id
       });
-
-      prettyHypArrows.push({
-        fromId: null,
-        toId  : hypAfter.id
-      });
     });
-  }
-  // - if X hypotheses disappeared, and 0 hypotheses appeared, draw { id → null } arrows [many nulls!]
-  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
-    hypsBeforeThatDisappeared.forEach((hypBefore) => {
+    if (hypsAfterThatAppeared.length > 0) {
+      prettyHypArrows.push({
+        fromId: branchingHypBefore.id,
+        toIds : hypsAfterThatAppeared.map((hypAfter) => hypAfter.id)
+      });
+    }
+
+    // The rest of this `else if` doesn't ever happen as far as we're aware -
+    // `branchingHypBefore` is taken to be the 1st hyp, but we could have taken any hypothesis.
+    // When we actually stumble upon a tactic that does that, we'll see how good our handling of this is.
+    if (hypsBeforeThatDisappeared.length > 1 && hypsAfterThatAppeared.length > 0) {
+      alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
+    }
+
+    // And other hypBefores just disappeared!
+    const restOfHypsBefore = hypsBeforeThatDisappeared.slice(1);
+    restOfHypsBefore.forEach((hypBefore) => {
       prettyHypNodes.push({
         text: null,
         name: null,
         id  : `${hypBefore.id}-null`
       });
-
       prettyHypArrows.push({
         fromId: hypBefore.id,
-        toId  : `${hypBefore.id}-null`
+        toIds : [`${hypBefore.id}-null`]
       });
     });
-  }
-  // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
-  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
+  } else {
     hypsAfterThatAppeared.forEach((hypAfter) => {
       prettyHypNodes.push({
         text: hypAfter.type,
         name: hypAfter.username,
         id  : hypAfter.id
       });
-
-      hypsBeforeThatDisappeared.forEach((hypBefore) => {
-        prettyHypArrows.push({
-          fromId: hypBefore.id,
-          toId  : hypAfter.id
-        });
-      });
     });
+    if (hypsAfterThatAppeared.length > 0) {
+      prettyHypArrows.push({
+        fromId: null,
+        toIds : hypsAfterThatAppeared.map((hypAfter) => hypAfter.id)
+      });
+    }
   }
 
   return [prettyHypNodes.reverse(), prettyHypArrows];
@@ -387,13 +388,13 @@ const postprocess = (pretty) => {
     tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
       ...goalArrow,
       fromId: getDisplayedId(pretty, goalArrow.fromId),
-      toId  : getDisplayedId(pretty, goalArrow.toId),
+      toId  : getDisplayedId(pretty, goalArrow.toId)
     }));
 
     tactic.hypArrows = tactic.hypArrows.map((hypArrow) => ({
       ...hypArrow,
       fromId: getDisplayedId(pretty, hypArrow.fromId),
-      toId  : getDisplayedId(pretty, hypArrow.toId),
+      toIds : hypArrow.toIds.map((toId) => getDisplayedId(pretty, toId))
     }));
 
     tactic.dependsOnIds = tactic.dependsOnIds.map((id) =>
