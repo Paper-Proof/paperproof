@@ -229,7 +229,7 @@ interface Format {
 
 const config = new TldrawEditorConfig({
   shapes: [WindowShape],
-  allowUnknownShapes: true,
+  allowUnknownShapes: true
 });
 
 function getHypNodeText(node: HypNode) {
@@ -555,6 +555,7 @@ export default function Example(
     addEventListener("resize", (event) => {
       app.zoomToFit({ duration: 100 });
     });
+    app.userDocumentSettings.isSnapMode = true;
     setApp(app);
   };
   return (
@@ -564,7 +565,7 @@ export default function Example(
         inset: 0,
       }}
     >
-      <Tldraw onMount={handleMount} config={config}></Tldraw>
+      <Tldraw onMount={handleMount} config={config} overrides={{}}></Tldraw>
     </div>
   );
 }
