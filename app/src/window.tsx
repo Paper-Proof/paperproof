@@ -109,7 +109,7 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
     shapes: TLShape[]
   ): { shouldHint: boolean } => {
     if (!shapes.every((child) => child.parentId === frame.id)) {
-      this.app.reparentShapes(
+      this.app.reparentShapesById(
         shapes.map((shape) => shape.id),
         frame.id
       );
@@ -125,12 +125,12 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
     // If frame is in a group, keep the shape
     // moved out in that group
     if (isInGroup) {
-      this.app.reparentShapes(
+      this.app.reparentShapesById(
         shapes.map((shape) => shape.id),
         parentId.id
       );
     } else {
-      this.app.reparentShapes(
+      this.app.reparentShapesById(
         shapes.map((shape) => shape.id),
         this.app.currentPageId
       );
@@ -139,7 +139,7 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
 
   override onResizeEnd: OnResizeEndHandler<WindowShape> = (shape) => {
     const bounds = this.app.getPageBounds(shape)!;
-    const children = this.app.getSortedChildren(shape.id);
+    const children = this.app.getSortedChildIds(shape.id);
 
     const shapesToReparent: TLShapeId[] = [];
 
@@ -151,7 +151,7 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
     }
 
     if (shapesToReparent.length > 0) {
-      this.app.reparentShapes(shapesToReparent, this.app.currentPageId);
+      this.app.reparentShapesById(shapesToReparent, this.app.currentPageId);
     }
   };
 
