@@ -440,6 +440,9 @@ function render(app: App, proofTree: Format, currentGoal: string) {
             const nodesAfter = layer
               .filter((nodeAfter) => hypArrow.toIds.includes(nodeAfter.id))
               .filter(n => !shouldHide(n));
+            if (nodesAfter.length === 0) {
+              return;
+            }
 
             const tacticNode = createNode(
               parentId,
