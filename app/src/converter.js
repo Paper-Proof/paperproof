@@ -254,12 +254,6 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     const hypsAfter  = updatedGoal.hyps;
     let [prettyHypNodes, prettyHypArrows] = drawNewHypothesisLayer(pretty, hypsBefore, hypsAfter);
 
-    if (haveWindowId) {
-      prettyHypNodes.forEach((hypNode) => {
-        hypNode.haveWindowId = haveWindowId;
-      });
-    }
-
     if (prettyHypNodes.length > 0) {
       currentWindow.hypNodes.push(prettyHypNodes);
     }
@@ -269,7 +263,8 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
       dependsOnIds : tactic.tacticDependsOn,
       goalArrows   : prettyGoalArrows,
       hypArrows    : prettyHypArrows,
-      isSuccess    : false
+      isSuccess    : false,
+      ...(haveWindowId && { haveWindowId })
     });
   }
   // - we forked the goal!
