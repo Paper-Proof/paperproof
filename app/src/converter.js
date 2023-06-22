@@ -403,7 +403,7 @@ const postprocess = (pretty) => {
 
     tactic.successGoalId = getDisplayedId(pretty, tactic.successGoalId);
 
-    tactic.id = index;
+    tactic.id = index + 1;
   });
 }
 
