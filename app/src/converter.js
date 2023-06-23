@@ -106,9 +106,54 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
   const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsBeforeMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
   const hypsAfterThatAppeared = hypsAfter.filter((hyp) => !hypsAfterMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
 
-  const branchingHypBefore = hypsBeforeThatDisappeared[0];
-  if (branchingHypBefore) {
-    // One hypBefore branched.
+  // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
+  if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
+    // done :-)
+  }
+  // - if 0 hypotheses disappeared, and X hypotheses appeared, draw { null → id } arrows [many nulls!]
+  else if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length > 0) {
+    hypsAfterThatAppeared.forEach((hypAfter) => {
+      prettyHypNodes.push({
+        text: hypAfter.type,
+        name: hypAfter.username,
+        id  : hypAfter.id
+      });
+    });
+    if (hypsAfterThatAppeared.length > 0) {
+      prettyHypArrows.push({
+        fromId: null,
+        toIds : hypsAfterThatAppeared.map((hypAfter) => hypAfter.id)
+      });
+    }
+  }
+  // - if X hypotheses disappeared, and 0 hypotheses appeared, draw { id → null } arrows
+  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
+    hypsBeforeThatDisappeared.forEach((hypBefore) => {
+      prettyHypNodes.push({
+        text: null,
+        name: null,
+        id  : `${hypBefore.id}-null`
+      });
+
+      prettyHypArrows.push({
+        fromId: hypBefore.id,
+        toIds : [`${hypBefore.id}-null`]
+      });
+    });
+  }
+  // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
+  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
+    // The 2nd part of this `else if` doesn't ever happen as far as we're aware -
+    // When we actually stumble upon a tactic that does that, we'll see how good our handling of this is.
+    if (hypsBeforeThatDisappeared.length > 1 && hypsAfterThatAppeared.length > 0) {
+      alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
+    }
+
+    // `branchingHypBefore` is taken to be the 1st hyp, but we could have taken any hypothesis.
+    // Theoretically, there is only ever 1 hypothesis here.
+    const branchingHypBefore = hypsBeforeThatDisappeared[0];
+
+    // 1. One hypBefore branched.
     hypsAfterThatAppeared.forEach((hypAfter) => {
       prettyHypNodes.push({
         text: hypAfter.type,
@@ -123,15 +168,8 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
       });
     }
 
-    // The rest of this `else if` doesn't ever happen as far as we're aware -
-    // `branchingHypBefore` is taken to be the 1st hyp, but we could have taken any hypothesis.
-    // When we actually stumble upon a tactic that does that, we'll see how good our handling of this is.
-    if (hypsBeforeThatDisappeared.length > 1 && hypsAfterThatAppeared.length > 0) {
-      alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
-    }
-
-    // And other hypBefores just disappeared!
-    const restOfHypsBefore = hypsBeforeThatDisappeared.slice(hypsAfterThatAppeared.length > 0 ? 1 : 0); // lol lmao will need to rewrite ok
+    // 2. And other hypBefores just disappeared!
+    const restOfHypsBefore = hypsBeforeThatDisappeared.slice(1);
     restOfHypsBefore.forEach((hypBefore) => {
       prettyHypNodes.push({
         text: null,
@@ -143,20 +181,6 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
         toIds : [`${hypBefore.id}-null`]
       });
     });
-  } else {
-    hypsAfterThatAppeared.forEach((hypAfter) => {
-      prettyHypNodes.push({
-        text: hypAfter.type,
-        name: hypAfter.username,
-        id  : hypAfter.id
-      });
-    });
-    if (hypsAfterThatAppeared.length > 0) {
-      prettyHypArrows.push({
-        fromId: null,
-        toIds : hypsAfterThatAppeared.map((hypAfter) => hypAfter.id)
-      });
-    }
   }
 
   return [prettyHypNodes.reverse(), prettyHypArrows];
