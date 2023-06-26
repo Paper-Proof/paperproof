@@ -9,26 +9,6 @@ import {
 } from "@tldraw/tldraw";
 import { TLShape, TLShapeId } from "@tldraw/tlschema";
 
-/*const colors = [
-  "#eceff1",
-  "#cfd8dc",
-  "#b0bec5"
-]*/
-
-// Cool grey material dark palette
-const colors = [
-  "#1f2933",
-  "#323f4b",
-  "#3e4c59",
-  "#52606d",
-  "#616e7c",
-  "#7b8794",
-  "#9aa5b1",
-  "#cbd2d9",
-  "#e4e7eb",
-  "#f5f7fa"
-].reverse()
-
 // Shape Type
 // ----------
 // Every shape needs an opacity prop (for now), but other than that
@@ -78,15 +58,20 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
             height={bounds.height}
             rx={5}
             ry={5}
+            // Removes a weird tiny grey border around all windows
+            // (https://stackoverflow.com/a/64236704/3192470)
+            shapeRendering="crispEdges"
+            // Makes it possible to use rgba-s with alpha channels
+            // (https://stackoverflow.com/a/11293812/3192470)
+            fill="white"
           />
           <rect
-            className="tl-frame_body"
+            className={`tl-frame_body depth-${shape.props.depth}`}
             width={bounds.width}
             height={bounds.height}
-            fill={colors[shape.props.depth]}
             rx={5}
             ry={5}
-            filter="drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))"
+            shapeRendering="crispEdges"
           />
         </SVGContainer>
       </>
