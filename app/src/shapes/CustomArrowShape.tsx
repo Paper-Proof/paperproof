@@ -22,6 +22,12 @@ class CustomArrowUtil extends TLArrowUtil {
     if (shape.props.start.type === "binding" && shape.props.end.type === "binding") {
       const fromNodeBounds = this.app.getBoundsById(shape.props.start.boundShapeId);
 
+      // TODO:lakesare - arrows in this proof are weird, let's change the logic to "while they still touch there should be no arrow"
+      //
+      // example(a b : Prop) : a ∧ b → b ∧ a:= by
+      // intro ab
+      // cases ab
+      // apply And.intro <;> assumption
       if (fromNodeBounds && verticalLength === 0 && horizontalLength <= (fromNodeBounds.w / 2)) {
         arrowInfo.isValid = false;
       }
@@ -31,7 +37,11 @@ class CustomArrowUtil extends TLArrowUtil {
   }
 }
 
+// @anton probably a suboptimal way to inherit stuff/type stuff, tell me if you have better ideas
 export const CustomArrowShape = defineShape<CustomArrowShapeType>({
   type: "customArrow",
-  getShapeUtil: () => CustomArrowUtil as any
+  getShapeUtil: () => CustomArrowUtil as any,
+  // TODO:lakesare These should be here?
+  // validator: arrowShapeTypeValidator,
+  // migrations: arrowShapeMigrations,
 });
