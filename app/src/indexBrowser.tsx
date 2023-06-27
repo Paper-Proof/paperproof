@@ -16,6 +16,7 @@ import "@tldraw/tldraw/ui.css";
 import "./index.css";
 import { toEdges } from "./converter";
 import { WindowShape } from "./window";
+import { CustomArrowShape } from "./shapes/CustomArrowShape";
 
 // TODO: We should use the vscode font for consistency with Lean probably
 // const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
@@ -229,7 +230,7 @@ interface Format {
 }
 
 const config = new TldrawEditorConfig({
-  shapes: [WindowShape],
+  shapes: [WindowShape, CustomArrowShape],
   allowUnknownShapes: true
 });
 
@@ -264,7 +265,7 @@ function render(app: App, proofTree: Format, currentGoal: string) {
     app.createShapes([
       {
         id: app.createShapeId(),
-        type: "arrow",
+        type: "customArrow",
         props: {
           start: {
             type: 'binding', boundShapeId: from,
