@@ -1,100 +1,17 @@
-import {
-  App,
-  LABEL_FONT_SIZES,
-  TEXT_PROPS,
-  TLParentId,
-  TLShapeId
-} from "@tldraw/tldraw";
+import { App, TLParentId, TLShapeId } from "@tldraw/tldraw";
 
-import { HypTree, Element, IdElement, HypNode, HypLayer, Window, Format } from "../types";
+import { HypTree, Element, IdElement, HypNode, HypLayer, Window, Format, UiConfig } from "../types";
 
-// TODO: We should use the vscode font for consistency with Lean probably
-// const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
-
-const uiConfig = {
-  // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing
-  // to goals in any way, but determining what hyps are used in what tactics isn't implemented
-  // properly yet, e.g. in linarith.
-  hideNulls: true,
-}
+import getHypNodeText from './services/getHypNodeText';
+import hStack from './services/hStack';
+import vStack from './services/vStack';
+import byLevel from './services/byLevel';
+import sum from './services/sum';
+import getTreeWidth from './services/getTreeWidth';
+import getTextSize from './services/getTextSize';
 
 function emptyEl(): Element {
   return { size: [0, 0], draw: () => { } };
-}
-
-function vStack(margin: number, ...boxes: Element[]): Element {
-  if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
-  return {
-    size: [
-      Math.max(...boxes.map((b) => b.size[0])),
-      boxes.map((b) => b.size[1]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,
-    ],
-    draw(x, y, prefferedWidth) {
-      let dy = 0;
-      for (const box of boxes) {
-        box.draw(x, y + dy, prefferedWidth);
-        dy += box.size[1] + margin;
-      }
-    },
-  };
-}
-
-// hStack aligns to the bottom
-function hStack(margin: number, ...boxes: Element[]): Element {
-  if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
-  const [w, h] = [
-    boxes.map((b) => b.size[0]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,
-    Math.max(...boxes.map((b) => b.size[1])),
-  ];
-  return {
-    size: [w, h],
-    draw(x, y) {
-      let dx = 0;
-      for (const box of boxes) {
-        box.draw(x + dx, y + h - box.size[1]);
-        dx += box.size[0] + margin;
-      }
-    },
-  };
-}
-
-function transpose(rows: Element[][]): Element[][] {
-  if (rows.length == 0) return [];
-  const cols: Element[][] = [];
-  for (let i = 0; i < rows[0].length; i++) {
-    cols.push(rows.map((row) => row[i]));
-  }
-  return cols;
-}
-
-function byLevel(hMargin: number, trees: HypTree[]): Element[][] {
-  const rows: Element[][] = [];
-  function visit(t: HypTree) {
-    while (rows.length <= t.level) {
-      rows.push([]);
-    }
-    rows[t.level].push(vStack(0, t.tactic, hStack(hMargin, ...t.nodes.map(n => n.node))));
-    for (const n of t.nodes) {
-      if (n.tree) {
-        visit(n.tree);
-      }
-    }
-  }
-  trees.forEach(visit);
-  return rows;
-}
-
-function sum(a: number[], margin: number = 0): number {
-  if (a.length == 0) {
-    return 0;
-  }
-  return a.reduce((x, y) => x + y, 0) + (a.length - 1) * margin;
-}
-
-function getTreeWidth(hMargin: number, t: HypTree): number {
-  const widths = t.nodes.flatMap(n =>
-    [Math.max(n.node.size[0], n.tree ? getTreeWidth(hMargin, n.tree) : 0)])
-  return Math.max(t.tactic.size[0], sum(widths, hMargin));
 }
 
 function trees(hMargin: number, ...trees: HypTree[]): Element {
@@ -117,7 +34,7 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
       }
       x += Math.max(...widths) + hMargin;
     }
-    // We know the preffered width of the tactic only after we draw all the nodes (and theire subtrees).
+    // We know the preffered width of the tactic only after we draw all the nodes (and their subtrees).
     // This is for cases like `match` or `induction` where the tactic should span all the underlying nodes.
     t.tactic.draw(x0, y, lastNodeX - x0);
   }
@@ -135,52 +52,11 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
   };
 }
 
-function grid(vMargin: number, hMargin: number, ...rows: Element[][]): Element {
-  if (rows.length == 0) return { size: [0, 0], draw: () => { } };
-  const rowHeights = rows.map((row) => hStack(hMargin, ...row).size[1]);
-  const colWidths = transpose(rows).map((col) => vStack(vMargin, ...col).size[0]);
-  return {
-    size: [
-      colWidths.reduce((x, y) => x + y) + (colWidths.length - 1) * hMargin,
-      rowHeights.reduce((x, y) => x + y) + (rowHeights.length - 1) * vMargin,
-    ],
-    draw(x0, y) {
-      for (let i = 0; i < rows.length; i++) {
-        let x = x0;
-        for (let j = 0; j < rows[i].length; j++) {
-          rows[i][j].draw(x, y);
-          x += colWidths[j] + hMargin;
-        }
-        y += rowHeights[i] + vMargin;
-      }
-    }
-  }
-}
-
-function shouldHide(node: HypNode) {
+function shouldHide(node: HypNode, uiConfig: UiConfig) {
   return uiConfig.hideNulls ? node.id.includes("null") : false;
 }
 
-
-
-function getHypNodeText(node: HypNode) {
-  const text = (() => {
-    if (!node.name) {
-      return node.text;
-    }
-    // For cases h._@.Examples._hyg.1162
-    const hypName = node.name.includes(".")
-      ? `${node.name.split(".")[0]}✝`
-      : node.name;
-    return `${hypName}: ${node.text}`;
-  })();
-  const devId = localStorage.getItem("dev") === 'true'
-    ? ' ' + node.id
-    : '';
-  return `${text}${devId}`;
-}
-
-export function buildProofTree(app: App, proofTree: Format, currentGoal: string) {
+export function buildProofTree(app: App, proofTree: Format, currentGoal: string, uiConfig: UiConfig) {
   app.updateInstanceState({ isFocusMode: true });
 
   const inBetweenMargin = 20;
@@ -222,7 +98,7 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string)
   ): IdElement => {
     const id = app.createShapeId();
     shapeMap.set(externalId, id);
-    const [w, h] = getTextSize(text);
+    const [w, h] = getTextSize(app, text);
     return {
       id,
       size: [w, h],
@@ -296,21 +172,6 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string)
     return { size: [w, h], draw };
   }
 
-  function getTextSize(text: string): [number, number] {
-    const size = app.textMeasure.measureText({
-      ...TEXT_PROPS,
-      text,
-      fontFamily: '"tldraw_mono", monospace',
-      fontSize: LABEL_FONT_SIZES["m"],
-      width: "fit-content",
-      padding: "16px",
-    });
-    return [
-      size.w,
-      size.h,
-    ];
-  }
-
   app.selectAll().deleteShapes();
 
   const arrowsToDraw: ({ fromId: string, toShapeId: TLShapeId } | { fromShapeId: TLShapeId, toId: string })[] = [];
@@ -370,7 +231,7 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string)
           tactic.hypArrows.forEach((hypArrow) => {
             const nodesAfter = layer
               .filter((nodeAfter) => hypArrow.toIds.includes(nodeAfter.id))
-              .filter(n => !shouldHide(n));
+              .filter(n => !shouldHide(n, uiConfig));
             if (nodesAfter.length === 0) {
               return;
             }

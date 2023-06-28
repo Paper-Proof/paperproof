@@ -23,6 +23,16 @@ import {
 
 let lastId = 0;
 
+// TODO: We should use the vscode font for consistency with Lean probably
+// const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
+
+const uiConfig = {
+  // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing
+  // to goals in any way, but determining what hyps are used in what tactics isn't implemented
+  // properly yet, e.g. in linarith.
+  hideNulls: true,
+}
+
 const config = new TldrawEditorConfig({
   shapes: [WindowShape, CustomArrowShape],
   allowUnknownShapes: true
@@ -63,7 +73,7 @@ function Main() {
   const [app, setApp] = useState<App | null>(null);
 
   if (app) {
-    buildProofTree(app, proofTree, currentGoal);
+    buildProofTree(app, proofTree, currentGoal, uiConfig);
   }
 
   const handleMount = (app: App) => {

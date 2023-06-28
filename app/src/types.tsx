@@ -1,5 +1,9 @@
 import { TLShapeId } from "@tldraw/tldraw";
 
+export interface UiConfig {
+  hideNulls: boolean
+}
+
 export interface HypTree {
   level: number;
   tactic: Element;
