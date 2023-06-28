@@ -1,39 +1,51 @@
-import { TLArrowUtil, TLArrowShape, defineShape } from '@tldraw/tldraw';
-import { TLBaseShape } from "@tldraw/tldraw";
+import { TLArrowUtil, TLArrowShape, TLBaseShape, defineShape, App } from '@tldraw/tldraw';
 
 type CustomArrowShapeType = TLBaseShape<'customArrow', {}>;
+
+const getIfVerticalDistanceBetweenNodesIs0 = (arrowInfo: ArrowInfo) => {
+  if (!arrowInfo) return null
+  const from = arrowInfo.start.point;
+  const to = arrowInfo.end.point;
+  const verticalDistance = Math.abs(from.y - to.y);
+  return verticalDistance === 0;
+}
+
+const doLinesIntersect = (start1: number, end1: number, start2: number, end2: number) => (
+  (start1 >= start2 && start1 <= end2) ||
+  (start2 >= start1 && start2 <= end1)
+);
+
+const getIfNodesTouch = (arrowShape: TLArrowShape, app: App) => {
+  if (arrowShape.props.start.type === "binding" && arrowShape.props.end.type === "binding") {
+    const fromNodeBounds = app.getBoundsById(arrowShape.props.start.boundShapeId);
+    const toNodeBounds = app.getBoundsById(arrowShape.props.end.boundShapeId);
+
+    const fromNode = app.getShapeById(arrowShape.props.start.boundShapeId);
+    const toNode = app.getShapeById(arrowShape.props.end.boundShapeId);
+
+    if (fromNode && fromNodeBounds && toNode && toNodeBounds) {
+      const nodesTouch = doLinesIntersect(fromNode.x, fromNode.x + fromNodeBounds.w, toNode.x, toNode.x + toNodeBounds.w);
+      return nodesTouch;
+    }
+    return null;
+  }
+  return null;
+}
 
 class CustomArrowUtil extends TLArrowUtil {
   static override type = "customArrow";
 
-  override getArrowInfo(shape: TLArrowShape) {
-    const arrowInfo = super.getArrowInfo(shape);
-    if (!arrowInfo) return arrowInfo;
+  override render(arrowShape: TLArrowShape) {
+    // Important to store it here and not later
+    const superRender = super.render(arrowShape);
 
-    const from = arrowInfo.start.point;
-    const to = arrowInfo.end.point;
-
-    const verticalLength = Math.abs(from.y - to.y);
-    const horizontalLength = Math.abs(from.x - to.x);
-
-    // `.isValid` is usually true iff the length of the arrow is nonzero.
-    // (https://github.com/tldraw/tldraw/blob/main/packages/editor/src/lib/editor/shapes/arrow/arrow/straight-arrow.ts#L152)
-    // Here, we're making `.isValid` more restrictive - we're hiding the arrow more frequently.
-    if (shape.props.start.type === "binding" && shape.props.end.type === "binding") {
-      const fromNodeBounds = this.app.getBoundsById(shape.props.start.boundShapeId);
-
-      // TODO:lakesare - arrows in this proof are weird, let's change the logic to "while they still touch there should be no arrow"
-      //
-      // example(a b : Prop) : a ∧ b → b ∧ a:= by
-      // intro ab
-      // cases ab
-      // apply And.intro <;> assumption
-      if (fromNodeBounds && verticalLength === 0 && horizontalLength <= (fromNodeBounds.w / 2)) {
-        arrowInfo.isValid = false;
-      }
-    }
-
-    return arrowInfo;
+    const ifVerticalDistanceBetweenNodesIs0 = getIfVerticalDistanceBetweenNodesIs0(super.getArrowInfo(arrowShape));
+    const ifNodesTouch = getIfNodesTouch(arrowShape, this.app);
+    // If we couldn't find some info, just relay handling to the original component
+    if (ifVerticalDistanceBetweenNodesIs0 === null || ifNodesTouch === null) return superRender;
+    // Don't show the arrow when the nodes are super close
+    if (ifVerticalDistanceBetweenNodesIs0 && ifNodesTouch) return null;
+    return superRender;
   }
 }
 
