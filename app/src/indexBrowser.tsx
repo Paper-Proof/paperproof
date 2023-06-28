@@ -15,7 +15,7 @@ import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
 import "./index.css";
 import { toEdges } from "./converter";
-import { WindowShape } from "./window";
+import { WindowShape } from "./shapes/WindowShape";
 import { CustomArrowShape } from "./shapes/CustomArrowShape";
 
 // TODO: We should use the vscode font for consistency with Lean probably
