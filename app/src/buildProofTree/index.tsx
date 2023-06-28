@@ -18,9 +18,10 @@ function trees(hMargin: number, ...trees: HypTree[]): Element {
   if (trees.length == 0) return { size: [0, 0], draw: () => { } };
   const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, ...row).size[1]);
   const colWidths = trees.map(t => getTreeWidth(hMargin, t));
-  function draw(x: number, y: number, level: number, t: HypTree) {
+  function draw(x: number, y: number, level: number, t: HypTree) : void {
     if (level < t.level) {
-      return draw(x, y + rowHeights[level], level + 1, t);
+      draw(x, y + rowHeights[level], level + 1, t);
+      return;
     }
     const x0 = x;
     let lastNodeX = x;
