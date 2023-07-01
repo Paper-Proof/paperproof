@@ -155,7 +155,10 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string,
     const nodes = withPadding({ left: framePadding, right: framePadding, top: framePadding, bottom: 0 },
       createNodes(frameId, window, format, depth));
     const title = createNode(frameId, window.goalNodes[0].name, "tactic", "");
-    const layout = vStack(0, nodes, withWidth(nodes.size[0], title));
+    const layout =
+      localStorage.getItem("hideGoalUsernames") ?
+        vStack(0, nodes) :
+        vStack(0, nodes, withWidth(nodes.size[0], title));
     const [w, h] = layout.size;
 
     const draw = (x: number, y: number) => {
