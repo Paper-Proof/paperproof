@@ -123,8 +123,9 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string,
                 ? { dash: "solid", fill: "solid", color: "light-green" }
                 : type == "redvalue"
                   ? (
-                    isCurrentGoal ? { dash: "solid", fill: "pattern", color: "light-blue" } :
-                      { dash: "solid", fill: isCurrentGoal ? "pattern" : "solid", color: "light-red" }
+                    isCurrentGoal ?
+                    { dash: "solid", fill: "solid", color: "red" } :
+                    { dash: "solid", fill: "solid", color: "light-red" }
                   )
                   : { dash: "dotted", fill: "none", color: "grey" }),
               size: "m",
