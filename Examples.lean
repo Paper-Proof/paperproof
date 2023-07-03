@@ -1,5 +1,6 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Data.Nat.Parity
+import Mathlib.Data.List.Chain
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 import Std.Data.Int.Basic
@@ -271,13 +272,21 @@ example (p q r s : Prop) : p ∧ q → r ∧ s → true := by
   trivial
 
 
--- A typical proof from mathlib
-variable {α β γ : Type _} [CancelCommMonoidWithZero α] [NormalizedGCDMonoid α] {s s₁ s₂ : Finset β} {f : β → α}
-namespace Finset
-def lcm (s : Finset β) (f : β → α) : α :=
-  s.fold GCDMonoid.lcm 1 f
-theorem lcm_congr {f g : β → α} (hs : s₁ = s₂) (hfg : ∀ a ∈ s₂, f a = g a)
-    : s₁.lcm f = s₂.lcm g := by
-  subst hs
-  exact Finset.fold_congr hfg
+example : a ∧ b → a := by
+  intro hab
+  cases hab
+  assumption
 
+open List
+
+theorem chain'_append :
+    ∀ {l₁ l₂ : List α},
+      Chain' R (l₁ ++ l₂) ↔ Chain' R l₁ ∧ Chain' R l₂ ∧ ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y := by
+    intros l1 l2
+    match l1, l2 with
+    | [], l => simp
+    | [a], l => simp [chain'_cons', and_comm]
+    | a :: b :: l₁, l₂ =>
+      rw [cons_append, cons_append, chain'_cons, chain'_cons, ← cons_append, chain'_append,
+        and_assoc]
+      simp
