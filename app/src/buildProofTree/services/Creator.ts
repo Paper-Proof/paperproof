@@ -10,11 +10,26 @@ import sum from './sum';
 import getTreeWidth from './getTreeWidth';
 import getTextSize from './getTextSize';
 
+import { drawShapeWindow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis } from './drawShape';
+
 const inBetweenMargin = 20;
 const framePadding = 20;
 
 function shouldHide(node: HypNode, uiConfig: UiConfig) {
   return uiConfig.hideNulls ? node.id.includes("null") : false;
+}
+
+function withPadding(padding: { left: number, right: number, top: number, bottom: number }, el: Element): Element {
+  return {
+    size: [el.size[0] + padding.left + padding.right, el.size[1] + padding.top + padding.bottom],
+    draw: (x, y) => {
+      el.draw(x + padding.left, y + padding.top);
+    }
+  }
+}
+
+function withWidth(width: number, el: Element): Element {
+  return { ...el, draw: (x, y) => { el.draw(x, y, width); } }
 }
 
 function emptyEl(): Element {
@@ -64,7 +79,7 @@ const createNode = (
   shared: Shared,
   parentId: TLParentId | undefined,
   text: string,
-  type: "value" | "tactic" | "redvalue" = "value",
+  type: "hypothesis" | "tactic" | "goal",
   // This is for arrows
   externalId: string,
   ids: string[] = [],
@@ -77,49 +92,16 @@ const createNode = (
     draw(x, y, prefferedWidth?: number) {
       const isCurrentGoal = ids.includes(shared.currentGoal);
       const effectiveW = !!prefferedWidth && prefferedWidth > w ? prefferedWidth : w;
-      shared.app.createShapes([
-        {
-          id,
-          type: "geo",
-          x,
-          y,
-          parentId,
-          props: {
-            geo: "rectangle",
-            // Here we write just 'mono' but in measure text we need to write the actual font family.
-            font: "mono",
-            w: effectiveW,
-            h,
-            ...(type == "value"
-              ? { dash: "solid", fill: "solid", color: "light-green" }
-              : type == "redvalue"
-                ? (
-                  isCurrentGoal ?
-                    { dash: "solid", fill: "pattern", color: "light-red" } :
-                    { dash: "solid", fill: "solid", color: "light-red" }
-                )
-                : { dash: "dotted", fill: "none", color: "grey" }),
-            size: "m",
-            text,
-          },
-        },
-      ]);
+      if (type === "tactic") {
+        drawShapeTactic(shared.app, id, parentId, x, y, effectiveW, h, text);
+      } else if (type === "goal") {
+        drawShapeGoal(shared.app, id, parentId, x, y, effectiveW, h, text, isCurrentGoal);
+      } else if (type === "hypothesis") {
+        drawShapeHypothesis(shared.app, id, parentId, x, y, effectiveW, h, text);
+      }
     }
   }
 };
-
-function withPadding(padding: { left: number, right: number, top: number, bottom: number }, el: Element): Element {
-  return {
-    size: [el.size[0] + padding.left + padding.right, el.size[1] + padding.top + padding.bottom],
-    draw: (x, y) => {
-      el.draw(x + padding.left, y + padding.top);
-    }
-  }
-}
-
-function withWidth(width: number, el: Element): Element {
-  return { ...el, draw: (x, y) => { el.draw(x, y, width); } }
-}
 
 export const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element => {
   const frameId = shared.app.createShapeId(`window-${window.id}`);
@@ -135,16 +117,7 @@ export const createWindow = (shared: Shared, parentId: TLParentId | undefined, w
   const [w, h] = layout.size;
 
   const draw = (x: number, y: number) => {
-    shared.app.createShapes([
-      {
-        id: frameId,
-        type: "window",
-        x,
-        y,
-        parentId,
-        props: { name: window.id, w, h, depth },
-      },
-    ]);
+    drawShapeWindow(shared.app, frameId, parentId, x, y, w, h, depth);
     layout.draw(0, 0);
   };
   return { size: [w, h], draw };
@@ -186,7 +159,7 @@ function createNodes(shared: Shared, parentId: TLParentId | undefined, window: W
         topLevelTrees.add({
           tactic: emptyEl(), level, nodes: layer.map(
             node => {
-              const hypNode = createNode(shared, parentId, getHypNodeText(node), 'value', node.id);
+              const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", node.id);
               const tree = nodeToTree.get(node.id);
               if (tree) {
                 topLevelTrees.delete(tree);
@@ -225,7 +198,7 @@ function createNodes(shared: Shared, parentId: TLParentId | undefined, window: W
           const hTree: HypTree = {
             tactic: vStack(0, hStack(inBetweenMargin, ...haveWindows), tacticNode), level, nodes: nodesAfter.map(
               node => {
-                const hypNode = createNode(shared, parentId, getHypNodeText(node), 'value', node.id);
+                const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", node.id);
                 const tree = nodeToTree.get(node.id);
                 if (tree) {
                   topLevelTrees.delete(tree);
@@ -265,7 +238,7 @@ function createNodes(shared: Shared, parentId: TLParentId | undefined, window: W
       shared,
       parentId,
       goalNode.text + id,
-      "redvalue",
+      "goal",
       goalNode.id,
       [goalNode.id]
     );
