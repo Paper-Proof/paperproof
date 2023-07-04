@@ -28,14 +28,12 @@ export interface GoalNode {
   text: string;
   id: string;
 }
-
 export interface HypNode {
   text: string;
   name: string | null;
   id: string;
   haveWindowId?: number;
 }
-
 
 export type HypLayer = HypNode[];
 
@@ -66,8 +64,7 @@ export interface Format {
 export interface Shared {
   app: App;
   uiConfig: UiConfig,
-  arrowsToDraw: ({ fromId: string, toShapeId: TLShapeId } | { fromShapeId: TLShapeId, toId: string })[],
+  arrowsToDraw: { fromId: string, toId: string }[],
   proofTree: Format,
-  shapeMap: Map<string, TLShapeId>,
   currentGoal: string
 }

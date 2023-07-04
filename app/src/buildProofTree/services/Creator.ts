@@ -1,6 +1,6 @@
 import { TLParentId } from "@tldraw/tldraw";
 
-import { HypTree, Element, IdElement, HypNode, HypLayer, Window, Format, UiConfig, Shared } from "../../types";
+import { HypTree, Element, IdElement, HypNode, HypLayer, Window, UiConfig, Shared } from "../../types";
 
 import getHypNodeText from './getHypNodeText';
 import hStack from './hStack';
@@ -69,8 +69,7 @@ const createNode = (
   externalId: string,
   ids: string[] = [],
 ): IdElement => {
-  const id = shared.app.createShapeId();
-  shared.shapeMap.set(externalId, id);
+  const id = shared.app.createShapeId(externalId);
   const [w, h] = getTextSize(shared.app, text);
   return {
     id,
@@ -123,12 +122,12 @@ function withWidth(width: number, el: Element): Element {
 }
 
 export const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element => {
-  const frameId = shared.app.createShapeId();
+  const frameId = shared.app.createShapeId(`window-${window.id}`);
   const nodes = withPadding(
     { left: framePadding, right: framePadding, top: framePadding, bottom: 0 },
     createNodes(shared, frameId, window, depth)
   );
-  const title = createNode(shared, frameId, window.goalNodes[0].name, "tactic", "");
+  const title = createNode(shared, frameId, window.goalNodes[0].name, "tactic", `window-name-node-${window.id}`);
   const layout =
     localStorage.getItem("hideGoalUsernames") ?
       vStack(0, nodes) :
@@ -151,12 +150,7 @@ export const createWindow = (shared: Shared, parentId: TLParentId | undefined, w
   return { size: [w, h], draw };
 }
 
-function createNodes(
-  shared: Shared,
-  parentId: TLParentId | undefined,
-  window: Window,
-  depth: number
-): Element {
+function createNodes(shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element {
   let rows: Element[] = [];
   // Layers of hypNodes can have series of `rw` tactics where
   // we should attempt to stack nodes with the same name together.
@@ -219,9 +213,12 @@ function createNodes(
             `${tactic.id}${hypArrow.fromId}${parentId}`,
           );
           if (hypArrow.fromId) {
-            shared.arrowsToDraw.push({ fromId: hypArrow.fromId, toShapeId: tacticNode.id });
+            shared.arrowsToDraw.push({ fromId: shared.app.createShapeId(hypArrow.fromId), toId: tacticNode.id });
           }
-          shared.arrowsToDraw.push(...nodesAfter.map(n => ({ fromShapeId: tacticNode.id, toId: n.id })));
+          nodesAfter.map(nodeAfter => {
+            shared.arrowsToDraw.push({ fromId: tacticNode.id, toId: shared.app.createShapeId(nodeAfter.id) });
+          });
+
           const haveWindows = shared.proofTree.windows
             .filter(w => tactic.haveWindowId === w.id)
             .map(w => createWindow(shared, parentId, w, depth + 1));
