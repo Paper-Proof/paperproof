@@ -1,4 +1,4 @@
-import { TLShapeId } from "@tldraw/tldraw";
+import { App, TLShapeId } from "@tldraw/tldraw";
 
 export interface UiConfig {
   hideNulls: boolean
@@ -61,4 +61,13 @@ export interface Tactic {
 export interface Format {
   windows: Window[];
   tactics: Tactic[];
+}
+
+export interface Shared {
+  app: App;
+  uiConfig: UiConfig,
+  arrowsToDraw: ({ fromId: string, toShapeId: TLShapeId } | { fromShapeId: TLShapeId, toId: string })[],
+  proofTree: Format,
+  shapeMap: Map<string, TLShapeId>,
+  currentGoal: string
 }
