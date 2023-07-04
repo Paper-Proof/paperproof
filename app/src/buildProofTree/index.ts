@@ -58,12 +58,11 @@ function shouldHide(node: HypNode, uiConfig: UiConfig) {
 }
 
 export function buildProofTree(app: App, proofTree: Format, currentGoal: string, uiConfig: UiConfig) {
+  app.selectAll().deleteShapes();
   app.updateInstanceState({ isFocusMode: true });
 
   const inBetweenMargin = 20;
   const framePadding = 20;
-
-  const { tactics } = proofTree;
 
   const shapeMap = new Map<string, TLShapeId>();
 
@@ -177,8 +176,6 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string,
     return { size: [w, h], draw };
   }
 
-  app.selectAll().deleteShapes();
-
   const arrowsToDraw: ({ fromId: string, toShapeId: TLShapeId } | { fromShapeId: TLShapeId, toId: string })[] = [];
 
   function createNodes(
@@ -285,7 +282,7 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string,
     }
     const goalNodes = [...window.goalNodes].reverse();
     const proof: Element[] = goalNodes.flatMap(goalNode => {
-      const tactic = tactics.find(
+      const tactic = proofTree.tactics.find(
         (t) =>
           t.goalArrows.some((a) => a.fromId == goalNode.id) ||
           t.successGoalId == goalNode.id

@@ -13,10 +13,6 @@ import { CustomArrowShape } from "./shapes/CustomArrowShape";
 
 import {
   App,
-  LABEL_FONT_SIZES,
-  TEXT_PROPS,
-  TLParentId,
-  TLShapeId,
   Tldraw,
   TldrawEditorConfig,
 } from "@tldraw/tldraw";
