@@ -28,6 +28,7 @@ export interface GoalNode {
   text: string;
   id: string;
 }
+
 export interface HypNode {
   text: string;
   name: string | null;
@@ -37,6 +38,7 @@ export interface HypNode {
 
 export type HypLayer = HypNode[];
 
+// Converter.js types
 export interface Window {
   id: number;
   parentId: number | null;
@@ -61,6 +63,7 @@ export interface Format {
   tactics: Tactic[];
 }
 
+// What we share in tldraw code
 export interface Shared {
   app: App;
   uiConfig: UiConfig,

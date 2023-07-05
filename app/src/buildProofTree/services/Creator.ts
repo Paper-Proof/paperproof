@@ -10,7 +10,7 @@ import sum from './sum';
 import getTreeWidth from './getTreeWidth';
 import getTextSize from './getTextSize';
 
-import { drawShapeWindow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis } from './drawShape';
+import { drawShapeWindow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeGoalUsername } from './drawShape';
 
 const inBetweenMargin = 20;
 const framePadding = 20;
@@ -79,7 +79,7 @@ const createNode = (
   shared: Shared,
   parentId: TLParentId | undefined,
   text: string,
-  type: "hypothesis" | "tactic" | "goal",
+  type: "hypothesis" | "tactic" | "goal" | "goalUsername",
   // This is for arrows
   externalId: string,
   ids: string[] = [],
@@ -98,6 +98,8 @@ const createNode = (
         drawShapeGoal(shared.app, id, parentId, x, y, effectiveW, h, text, isCurrentGoal);
       } else if (type === "hypothesis") {
         drawShapeHypothesis(shared.app, id, parentId, x, y, effectiveW, h, text);
+      } else if (type === "goalUsername") {
+        drawShapeGoalUsername(shared.app, id, parentId, x, y, effectiveW, h, text);
       }
     }
   }
@@ -109,7 +111,7 @@ export const createWindow = (shared: Shared, parentId: TLParentId | undefined, w
     { left: framePadding, right: framePadding, top: framePadding, bottom: 0 },
     createWindowInsides(shared, frameId, window, depth)
   );
-  const title = createNode(shared, frameId, window.goalNodes[0].name, "tactic", `window-name-node-${window.id}`);
+  const title = createNode(shared, frameId, window.goalNodes[0].name, "goalUsername", `window-name-node-${window.id}`);
   const layout =
     localStorage.getItem("hideGoalUsernames") ?
       vStack(0, nodes) :
@@ -237,13 +239,10 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
         t.goalArrows.some((a) => a.fromId == goalNode.id) ||
         t.successGoalId == goalNode.id
     );
-    const id = localStorage.getItem("dev") === 'true'
-      ? ' ' + goalNode.id
-      : '';
-    const goalEl: Element = createNode(
+    const goalEl: IdElement = createNode(
       shared,
       parentId,
-      goalNode.text + id,
+      goalNode.text + (localStorage.getItem("dev") === 'true' ? ' ' + goalNode.id : ''),
       "goal",
       goalNode.id,
       [goalNode.id]

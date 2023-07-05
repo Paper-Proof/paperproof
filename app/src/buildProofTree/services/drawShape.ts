@@ -79,6 +79,24 @@ export function drawShapeHypothesis(app: App,
   ]);
 }
 
+export function drawShapeGoalUsername(app: App,
+  id: TLShapeId, parentId: TLParentId | undefined,
+  x: number, y: number, w: number, h: number, text: string
+) {
+  app.createShapes([
+    {
+      id, type: "geo", x, y, parentId,
+      props: {
+        geo: "rectangle", font: "mono", size: "m", w, h, text,
+
+        dash: "dotted",
+        fill: "none",
+        color: "grey",
+      },
+    },
+  ]);
+}
+
 export function drawShapeWindow(app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number
