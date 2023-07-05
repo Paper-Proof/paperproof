@@ -111,11 +111,16 @@ export const createWindow = (shared: Shared, parentId: TLParentId | undefined, w
     { left: framePadding, right: framePadding, top: framePadding, bottom: 0 },
     createWindowInsides(shared, frameId, window, depth)
   );
-  const title = createNode(shared, frameId, window.goalNodes[0].name, "goalUsername", `window-name-node-${window.id}`);
-  const layout =
-    localStorage.getItem("hideGoalUsernames") ?
-      vStack(0, nodes) :
-      vStack(0, nodes, withWidth(nodes.size[0], title));
+
+  let layout : Element;
+  const goalUsername = window.goalNodes[0].name;
+  if (localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]") {
+    layout = vStack(0, nodes);
+  } else {
+    const title = createNode(shared, frameId, goalUsername, "goalUsername", `window-name-node-${window.id}`);
+    layout = vStack(0, nodes, withWidth(nodes.size[0], title));
+  }
+
   const [w, h] = layout.size;
 
   const draw = (x: number, y: number) => {
