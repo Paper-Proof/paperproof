@@ -9,7 +9,7 @@ export default function byLevel(hMargin: number, trees: HypTree[]): Element[][] 
     while (rows.length <= t.level) {
       rows.push([]);
     }
-    rows[t.level].push(vStack(0, t.tactic, hStack(hMargin, ...t.nodes.map(n => n.node))));
+    rows[t.level].push(vStack(0, [t.tactic, hStack(hMargin, t.nodes.map(n => n.node))]));
     for (const n of t.nodes) {
       if (n.tree) {
         visit(n.tree);

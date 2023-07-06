@@ -38,7 +38,7 @@ function emptyEl(): Element {
 
 function trees(hMargin: number, ...trees: HypTree[]): Element {
   if (trees.length == 0) return { size: [0, 0], draw: () => { } };
-  const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, ...row).size[1]);
+  const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, row).size[1]);
   const colWidths = trees.map(t => getTreeWidth(hMargin, t));
   function draw(x: number, y: number, level: number, t: HypTree): void {
     if (level < t.level) {
@@ -115,10 +115,10 @@ export const createWindow = (shared: Shared, parentId: TLParentId | undefined, w
   let layout : Element;
   const goalUsername = window.goalNodes[0].name;
   if (localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]") {
-    layout = vStack(0, nodes);
+    layout = vStack(0, [nodes]);
   } else {
     const title = createNode(shared, frameId, goalUsername, "goalUsername", `window-name-node-${window.id}`);
-    layout = vStack(0, nodes, withWidth(nodes.size[0], title));
+    layout = vStack(0, [nodes, withWidth(nodes.size[0], title)]);
   }
 
   const [w, h] = layout.size;
@@ -205,7 +205,7 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
             .filter(w => tactic.haveWindowId === w.id)
             .map(w => createWindow(shared, parentId, w, depth + 1));
           const hTree: HypTree = {
-            tactic: vStack(0, hStack(inBetweenMargin, ...haveWindows), tacticNode), level, nodes: nodesAfter.map(
+            tactic: vStack(0, [hStack(inBetweenMargin, haveWindows), tacticNode]), level, nodes: nodesAfter.map(
               node => {
                 const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", node.id);
                 const tree = nodeToTree.get(node.id);
@@ -267,13 +267,13 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
   });
   if (frames.length > 0) {
     // In such case we want to attach last tactic to the row with frames
-    const framesEl = hStack(inBetweenMargin, ...frames);
+    const framesEl = hStack(inBetweenMargin, frames);
     // We can assume that the first element is a tactic since we have frames.
-    rows.push(vStack(0, framesEl, withWidth(framesEl.size[0], proof[0]), ...proof.slice(1)));
+    rows.push(vStack(0, [framesEl, withWidth(framesEl.size[0], proof[0]), ...proof.slice(1)]));
   } else {
-    const goals = vStack(0, ...proof);
+    const goals = vStack(0, proof);
     rows.push(goals);
   }
 
-  return vStack(inBetweenMargin, ...rows);
+  return vStack(inBetweenMargin, rows);
 }
