@@ -84,8 +84,9 @@ const createNode = (
   externalId: string,
   ids: string[] = [],
 ): IdElement => {
+  const newText = text + (localStorage.getItem("dev") === 'true' ? '      ' + externalId : '');
   const id = shared.app.createShapeId(externalId);
-  const [w, h] = getTextSize(shared.app, text);
+  const [w, h] = getTextSize(shared.app, newText);
   return {
     id,
     size: [w, h],
@@ -93,13 +94,13 @@ const createNode = (
       const isCurrentGoal = ids.includes(shared.currentGoal);
       const effectiveW = !!prefferedWidth && prefferedWidth > w ? prefferedWidth : w;
       if (type === "tactic") {
-        drawShapeTactic(shared.app, id, parentId, x, y, effectiveW, h, text);
+        drawShapeTactic(shared.app, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "goal") {
-        drawShapeGoal(shared.app, id, parentId, x, y, effectiveW, h, text, isCurrentGoal);
+        drawShapeGoal(shared.app, id, parentId, x, y, effectiveW, h, newText, isCurrentGoal);
       } else if (type === "hypothesis") {
-        drawShapeHypothesis(shared.app, id, parentId, x, y, effectiveW, h, text);
+        drawShapeHypothesis(shared.app, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "goalUsername") {
-        drawShapeGoalUsername(shared.app, id, parentId, x, y, effectiveW, h, text);
+        drawShapeGoalUsername(shared.app, id, parentId, x, y, effectiveW, h, newText);
       }
     }
   }
@@ -205,7 +206,9 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
             .filter(w => tactic.haveWindowId === w.id)
             .map(w => createWindow(shared, parentId, w, depth + 1));
           const hTree: HypTree = {
-            tactic: vStack(0, [hStack(inBetweenMargin, haveWindows), tacticNode]), level, nodes: nodesAfter.map(
+            tactic: vStack(0, [hStack(inBetweenMargin, haveWindows), tacticNode]),
+            level,
+            nodes: nodesAfter.map(
               node => {
                 const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", node.id);
                 const tree = nodeToTree.get(node.id);
@@ -247,7 +250,7 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
     const goalEl: IdElement = createNode(
       shared,
       parentId,
-      goalNode.text + (localStorage.getItem("dev") === 'true' ? ' ' + goalNode.id : ''),
+      goalNode.text,
       "goal",
       goalNode.id,
       [goalNode.id]
