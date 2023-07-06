@@ -188,19 +188,14 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
             return;
           }
 
+          const tacticNodeId = `tactic-${tactic.id}-${hypArrow.fromId}`;
           const tacticNode = createNode(
             shared,
             parentId,
             tactic.text,
             "tactic",
-            `${tactic.id}${hypArrow.fromId}${parentId}`,
+            tacticNodeId,
           );
-          if (hypArrow.fromId) {
-            shared.arrowsToDraw.push({ fromId: shared.app.createShapeId(hypArrow.fromId), toId: tacticNode.id });
-          }
-          nodesAfter.map(nodeAfter => {
-            shared.arrowsToDraw.push({ fromId: tacticNode.id, toId: shared.app.createShapeId(nodeAfter.id) });
-          });
 
           const haveWindows = shared.proofTree.windows
             .filter(w => tactic.haveWindowId === w.id)

@@ -67,7 +67,6 @@ export interface Format {
 export interface Shared {
   app: App;
   uiConfig: UiConfig,
-  arrowsToDraw: { fromId: string, toId: string }[],
   proofTree: Format,
   currentGoal: string
 }
