@@ -1,6 +1,6 @@
 import { TLParentId } from "@tldraw/tldraw";
 
-import { HypTree, Element, IdElement, HypNode, HypLayer, Window, UiConfig, Shared } from "../../types";
+import { HypTree, Element, IdElement, HypLayer, Window, Shared } from "../../types";
 
 import getHypNodeText from './getHypNodeText';
 import hStack from './hStack';
@@ -15,10 +15,6 @@ import { drawShapeWindow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, d
 const inBetweenMargin = 20;
 const framePadding = 20;
 
-function shouldHide(node: HypNode, uiConfig: UiConfig) {
-  return uiConfig.hideNulls ? node.id.includes("null") : false;
-}
-
 function withPadding(padding: { left: number, right: number, top: number, bottom: number }, el: Element): Element {
   return {
     size: [el.size[0] + padding.left + padding.right, el.size[1] + padding.top + padding.bottom],
@@ -29,14 +25,22 @@ function withPadding(padding: { left: number, right: number, top: number, bottom
 }
 
 function withWidth(width: number, el: Element): Element {
-  return { ...el, draw: (x, y) => { el.draw(x, y, width); } }
+  return {
+    ...el,
+    draw: (x, y) => {
+      el.draw(x, y, width);
+    }
+  }
 }
 
 function emptyEl(): Element {
-  return { size: [0, 0], draw: () => { } };
+  return {
+    size: [0, 0],
+    draw: () => { }
+  }
 }
 
-function trees(hMargin: number, ...trees: HypTree[]): Element {
+function trees(hMargin: number, trees: HypTree[]): Element {
   if (trees.length == 0) return { size: [0, 0], draw: () => { } };
   const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, row).size[1]);
   const colWidths = trees.map(t => getTreeWidth(hMargin, t));
@@ -124,11 +128,13 @@ export const createWindow = (shared: Shared, parentId: TLParentId | undefined, w
 
   const [w, h] = layout.size;
 
-  const draw = (x: number, y: number) => {
-    drawShapeWindow(shared.app, frameId, parentId, x, y, w, h, depth);
-    layout.draw(0, 0);
+  return {
+    size: [w, h],
+    draw: (x: number, y: number) => {
+      drawShapeWindow(shared.app, frameId, parentId, x, y, w, h, depth);
+      layout.draw(0, 0);
+    }
   };
-  return { size: [w, h], draw };
 }
 
 function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element {
@@ -183,7 +189,7 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
         tactic.hypArrows.forEach((hypArrow) => {
           const nodesAfter = layer
             .filter((nodeAfter) => hypArrow.toIds.includes(nodeAfter.id))
-            .filter(n => !shouldHide(n, shared.uiConfig));
+            .filter(n => shared.uiConfig.hideNulls ? !n.id.includes("null") : true);
           if (nodesAfter.length === 0) {
             return;
           }
@@ -223,7 +229,7 @@ function createWindowInsides(shared: Shared, parentId: TLParentId | undefined, w
     }
     if (topLevelTrees.size > 0) {
       // Reverse because we were adding them bottom up but should prefer those which start earlier.
-      rows.push(trees(inBetweenMargin, ...[...topLevelTrees.values()].reverse()));
+      rows.push(trees(inBetweenMargin, Array.from(topLevelTrees.values()).reverse()));
     }
   }
 
