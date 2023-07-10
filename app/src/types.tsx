@@ -66,7 +66,9 @@ export interface Format {
 // What we share in tldraw code
 export interface Shared {
   app: App;
-  uiConfig: UiConfig,
-  proofTree: Format,
-  currentGoal: string
+  uiConfig: UiConfig;
+  proofTree: Format;
+  currentGoal: string;
+  inBetweenMargin: number;
+  framePadding: number;
 }

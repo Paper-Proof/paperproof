@@ -1,6 +1,6 @@
 import { Element } from '../../types';
 
-export default function vStack(margin: number, boxes: Element[]): Element {
+const vStack = (margin: number, boxes: Element[]): Element => {
   if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
   return {
     size: [
@@ -16,3 +16,5 @@ export default function vStack(margin: number, boxes: Element[]): Element {
     },
   };
 }
+
+export default vStack;

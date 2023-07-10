@@ -1,6 +1,6 @@
 import { HypNode } from "../../types";
 
-export default function getHypNodeText(node: HypNode) {
+const getHypNodeText = (node: HypNode) => {
   const text = (() => {
     if (!node.name) {
       return node.text;
@@ -16,3 +16,5 @@ export default function getHypNodeText(node: HypNode) {
     : '';
   return `${text}${devId}`;
 }
+
+export default getHypNodeText;

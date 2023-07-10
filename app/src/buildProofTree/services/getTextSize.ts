@@ -1,6 +1,6 @@
 import { App, LABEL_FONT_SIZES, TEXT_PROPS } from "@tldraw/tldraw";
 
-export default function getTextSize(app : App, text: string): [number, number] {
+const getTextSize = (app : App, text: string): [number, number] => {
   const size = app.textMeasure.measureText({
     ...TEXT_PROPS,
     text,
@@ -16,3 +16,5 @@ export default function getTextSize(app : App, text: string): [number, number] {
     size.h,
   ];
 }
+
+export default getTextSize;

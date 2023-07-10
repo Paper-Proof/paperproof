@@ -1,6 +1,6 @@
 import { App, TLShapeId, TLParentId } from "@tldraw/tldraw";
 
-export function drawShapeArrow(app: App, fromId: TLShapeId, toId: TLShapeId) {
+const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   app.createShapes([
     {
       id: app.createShapeId(),
@@ -22,10 +22,10 @@ export function drawShapeArrow(app: App, fromId: TLShapeId, toId: TLShapeId) {
   ]);
 }
 
-export function drawShapeTactic(app: App,
+const drawShapeTactic = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
-) {
+) => {
   app.createShapes([
     {
       id, type: "geo", x, y, parentId,
@@ -40,11 +40,11 @@ export function drawShapeTactic(app: App,
   ]);
 }
 
-export function drawShapeGoal(app: App,
+const drawShapeGoal = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string,
   isCurrentGoal: boolean
-) {
+) => {
   app.createShapes([
     {
       id, type: "geo", x, y, parentId,
@@ -61,10 +61,10 @@ export function drawShapeGoal(app: App,
   ]);
 }
 
-export function drawShapeHypothesis(app: App,
+const drawShapeHypothesis = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
-) {
+) => {
   app.createShapes([
     {
       id, type: "geo", x, y, parentId,
@@ -79,10 +79,10 @@ export function drawShapeHypothesis(app: App,
   ]);
 }
 
-export function drawShapeGoalUsername(app: App,
+const drawShapeGoalUsername = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
-) {
+) => {
   app.createShapes([
     {
       id, type: "geo", x, y, parentId,
@@ -97,10 +97,10 @@ export function drawShapeGoalUsername(app: App,
   ]);
 }
 
-export function drawShapeWindow(app: App,
+const drawShapeWindow = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number
-) {
+) => {
   app.createShapes([
     {
       id,
@@ -112,3 +112,5 @@ export function drawShapeWindow(app: App,
     },
   ]);
 }
+
+export { drawShapeArrow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeGoalUsername, drawShapeWindow };

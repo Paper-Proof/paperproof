@@ -1,7 +1,7 @@
 import { App, TLShapeId } from "@tldraw/tldraw";
 import { Format, UiConfig } from "../types";
-import { createWindow } from './services/Creator';
-import { drawShapeArrow } from './services/drawShape';
+import createWindow from './services/CreateElement/createWindow';
+import { drawShapeArrow } from './services/DrawShape';
 
 const findIdInApp = (app: App, id: string): TLShapeId | null => {
   const desiredId = app.createShapeId(id);
@@ -37,7 +37,9 @@ export function buildProofTree(app: App, proofTree: Format, currentGoal: string,
     app,
     uiConfig,
     proofTree,
-    currentGoal
+    currentGoal,
+    inBetweenMargin: 20,
+    framePadding: 20
   };
 
   const root = proofTree.windows.find((w) => w.parentId == null);

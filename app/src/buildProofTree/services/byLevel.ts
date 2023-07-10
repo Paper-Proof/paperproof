@@ -3,7 +3,7 @@ import { HypTree, Element } from '../../types';
 import hStack from './hStack';
 import vStack from './vStack';
 
-export default function byLevel(hMargin: number, trees: HypTree[]): Element[][] {
+const byLevel = (hMargin: number, trees: HypTree[]) : Element[][] => {
   const rows: Element[][] = [];
   function visit(t: HypTree) {
     while (rows.length <= t.level) {
@@ -19,3 +19,5 @@ export default function byLevel(hMargin: number, trees: HypTree[]): Element[][] 
   trees.forEach(visit);
   return rows;
 }
+
+export default byLevel;
