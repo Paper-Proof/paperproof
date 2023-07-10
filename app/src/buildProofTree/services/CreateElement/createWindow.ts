@@ -13,29 +13,30 @@ import createNode from './createNode';
 
 import { createWindowId } from '../CreateId';
 
+const goalUsernameHeight = 38;
+
 const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element => {
+  const goalUsername = window.goalNodes[0].name;
+  const ifShowGoalUsername = !(localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]");
+
   const frameId = createWindowId(shared.app, window.id);
   const nodes = withPadding(
-    { left: shared.framePadding, right: shared.framePadding, top: shared.framePadding, bottom: 0 },
+    {
+      left: shared.framePadding,
+      right: shared.framePadding,
+      top: shared.framePadding,
+      bottom: ifShowGoalUsername ? goalUsernameHeight : 0
+    },
     createWindowInsides(shared, frameId, window, depth)
   );
 
-  let layout: Element;
-  const goalUsername = window.goalNodes[0].name;
-  if (localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]") {
-    layout = vStack(0, [nodes]);
-  } else {
-    const title = createNode(shared, frameId, goalUsername, "goalUsername", shared.app.createShapeId(`window-name-node-${window.id}`));
-    layout = vStack(0, [nodes, withWidth(nodes.size[0], title)]);
-  }
-
-  const [w, h] = layout.size;
+  const [w, h] = nodes.size;
 
   return {
     size: [w, h],
     draw: (x: number, y: number) => {
-      drawShapeWindow(shared.app, frameId, parentId, x, y, w, h, depth);
-      layout.draw(0, 0);
+      drawShapeWindow(shared.app, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight);
+      nodes.draw(0, 0);
     }
   };
 }

@@ -52,3 +52,17 @@ const colors=[ "#1f2933",
 .tl-frame_body.depth-0 { fill: rgba(132, 147, 171, 0.11); }
 .tl-frame_body.depth-1 { fill: rgba(132, 147, 171, 0.17); }
 .tl-frame_body.depth-2 { fill: rgba(132, 147, 171, 0.24); }
+
+
+.goalUsername{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  font-size: 25px;
+  background: rgba(147, 153, 162, 0.11);
+  justify-content: center;
+  align-items: center;
+  text-shadow: none;
+  color: rgb(86, 95, 96);
+}

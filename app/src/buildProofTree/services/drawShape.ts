@@ -99,7 +99,8 @@ const drawShapeGoalUsername = (app: App,
 
 const drawShapeWindow = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
-  x: number, y: number, w: number, h: number, depth: number
+  x: number, y: number, w: number, h: number, depth: number,
+  goalUsername: string | null, goalUsernameHeight: number
 ) => {
   app.createShapes([
     {
@@ -108,7 +109,7 @@ const drawShapeWindow = (app: App,
       x,
       y,
       parentId,
-      props: { w, h, depth },
+      props: { w, h, depth, goalUsername, goalUsernameHeight },
     },
   ]);
 }

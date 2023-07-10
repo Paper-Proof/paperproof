@@ -21,6 +21,8 @@ type WindowShape = TLBaseShape<
     h: number;
     depth: number;
     opacity: TLOpacityType;
+    goalUsername: string | null,
+    goalUsernameHeight: number
   }
 >;
 
@@ -43,7 +45,7 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
   override canEdit = () => true;
 
   override defaultProps(): WindowShape["props"] {
-    return { opacity: "1", w: 160 * 2, h: 90 * 2, name: "none", depth: 0 };
+    return { opacity: "1", w: 160 * 2, h: 90 * 2, name: "none", depth: 0, goalUsername: null, goalUsernameHeight: 20 };
   }
 
   override render(shape: WindowShape) {
@@ -74,6 +76,12 @@ export class WindowUtil extends TLBoxUtil<WindowShape> {
             shapeRendering="crispEdges"
           />
         </SVGContainer>
+        {
+          shape["props"].goalUsername &&
+          <div style={{ height: shape["props"].goalUsernameHeight }} className="goalUsername">
+            {shape["props"].goalUsername}
+          </div>
+        }
       </>
     );
   }
