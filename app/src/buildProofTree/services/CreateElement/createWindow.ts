@@ -11,8 +11,10 @@ import { drawShapeWindow } from '../DrawShape';
 import createWindowInsides from './createWindowInsides';
 import createNode from './createNode';
 
+import { createWindowId } from '../CreateId';
+
 const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element => {
-  const frameId = shared.app.createShapeId(`window-${window.id}`);
+  const frameId = createWindowId(shared.app, window.id);
   const nodes = withPadding(
     { left: shared.framePadding, right: shared.framePadding, top: shared.framePadding, bottom: 0 },
     createWindowInsides(shared, frameId, window, depth)
@@ -23,7 +25,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   if (localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]") {
     layout = vStack(0, [nodes]);
   } else {
-    const title = createNode(shared, frameId, goalUsername, "goalUsername", `window-name-node-${window.id}`);
+    const title = createNode(shared, frameId, goalUsername, "goalUsername", shared.app.createShapeId(`window-name-node-${window.id}`));
     layout = vStack(0, [nodes, withWidth(nodes.size[0], title)]);
   }
 

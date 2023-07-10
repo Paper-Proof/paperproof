@@ -1,4 +1,4 @@
-import { TLParentId } from "@tldraw/tldraw";
+import { TLParentId, TLShapeId } from "@tldraw/tldraw";
 import { IdElement, Shared } from "../../../types";
 
 import getTextSize from '../getTextSize';
@@ -11,11 +11,10 @@ const createNode = (
   text: string,
   type: "hypothesis" | "tactic" | "goal" | "goalUsername",
   // This is for arrows
-  externalId: string,
+  id: TLShapeId,
   ids: string[] = [],
 ): IdElement => {
-  const newText = text + (localStorage.getItem("dev") === 'true' ? '      ' + externalId : '');
-  const id = shared.app.createShapeId(externalId);
+  const newText = text + (localStorage.getItem("dev") === 'true' ? '      ' + id : '');
   const [w, h] = getTextSize(shared.app, newText);
   return {
     id,
