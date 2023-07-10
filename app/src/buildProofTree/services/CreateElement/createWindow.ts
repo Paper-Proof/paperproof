@@ -1,16 +1,8 @@
 import { TLParentId } from "@tldraw/tldraw";
-
 import { Element, Window, Shared } from "../../../types";
-
-import vStack from '../vStack';
 import withPadding from '../withPadding';
-import withWidth from '../withWidth';
-
 import { drawShapeWindow } from '../DrawShape';
-
 import createWindowInsides from './createWindowInsides';
-import createNode from './createNode';
-
 import { createWindowId } from '../CreateId';
 
 const goalUsernameHeight = 38;
