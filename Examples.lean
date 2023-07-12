@@ -290,3 +290,13 @@ theorem chain'_append :
       rw [cons_append, cons_append, chain'_cons, chain'_cons, ← cons_append, chain'_append,
         and_assoc]
       simp
+
+
+theorem dojo4_uncombined (p q r : Prop) (hp : p)
+  : (p ∨ q ∨ r) ∧ (q ∨ p ∨ r) ∧ (q ∨ r ∨ p) := by
+  repeat (first | apply And.intro | apply Or.inl; assumption | apply Or.inr | assumption)
+
+-- 1. `apply Or.inl; assumption` is tried, but fails on `assumption`
+-- 2. `apply Or.inr; assumption` is tried, and succeeds
+example (p q : Prop) (hq : q) : p ∨ q := by
+  first | apply Or.inl; assumption | apply Or.inr; assumption
