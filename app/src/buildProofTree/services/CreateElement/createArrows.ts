@@ -3,9 +3,16 @@ import { Shared, Element } from "../../../types";
 import { drawShapeArrow } from '../DrawShape';
 
 import findIdInApp from '../findIdInApp';
-import findWindowId from '../findWindowId'
+import findWindowId from '../findWindowId';
+
+import { Format } from "../../../types";
 
 import { createHypTacticId, createGoalTacticId, createNodeId, createWindowId } from '../CreateId';
+
+const getWindowByHypId = (proofTree: Format, hypId : string) =>
+  proofTree.windows.find((window) =>
+    window.hypNodes.find((hypLayer) => hypLayer.find((hyp) => hyp.id === hypId))
+  );
 
 const createArrows = (shared: Shared): Element => {
   return {
@@ -14,14 +21,17 @@ const createArrows = (shared: Shared): Element => {
       shared.proofTree.tactics.forEach((tactic) => {
         // 1. Draw arrows between this tactic and hypotheses
         tactic.hypArrows.forEach((hypArrow) => {
-          if (hypArrow.fromId) {
-            const fromNodeId = findIdInApp(shared.app, createNodeId(shared.app, hypArrow.fromId));
-            const toTacticId = findIdInApp(shared.app, createHypTacticId(shared.app, tactic.id, hypArrow.fromId));
-            if (!fromNodeId || !toTacticId) return
-            drawShapeArrow(shared.app, fromNodeId, toTacticId);
-          }
           hypArrow.toIds.forEach((toId) => {
-            const fromTacticId = findIdInApp(shared.app, createHypTacticId(shared.app, tactic.id, hypArrow.fromId));
+            const window = getWindowByHypId(shared.proofTree, toId);
+            if (!window) return
+
+            if (hypArrow.fromId) {
+              const fromNodeId = findIdInApp(shared.app, createNodeId(shared.app, hypArrow.fromId));
+              const toTacticId = findIdInApp(shared.app, createHypTacticId(shared.app, tactic.id, hypArrow.fromId, window.id));
+              if (!fromNodeId || !toTacticId) return
+              drawShapeArrow(shared.app, fromNodeId, toTacticId);
+            }
+            const fromTacticId = findIdInApp(shared.app, createHypTacticId(shared.app, tactic.id, hypArrow.fromId, window.id));
             const toNodeId = findIdInApp(shared.app, createNodeId(shared.app, toId));
             if (!fromTacticId || !toNodeId) return
             drawShapeArrow(shared.app, fromTacticId, toNodeId);
@@ -47,9 +57,11 @@ const createArrows = (shared: Shared): Element => {
         });
 
         // 3. Draw arrows between this tactic and `have` windows
-        if (tactic.haveWindowId) {
+        if (tactic.haveWindowId && tactic.hypArrows[0]) {
+          const window = getWindowByHypId(shared.proofTree, tactic.hypArrows[0].toIds[0]);
+          if (!window) return
           const fromWindowId = findIdInApp(shared.app, createWindowId(shared.app, tactic.haveWindowId));
-          const toTacticId = findIdInApp(shared.app, createHypTacticId(shared.app, tactic.id, null));
+          const toTacticId = findIdInApp(shared.app, createHypTacticId(shared.app, tactic.id, null, window.id));
           if (!fromWindowId || !toTacticId) return
           drawShapeArrow(shared.app, fromWindowId, toTacticId);
         }

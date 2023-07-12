@@ -1,7 +1,8 @@
-import { App, TLShapeId } from "@tldraw/tldraw";
+import { App, TLShapeId, TLParentId } from "@tldraw/tldraw";
 
-const createHypTacticId = (app: App, tacticId: string, fromNodeId: string | null): TLShapeId => {
-  return app.createShapeId(`hypTactic-${tacticId}-from-${fromNodeId ? fromNodeId : "null"}`);
+// Hmm is app & tacticId & windowId enough
+const createHypTacticId = (app: App, tacticId: string, fromNodeId: string | null, windowId: string | number): TLShapeId => {
+  return app.createShapeId(`hypTactic-${tacticId}-from-${fromNodeId ? fromNodeId : "null"}-window-${windowId}`);
 }
 
 const createGoalTacticId = (app: App, tacticId: string): TLShapeId => {

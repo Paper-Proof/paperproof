@@ -123,7 +123,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
             parentId,
             tactic.text,
             "tactic",
-            createHypTacticId(shared.app, tactic.id, hypArrow.fromId)
+            createHypTacticId(shared.app, tactic.id, hypArrow.fromId, window.id)
           );
 
           const haveWindows = shared.proofTree.windows
