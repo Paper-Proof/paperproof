@@ -66,3 +66,37 @@ const colors=[ "#1f2933",
   text-shadow: none;
   color: rgb(86, 95, 96);
 }
+
+/* This is directly copypasted from tldraw examples folder (https: //stackblitz.com/github/tldraw/tldraw/tree/examples?file=src%2Fstyles.css).
+I added it to make the tldraw menus render nicely.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  overscroll-behavior: none;
+  touch-action: none;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
+  height: 100%;
+}
+
+/* This makes the Preferences menu icons visible (otherwise they are hidden) */
+html, * {
+  box-sizing: border-box;
+}
+
+/* This is our custom styles */
+.tldraw-wrapper {
+  position: fixed;
+  inset: 0px;
+  overflow: hidden;
+}
+
+.tlui-button{
+  font-size: 13px;
+}

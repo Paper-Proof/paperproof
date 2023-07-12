@@ -84,7 +84,7 @@ function Main() {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0 }}>
+    <div className="tldraw-wrapper">
       <Tldraw onMount={handleMount} config={config} />
     </div>
   );
