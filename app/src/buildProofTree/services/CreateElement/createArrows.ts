@@ -1,18 +1,37 @@
 import { Shared, Element } from "../../../types";
-
 import { drawShapeArrow } from '../DrawShape';
-
-import findIdInApp from '../findIdInApp';
-import findWindowId from '../findWindowId';
-
 import { Format } from "../../../types";
-
 import { createHypTacticId, createGoalTacticId, createNodeId, createWindowId } from '../CreateId';
+import { App, TLShapeId } from "@tldraw/tldraw";
+
+const findIdInApp = (app: App, desiredId: TLShapeId): TLShapeId | null => {
+  const existingShapeIds = Array.from(app.shapeIds.values());
+  const foundId = existingShapeIds.find((shapeId) => shapeId === desiredId)
+  if (foundId) {
+    return foundId;
+  }
+
+  console.log(`Didn't find ${desiredId} in:`);
+  console.log(existingShapeIds);
+
+  return null
+}
 
 const getWindowByHypId = (proofTree: Format, hypId : string) =>
   proofTree.windows.find((window) =>
     window.hypNodes.find((hypLayer) => hypLayer.find((hyp) => hyp.id === hypId))
   );
+
+const findWindowId = (app: App, proofTree: Format, goalId: string): TLShapeId | null => {
+  const window = proofTree.windows.find((window) =>
+    window.goalNodes.find((goalNode) => goalNode.id === goalId)
+  );
+  if (window) {
+    return findIdInApp(app, createWindowId(app, window.id));
+  } else {
+    return null;
+  }
+}
 
 const createArrows = (shared: Shared): Element => {
   return {
