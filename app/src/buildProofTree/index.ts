@@ -4,7 +4,6 @@ import { createWindow, createArrows } from './services/CreateElement';
 
 export function buildProofTree(app: App, proofTree: Format, currentGoal: string, uiConfig: UiConfig) {
   app.selectAll().deleteShapes();
-  app.updateInstanceState({ isFocusMode: true });
 
   const shared = {
     app,

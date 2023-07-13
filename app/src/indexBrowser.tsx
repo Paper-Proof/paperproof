@@ -80,6 +80,7 @@ function Main() {
       app.zoomToFit({ duration: 100 });
     });
     app.userDocumentSettings.isSnapMode = true;
+    app.updateInstanceState({ isFocusMode: true });
     setApp(app);
   };
 
