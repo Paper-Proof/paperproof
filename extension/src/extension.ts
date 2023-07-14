@@ -77,10 +77,9 @@ export function activate(context: vscode.ExtensionContext) {
       tdp,
       tdp
     );
-    const goal = goalsResponse.goals.length > 0 ? goalsResponse.goals[0].mvarId : '';
 
     const body = JSON.parse(context);
-    body['goal'] = goal;
+    body['goal'] = goalsResponse.goals[0] || null;
 
     await fetch("http://localhost:3000/sendTypes", {
       method: "POST",
