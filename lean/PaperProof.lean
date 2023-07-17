@@ -15,8 +15,8 @@ structure GetPpContextParams where
 
 open Server RequestM in
 @[server_rpc_method]
-def getPpContext (params : GetPpContextParams) : RequestM (RequestTask String) := do
+def getPpContext (params : GetPpContextParams) : RequestM (RequestTask Proof) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let tree := snap.infoTree
     let th ← parse tree
-    return s!"{toJson th}"
+    return th

@@ -30,18 +30,18 @@ app.use(
 
 app.use(bodyParser.json({ limit: "50mb" }));
 
-let hyps = [];
-let curId = 1;
+let vscodeResponse = [];
+let currentId = 1;
 
 app.post("/sendTypes", (req, res) => {
-  const data = req.body;
-  hyps = { data, id: curId++ };
-  console.log("Recieved", data);
-  res.send(`Recieved ${data}`);
+  vscodeResponse = req.body;
+  currentId += 1;
+  console.log("Recieved", vscodeResponse);
+  res.send(`Recieved ${vscodeResponse}`);
 });
 
 app.get("/getTypes", (req, res) => {
-  res.send(hyps);
+  res.send({ ...vscodeResponse, id: currentId });
 });
 
 function getInlineHtmlWithJsTag(jsUrl) {

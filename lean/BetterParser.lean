@@ -13,7 +13,7 @@ structure Hypothesis where
   value : Option String
   -- unique identifier for the hypothesis, fvarId
   id : String
-  deriving Inhabited, ToJson
+  deriving Inhabited, ToJson, FromJson
 
 structure GoalInfo where
   username : String
@@ -21,7 +21,7 @@ structure GoalInfo where
   hyps : List Hypothesis 
   -- unique identifier for the goal, mvarId
   id : String
-  deriving Inhabited, ToJson
+  deriving Inhabited, ToJson, FromJson
 
 instance : BEq GoalInfo where
   beq g1 g2 := g1.id == g2.id
@@ -34,14 +34,14 @@ structure TacticApplication where
   goalsBefore : List GoalInfo
   goalsAfter : List GoalInfo 
   tacticDependsOn : List String
-  deriving Inhabited, ToJson
+  deriving Inhabited, ToJson, FromJson
 
 inductive ProofStep := 
   | tacticApp (t : TacticApplication)
   | haveDecl (t: TacticApplication)
     (initialGoal: String)
     (subSteps : List ProofStep)
-  deriving Inhabited, ToJson
+  deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := match step with
   | .tacticApp t => t.goalsAfter
@@ -88,7 +88,7 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
 structure Proof where
   statement : String
   steps : List ProofStep
-  deriving Inhabited, ToJson 
+  deriving Inhabited, FromJson, ToJson
 
 structure Result where
   steps : List ProofStep

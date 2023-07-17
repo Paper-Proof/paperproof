@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import fetch from "node-fetch";
+// @ts-ignore
+import converter from "./converter";
 
 // Simple request. We don't keep session open and create a new one for each request for now.
 async function simpleRequest(
@@ -63,7 +65,8 @@ export function activate(context: vscode.ExtensionContext) {
         .clientProvider;
     const client = clientProvider.findClient(tdp.textDocument.uri);
     const uri = tdp.textDocument.uri;
-    const context = await simpleRequest(
+
+    const proofTreeResponse = await simpleRequest(
       'getPpContext',
       client,
       uri,
@@ -78,8 +81,13 @@ export function activate(context: vscode.ExtensionContext) {
       tdp
     );
 
-    const body = JSON.parse(context);
-    body['goal'] = goalsResponse.goals[0] || null;
+    const body = {
+      goal: goalsResponse.goals[0] || null,
+      statement: proofTreeResponse.statement,
+      proofTree: converter(proofTreeResponse.steps),
+      // TODO: This is only for development, comment out this line for production (bc it's lengthy)
+      leanProofTree: proofTreeResponse.steps
+    };
 
     await fetch("http://localhost:3000/sendTypes", {
       method: "POST",

@@ -426,7 +426,7 @@ const postprocess = (pretty) => {
   });
 }
 
-export const toEdges = (infoTreeVast) => {
+const converter = (infoTreeVast) => {
   windowId = 1;
 
   const pretty = {
@@ -446,6 +446,8 @@ export const toEdges = (infoTreeVast) => {
 
   return pretty;
 }
+
+export default converter;
 
 // const edges = toEdges(infoTreeExample_5)
 // console.log(util.inspect(edges, { depth: null }));
