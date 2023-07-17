@@ -116,7 +116,7 @@ function Main() {
       if (!app) return
       apiGetProofTree(app, apiResponse, setApiResponse)
     },
-    1000
+    200
   )
 
   const handleMount = (app: App) => {
