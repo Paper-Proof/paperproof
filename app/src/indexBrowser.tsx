@@ -38,6 +38,51 @@ const areObjectsEqual = (a : object, b : object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+// This could be done in /extension, but doing it here for the ease of debugging
+const getDisplayedId = (equivalentIds: Format["equivalentIds"], id : string) => {
+  const displayedId = Object.keys(equivalentIds).find((displayedId) =>
+    equivalentIds[displayedId].find((inferiorId) => inferiorId === id)
+  );
+  return displayedId ? displayedId : id;
+}
+
+const focusProofTree = (app: App, equivalentIds: Format["equivalentIds"], currentGoal: InteractiveGoal|null) => {
+  if (currentGoal === null) {
+    const existingNodeIds = Array.from(app.shapeIds.values())
+      .filter((shapeId) => shapeId.startsWith("shape:node-"))
+      .map((nodeId) => ({
+        id: nodeId,
+        type: "geo",
+        props: {
+          opacity: "1"
+        }
+      }))
+    app.updateShapes(existingNodeIds);
+    return
+  }
+
+  const focusedGoalId = createNodeId(app, getDisplayedId(equivalentIds, currentGoal.mvarId));
+  const focusedHypIds = currentGoal.hyps
+    .reduce<string[]>((acc, hyp) => [...acc, ...hyp.fvarIds], [])
+    .map((inferiorHypId) => {
+      const hypId = getDisplayedId(equivalentIds, inferiorHypId);
+      return createNodeId(app, hypId);
+    });
+  const focusedShapes = Array.from(app.shapeIds.values())
+    .filter((shapeId) => shapeId.startsWith("shape:node-"))
+    .map((nodeId) => {
+      const ifFocused = nodeId === focusedGoalId || focusedHypIds.includes(nodeId);
+      return {
+        id: nodeId,
+        type: "geo",
+        props: {
+          opacity: ifFocused ? "1" : "0.25"
+        }
+      }
+    })
+  app.updateShapes(focusedShapes);
+}
+
 const apiGetProofTree = (app: App, apiResponse: ApiResponse | null, setApiResponse: React.Dispatch<React.SetStateAction<ApiResponse | null>>) => {
   fetch("/getTypes")
     .then((response) => response.json())
@@ -49,6 +94,10 @@ const apiGetProofTree = (app: App, apiResponse: ApiResponse | null, setApiRespon
 
       if (!areObjectsEqual(newResponse.proofTree, apiResponse ? apiResponse.proofTree : {})) {
         buildProofTree(app, newResponse.proofTree, uiConfig);
+      }
+
+      if (!areObjectsEqual(newResponse.goal, apiResponse ? apiResponse.goal : {})) {
+        focusProofTree(app, newResponse.proofTree.equivalentIds, newResponse.goal);
       }
 
       setApiResponse(newResponse);

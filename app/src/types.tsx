@@ -61,6 +61,7 @@ export interface Tactic {
 export interface Format {
   windows: Window[];
   tactics: Tactic[];
+  equivalentIds: {[key: string]: string[]};
 }
 
 // What we share in tldraw code
