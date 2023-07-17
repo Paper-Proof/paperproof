@@ -42,8 +42,7 @@ const drawShapeTactic = (app: App,
 
 const drawShapeGoal = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
-  x: number, y: number, w: number, h: number, text: string,
-  isCurrentGoal: boolean
+  x: number, y: number, w: number, h: number, text: string
 ) => {
   app.createShapes([
     {
@@ -51,11 +50,9 @@ const drawShapeGoal = (app: App,
       props: {
         geo: "rectangle", font: "mono", size: "m", w, h, text,
 
-        ...(
-          isCurrentGoal ?
-            { dash: "solid", fill: "pattern", color: "light-red" } :
-            { dash: "solid", fill: "solid", color: "light-red" }
-        )
+        dash: "solid",
+        fill: "solid",
+        color: "light-red"
       },
     },
   ]);
@@ -79,6 +76,7 @@ const drawShapeHypothesis = (app: App,
   ]);
 }
 
+// TODO remove this
 const drawShapeGoalUsername = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string

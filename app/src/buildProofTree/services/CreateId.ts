@@ -1,4 +1,4 @@
-import { App, TLShapeId, TLParentId } from "@tldraw/tldraw";
+import { App, TLShapeId } from "@tldraw/tldraw";
 
 // Hmm is app & tacticId & windowId enough
 const createHypTacticId = (app: App, tacticId: string, fromNodeId: string | null, windowId: string | number): TLShapeId => {

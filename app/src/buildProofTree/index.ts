@@ -2,14 +2,13 @@ import { App } from "@tldraw/tldraw";
 import { Format, UiConfig } from "../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
-export function buildProofTree(app: App, proofTree: Format, currentGoal: string, uiConfig: UiConfig) {
+export function buildProofTree(app: App, proofTree: Format, uiConfig: UiConfig) {
   app.selectAll().deleteShapes();
 
   const shared = {
     app,
     uiConfig,
     proofTree,
-    currentGoal,
     inBetweenMargin: 20,
     framePadding: 20
   };

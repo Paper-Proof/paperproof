@@ -68,7 +68,33 @@ export interface Shared {
   app: App;
   uiConfig: UiConfig;
   proofTree: Format;
-  currentGoal: string;
   inBetweenMargin: number;
   framePadding: number;
+}
+
+// Focusing on the goal types
+export interface InteractiveHyp {
+  // `fvarIds` and `names` are always of the same length
+  fvarIds: string[],
+  names: string[],
+  // type with all the stuff that lets us hover over it
+  type: object
+}
+
+export interface InteractiveGoal {
+  ctx: object;
+  goalPrefix: string,
+  hyps: InteractiveHyp[],
+  mvarId: string,
+  // type with all the stuff that lets us hover over it
+  type: object,
+  userName: string
+}
+
+export interface ApiResponse {
+  id: string;
+  statement: string;
+  proofTree: Format;
+  leanProofTree: object[];
+  goal: InteractiveGoal;
 }

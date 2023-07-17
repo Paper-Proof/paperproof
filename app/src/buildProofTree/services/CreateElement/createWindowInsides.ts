@@ -176,8 +176,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
       parentId,
       goalNode.text,
       "goal",
-      createNodeId(shared.app, goalNode.id),
-      [goalNode.id]
+      createNodeId(shared.app, goalNode.id)
     );
     if (tactic) {
       const tacticElement = createNode(

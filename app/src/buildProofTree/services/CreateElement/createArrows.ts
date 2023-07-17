@@ -4,6 +4,7 @@ import { Format } from "../../../types";
 import { createHypTacticId, createGoalTacticId, createNodeId, createWindowId } from '../CreateId';
 import { App, TLShapeId } from "@tldraw/tldraw";
 
+// TODO:lakesare - wait, we can simply app.getShapeById(desiredId)
 const findIdInApp = (app: App, desiredId: TLShapeId): TLShapeId | null => {
   const existingShapeIds = Array.from(app.shapeIds.values());
   const foundId = existingShapeIds.find((shapeId) => shapeId === desiredId)
