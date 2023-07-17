@@ -21,7 +21,7 @@ In future potentially with LLMs and visual transformers trying to understand use
 
 1. Install the extension from `extension/` folder
 ```console
-code --install-extension extension/tactictree-0.0.2.vsix
+code --install-extension extension/tactictree-0.0.3.vsix
 ```
 
 2. Run the dev server (you might need to run `yarn install` first)
@@ -29,13 +29,19 @@ code --install-extension extension/tactictree-0.0.2.vsix
 cd app; yarn dev
 ```
 
-3. Toggle the view with "Tactic Tree: Toggle" command (Ctrl+Shift+P) or open in browser on
+3. Toggle the view with `"Tactic Tree: Toggle"` command (Ctrl+Shift+P) or open in browser on
 http://localhost:3000
 
 ## Reload 
 
-As you iterate on code reload the browser page
-or "Toggle Tactic Tree" to hide and show again.
+If you change something in the `/extension` folder, run
+
+```console
+vsce package; code --uninstall-extension undefined_publisher.tactictree; code --install-extension tactictree-0.0.3.vsix
+```
+and quit VSCode.
+
+On some changes, running `"Tactic Tree: Toggle"` is important.
 
 ## Code structure
 
