@@ -78,12 +78,12 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
       let type ← ppExprWithInfos ppContext decl.type
       let value ← decl.value?.mapM (ppExprWithInfos ppContext)
       return ({
-        username := decl.userName.eraseMacroScopes.toString,
+        username := decl.userName.toString,
         type := type.fmt.pretty,
-        value := value.map (·.fmt.pretty),
+        value := value.map (·.fmt.pretty), 
         id := decl.fvarId.name.toString
         } : Hypothesis) ::acc)
-    return some ⟨ decl.userName.eraseMacroScopes.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
+    return some ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
 
 structure Proof where
   statement : String
