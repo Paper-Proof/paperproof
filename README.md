@@ -30,7 +30,7 @@ cd app; yarn dev
 ```
 
 3. Toggle the view with `"Tactic Tree: Toggle"` command (Ctrl+Shift+P) or open in browser on
-http://localhost:3000
+http://localhost:8080
 
 ## Reload 
 

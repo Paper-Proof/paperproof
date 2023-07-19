@@ -94,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Send directly to the webview if it's open to avoid lag.
     webviewPanel?.webview.postMessage(body)
 
-    await fetch("http://165.227.231.96:3000/sendTypes", {
+    await fetch("https://paperproof.xyz/sendTypes", {
       method: "POST",
       // eslint-disable-next-line @typescript-eslint/naming-convention
       headers: { "Content-Type": "application/json" },

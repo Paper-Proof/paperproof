@@ -107,7 +107,7 @@ function Main() {
         // It runs as an extension and communicates changes directly
         return;
       }
-      fetch("http://165.227.231.96:3000/getTypes")
+      fetch("https://paperproof.xyz/getTypes")
         .then((response) => response.json())
         .then(newResponse => {
           if (apiResponse &&
