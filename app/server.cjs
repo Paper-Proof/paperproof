@@ -2,10 +2,37 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 
 const app = express()
-const port = 8080 
+http.createServer(app).listen(80, () => {
+  console.log(`Listening on port 80`)
+});
 
+let withHttps = false;
+// Middleware to redirect from http to https
+app.use((req, res, next) => {
+  if (!withHttps || req.secure) {
+    next();
+  } else {
+    res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+});
+ 
+try {
+  const options = {
+    cert: fs.readFileSync('/etc/letsencrypt/live/paperproof.xyz/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/paperproof.xyz/privkey.pem')
+  };
+  https.createServer(options, app).listen(443, () => {
+    console.log('HTTPS server is running on port 443')
+    withHttps = true;
+ });
+} catch (e) {
+  console.log('Error starting https server', e);
+}
 
 // Serve static files from the 'app/dist' directory
 app.use("/", express.static(path.join(__dirname, "dist")));
@@ -64,7 +91,3 @@ app.get("/", (req, res) => {
   const myHtml = getInlineHtmlWithJsTag(myJsUrl);
   res.send(myHtml);
 });
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})

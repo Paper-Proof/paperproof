@@ -44,7 +44,7 @@ function getWebviewContent() {
     </head>
     <body>
       <div id="root"></div>
-      <script src="http://localhost:3000/indexBrowser.js"></script>
+      <script src="https://paperproof.xyz/indexBrowser.js"></script>
     </body>
   </html>`;
 }
