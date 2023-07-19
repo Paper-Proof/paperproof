@@ -25,6 +25,11 @@ app.use(bodyParser.json({ limit: "50mb" }));
 let vscodeResponse = [];
 let currentId = 1;
 
+app.get('/indexBrowser.js', (req, res) => {
+  res.set('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, "dist", "indexBrowser.js"));
+});
+
 app.post("/sendTypes", (req, res) => {
   vscodeResponse = req.body;
   currentId += 1;
