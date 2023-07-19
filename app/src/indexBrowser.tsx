@@ -83,46 +83,62 @@ const focusProofTree = (app: App, equivalentIds: Format["equivalentIds"], curren
   app.updateShapes(focusedShapes);
 }
 
-const apiGetProofTree = (app: App, apiResponse: ApiResponse | null, setApiResponse: React.Dispatch<React.SetStateAction<ApiResponse | null>>) => {
-  fetch("http://localhost:3000/getTypes")
-    .then((response) => response.json())
-    .then((newResponse : ApiResponse) => {
-      if (apiResponse && (newResponse.id === apiResponse.id)) return
-      if (!app) return
+const updateUi = (app: App, newResponse: ApiResponse, oldResponse: ApiResponse | null) => {
+    console.log({ newResponse, oldResponse});
 
-      console.log({ newResponse, apiResponse });
+    if (!areObjectsEqual(newResponse.proofTree, oldResponse?.proofTree ?? {})) {
+      buildProofTree(app, newResponse.proofTree, uiConfig);
+    }
 
-      if (!areObjectsEqual(newResponse.proofTree, apiResponse ? apiResponse.proofTree : {})) {
-        buildProofTree(app, newResponse.proofTree, uiConfig);
-      }
-
-      if (!areObjectsEqual(newResponse.goal, apiResponse ? apiResponse.goal : {})) {
-        focusProofTree(app, newResponse.proofTree.equivalentIds, newResponse.goal);
-      }
-
-      setApiResponse(newResponse);
-    })
-    .catch((e) => {
-      console.error("server error", e);
-    });
+    if (!areObjectsEqual(newResponse.goal, oldResponse?.goal ?? {})) {
+      focusProofTree(app, newResponse.proofTree.equivalentIds, newResponse.goal);
+    }
 }
 
 function Main() {
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [app, setApp] = useState<App | null>(null);
 
+  const BY_POST_MESSAGE = 'by post message';
+
   useInterval(
     () => {
-      if (!app) return
-      apiGetProofTree(app, apiResponse, setApiResponse)
+      if (apiResponse && apiResponse.id == BY_POST_MESSAGE) {
+        // It runs as an extension and communicates changes directly
+        return;
+      }
+      fetch("http://localhost:3000/getTypes")
+        .then((response) => response.json())
+        .then(newResponse => {
+          if (apiResponse &&
+              (apiResponse.id === BY_POST_MESSAGE || newResponse.id === apiResponse.id)) return
+          if (!app) return
+
+          updateUi(app, newResponse, apiResponse);
+
+          setApiResponse(newResponse);
+        })
+        .catch((e) => {
+          console.error("server error", e);
+        });
     },
     200
   )
-
   const handleMount = (app: App) => {
     setTimeout(() => {
       app.zoomToFit({ duration: 100 });
     }, 200);
+
+    // Listen for direct messages from extension instead of round trip through server
+    addEventListener("message", (event) => {
+      if (!app || !event.data['proofTree']) return
+      const newResponse: ApiResponse = {...event.data, id: BY_POST_MESSAGE};
+
+      updateUi(app, newResponse, apiResponse);
+
+      setApiResponse(newResponse);
+    });
+
     addEventListener("resize", (event) => {
       app.zoomToFit({ duration: 100 });
     });

@@ -25,3 +25,7 @@ server function for the Lean language server would be somehow linked automatical
 ### 0.0.1
 
 Initial release of the extension sending data to the server.
+
+### 0.0.4
+
+Send state updates directly to extension webview as well as the server

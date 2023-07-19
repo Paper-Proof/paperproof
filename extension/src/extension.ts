@@ -40,16 +40,18 @@ function getWebviewContent() {
           padding: 0;
         }
         * { line-height: 0; }
-        iframe { border: none; }
       </style>
     </head>
     <body>
-      <iframe src="http://localhost:3000" width=100% height=100%></iframe>
+      <div id="root"></div>
+      <script src="http://localhost:3000/indexBrowser.js"></script>
     </body>
   </html>`;
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  let webviewPanel: vscode.WebviewPanel | null = null;
+
   // 1. Sending types to the server on cursor changes.
   vscode.window.onDidChangeTextEditorSelection(async (e) => {
     const editor = e.textEditor;
@@ -89,6 +91,9 @@ export function activate(context: vscode.ExtensionContext) {
       leanProofTree: proofTreeResponse.steps
     };
 
+    // Send directly to the webview if it's open to avoid lag.
+    webviewPanel?.webview.postMessage(body)
+
     await fetch("http://localhost:3000/sendTypes", {
       method: "POST",
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -98,7 +103,6 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // 2. Opening/hiding webviewPanel.
-  let webviewPanel: vscode.WebviewPanel | null = null;
   function openPanel() {
     webviewPanel = vscode.window.createWebviewPanel(
       "tactictree",
