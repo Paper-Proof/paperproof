@@ -1,8 +1,12 @@
 import { TLArrowUtil, TLArrowShape, TLBaseShape, defineShape, App } from '@tldraw/tldraw';
+import {VecLike} from '@tldraw/primitives'
 
 type CustomArrowShapeType = TLBaseShape<'customArrow', {}>;
 
-const getIfVerticalDistanceBetweenNodesIs0 = (arrowInfo: ArrowInfo) => {
+type ArrowPoint = {point: VecLike};
+type ArrowInfo = {start: ArrowPoint, end: ArrowPoint};
+
+const getIfVerticalDistanceBetweenNodesIs0 = (arrowInfo: ArrowInfo|undefined) => {
   if (!arrowInfo) return null
   const from = arrowInfo.start.point;
   const to = arrowInfo.end.point;

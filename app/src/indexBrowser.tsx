@@ -84,7 +84,7 @@ const focusProofTree = (app: App, equivalentIds: Format["equivalentIds"], curren
 }
 
 const apiGetProofTree = (app: App, apiResponse: ApiResponse | null, setApiResponse: React.Dispatch<React.SetStateAction<ApiResponse | null>>) => {
-  fetch("/getTypes")
+  fetch("http://localhost:3000/getTypes")
     .then((response) => response.json())
     .then((newResponse : ApiResponse) => {
       if (apiResponse && (newResponse.id === apiResponse.id)) return
@@ -131,9 +131,10 @@ function Main() {
     setApp(app);
   };
 
+  const baseUrl = "https://unpkg.com/@tldraw/assets@2.0.0-alpha.14/";
   return (
     <div className="tldraw-wrapper">
-      <Tldraw onMount={handleMount} config={config}/>
+      <Tldraw onMount={handleMount} config={config} baseUrl={baseUrl} assetBaseUrl={baseUrl}/>
     </div>
   );
 }
