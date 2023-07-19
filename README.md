@@ -21,7 +21,7 @@ In future potentially with LLMs and visual transformers trying to understand use
 
 1. Install the extension from `extension/` folder
 ```console
-code --install-extension extension/tactictree-0.0.3.vsix
+code --install-extension extension/tactictree-0.0.4.vsix
 ```
 
 2. Run the dev server (you might need to run `yarn install` first)
@@ -37,7 +37,7 @@ http://localhost:3000
 If you change something in the `/extension` folder, run
 
 ```console
-vsce package; code --uninstall-extension undefined_publisher.tactictree; code --install-extension tactictree-0.0.3.vsix
+vsce package; code --uninstall-extension undefined_publisher.tactictree; code --install-extension tactictree-0.0.4.vsix
 ```
 and quit VSCode.
 
