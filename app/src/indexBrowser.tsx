@@ -114,6 +114,14 @@ function Main() {
               (apiResponse.id === BY_POST_MESSAGE || newResponse.id === apiResponse.id)) return
           if (!app) return
 
+          // TODO insert this into extension too when code is more stable
+          // @ts-ignore
+          if (newResponse.error) {
+            app.selectAll().deleteShapes();
+            setApiResponse(null);
+            return;
+          }
+
           updateUi(app, newResponse, apiResponse);
 
           setApiResponse(newResponse);
