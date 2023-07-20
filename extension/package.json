@@ -1,6 +1,6 @@
 {
-  "name": "tactictree",
-  "displayName": "tactictree",
+  "name": "paperproof",
+  "displayName": "paperproof",
   "description": "Extension which queries Lean server each time cursor position changes and sends context to the web server",
   "version": "0.0.4",
   "repository": {
@@ -18,8 +18,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "tactictree.toggle",
-        "title": "Tactic Tree : Toggle"
+        "command": "paperproof.open",
+        "title": "Paper Proof: Open"
       }
     ]
   },

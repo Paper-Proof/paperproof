@@ -30,17 +30,8 @@ function getWebviewContent() {
   <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-      <title>Tactic Tree</title>
-      <style>
-        html, body {
-          height: 100%;
-        }
-        body {
-          padding: 0;
-        }
-        * { line-height: 0; }
-      </style>
+      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+      <title>Paperproof</title>
     </head>
     <body>
       <div id="root"></div>
@@ -92,7 +83,7 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
     // Send directly to the webview if it's open to avoid lag.
-    webviewPanel?.webview.postMessage(body)
+    webviewPanel?.webview.postMessage(body);
 
     await fetch("https://paperproof.xyz/sendTypes", {
       method: "POST",
@@ -105,8 +96,8 @@ export function activate(context: vscode.ExtensionContext) {
   // 2. Opening/hiding webviewPanel.
   function openPanel() {
     webviewPanel = vscode.window.createWebviewPanel(
-      "tactictree",
-      "Tactic Tree",
+      "paperproof",
+      "Paper Proof",
       { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true }
     );
@@ -116,11 +107,9 @@ export function activate(context: vscode.ExtensionContext) {
     webviewPanel.webview.html = getWebviewContent();
   }
   const disposable = vscode.commands.registerCommand(
-    "tactictree.toggle",
+    "paperproof.open",
     () => {
-      if (webviewPanel) {
-        webviewPanel.dispose();
-      } else {
+      if (!webviewPanel) {
         openPanel();
       }
     }
