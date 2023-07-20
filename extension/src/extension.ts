@@ -107,9 +107,11 @@ export function activate(context: vscode.ExtensionContext) {
     webviewPanel.webview.html = getWebviewContent();
   }
   const disposable = vscode.commands.registerCommand(
-    "paperproof.open",
+    "paperproof.toggle",
     () => {
-      if (!webviewPanel) {
+      if (webviewPanel) {
+        webviewPanel.dispose();
+      } else {
         openPanel();
       }
     }

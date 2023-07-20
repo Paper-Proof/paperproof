@@ -29,8 +29,8 @@ code --install-extension paperproof-0.0.4.vsix
 cd app; yarn dev
 ```
 
-3. Toggle the view with `"Paper Proof: Open"` command (Ctrl+Shift+P) or open in browser on
-http://localhost:3000
+3. Toggle the view with `"Paper Proof: Toggle"` command (Ctrl+Shift+P) or open in browser on
+http://localhost:80
 
 ## Reload 
 
@@ -41,7 +41,7 @@ vsce package; code --uninstall-extension undefined_publisher.paperproof; code --
 ```
 and quit VSCode.
 
-On some changes, running `"Paper Proof: Open"` is important.
+On some changes, running `"Paper Proof: Toggle"` is important.
 
 ## Code structure
 

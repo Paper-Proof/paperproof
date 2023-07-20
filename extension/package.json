@@ -18,8 +18,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "paperproof.open",
-        "title": "Paper Proof: Open"
+        "command": "paperproof.toggle",
+        "title": "Paper Proof: Toggle"
       }
     ]
   },
