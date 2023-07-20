@@ -1,0 +1,40 @@
+name: Deploy to Digital Ocean
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Build App
+      run: |
+        cd app/
+        yarn install
+        yarn buildBrowser
+
+    - name: Copy Files To Server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.DO_SERVER }}
+        username: ${{ secrets.DO_USERNAME }}
+        key: ${{ secrets.DO_SSH_KEY }}
+        source: "app/dist" # adjust this according to where your build outputs its files
+        target: "/path/to/your/app" # the location on your server to copy the files to
+
+    - name: Restart App
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DO_SERVER }}
+        username: ${{ secrets.DO_USERNAME }}
+        key:
+
