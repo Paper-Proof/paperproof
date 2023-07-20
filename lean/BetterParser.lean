@@ -2,10 +2,9 @@ import Lean.Data.Json
 import Lean.Data.HashSet
 import Lean.Elab.InfoTree
 import Lean.Elab.Tactic
+import Lean.Widget
 
-open Lean
-open Lean.Elab
-open Tactic
+open Lean Elab Server
 
 structure Hypothesis where
   username : String
@@ -62,7 +61,7 @@ partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
     | _ => none 
 
 -- Returns GoalInfo about unassigned goals from the provided list of goals
-def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO (List GoalInfo) := do
+def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
   goals.filterMapM fun id => do
     let some decl := mctx.findDecl? id
       | return none
@@ -75,8 +74,8 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
     let hyps ← lctx.foldlM (init := []) (fun acc decl => do
       if decl.isAuxDecl || decl.isImplementationDetail then
         return acc
-      let type ← ppExprWithInfos ppContext decl.type
-      let value ← decl.value?.mapM (ppExprWithInfos ppContext)
+      let type ← liftM (ppExprWithInfos ppContext decl.type)
+      let value ← liftM (decl.value?.mapM (ppExprWithInfos ppContext))
       return ({
         username := decl.userName.toString,
         type := type.fmt.pretty,
@@ -94,7 +93,7 @@ structure Result where
   steps : List ProofStep
   allGoals : HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List GoalInfo × List GoalInfo) := do
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List GoalInfo × List GoalInfo) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -103,10 +102,10 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List GoalInfo 
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
-partial def parse (infoTree : InfoTree) : IO Proof := do
-  let result ← (go none infoTree : IO Result)
+partial def parse (infoTree : InfoTree) : RequestM Proof := do
+  let result ← (go none infoTree : RequestM Result)
   let some statement := (noInEdgeGoals result.allGoals result.steps).toList.head?.map (·.type)
-    | throw <| IO.userError "initial goal is expected for theorem"
+    | throwThe RequestError ⟨.invalidParams, "initial goal is expected for theorem"⟩
   return {statement, steps := result.steps}
 where go
   | some (ctx : ContextInfo), .node i cs => do
@@ -157,7 +156,7 @@ where go
         let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
         let [initialGoal] := goals.toList
           -- TODO: have ⟨ p, q ⟩ : (a = a) × (b = b) := ⟨ by rfl, by rfl ⟩ isn't supported yet
-          | throw <| IO.userError s!"exactly one orphaned goal is expected for have with goalsAfter {toJson goalsAfter}, but found {toJson goals.toList}"
+          | throwThe RequestError ⟨.invalidParams, s!"exactly one orphaned goal is expected for have with goalsAfter {toJson goalsAfter}, but found {toJson goals.toList}"⟩
         return {steps := [.haveDecl tacticApp initialGoal.type steps],
                 allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
       | `(tactic| rw [$_,*] $(_)?)
