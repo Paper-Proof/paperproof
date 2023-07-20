@@ -28,13 +28,16 @@ jobs:
         host: ${{ secrets.DO_SERVER }}
         username: ${{ secrets.DO_USERNAME }}
         key: ${{ secrets.DO_SSH_KEY }}
-        source: "app/dist" # adjust this according to where your build outputs its files
-        target: "/path/to/your/app" # the location on your server to copy the files to
+        source: "app/"
+        target: "/root"
 
     - name: Restart App
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.DO_SERVER }}
         username: ${{ secrets.DO_USERNAME }}
-        key:
-
+        key: ${{ secrets.DO_SSH_KEY }}
+        script: |
+          sudo kill $(sudo lsof -t -i:80)
+          cd app/
+          nohup yarn server > server.log 2>&1 &
