@@ -49,18 +49,27 @@ app.use(
 
 app.use(bodyParser.json({ limit: "50mb" }));
 
-let vscodeResponse = [];
+let vscodeResponse = {};
 let currentId = 1;
 
-app.get('/indexBrowser.js', (req, res) => {
-  res.set('Content-Type', 'application/javascript');
+app.get("/indexBrowser.js", (req, res) => {
+  res.set("Content-Type", "application/javascript");
   res.sendFile(path.join(__dirname, "dist", "indexBrowser.js"));
 });
 
+let sessionId = 0;
+
+app.post("/newSession", (req, res) => {
+  sessionId += 1;
+  console.log("New session", sessionId);
+  res.send({ sessionId });
+});
+
+// type for sessionId as param
 app.post("/sendTypes", (req, res) => {
   vscodeResponse = req.body;
   currentId += 1;
-  console.log("Recieved", vscodeResponse);
+  console.log("Recieved for session: ", req.query.sessionId, vscodeResponse);
   res.send(`Recieved ${vscodeResponse}`);
 });
 

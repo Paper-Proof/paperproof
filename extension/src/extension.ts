@@ -4,22 +4,32 @@ import fetch from "node-fetch";
 // @ts-ignore
 import converter from "./converter";
 
+const SERVER_URL = "http://localhost:80";
+let sessionId: string | null = null;
+
 const getErrorMessage = (error: unknown) => {
-  if (error instanceof Error) { return error.message; }
+  if (error instanceof Error) {
+    return error.message;
+  }
   return String(error);
 };
 
-const xyzRequest = async (webviewPanel: vscode.WebviewPanel | null, body: object) => {
+const sendTypes = async (
+  webviewPanel: vscode.WebviewPanel | null,
+  body: object
+) => {
   // 1. Send directly to the webview (if it's open!) to avoid lag
   webviewPanel?.webview.postMessage(body);
 
   // 2. After that, send data to .xyz
-  await fetch("https://paperproof.xyz/sendTypes", {
-    method: "POST",
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  if (sessionId) {
+    await fetch(`${SERVER_URL}/sendTypes?sessionId=${sessionId}`, {
+      method: "POST",
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  }
 };
 
 // Simple request. We don't keep session open and create a new one for each request for now.
@@ -39,7 +49,7 @@ const vscodeRequest = async (
     // These are always needed for Lean rpcs
     // (https://github.com/leanprover/lean4/blob/367b38701fb9cca80328624a016c3b3acfd5e2cd/src/Lean/Data/Lsp/Basic.lean#L288)
     ...tdp,
-    params
+    params,
   });
   return response;
 };
@@ -55,15 +65,21 @@ function getWebviewContent() {
     </head>
     <body>
       <div id="root"></div>
-      <script src="https://paperproof.xyz/indexBrowser.js"></script>
+      <script src="${SERVER_URL}/indexBrowser.js"></script>
     </body>
   </html>`;
 }
 
-const onDidChangeTextEditorSelection = async (log: vscode.OutputChannel, webviewPanel: vscode.WebviewPanel | null, event: vscode.TextEditorSelectionChangeEvent) => {
+const onDidChangeTextEditorSelection = async (
+  log: vscode.OutputChannel,
+  webviewPanel: vscode.WebviewPanel | null,
+  event: vscode.TextEditorSelectionChangeEvent
+) => {
   const editor = event.textEditor;
   const doc = editor.document;
-  if (doc.languageId !== "lean4" && doc.languageId !== "lean") { return; };
+  if (doc.languageId !== "lean4" && doc.languageId !== "lean") {
+    return;
+  }
   const pos = event.selections[0].active;
   let tdp = {
     textDocument: { uri: doc.uri.toString() },
@@ -73,23 +89,27 @@ const onDidChangeTextEditorSelection = async (log: vscode.OutputChannel, webview
   log.appendLine(`Text selection: ${JSON.stringify(tdp)}`);
   const uri = tdp.textDocument.uri;
   const leanExtension = vscode.extensions.getExtension("leanprover.lean4");
-  if (!leanExtension) { return; }
+  if (!leanExtension) {
+    return;
+  }
   const clientProvider = leanExtension.exports.clientProvider;
   const client = clientProvider.findClient(uri);
-  if (!client) { return; }
+  if (!client) {
+    return;
+  }
   log.appendLine("Found a Lean client");
 
   const proofTreeResponse = await vscodeRequest(
     log,
-    'getPpContext',
+    "getPpContext",
     client,
     uri,
     tdp,
-    { pos: tdp.position },
+    { pos: tdp.position }
   );
   const goalsResponse = await vscodeRequest(
     log,
-    'Lean.Widget.getInteractiveGoals',
+    "Lean.Widget.getInteractiveGoals",
     client,
     uri,
     tdp,
@@ -97,14 +117,14 @@ const onDidChangeTextEditorSelection = async (log: vscode.OutputChannel, webview
   );
 
   const body = {
-    goal: goalsResponse && goalsResponse.goals[0] || null,
+    goal: (goalsResponse && goalsResponse.goals[0]) || null,
     statement: proofTreeResponse.statement,
     proofTree: converter(proofTreeResponse.steps),
     // TODO: This is only for development, comment out this line for production (bc it's lengthy)
-    leanProofTree: proofTreeResponse.steps
+    leanProofTree: proofTreeResponse.steps,
   };
 
-  await xyzRequest(webviewPanel, body);
+  await sendTypes(webviewPanel, body);
 
   log.appendLine("🎉 Sent everything");
 };
@@ -120,8 +140,10 @@ export function activate(context: vscode.ExtensionContext) {
       await onDidChangeTextEditorSelection(log, webviewPanel, event);
     } catch (error) {
       const message = getErrorMessage(error);
-      log.appendLine(`❌ Error in onDidChangeTextEditorSelection: "${message}"`);
-      await xyzRequest(webviewPanel, { error: message });
+      log.appendLine(
+        `❌ Error in onDidChangeTextEditorSelection: "${message}"`
+      );
+      await sendTypes(webviewPanel, { error: message });
     }
   });
 
@@ -137,6 +159,13 @@ export function activate(context: vscode.ExtensionContext) {
       webviewPanel = null;
     });
     webviewPanel.webview.html = getWebviewContent();
+    fetch(`${SERVER_URL}/newSession`, { method: "POST" })
+      .then((response) => response.json())
+      .then((res: any) => {
+        log.appendLine(`🎉 New session: ${res.sessionId}`);
+        sessionId = res.sessionId;
+        webviewPanel?.webview.postMessage({ sessionId: res.sessionId });
+      });
   }
   const disposable = vscode.commands.registerCommand(
     "paperproof.toggle",
