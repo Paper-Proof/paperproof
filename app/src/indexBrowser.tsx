@@ -15,6 +15,7 @@ import { useInterval } from "usehooks-ts";
 
 interface PaperProofWindow extends Window {
   sessionId: string | null;
+  initialInfo: string | null;
 }
 
 declare const window: PaperProofWindow;
@@ -117,10 +118,6 @@ function Main() {
   const BY_POST_MESSAGE = "by post message";
 
   useInterval(() => {
-    if (apiResponse && apiResponse.id == BY_POST_MESSAGE) {
-      // It runs as an extension and communicates changes directly
-      return;
-    }
     if (!sessionId) {
       // It runs as an extension
       return;
@@ -128,12 +125,7 @@ function Main() {
     fetch(`${BASE_URL}/getTypes?sessionId=${sessionId}`)
       .then((response) => response.json())
       .then((newResponse) => {
-        if (
-          apiResponse &&
-          (apiResponse.id === BY_POST_MESSAGE ||
-            newResponse.id === apiResponse.id)
-        )
-          return;
+        if (apiResponse && newResponse.id === apiResponse.id) return;
         if (!app) return;
 
         // TODO: Errors from both server and extension should be handled uniformly
@@ -164,12 +156,17 @@ function Main() {
       console.log("Browser mode");
       setSessionId(window.sessionId);
     }
+    if (window.initialInfo) {
+      const newResponse: ApiResponse = {
+        ...JSON.parse(window.initialInfo),
+        id: BY_POST_MESSAGE,
+      };
+      updateUi(app, newResponse, apiResponse);
+      setApiResponse(newResponse);
+    }
 
     // Listen for direct messages from extension instead of round trip through server
     addEventListener("message", (event) => {
-      if (event.data["sessionId"]) {
-        setSessionId(event.data["sessionId"]);
-      }
       if (!app || !event.data["proofTree"]) return;
       const newResponse: ApiResponse = { ...event.data, id: BY_POST_MESSAGE };
 

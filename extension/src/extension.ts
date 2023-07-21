@@ -6,6 +6,7 @@ import converter from "./converter";
 
 const SERVER_URL = "http://localhost:80";
 let sessionId: string | null = null;
+let latestInfo: object | null = null;
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -14,21 +15,27 @@ const getErrorMessage = (error: unknown) => {
   return String(error);
 };
 
+const sendTypesToServer = async (sessionId: string, body: object) =>
+  fetch(`${SERVER_URL}/sendTypes?sessionId=${sessionId}`, {
+    method: "POST",
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
 const sendTypes = async (
   webviewPanel: vscode.WebviewPanel | null,
   body: object
 ) => {
+  // Save for the later sending in case there is no session for the server or no webview open yet.
+  latestInfo = body;
+
   // 1. Send directly to the webview (if it's open!) to avoid lag
   webviewPanel?.webview.postMessage(body);
 
   // 2. After that, send data to .xyz
   if (sessionId) {
-    await fetch(`${SERVER_URL}/sendTypes?sessionId=${sessionId}`, {
-      method: "POST",
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    sendTypesToServer(sessionId, body);
   }
 };
 
@@ -54,7 +61,7 @@ const vscodeRequest = async (
   return response;
 };
 
-function getWebviewContent() {
+function getWebviewContent(initialInfo: object | null) {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -64,23 +71,25 @@ function getWebviewContent() {
       <title>Paperproof</title>
     </head>
     <body>
+      <script>initialInfo = ${
+        initialInfo ? JSON.stringify(initialInfo) : null
+      }</script>
       <div id="root"></div>
       <script src="${SERVER_URL}/indexBrowser.js"></script>
     </body>
   </html>`;
 }
 
-const onDidChangeTextEditorSelection = async (
+const sendInfoAtCurrentPos = async (
   log: vscode.OutputChannel,
   webviewPanel: vscode.WebviewPanel | null,
-  event: vscode.TextEditorSelectionChangeEvent
+  editor: vscode.TextEditor
 ) => {
-  const editor = event.textEditor;
   const doc = editor.document;
   if (doc.languageId !== "lean4" && doc.languageId !== "lean") {
     return;
   }
-  const pos = event.selections[0].active;
+  const pos = editor.selection.active;
   let tdp = {
     textDocument: { uri: doc.uri.toString() },
     position: { line: pos.line, character: pos.character },
@@ -129,15 +138,41 @@ const onDidChangeTextEditorSelection = async (
   log.appendLine("🎉 Sent everything");
 };
 
+function showNotification(sessionId: string) {
+  const url = `${SERVER_URL}/${sessionId}`;
+  const openButton: vscode.MessageItem = { title: "Open in browser" };
+  vscode.window
+    .showInformationMessage(`Your session is available at ${url}`, openButton)
+    .then((selectedItem) => {
+      if (selectedItem === openButton) {
+        vscode.env.openExternal(vscode.Uri.parse(url));
+      }
+    });
+}
+
 export function activate(context: vscode.ExtensionContext) {
   // Creates the 'paperproof' channel in vscode's "OUTPUT" pane
   let log = vscode.window.createOutputChannel("paperproof");
   let webviewPanel: vscode.WebviewPanel | null = null;
 
-  // 1. Sending types to the server on cursor changes.
+  // Creating a new paperproof working session
+  fetch(`${SERVER_URL}/newSession`, { method: "POST" })
+    .then((response) => response.json())
+    .then((res: any) => {
+      log.appendLine(`🎉 New session: ${res.sessionId}`);
+      sessionId = res.sessionId;
+      if (latestInfo) {
+        sendTypesToServer(res.sessionId, latestInfo).then(() => {
+          log.appendLine("🎉 Pending types sent");
+        });
+      }
+      showNotification(res.sessionId);
+    });
+
+  // Sending types to the server on cursor changes.
   vscode.window.onDidChangeTextEditorSelection(async (event) => {
     try {
-      await onDidChangeTextEditorSelection(log, webviewPanel, event);
+      await sendInfoAtCurrentPos(log, webviewPanel, event.textEditor);
     } catch (error) {
       const message = getErrorMessage(error);
       log.appendLine(
@@ -147,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  // 2. Opening/hiding webviewPanel.
+  // Opening/hiding webviewPanel.
   function openPanel() {
     webviewPanel = vscode.window.createWebviewPanel(
       "paperproof",
@@ -158,14 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
     webviewPanel.onDidDispose(() => {
       webviewPanel = null;
     });
-    webviewPanel.webview.html = getWebviewContent();
-    fetch(`${SERVER_URL}/newSession`, { method: "POST" })
-      .then((response) => response.json())
-      .then((res: any) => {
-        log.appendLine(`🎉 New session: ${res.sessionId}`);
-        sessionId = res.sessionId;
-        webviewPanel?.webview.postMessage({ sessionId: res.sessionId });
-      });
+    webviewPanel.webview.html = getWebviewContent(latestInfo);
   }
   const disposable = vscode.commands.registerCommand(
     "paperproof.toggle",

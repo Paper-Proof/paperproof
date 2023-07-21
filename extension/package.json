@@ -13,7 +13,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:lean4"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
