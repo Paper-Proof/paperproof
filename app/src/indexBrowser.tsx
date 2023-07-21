@@ -3,21 +3,21 @@ import { useState } from "react";
 import * as ReactDOM from "react-dom";
 import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
+import { App, Tldraw, TldrawEditorConfig, TLShapeId } from "@tldraw/tldraw";
 import "./index.css";
 import { Format, InteractiveHyp, InteractiveGoal, ApiResponse } from "./types";
-import { buildProofTree } from './buildProofTree';
+import { buildProofTree } from "./buildProofTree";
 import { WindowShape } from "./shapes/WindowShape";
 import { CustomArrowShape } from "./shapes/CustomArrowShape";
-import { createNodeId } from './buildProofTree/services/CreateId'
+import { createNodeId } from "./buildProofTree/services/CreateId";
 
-import { useInterval } from 'usehooks-ts'
+import { useInterval } from "usehooks-ts";
 
-import {
-  App,
-  Tldraw,
-  TldrawEditorConfig,
-  TLShapeId
-} from "@tldraw/tldraw";
+interface PaperProofWindow extends Window {
+  sessionId: string | null;
+}
+
+declare const window: PaperProofWindow;
 
 const BASE_URL = "http://localhost:80";
 
@@ -159,10 +159,10 @@ function Main() {
       app.zoomToFit({ duration: 100 });
     }, 200);
 
-    if (window["sessionId"]) {
+    if (window.sessionId) {
       // This is loaded in browser.
       console.log("Browser mode");
-      setSessionId(window["sessionId"]);
+      setSessionId(window.sessionId);
     }
 
     // Listen for direct messages from extension instead of round trip through server
@@ -201,7 +201,7 @@ function Main() {
 
 ReactDOM.render(
   <React.StrictMode>
-    <Main/>
+    <Main />
   </React.StrictMode>,
   document.getElementById("root")
 );
