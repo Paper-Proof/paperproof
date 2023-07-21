@@ -99,7 +99,7 @@ function Main() {
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [app, setApp] = useState<App | null>(null);
 
-  console.log('Checking deployment. REMOVE ME')
+  console.log('Checking deployment. REMOVE ME. LAKESARE DEPLOYED THIS')
   const BY_POST_MESSAGE = 'by post message';
 
   useInterval(
