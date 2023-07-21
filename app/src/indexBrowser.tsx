@@ -121,7 +121,11 @@ function Main() {
       // It runs as an extension and communicates changes directly
       return;
     }
-    fetch(`${BASE_URL}/getTypes`)
+    if (!sessionId) {
+      // It runs as an extension
+      return;
+    }
+    fetch(`${BASE_URL}/getTypes?sessionId=${sessionId}`)
       .then((response) => response.json())
       .then((newResponse) => {
         if (
@@ -154,6 +158,12 @@ function Main() {
     setTimeout(() => {
       app.zoomToFit({ duration: 100 });
     }, 200);
+
+    if (window["sessionId"]) {
+      // This is loaded in browser.
+      console.log("Browser mode");
+      setSessionId(window["sessionId"]);
+    }
 
     // Listen for direct messages from extension instead of round trip through server
     addEventListener("message", (event) => {

@@ -49,8 +49,9 @@ app.use(
 
 app.use(bodyParser.json({ limit: "50mb" }));
 
-let vscodeResponse = {};
-let currentId = 1;
+// TODO: Move to persistent database.
+// Database of saved information for each session, keyed by sessionId.
+const db = new Map();
 
 app.get("/indexBrowser.js", (req, res) => {
   res.set("Content-Type", "application/javascript");
@@ -65,19 +66,22 @@ app.post("/newSession", (req, res) => {
   res.send({ sessionId });
 });
 
-// type for sessionId as param
 app.post("/sendTypes", (req, res) => {
-  vscodeResponse = req.body;
-  currentId += 1;
-  console.log("Recieved for session: ", req.query.sessionId, vscodeResponse);
-  res.send(`Recieved ${vscodeResponse}`);
+  const sessionId = req.query.sessionId;
+  const { id } = db.get(sessionId) || { id: 0 };
+  db.set(sessionId, { id: id + 1, types: req.body });
+  console.log("Recieved for session: ", sessionId, req.body);
+  res.send("OK");
 });
 
 app.get("/getTypes", (req, res) => {
-  res.send({ ...vscodeResponse, id: currentId });
+  const sessionId = req.query.sessionId;
+  const { id, types } = db.get(sessionId) || { id: 0, types: {} };
+  console.log("Get for session: ", sessionId, types);
+  res.send({ ...types, id });
 });
 
-function getInlineHtmlWithJsTag(jsUrl) {
+function getInlineHtmlWithJsTag(jsUrl, sessionId) {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -87,6 +91,7 @@ function getInlineHtmlWithJsTag(jsUrl) {
         <title>Paper proof</title>
       </head>
       <body>
+        <script>sessionId = ${sessionId}</script>
         <div id="root"></div>
         <script src="${jsUrl}"></script>
       </body>
@@ -95,8 +100,8 @@ function getInlineHtmlWithJsTag(jsUrl) {
   return html;
 }
 
-app.get("/", (req, res) => {
+app.get("/:sessionId", (req, res) => {
   const myJsUrl = "/indexBrowser.js";
-  const myHtml = getInlineHtmlWithJsTag(myJsUrl);
+  const myHtml = getInlineHtmlWithJsTag(myJsUrl, req.params.sessionId);
   res.send(myHtml);
 });
