@@ -32,4 +32,4 @@ Send state updates directly to extension webview as well as the server
 
 ### 0.0.5
 
-Support sessions
+Support sessions. Also the server URL can be configured in settings: http://localhost:80 or https://paperproof.xyz.

@@ -4,7 +4,9 @@ import fetch from "node-fetch";
 // @ts-ignore
 import converter from "./converter";
 
-const SERVER_URL = "https://paperproof.xyz";
+const DEFAULT_SERVER_URL = "https://paperproof.xyz";
+let SERVER_URL = DEFAULT_SERVER_URL;
+
 let sessionId: string | null = null;
 let latestInfo: object | null = null;
 
@@ -149,6 +151,10 @@ function showNotification(sessionId: string) {
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  const config = vscode.workspace.getConfiguration("paperproof");
+  console.log("Config", config);
+  SERVER_URL = config.get("serverUrl", DEFAULT_SERVER_URL);
+
   // Creates the 'paperproof' channel in vscode's "OUTPUT" pane
   let log = vscode.window.createOutputChannel("paperproof");
   let webviewPanel: vscode.WebviewPanel | null = null;
