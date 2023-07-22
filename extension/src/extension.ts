@@ -71,9 +71,7 @@ function getWebviewContent(initialInfo: object | null) {
       <title>Paperproof</title>
     </head>
     <body>
-      <script>initialInfo = ${
-        initialInfo ? JSON.stringify(initialInfo) : null
-      }</script>
+      <script>initialInfo = ${initialInfo}</script>
       <div id="root"></div>
       <script src="${SERVER_URL}/indexBrowser.js"></script>
     </body>

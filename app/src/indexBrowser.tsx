@@ -15,12 +15,10 @@ import { useInterval } from "usehooks-ts";
 
 interface PaperProofWindow extends Window {
   sessionId: string | null;
-  initialInfo: string | null;
+  initialInfo: any | null;
 }
 
 declare const window: PaperProofWindow;
-
-const BASE_URL = "https://paperproof.xyz";
 
 // TODO: We should use the vscode font for consistency with Lean probably
 // const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
@@ -122,7 +120,7 @@ function Main() {
       // It runs as an extension
       return;
     }
-    fetch(`${BASE_URL}/getTypes?sessionId=${sessionId}`)
+    fetch(`/getTypes?sessionId=${sessionId}`)
       .then((response) => response.json())
       .then((newResponse) => {
         if (apiResponse && newResponse.id === apiResponse.id) return;
@@ -158,7 +156,7 @@ function Main() {
     }
     if (window.initialInfo) {
       const newResponse: ApiResponse = {
-        ...JSON.parse(window.initialInfo),
+        ...window.initialInfo,
         id: BY_POST_MESSAGE,
       };
       updateUi(app, newResponse, apiResponse);
