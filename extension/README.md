@@ -29,3 +29,7 @@ Initial release of the extension sending data to the server.
 ### 0.0.4
 
 Send state updates directly to extension webview as well as the server
+
+### 0.0.5
+
+Support sessions

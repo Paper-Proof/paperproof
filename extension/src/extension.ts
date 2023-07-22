@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 // @ts-ignore
 import converter from "./converter";
 
-const SERVER_URL = "http://localhost:80";
+const SERVER_URL = "https://paperproof.xyz";
 let sessionId: string | null = null;
 let latestInfo: object | null = null;
 

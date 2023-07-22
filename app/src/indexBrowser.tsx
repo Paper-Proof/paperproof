@@ -20,7 +20,7 @@ interface PaperProofWindow extends Window {
 
 declare const window: PaperProofWindow;
 
-const BASE_URL = "http://localhost:80";
+const BASE_URL = "https://paperproof.xyz";
 
 // TODO: We should use the vscode font for consistency with Lean probably
 // const fontFamily = 'Menlo, Monaco, "Courier New", monospace;'
