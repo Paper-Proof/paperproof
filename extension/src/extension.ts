@@ -150,7 +150,25 @@ function showNotification(sessionId: string) {
     });
 }
 
+function setupStatusBar(sessionId: string): vscode.Disposable {
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right
+  );
+  statusBarItem.text = "Paperproof";
+  statusBarItem.command = "paperproof.showinfo";
+  statusBarItem.show();
+  const disposable = vscode.commands.registerCommand(
+    "paperproof.showinfo",
+    () => {
+      showNotification(sessionId);
+    }
+  );
+  showNotification(sessionId);
+  return disposable;
+}
+
 export function activate(context: vscode.ExtensionContext) {
+  // Settings
   const config = vscode.workspace.getConfiguration("paperproof");
   console.log("Config", config);
   SERVER_URL = config.get("serverUrl", DEFAULT_SERVER_URL);
@@ -170,7 +188,8 @@ export function activate(context: vscode.ExtensionContext) {
           log.appendLine("🎉 Pending types sent");
         });
       }
-      showNotification(res.sessionId);
+
+      context.subscriptions.push(setupStatusBar(res.sessionId));
     });
 
   // Sending types to the server on cursor changes.
@@ -199,17 +218,15 @@ export function activate(context: vscode.ExtensionContext) {
     });
     webviewPanel.webview.html = getWebviewContent(latestInfo);
   }
-  const disposable = vscode.commands.registerCommand(
-    "paperproof.toggle",
-    () => {
+  context.subscriptions.push(
+    vscode.commands.registerCommand("paperproof.toggle", () => {
       if (webviewPanel) {
         webviewPanel.dispose();
       } else {
         openPanel();
       }
-    }
+    })
   );
-  context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
