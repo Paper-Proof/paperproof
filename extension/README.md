@@ -1,24 +1,23 @@
-# tactictree README
+# Paper Proof
 
-Tactic Tree extension allows to visualize Lean 4 tactic proofs on the canvas.
-As you edit the proof, the state is sent to the server via the extension and rendered in the browser.
+Paper Proof extension allows to visualize Lean 4 tactic proofs on the canvas.
+As you edit the proof, the state is sent to the server via the extension and can be
+viewed in the webview or the browser.
 
 ## Features
 
-Command `Tactic Tree : Toggle` toggles the tactic tree view.
+Command `Paper Proof : Toggle` toggles the paper proof view.
 
 ## Requirements
 
 You need to:
 - have Lean 4 extension installed
 - import PaperProof.lean from your file
-- run the server with `node server.cjs` in the widget/app folder
 
 ## Known Issues
 
-In the future running the local server will not be required (either vscode extension will server
-or the server will be hosted somewhere). Hopefully PaperProof package defining the
-server function for the Lean language server would be somehow linked automatically by extension.
+Instead of requiring to import PaperProof.lean which defines custom RPC method it
+would be nice to make extension handle it somehow automatically.
 
 ## Release Notes
 
