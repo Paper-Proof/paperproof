@@ -5,7 +5,7 @@ import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
 import { App, Tldraw, TldrawEditorConfig, TLShapeId } from "@tldraw/tldraw";
 import "./index.css";
-import { Format, InteractiveHyp, InteractiveGoal, ApiResponse } from "./types";
+import { Format, InteractiveHyp, InteractiveGoal, ProofState } from "./types";
 import { buildProofTree } from "./buildProofTree";
 import { WindowShape } from "./shapes/WindowShape";
 import { CustomArrowShape } from "./shapes/CustomArrowShape";
@@ -96,27 +96,35 @@ const focusProofTree = (
   app.updateShapes(focusedShapes);
 };
 
-const updateUi = (
-  app: App,
-  newResponse: ApiResponse,
-  oldResponse: ApiResponse | null
-) => {
-  console.log({ newResponse, oldResponse });
-
-  if (!areObjectsEqual(newResponse.proofTree, oldResponse?.proofTree ?? {})) {
-    buildProofTree(app, newResponse.proofTree, uiConfig);
-  }
-
-  if (!areObjectsEqual(newResponse.goal, oldResponse?.goal ?? {})) {
-    focusProofTree(app, newResponse.proofTree.equivalentIds, newResponse.goal);
-  }
-};
-
 function Main() {
-  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  const [proofState, setProofState] = useState<ProofState | null>(null);
   const [app, setApp] = useState<App | null>(null);
 
-  const BY_POST_MESSAGE = "by post message";
+  function updateUi(app: App, newProofState: ProofState | { error: any }) {
+    console.log({ newProofState, proofState });
+
+    if ("error" in newProofState) {
+      app.selectAll().deleteShapes();
+      setProofState(null);
+      return;
+    }
+
+    if (
+      !areObjectsEqual(newProofState.proofTree, proofState?.proofTree ?? {})
+    ) {
+      buildProofTree(app, newProofState.proofTree, uiConfig);
+    }
+
+    if (!areObjectsEqual(newProofState.goal, proofState?.goal ?? {})) {
+      focusProofTree(
+        app,
+        newProofState.proofTree.equivalentIds,
+        newProofState.goal
+      );
+    }
+
+    setProofState(newProofState);
+  }
 
   const handleMount = (app: App) => {
     setTimeout(() => {
@@ -126,6 +134,22 @@ function Main() {
     if (window.sessionId) {
       // This is loaded in browser.
       console.log("Browser mode");
+
+      // Get initial state
+      supabase
+        .from("sessions")
+        .select("*")
+        .eq("id", window.sessionId)
+        .then((res) => {
+          if (res.error) {
+            console.error("Error fetching initial state", res.error);
+            return;
+          }
+          const proof = res.data[0].proof;
+          updateUi(app, proof);
+        });
+
+      // Listen for changes
       supabase
         .channel("proof-update")
         .on(
@@ -138,47 +162,19 @@ function Main() {
           },
           (payload) => {
             console.log("Got response from supabase", payload);
-            if (payload.errors) {
-              console.error("server error", payload.errors);
-              return;
-            }
-            const newResponse = (payload.new as any)["proof"];
-            if (!app) return;
-
-            // TODO: Errors from both server and extension should be handled uniformly
-            // in one place.
-            // TODO insert this into extension too when code is more stable
-            // @ts-ignore
-            if (!newResponse.proofTree || newResponse.error) {
-              app.selectAll().deleteShapes();
-              setApiResponse(null);
-              return;
-            }
-
-            updateUi(app, newResponse, apiResponse);
-
-            setApiResponse(newResponse);
+            const newProofState = (payload.new as any)["proof"];
+            updateUi(app, newProofState);
           }
         )
         .subscribe();
     }
     if (window.initialInfo) {
-      const newResponse: ApiResponse = {
-        ...window.initialInfo,
-        id: BY_POST_MESSAGE,
-      };
-      updateUi(app, newResponse, apiResponse);
-      setApiResponse(newResponse);
+      updateUi(app, window.initialInfo);
     }
 
     // Listen for direct messages from extension instead of round trip through server
     addEventListener("message", (event) => {
-      if (!app || !event.data["proofTree"]) return;
-      const newResponse: ApiResponse = { ...event.data, id: BY_POST_MESSAGE };
-
-      updateUi(app, newResponse, apiResponse);
-
-      setApiResponse(newResponse);
+      updateUi(app, event.data);
     });
 
     addEventListener("resize", (event) => {

@@ -92,10 +92,8 @@ export interface InteractiveGoal {
   userName: string
 }
 
-export interface ApiResponse {
-  id: string;
+export interface ProofState {
   statement: string;
   proofTree: Format;
-  leanProofTree: object[];
   goal: InteractiveGoal;
 }
