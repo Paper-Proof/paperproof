@@ -2,7 +2,7 @@
   "name": "paperproof",
   "displayName": "paperproof",
   "description": "Extension which queries Lean server each time cursor position changes and sends context to the web server",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/antonkov/paper-proof"
@@ -64,6 +64,7 @@
     "webpack-cli": "^5.0.2"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.26.0",
     "node-fetch": "^3.3.1",
     "vscode-languageserver-protocol": "^3.17.3"
   },

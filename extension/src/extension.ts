@@ -1,8 +1,13 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
-import fetch from "node-fetch";
 // @ts-ignore
 import converter from "./converter";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const DEFAULT_SERVER_URL = "https://paperproof.xyz";
 let SERVER_URL = DEFAULT_SERVER_URL;
@@ -18,12 +23,10 @@ const getErrorMessage = (error: unknown) => {
 };
 
 const sendTypesToServer = async (sessionId: string, body: object) =>
-  fetch(`${SERVER_URL}/sendTypes?sessionId=${sessionId}`, {
-    method: "POST",
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  supabase
+    .from("sessions")
+    .update([{ proof: body }])
+    .eq("id", sessionId);
 
 const sendTypes = async (
   webviewPanel: vscode.WebviewPanel | null,
@@ -130,7 +133,7 @@ const sendInfoAtCurrentPos = async (
     statement: proofTreeResponse.statement,
     proofTree: converter(proofTreeResponse.steps),
     // TODO: This is only for development, comment out this line for production (bc it's lengthy)
-    leanProofTree: proofTreeResponse.steps,
+    // leanProofTree: proofTreeResponse.steps,
   };
 
   await sendTypes(webviewPanel, body);
@@ -178,18 +181,27 @@ export function activate(context: vscode.ExtensionContext) {
   let webviewPanel: vscode.WebviewPanel | null = null;
 
   // Creating a new paperproof working session
-  fetch(`${SERVER_URL}/newSession`, { method: "POST" })
-    .then((response) => response.json())
-    .then((res: any) => {
-      log.appendLine(`🎉 New session: ${res.sessionId}`);
-      sessionId = res.sessionId;
+  supabase
+    .from("sessions")
+    .insert([{ proof: {} }])
+    .select()
+    .then(({ data, error }) => {
+      if (error) {
+        log.appendLine(
+          `❌ Error in creating a new session: "${error.message}"`
+        );
+        return;
+      }
+      const id = data[0].id;
+      log.appendLine(`🎉 New session: ${id}`);
+      sessionId = id;
       if (latestInfo) {
-        sendTypesToServer(res.sessionId, latestInfo).then(() => {
+        sendTypesToServer(id, latestInfo).then(() => {
           log.appendLine("🎉 Pending types sent");
         });
       }
 
-      context.subscriptions.push(setupStatusBar(res.sessionId));
+      context.subscriptions.push(setupStatusBar(id));
     });
 
   // Sending types to the server on cursor changes.

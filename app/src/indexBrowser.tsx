@@ -10,8 +10,12 @@ import { buildProofTree } from "./buildProofTree";
 import { WindowShape } from "./shapes/WindowShape";
 import { CustomArrowShape } from "./shapes/CustomArrowShape";
 import { createNodeId } from "./buildProofTree/services/CreateId";
+import { createClient } from "@supabase/supabase-js";
 
-import { useInterval } from "usehooks-ts";
+const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface PaperProofWindow extends Window {
   sessionId: string | null;
@@ -111,39 +115,9 @@ const updateUi = (
 function Main() {
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [app, setApp] = useState<App | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const BY_POST_MESSAGE = "by post message";
 
-  useInterval(() => {
-    if (!sessionId) {
-      // It runs as an extension
-      return;
-    }
-    fetch(`/getTypes?sessionId=${sessionId}`)
-      .then((response) => response.json())
-      .then((newResponse) => {
-        if (apiResponse && newResponse.id === apiResponse.id) return;
-        if (!app) return;
-
-        // TODO: Errors from both server and extension should be handled uniformly
-        // in one place.
-        // TODO insert this into extension too when code is more stable
-        // @ts-ignore
-        if (!newResponse.proofTree || newResponse.error) {
-          app.selectAll().deleteShapes();
-          setApiResponse(null);
-          return;
-        }
-
-        updateUi(app, newResponse, apiResponse);
-
-        setApiResponse(newResponse);
-      })
-      .catch((e) => {
-        console.error("server error", e);
-      });
-  }, 200);
   const handleMount = (app: App) => {
     setTimeout(() => {
       app.zoomToFit({ duration: 100 });
@@ -152,7 +126,41 @@ function Main() {
     if (window.sessionId) {
       // This is loaded in browser.
       console.log("Browser mode");
-      setSessionId(window.sessionId);
+      supabase
+        .channel("proof-update")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "sessions",
+            filter: `id=eq.${window.sessionId}`,
+          },
+          (payload) => {
+            console.log("Got response from supabase", payload);
+            if (payload.errors) {
+              console.error("server error", payload.errors);
+              return;
+            }
+            const newResponse = (payload.new as any)["proof"];
+            if (!app) return;
+
+            // TODO: Errors from both server and extension should be handled uniformly
+            // in one place.
+            // TODO insert this into extension too when code is more stable
+            // @ts-ignore
+            if (!newResponse.proofTree || newResponse.error) {
+              app.selectAll().deleteShapes();
+              setApiResponse(null);
+              return;
+            }
+
+            updateUi(app, newResponse, apiResponse);
+
+            setApiResponse(newResponse);
+          }
+        )
+        .subscribe();
     }
     if (window.initialInfo) {
       const newResponse: ApiResponse = {

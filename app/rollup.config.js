@@ -2,6 +2,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
+import json from "@rollup/plugin-json";
 import postcss from "rollup-plugin-postcss";
 import path from "path";
 
@@ -12,6 +13,7 @@ const plugins = [
     outputToFilesystem: false,
     sourceMap: true,
   }),
+  json(),
   nodeResolve({
     browser: true,
     modulePaths: [path.resolve(__dirname, "node_modules")],
