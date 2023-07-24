@@ -21,7 +21,7 @@ In future potentially with LLMs and visual transformers trying to understand use
 
 1. Install the extension from `extension/` folder
 ```console
-code --install-extension paperproof-0.0.5.vsix
+code --install-extension paperproof-0.0.1.vsix
 ```
 
 2. Run the dev server (you might need to run `yarn install` first)
@@ -29,15 +29,15 @@ code --install-extension paperproof-0.0.5.vsix
 cd app; yarn dev
 ```
 
-3. Toggle the view with `"Paper Proof: Toggle"` command (Ctrl+Shift+P) or open in browser on
-http://localhost:80
+3. Toggle the view with `"Paper Proof: Toggle"` command (Ctrl+Shift+P) or open in browser
+from vscode status bar
 
 ## Reload 
 
 If you change something in the `/extension` folder, run
 
 ```console
-vsce package; code --uninstall-extension undefined_publisher.paperproof; code --install-extension paperproof-0.0.5.vsix
+vsce package; code --uninstall-extension undefined_publisher.paperproof; code --install-extension paperproof-0.0.1.vsix
 ```
 and quit VSCode.
 

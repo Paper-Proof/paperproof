@@ -24,15 +24,3 @@ would be nice to make extension handle it somehow automatically.
 ### 0.0.1
 
 Initial release of the extension sending data to the server.
-
-### 0.0.4
-
-Send state updates directly to extension webview as well as the server
-
-### 0.0.5
-
-Support sessions. Also the server URL can be configured in settings: http://localhost:80 or https://paperproof.xyz.
-
-### 0.0.6
-
-Use supabase
