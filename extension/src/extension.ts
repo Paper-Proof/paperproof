@@ -9,11 +9,21 @@ const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+interface ProofState {
+  goal: any;
+  statement: string;
+  proofTree: any;
+}
+
+interface ProofError {
+  error: string;
+}
+
 const DEFAULT_SERVER_URL = "https://paperproof.xyz";
 let SERVER_URL = DEFAULT_SERVER_URL;
 
 let sessionId: string | null = null;
-let latestInfo: object | null = null;
+let latestInfo: ProofState | ProofError | null = null;
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -22,7 +32,10 @@ const getErrorMessage = (error: unknown) => {
   return String(error);
 };
 
-const sendTypesToServer = async (sessionId: string, body: object) =>
+const sendTypesToServer = async (
+  sessionId: string,
+  body: ProofState | ProofError
+) =>
   supabase
     .from("sessions")
     .update([{ proof: body }])
@@ -30,7 +43,7 @@ const sendTypesToServer = async (sessionId: string, body: object) =>
 
 const sendTypes = async (
   webviewPanel: vscode.WebviewPanel | null,
-  body: object
+  body: ProofState | ProofError
 ) => {
   // Save for the later sending in case there is no session for the server or no webview open yet.
   latestInfo = body;
@@ -66,7 +79,7 @@ const vscodeRequest = async (
   return response;
 };
 
-function getWebviewContent(initialInfo: object | null) {
+function getWebviewContent(initialInfo: ProofState | ProofError | null) {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -76,7 +89,7 @@ function getWebviewContent(initialInfo: object | null) {
       <title>Paperproof</title>
     </head>
     <body>
-      <script>initialInfo = ${initialInfo}</script>
+      <script>initialInfo = ${JSON.stringify(initialInfo)}</script>
       <div id="root"></div>
       <script src="${SERVER_URL}/indexBrowser.js"></script>
     </body>
@@ -128,7 +141,7 @@ const sendInfoAtCurrentPos = async (
     tdp
   );
 
-  const body = {
+  const body: ProofState = {
     goal: (goalsResponse && goalsResponse.goals[0]) || null,
     statement: proofTreeResponse.statement,
     proofTree: converter(proofTreeResponse.steps),
@@ -228,6 +241,9 @@ export function activate(context: vscode.ExtensionContext) {
     webviewPanel.onDidDispose(() => {
       webviewPanel = null;
     });
+    log.append(
+      "Opening webviewPanel with: " + (latestInfo as any)["statement"]
+    );
     webviewPanel.webview.html = getWebviewContent(latestInfo);
   }
   context.subscriptions.push(
