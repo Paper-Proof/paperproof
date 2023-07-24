@@ -4,7 +4,7 @@ const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   app.createShapes([
     {
       id: createShapeId(),
-      type: "arrow",
+      type: "customArrow",
       props: {
         start: {
           type: 'binding', boundShapeId: fromId,
@@ -48,7 +48,7 @@ const drawShapeGoal = (app: App,
     {
       id, type: "geo", x, y, parentId,
       props: {
-        geo: "rectangle", font: "mono", size: "m", w: w ? w : 1, h, text,
+        geo: "rectangle", font: "mono", size: "m", w, h, text,
 
         dash: "solid",
         fill: "solid",
@@ -103,11 +103,11 @@ const drawShapeWindow = (app: App,
   app.createShapes([
     {
       id,
-      type: "frame",
+      type: "window",
       x,
       y,
       parentId,
-      props: { w, h },
+      props: { w, h, depth, goalUsername, goalUsernameHeight },
     },
   ]);
 }
