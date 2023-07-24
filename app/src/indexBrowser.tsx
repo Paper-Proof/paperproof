@@ -3,7 +3,7 @@ import { useState } from "react";
 import * as ReactDOM from "react-dom";
 import "@tldraw/tldraw/editor.css";
 import "@tldraw/tldraw/ui.css";
-import { App, Tldraw, TldrawEditorConfig, TLShapeId } from "@tldraw/tldraw";
+import { Editor as App, Tldraw, TLShapeId } from "@tldraw/tldraw";
 import "./index.css";
 import { Format, InteractiveHyp, InteractiveGoal, ProofState } from "./types";
 import { buildProofTree } from "./buildProofTree";
@@ -34,11 +34,6 @@ const uiConfig = {
   hideNulls: true,
 };
 
-const config = new TldrawEditorConfig({
-  shapes: [WindowShape, CustomArrowShape],
-  allowUnknownShapes: true,
-});
-
 const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
@@ -57,16 +52,16 @@ const focusProofTree = (
   currentGoal: InteractiveGoal | null
 ) => {
   if (currentGoal === null) {
-    const existingNodeIds = Array.from(app.shapeIds.values())
-      .filter((shapeId) => shapeId.startsWith("shape:node-"))
-      .map((nodeId) => ({
-        id: nodeId,
+    const existingNodes = app.shapesArray
+      .filter((shape) => shape.id.startsWith("shape:node-"))
+      .map((node) => ({
+        id: node.id,
         type: "geo",
         props: {
           opacity: "1",
         },
       }));
-    app.updateShapes(existingNodeIds);
+    app.updateShapes(existingNodes);
     return;
   }
 
@@ -80,13 +75,13 @@ const focusProofTree = (
       const hypId = getDisplayedId(equivalentIds, inferiorHypId);
       return createNodeId(app, hypId);
     });
-  const focusedShapes = Array.from(app.shapeIds.values())
-    .filter((shapeId) => shapeId.startsWith("shape:node-"))
-    .map((nodeId) => {
+  const focusedShapes = app.shapesArray
+    .filter((shape) => shape.id.startsWith("shape:node-"))
+    .map((node) => {
       const ifFocused =
-        nodeId === focusedGoalId || focusedHypIds.includes(nodeId);
+        node.id === focusedGoalId || focusedHypIds.includes(node.id);
       return {
-        id: nodeId,
+        id: node.id,
         type: "geo",
         props: {
           opacity: ifFocused ? "1" : "0.25",
@@ -180,7 +175,8 @@ function Main() {
     addEventListener("resize", (event) => {
       app.zoomToFit({ duration: 100 });
     });
-    app.userDocumentSettings.isSnapMode = true;
+    // TODO:update
+    // app.userDocumentSettings.isSnapMode = true;
     app.updateInstanceState({ isFocusMode: true });
     setApp(app);
   };
@@ -190,9 +186,11 @@ function Main() {
     <div className="tldraw-wrapper">
       <Tldraw
         onMount={handleMount}
-        config={config}
-        baseUrl={baseUrl}
-        assetBaseUrl={baseUrl}
+        shapes={[WindowShape, CustomArrowShape]}
+        // TODO:update cant find this option in the new tldraw version, return if it's still needed
+        // allowUnknownShapes: true,
+        // baseUrl={baseUrl}
+        // assetBaseUrl={baseUrl}
       />
     </div>
   );

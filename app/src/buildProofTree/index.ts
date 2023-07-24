@@ -1,4 +1,4 @@
-import { App } from "@tldraw/tldraw";
+import { Editor as App } from "@tldraw/tldraw";
 import { Format, UiConfig } from "../types";
 import { createWindow, createArrows } from './services/CreateElement';
 

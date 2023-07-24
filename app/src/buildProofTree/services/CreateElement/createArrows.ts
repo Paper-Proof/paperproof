@@ -2,20 +2,19 @@ import { Shared, Element } from "../../../types";
 import { drawShapeArrow } from '../DrawShape';
 import { Format } from "../../../types";
 import { createHypTacticId, createGoalTacticId, createNodeId, createWindowId } from '../CreateId';
-import { App, TLShapeId } from "@tldraw/tldraw";
+import { Editor as App, TLShapeId } from "@tldraw/tldraw";
 
-// TODO:lakesare - wait, we can simply app.getShapeById(desiredId)
 const findIdInApp = (app: App, desiredId: TLShapeId): TLShapeId | null => {
-  const existingShapeIds = Array.from(app.shapeIds.values());
-  const foundId = existingShapeIds.find((shapeId) => shapeId === desiredId)
-  if (foundId) {
-    return foundId;
+  const existingShapeIds = app.shapesArray;
+  const desiredShape = app.getShapeById(desiredId);
+
+  if (desiredShape) {
+    return desiredShape.id;
+  } else {
+    console.log(`Didn't find ${desiredId} in:`);
+    console.log(existingShapeIds);
+    return null
   }
-
-  console.log(`Didn't find ${desiredId} in:`);
-  console.log(existingShapeIds);
-
-  return null
 }
 
 const getWindowByHypId = (proofTree: Format, hypId : string) =>

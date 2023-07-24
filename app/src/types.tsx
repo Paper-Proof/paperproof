@@ -1,4 +1,4 @@
-import { App, TLShapeId } from "@tldraw/tldraw";
+import { Editor as App, TLShapeId } from "@tldraw/tldraw";
 
 export interface UiConfig {
   hideNulls: boolean

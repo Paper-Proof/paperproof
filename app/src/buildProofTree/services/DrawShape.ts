@@ -1,9 +1,9 @@
-import { App, TLShapeId, TLParentId } from "@tldraw/tldraw";
+import { Editor as App, TLShapeId, TLParentId, createShapeId } from "@tldraw/tldraw";
 
 const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   app.createShapes([
     {
-      id: app.createShapeId(),
+      id: createShapeId(),
       type: "customArrow",
       props: {
         start: {
