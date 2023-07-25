@@ -24,6 +24,7 @@ let SERVER_URL = DEFAULT_SERVER_URL;
 
 let sessionId: string | null = null;
 let latestInfo: ProofState | ProofError | null = null;
+let onLeanClientRestarted: vscode.Disposable | null = null;
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -96,34 +97,13 @@ function getWebviewContent(initialInfo: ProofState | ProofError | null) {
   </html>`;
 }
 
-const sendInfoAtCurrentPos = async (
+const sendInfoAtTdp = async (
   log: vscode.OutputChannel,
+  client: any,
   webviewPanel: vscode.WebviewPanel | null,
-  editor: vscode.TextEditor
+  tdp: TextDocumentPositionParams
 ) => {
-  const doc = editor.document;
-  if (doc.languageId !== "lean4" && doc.languageId !== "lean") {
-    return;
-  }
-  const pos = editor.selection.active;
-  let tdp = {
-    textDocument: { uri: doc.uri.toString() },
-    position: { line: pos.line, character: pos.character },
-  };
-  log.appendLine("");
-  log.appendLine(`Text selection: ${JSON.stringify(tdp)}`);
   const uri = tdp.textDocument.uri;
-  const leanExtension = vscode.extensions.getExtension("leanprover.lean4");
-  if (!leanExtension) {
-    return;
-  }
-  const clientProvider = leanExtension.exports.clientProvider;
-  const client = clientProvider.findClient(uri);
-  if (!client) {
-    return;
-  }
-  log.appendLine("Found a Lean client");
-
   const proofTreeResponse = await vscodeRequest(
     log,
     "getPpContext",
@@ -217,18 +197,57 @@ export function activate(context: vscode.ExtensionContext) {
       context.subscriptions.push(setupStatusBar(id));
     });
 
-  // Sending types to the server on cursor changes.
-  vscode.window.onDidChangeTextEditorSelection(async (event) => {
+  const sendPosition = async (editor: vscode.TextEditor | undefined) => {
     try {
-      await sendInfoAtCurrentPos(log, webviewPanel, event.textEditor);
+      if (!editor) {
+        return;
+      }
+      const doc = editor.document;
+      if (doc.languageId !== "lean4" && doc.languageId !== "lean") {
+        return;
+      }
+      const pos = editor.selection.active;
+      let tdp = {
+        textDocument: { uri: doc.uri.toString() },
+        position: { line: pos.line, character: pos.character },
+      };
+      log.appendLine("");
+      log.appendLine(`Text selection: ${JSON.stringify(tdp)}`);
+      const leanExtension = vscode.extensions.getExtension("leanprover.lean4");
+      if (!leanExtension) {
+        throw new Error("Lean extension not found");
+      }
+      const clientProvider = leanExtension.exports.clientProvider;
+      const client = clientProvider.findClient(tdp.textDocument.uri);
+      if (!client) {
+        throw new Error("Lean client not found");
+      }
+      if (!client.running) {
+        // Dispose of the previous listener if there was one
+        onLeanClientRestarted?.dispose();
+        onLeanClientRestarted = client.restarted(() => {
+          sendInfoAtTdp(log, client, webviewPanel, tdp);
+          onLeanClientRestarted?.dispose();
+        });
+        throw new Error(
+          "Lean client is not yet running, will attempt to send later"
+        );
+      }
+      log.appendLine("Found a Lean client");
+      sendInfoAtTdp(log, client, webviewPanel, tdp);
     } catch (error) {
       const message = getErrorMessage(error);
-      log.appendLine(
-        `❌ Error in onDidChangeTextEditorSelection: "${message}"`
-      );
+      log.appendLine(`❌ Error in sendPosition: "${message}"`);
       await sendTypes(webviewPanel, { error: message });
     }
-  });
+  };
+
+  // Sending types to the server on cursor changes.
+  sendPosition(vscode.window.activeTextEditor);
+  vscode.window.onDidChangeActiveTextEditor(sendPosition);
+  vscode.window.onDidChangeTextEditorSelection((event) =>
+    sendPosition(event.textEditor)
+  );
 
   // Opening/hiding webviewPanel.
   function openPanel() {
