@@ -218,7 +218,7 @@ export function activate(context: vscode.ExtensionContext) {
         throw new Error("Lean extension not found");
       }
       const clientProvider = leanExtension.exports.clientProvider;
-      const client = clientProvider.findClient(tdp.textDocument.uri);
+      const [_, client] = await clientProvider.ensureClient(doc.uri, undefined);
       if (!client) {
         throw new Error("Lean client not found");
       }
