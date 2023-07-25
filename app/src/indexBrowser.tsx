@@ -5,7 +5,7 @@ import { Editor as App, Tldraw } from "@tldraw/tldraw";
 import { Format, InteractiveGoal, ProofState } from "./types";
 import { buildProofTree } from "./buildProofTree";
 import { WindowShape } from "./shapes/WindowShape";
-import { CustomArrowShape } from "./shapes/CustomArrowShape";
+import WindowUtil from "./shapes/WindowUtil";
 import { createNodeId } from "./buildProofTree/services/CreateId";
 import { createClient } from "@supabase/supabase-js";
 
@@ -101,7 +101,7 @@ function Main() {
 
     if ("error" in newProofState) {
       app.selectAll().deleteShapes();
-      setProofState(null);
+      // setProofState(null);
       return;
     }
 
@@ -119,7 +119,7 @@ function Main() {
       );
     }
 
-    setProofState(newProofState);
+    // setProofState(newProofState);
   }
 
   const handleMount = (app: App) => {
@@ -174,20 +174,23 @@ function Main() {
       updateUi(app, event.data);
     });
 
-    addEventListener("resize", (event) => {
-      app.zoomToFit({ duration: 100 });
-    });
+    // addEventListener("resize", (event) => {
+    //   app.zoomToFit({ duration: 100 });
+    // });
     // TODO:update
     // app.userDocumentSettings.isSnapMode = true;
-    app.updateInstanceState({ isFocusMode: true });
-    setApp(app);
+    // app.updateInstanceState({ isFocusMode: true });
+
+    // TODO:update the new tldraw version errors out with cryptic errors when we `setAnyState()` in `onMount()`.
+    // This doesn't happen in tldraw's main branch.
+    // setApp(app);
   };
 
   return (
     <div className="tldraw-wrapper">
       <Tldraw
         onMount={handleMount}
-        // shapes={[WindowShape, CustomArrowShape]}
+        shapeUtils={[WindowUtil]}
         // TODO:update cant find this option in the new tldraw version, return if it's still needed
         // allowUnknownShapes: true,
       />

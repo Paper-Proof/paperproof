@@ -4,7 +4,7 @@ const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   app.createShapes([
     {
       id: createShapeId(),
-      type: "customArrow",
+      type: "arrow",
       props: {
         start: {
           type: 'binding', boundShapeId: fromId,
@@ -95,6 +95,7 @@ const drawShapeGoalUsername = (app: App,
   ]);
 }
 
+// Our actual window
 const drawShapeWindow = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number,
@@ -111,5 +112,23 @@ const drawShapeWindow = (app: App,
     },
   ]);
 }
+
+// Temporary window
+// const drawShapeWindow = (app: App,
+//   id: TLShapeId, parentId: TLParentId | undefined,
+//   x: number, y: number, w: number, h: number, depth: number,
+//   goalUsername: string | null, goalUsernameHeight: number
+// ) => {
+//   app.createShapes([
+//     {
+//       id,
+//       type: "frame",
+//       x,
+//       y,
+//       parentId,
+//       props: { w, h },
+//     },
+//   ]);
+// }
 
 export { drawShapeArrow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeGoalUsername, drawShapeWindow };
