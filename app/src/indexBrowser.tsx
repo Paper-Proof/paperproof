@@ -1,16 +1,16 @@
 import * as React from "react";
 import { useState } from "react";
 import * as ReactDOM from "react-dom";
-import "@tldraw/tldraw/editor.css";
-import "@tldraw/tldraw/ui.css";
-import { Editor as App, Tldraw, TLShapeId } from "@tldraw/tldraw";
-import "./index.css";
-import { Format, InteractiveHyp, InteractiveGoal, ProofState } from "./types";
+import { Editor as App, Tldraw } from "@tldraw/tldraw";
+import { Format, InteractiveGoal, ProofState } from "./types";
 import { buildProofTree } from "./buildProofTree";
 import { WindowShape } from "./shapes/WindowShape";
 import { CustomArrowShape } from "./shapes/CustomArrowShape";
 import { createNodeId } from "./buildProofTree/services/CreateId";
 import { createClient } from "@supabase/supabase-js";
+
+import '@tldraw/tldraw/tldraw.css'
+import "./index.css";
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
 const supabaseKey =
@@ -57,9 +57,9 @@ const focusProofTree = (
       .map((node) => ({
         id: node.id,
         type: "geo",
-        props: {
-          opacity: "1",
-        },
+        // props: {
+        //   opacity: "1",
+        // },
       }));
     app.updateShapes(existingNodes);
     return;
@@ -83,9 +83,10 @@ const focusProofTree = (
       return {
         id: node.id,
         type: "geo",
-        props: {
-          opacity: ifFocused ? "1" : "0.25",
-        },
+        // TODO:update opacity doesn't work
+        // props: {
+        //   opacity: ifFocused ? "1" : "0.25",
+        // },
       };
     });
   app.updateShapes(focusedShapes);
@@ -122,6 +123,7 @@ function Main() {
   }
 
   const handleMount = (app: App) => {
+    console.log("handling mount");
     setTimeout(() => {
       app.zoomToFit({ duration: 100 });
     }, 200);
@@ -181,16 +183,13 @@ function Main() {
     setApp(app);
   };
 
-  const baseUrl = "https://unpkg.com/@tldraw/assets@2.0.0-alpha.14/";
   return (
     <div className="tldraw-wrapper">
       <Tldraw
         onMount={handleMount}
-        shapes={[WindowShape, CustomArrowShape]}
+        // shapes={[WindowShape, CustomArrowShape]}
         // TODO:update cant find this option in the new tldraw version, return if it's still needed
         // allowUnknownShapes: true,
-        // baseUrl={baseUrl}
-        // assetBaseUrl={baseUrl}
       />
     </div>
   );
