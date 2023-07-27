@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "server": "node server.cjs",
-    "watchBrowser": "rollup --environment NODE_ENV:production --config --watch --configBrowser",
-    "buildBrowser": "rollup --environment NODE_ENV:production --config --configBrowser",
+    "watchBrowser": "rollup --environment NODE_ENV:development --config --watch --configBrowser",
+    "buildBrowser": "rollup --environment NODE_ENV:development --config --configBrowser",
     "dev": "yarn server & yarn watchBrowser"
   },
   "main": "index.js",
