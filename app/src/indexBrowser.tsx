@@ -12,6 +12,8 @@ import { createClient } from "@supabase/supabase-js";
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
 
+const customShapeUtils = [WindowUtil];
+
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
@@ -101,13 +103,12 @@ function Main() {
 
     if ("error" in newProofState) {
       app.selectAll().deleteShapes();
-      // setProofState(null);
+      console.log("setting proof state to", null);
+      setProofState(null);
       return;
     }
 
-    if (
-      !areObjectsEqual(newProofState.proofTree, proofState?.proofTree ?? {})
-    ) {
+    if (!areObjectsEqual(newProofState.proofTree, proofState?.proofTree ?? {})) {
       buildProofTree(app, newProofState.proofTree, uiConfig);
     }
 
@@ -119,7 +120,8 @@ function Main() {
       );
     }
 
-    // setProofState(newProofState);
+    console.log("setting proof state to", newProofState);
+    setProofState(newProofState);
   }
 
   const handleMount = (app: App) => {
@@ -159,7 +161,6 @@ function Main() {
             filter: `id=eq.${window.sessionId}`,
           },
           (payload) => {
-            console.log("Got response from supabase", payload);
             const newProofState = (payload.new as any)["proof"];
             console.log("Updating UI because: supabase.channel('proof-update')");
             updateUi(app, newProofState);
@@ -187,16 +188,14 @@ function Main() {
 
     // TODO:update the new tldraw version errors out with cryptic errors when we `setAnyState()` in `onMount()`.
     // This doesn't happen in tldraw's main branch.
-    // setApp(app);
+    setApp(app);
   };
 
   return (
     <div className="tldraw-wrapper">
       <Tldraw
         onMount={handleMount}
-        shapeUtils={[WindowUtil]}
-        // TODO:update cant find this option in the new tldraw version, return if it's still needed
-        // allowUnknownShapes: true,
+        shapeUtils={customShapeUtils}
       />
     </div>
   );
