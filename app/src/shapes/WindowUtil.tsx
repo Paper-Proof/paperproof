@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseBoxShapeUtil, HTMLContainer, SVGContainer, TLBaseShape, TLGroupShape, TLOnResizeEndHandler, TLShape, TLShapeId } from '@tldraw/tldraw'
+import { BaseBoxShapeUtil, HTMLContainer, SVGContainer, TLBaseShape, TLClickEvent, TLGroupShape, TLOnDoubleClickHandler, TLOnResizeEndHandler, TLShape, TLShapeId } from '@tldraw/tldraw'
 
 export type WindowShapeType = TLBaseShape<'window',
   {
@@ -16,6 +16,40 @@ export type WindowShapeType = TLBaseShape<'window',
 export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   static override type = 'window'
 
+  static canEdit = false
+  static canResize = false
+
+  static hideResizeHandles = true
+  static hideRotateHandle = true
+
+  static hideSelectionBoundsBg = true
+  static hideSelectionBoundsFg = true
+  
+
+
+
+  override onDoubleClick: TLOnDoubleClickHandler<WindowShapeType> = (shape) => {
+    this.editor.zoomToBounds(shape.x, shape.y, shape.props.w, shape.props.h, 0.9, {
+      duration: 200
+    });
+
+    // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
+    return { id: shape.id, type: "window" };
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   override getDefaultProps(): WindowShapeType['props'] {
     return { w: 160 * 2, h: 90 * 2, name: "none", depth: 0, goalUsername: null, goalUsernameHeight: 20 };
   }
@@ -25,7 +59,9 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
 
     return (
       <>
-        <SVGContainer>
+        <SVGContainer style={{
+          pointerEvents: 'visible',
+        }}>
           <rect
             className="tl-hitarea-stroke"
             width={bounds.width}

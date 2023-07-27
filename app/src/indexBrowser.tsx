@@ -143,6 +143,7 @@ function Main() {
             return;
           }
           const proof = res.data[0].proof;
+          console.log("Updating UI because: supabase.from('sessions')");
           updateUi(app, proof);
         });
 
@@ -160,17 +161,20 @@ function Main() {
           (payload) => {
             console.log("Got response from supabase", payload);
             const newProofState = (payload.new as any)["proof"];
+            console.log("Updating UI because: supabase.channel('proof-update')");
             updateUi(app, newProofState);
           }
         )
         .subscribe();
     }
     if (window.initialInfo) {
+      console.log("Updating UI because: window.intialInfo");
       updateUi(app, window.initialInfo);
     }
 
     // Listen for direct messages from extension instead of round trip through server
     addEventListener("message", (event) => {
+      console.log("Updating UI because: 'message' from extension");
       updateUi(app, event.data);
     });
 
