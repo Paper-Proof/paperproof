@@ -2,12 +2,11 @@ import * as React from "react";
 import { useState } from "react";
 import * as ReactDOM from "react-dom";
 import { Editor as App, Tldraw } from "@tldraw/tldraw";
-import { Format, InteractiveGoal, ProofState } from "./types";
+import { ProofState } from "./types";
 import { buildProofTree } from "./buildProofTree";
-import { WindowShape } from "./shapes/WindowShape";
 import WindowUtil from "./shapes/WindowUtil";
-import { createNodeId } from "./buildProofTree/services/CreateId";
 import { createClient } from "@supabase/supabase-js";
+import focusProofTree from './focusProofTree';
 
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
@@ -38,60 +37,6 @@ const uiConfig = {
 
 const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
-};
-
-// This could be done in /extension, but doing it here for the ease of debugging
-const getDisplayedId = (equivalentIds: Format["equivalentIds"], id: string) => {
-  const displayedId = Object.keys(equivalentIds).find((displayedId) =>
-    equivalentIds[displayedId].find((inferiorId) => inferiorId === id)
-  );
-  return displayedId ? displayedId : id;
-};
-
-const focusProofTree = (
-  app: App,
-  equivalentIds: Format["equivalentIds"],
-  currentGoal: InteractiveGoal | null
-) => {
-  if (currentGoal === null) {
-    const existingNodes = app.shapesArray
-      .filter((shape) => shape.id.startsWith("shape:node-"))
-      .map((node) => ({
-        id: node.id,
-        type: "geo",
-        // props: {
-        //   opacity: "1",
-        // },
-      }));
-    app.updateShapes(existingNodes);
-    return;
-  }
-
-  const focusedGoalId = createNodeId(
-    app,
-    getDisplayedId(equivalentIds, currentGoal.mvarId)
-  );
-  const focusedHypIds = currentGoal.hyps
-    .reduce<string[]>((acc, hyp) => [...acc, ...hyp.fvarIds], [])
-    .map((inferiorHypId) => {
-      const hypId = getDisplayedId(equivalentIds, inferiorHypId);
-      return createNodeId(app, hypId);
-    });
-  const focusedShapes = app.shapesArray
-    .filter((shape) => shape.id.startsWith("shape:node-"))
-    .map((node) => {
-      const ifFocused =
-        node.id === focusedGoalId || focusedHypIds.includes(node.id);
-      return {
-        id: node.id,
-        type: "geo",
-        // TODO:update opacity doesn't work
-        // props: {
-        //   opacity: ifFocused ? "1" : "0.25",
-        // },
-      };
-    });
-  app.updateShapes(focusedShapes);
 };
 
 function Main() {
@@ -126,9 +71,6 @@ function Main() {
 
   const handleMount = (app: App) => {
     console.log("handling mount");
-    setTimeout(() => {
-      app.zoomToFit({ duration: 100 });
-    }, 200);
 
     if (window.sessionId) {
       // This is loaded in browser.
@@ -179,15 +121,6 @@ function Main() {
       updateUi(app, event.data);
     });
 
-    // addEventListener("resize", (event) => {
-    //   app.zoomToFit({ duration: 100 });
-    // });
-    // TODO:update
-    // app.userDocumentSettings.isSnapMode = true;
-    // app.updateInstanceState({ isFocusMode: true });
-
-    // TODO:update the new tldraw version errors out with cryptic errors when we `setAnyState()` in `onMount()`.
-    // This doesn't happen in tldraw's main branch.
     setApp(app);
   };
 
