@@ -97,3 +97,10 @@ export interface ProofState {
   proofTree: Format;
   goal: InteractiveGoal;
 }
+
+export type ProofResponse = ProofState | { error: any } | null;
+
+export interface PaperProofWindow extends Window {
+  sessionId: string | null;
+  initialInfo: any | null;
+}
