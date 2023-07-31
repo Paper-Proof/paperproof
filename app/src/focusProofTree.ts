@@ -21,9 +21,9 @@ const focusProofTree = (
       .map((node) => ({
         id: node.id,
         type: "geo",
-        // props: {
-        //   opacity: "1",
-        // },
+        props: {
+          fill: "solid",
+        },
       }));
     app.updateShapes(existingNodes);
     return;
@@ -48,9 +48,9 @@ const focusProofTree = (
         id: node.id,
         type: "geo",
         // TODO:update opacity doesn't work
-        // props: {
-        //   opacity: ifFocused ? "1" : "0.25",
-        // },
+        props: {
+          fill: ifFocused ? "solid" : "semi",
+        },
       };
     });
   app.updateShapes(focusedShapes);
