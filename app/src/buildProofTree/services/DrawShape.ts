@@ -76,25 +76,6 @@ const drawShapeHypothesis = (app: App,
   ]);
 }
 
-// TODO remove this
-const drawShapeGoalUsername = (app: App,
-  id: TLShapeId, parentId: TLParentId | undefined,
-  x: number, y: number, w: number, h: number, text: string
-) => {
-  app.createShapes([
-    {
-      id, type: "geo", x, y, parentId,
-      props: {
-        geo: "rectangle", font: "mono", size: "m", w, h, text,
-
-        dash: "dotted",
-        fill: "none",
-        color: "grey",
-      },
-    },
-  ]);
-}
-
 // Our actual window
 const drawShapeWindow = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
@@ -131,4 +112,4 @@ const drawShapeWindow = (app: App,
 //   ]);
 // }
 
-export { drawShapeArrow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeGoalUsername, drawShapeWindow };
+export { drawShapeArrow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeWindow };

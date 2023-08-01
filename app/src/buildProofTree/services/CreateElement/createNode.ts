@@ -3,13 +3,13 @@ import { IdElement, Shared } from "../../../types";
 
 import getTextSize from '../getTextSize';
 
-import { drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeGoalUsername } from '../DrawShape';
+import { drawShapeTactic, drawShapeGoal, drawShapeHypothesis } from '../DrawShape';
 
 const createNode = (
   shared: Shared,
   parentId: TLParentId | undefined,
   text: string,
-  type: "hypothesis" | "tactic" | "goal" | "goalUsername",
+  type: "hypothesis" | "tactic" | "goal",
   // This is for arrows
   id: TLShapeId
 ): IdElement => {
@@ -26,8 +26,6 @@ const createNode = (
         drawShapeGoal(shared.app, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "hypothesis") {
         drawShapeHypothesis(shared.app, id, parentId, x, y, effectiveW, h, newText);
-      } else if (type === "goalUsername") {
-        drawShapeGoalUsername(shared.app, id, parentId, x, y, effectiveW, h, newText);
       }
     }
   }
