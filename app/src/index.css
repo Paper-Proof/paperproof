@@ -100,3 +100,9 @@ html, * {
 .tlui-button{
   font-size: 13px;
 }
+
+
+
+.node-not-focused{
+  opacity: 0.2;
+}

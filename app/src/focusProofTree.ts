@@ -10,6 +10,7 @@ const getDisplayedId = (equivalentIds: Format["equivalentIds"], id: string) => {
   return displayedId ? displayedId : id;
 };
 
+// lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
 const focusProofTree = (
   app: App,
   equivalentIds: Format["equivalentIds"],
@@ -20,10 +21,10 @@ const focusProofTree = (
       .filter((shape) => shape.id.startsWith("shape:node-"))
       .map((node) => ({
         id: node.id,
-        type: "geo",
-        props: {
-          fill: "solid",
-        },
+        type: "customNode",
+        meta: {
+          isFocused: true
+        }
       }));
     app.updateShapes(existingNodes);
     return;
@@ -42,15 +43,14 @@ const focusProofTree = (
   const focusedShapes = app.currentPageShapes
     .filter((shape) => shape.id.startsWith("shape:node-"))
     .map((node) => {
-      const ifFocused =
+      const isFocused =
         node.id === focusedGoalId || focusedHypIds.includes(node.id);
       return {
         id: node.id,
-        type: "geo",
-        // TODO:update opacity doesn't work
-        props: {
-          fill: ifFocused ? "solid" : "semi",
-        },
+        type: "customNode",
+        meta: {
+          isFocused: isFocused
+        }
       };
     });
   app.updateShapes(focusedShapes);

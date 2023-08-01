@@ -6,6 +6,7 @@ import { Editor as App, Tldraw } from "@tldraw/tldraw";
 
 import WindowUtil from "./shapes/WindowUtil";
 import CustomArrowUtil from "./shapes/CustomArrowUtil";
+import CustomNodeUtil from "./shapes/CustomNodeUtil";
 import updateUI from "./updateUI";
 
 import { ProofResponse, PaperProofWindow } from "./types";
@@ -13,7 +14,7 @@ import { ProofResponse, PaperProofWindow } from "./types";
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
 
-const customShapeUtils = [WindowUtil, CustomArrowUtil];
+const customShapeUtils = [WindowUtil, CustomArrowUtil, CustomNodeUtil];
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
 const supabaseKey =
