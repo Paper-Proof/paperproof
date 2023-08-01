@@ -4,7 +4,7 @@ const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   app.createShapes([
     {
       id: createShapeId(),
-      type: "arrow",
+      type: "customArrow",
       props: {
         start: {
           type: 'binding', boundShapeId: fromId,

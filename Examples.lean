@@ -190,10 +190,21 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
     sorry 
   sorry 
 
-example : (a = b) → (a = c) → c → a := by
-  intros ab ac
-  rw [ab] at ac
-  intro cc
+
+example (a b c : ℕ) : (a = b) → (b = c) → (a = c) := by
+  intros ab bc
+  /-
+  a b c : ℕ
+  ab : a = b
+  bc : b = c
+  ⊢ a = c
+  -/
+  subst bc
+  /-
+  a b : ℕ
+  ab : a = b
+  ⊢ a = b
+  -/
   sorry
 
 theorem small_irrational : ¬ ∃ (q : ℚ), q * q = 2 := by
@@ -300,3 +311,19 @@ theorem dojo4_uncombined (p q r : Prop) (hp : p)
 -- 2. `apply Or.inr; assumption` is tried, and succeeds
 example (p q : Prop) (hq : q) : p ∨ q := by
   first | apply Or.inl; assumption | apply Or.inr; assumption
+
+
+-- before
+-- pqr: Prop
+-- ⊢ p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r
+
+-- after
+-- pqr: Prop
+-- ⊢ p ∧ (q ∨ r) → p ∧ q ∨ p ∧ r
+-- pqr: Prop
+-- ⊢ p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)
+
+example (p q r: Prop) : p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r := by
+  refine' ⟨_, fun h => _⟩
+  sorry
+

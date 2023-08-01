@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Editor as App, Tldraw } from "@tldraw/tldraw";
 
 import WindowUtil from "./shapes/WindowUtil";
+import CustomArrowUtil from "./shapes/CustomArrowUtil";
 import updateUI from "./updateUI";
 
 import { ProofResponse, PaperProofWindow } from "./types";
@@ -12,7 +13,7 @@ import { ProofResponse, PaperProofWindow } from "./types";
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
 
-const customShapeUtils = [WindowUtil];
+const customShapeUtils = [WindowUtil, CustomArrowUtil];
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
 const supabaseKey =
