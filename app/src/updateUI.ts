@@ -19,7 +19,8 @@ const updateUI = (app: App, oldProof: ProofResponse, newProof: ProofResponse) =>
   const isOldProofEmpty = !oldProof || "error" in oldProof;
 
   if (isNewProofEmpty) {
-    app.selectAll().deleteShapes();
+    const shapes = Array.from(app.getPageShapeIds(app.currentPageId));
+    app.deleteShapes(shapes);
     return;
   }
 
