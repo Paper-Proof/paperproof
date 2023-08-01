@@ -5,8 +5,8 @@ import { createHypTacticId, createGoalTacticId, createNodeId, createWindowId } f
 import { Editor as App, TLShapeId } from "@tldraw/tldraw";
 
 const findIdInApp = (app: App, desiredId: TLShapeId): TLShapeId | null => {
-  const existingShapeIds = app.shapesArray;
-  const desiredShape = app.getShapeById(desiredId);
+  const existingShapeIds = app.currentPageShapes;
+  const desiredShape = app.getShape(desiredId);
 
   if (desiredShape) {
     return desiredShape.id;

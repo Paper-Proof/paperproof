@@ -16,7 +16,7 @@ const focusProofTree = (
   currentGoal: InteractiveGoal | null
 ) => {
   if (currentGoal === null) {
-    const existingNodes = app.shapesArray
+    const existingNodes = app.currentPageShapes
       .filter((shape) => shape.id.startsWith("shape:node-"))
       .map((node) => ({
         id: node.id,
@@ -39,7 +39,7 @@ const focusProofTree = (
         const hypId = getDisplayedId(equivalentIds, inferiorHypId);
         return createNodeId(app, hypId);
       });
-  const focusedShapes = app.shapesArray
+  const focusedShapes = app.currentPageShapes
     .filter((shape) => shape.id.startsWith("shape:node-"))
     .map((node) => {
       const ifFocused =

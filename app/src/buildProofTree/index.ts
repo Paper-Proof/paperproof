@@ -3,7 +3,8 @@ import { Format, UiConfig } from "../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
 export function buildProofTree(app: App, proofTree: Format, uiConfig: UiConfig) {
-  app.selectAll().deleteShapes();
+  const shapes = Array.from(app.getPageShapeIds(app.currentPageId));
+  app.deleteShapes(shapes);
 
   const shared = {
     app,

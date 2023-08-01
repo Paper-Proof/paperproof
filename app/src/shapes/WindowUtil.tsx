@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseBoxShapeUtil, HTMLContainer, SVGContainer, TLBaseShape, TLClickEvent, TLGroupShape, TLOnDoubleClickHandler, TLOnResizeEndHandler, TLShape, TLShapeId } from '@tldraw/tldraw'
+import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnDoubleClickHandler } from '@tldraw/tldraw';
 
 export type WindowShapeType = TLBaseShape<'window',
   {
@@ -12,50 +12,33 @@ export type WindowShapeType = TLBaseShape<'window',
   }
 >
 
-// Most of the methods are copypasted from tldraw's `FrameShapeUtil`
+// Conceptually it's similar to tldraw's `FrameShapeUtil`.
+// lakesare: I deleted all "reparentShapesById" methods for now. We can return them if we like, I just don't see much use in them currently.
 export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   static override type = 'window'
 
+  // These seem to do nothing? Needs to be investigated.
   static canEdit = false
   static canResize = false
-
   static hideResizeHandles = true
   static hideRotateHandle = true
-
   static hideSelectionBoundsBg = true
   static hideSelectionBoundsFg = true
-  
-
-
 
   override onDoubleClick: TLOnDoubleClickHandler<WindowShapeType> = (shape) => {
-    this.editor.zoomToBounds(shape.x, shape.y, shape.props.w, shape.props.h, 0.9, {
-      duration: 200
-    });
+    const bounds = this.editor.getPageBounds(shape)!
+    this.editor.zoomToBounds(bounds, 0.9, { duration: 200 });
 
     // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
     return { id: shape.id, type: "window" };
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   override getDefaultProps(): WindowShapeType['props'] {
     return { w: 160 * 2, h: 90 * 2, name: "none", depth: 0, goalUsername: null, goalUsernameHeight: 20 };
   }
 
   override component(shape: WindowShapeType) {
-    const bounds = this.editor.getBounds(shape);
+    const bounds = this.editor.getPageBounds(shape)!
 
     return (
       <>
@@ -96,66 +79,5 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
 
   override indicator(shape: WindowShapeType) {
     return <rect width={shape.props.w} height={shape.props.h} />;
-  }
-
-
-  override canReceiveNewChildrenOfType = (shape: TLShape, _type: TLShape['type']) => {
-    return !shape.isLocked
-  }
-
-  // override providesBackgroundForChildren(): boolean {
-  //   return true
-  // }
-
-  override canDropShapes = (shape: WindowShapeType, _shapes: TLShape[]): boolean => {
-    return !shape.isLocked
-  }
-
-  override onDragShapesOver = (frame: WindowShapeType, shapes: TLShape[]): { shouldHint: boolean } => {
-    if (!shapes.every((child) => child.parentId === frame.id)) {
-      this.editor.reparentShapesById(
-        shapes.map((shape) => shape.id),
-        frame.id
-      )
-      return { shouldHint: true }
-    }
-    return { shouldHint: false }
-  }
-
-  override onDragShapesOut = (_shape: WindowShapeType, shapes: TLShape[]): void => {
-    const parent = this.editor.getShapeById(_shape.parentId)
-    const isInGroup = parent && this.editor.isShapeOfType<TLGroupShape>(parent, 'group')
-
-    // If frame is in a group, keep the shape
-    // moved out in that group
-    if (isInGroup) {
-      this.editor.reparentShapesById(
-        shapes.map((shape) => shape.id),
-        parent.id
-      )
-    } else {
-      this.editor.reparentShapesById(
-        shapes.map((shape) => shape.id),
-        this.editor.currentPageId
-      )
-    }
-  }
-
-  override onResizeEnd: TLOnResizeEndHandler<WindowShapeType> = (shape) => {
-    const bounds = this.editor.getPageBounds(shape)!
-    const children = this.editor.getSortedChildIds(shape.id)
-
-    const shapesToReparent: TLShapeId[] = []
-
-    for (const childId of children) {
-      const childBounds = this.editor.getPageBoundsById(childId)!
-      if (!bounds.includes(childBounds)) {
-        shapesToReparent.push(childId)
-      }
-    }
-
-    if (shapesToReparent.length > 0) {
-      this.editor.reparentShapesById(shapesToReparent, this.editor.currentPageId)
-    }
   }
 }
