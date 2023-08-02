@@ -18,13 +18,8 @@ export type WindowShapeType = TLBaseShape<'window',
 export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   static override type = 'window'
 
-  // These seem to do nothing? Needs to be investigated.
-  static canEdit = false
-  static canResize = false
-  static hideResizeHandles = true
-  static hideRotateHandle = true
-  static hideSelectionBoundsBg = true
-  static hideSelectionBoundsFg = true
+  override canResize = () => false
+  override hideSelectionBoundsFg = () => true
 
   override onDoubleClick: TLOnDoubleClickHandler<WindowShapeType> = (shape) => {
     zoomToWindow(this.editor, shape);
@@ -59,7 +54,7 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
             fill="white"
           />
           <rect
-            className={`tl-frame_body depth-${shape.props.depth}`}
+            className={`window tl-frame_body depth-${shape.props.depth}`}
             width={bounds.width}
             height={bounds.height}
             rx={5}
@@ -78,6 +73,12 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   }
 
   override indicator(shape: WindowShapeType) {
-    return <rect width={shape.props.w} height={shape.props.h} />;
+    return <rect
+      className="window-indicator"
+      width={shape.props.w}
+      height={shape.props.h}
+      rx={5}
+      ry={5}
+    />;
   }
 }
