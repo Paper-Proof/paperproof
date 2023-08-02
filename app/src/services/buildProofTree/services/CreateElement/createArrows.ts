@@ -1,5 +1,5 @@
 import { Shared, Element } from "../../../../types";
-import { drawShapeArrow } from '../DrawShape';
+import DrawShape from '../DrawShape';
 import { Format } from "../../../../types";
 import CreateId from '../CreateId';
 import { Editor as App, TLShapeId } from "@tldraw/tldraw";
@@ -48,12 +48,12 @@ const createArrows = (shared: Shared): Element => {
               const fromNodeId = findIdInApp(shared.app, CreateId.node(shared.app, hypArrow.fromId));
               const toTacticId = findIdInApp(shared.app, CreateId.hypTactic(shared.app, tactic.id, hypArrow.fromId, window.id));
               if (!fromNodeId || !toTacticId) return
-              drawShapeArrow(shared.app, fromNodeId, toTacticId);
+              DrawShape.arrow(shared.app, fromNodeId, toTacticId);
             }
             const fromTacticId = findIdInApp(shared.app, CreateId.hypTactic(shared.app, tactic.id, hypArrow.fromId, window.id));
             const toNodeId = findIdInApp(shared.app, CreateId.node(shared.app, toId));
             if (!fromTacticId || !toNodeId) return
-            drawShapeArrow(shared.app, fromTacticId, toNodeId);
+            DrawShape.arrow(shared.app, fromTacticId, toNodeId);
           });
         });
 
@@ -67,12 +67,12 @@ const createArrows = (shared: Shared): Element => {
           const windowId2 = findWindowId(shared.app, shared.proofTree, goalArrow.toId);
           if (!tacticId || !toNodeId || !fromNodeId || !windowId1 || !windowId2) return
           if (windowId1 === windowId2) {
-            drawShapeArrow(shared.app, fromNodeId, tacticId);
+            DrawShape.arrow(shared.app, fromNodeId, tacticId);
           } else {
-            drawShapeArrow(shared.app, windowId2, tacticId);
+            DrawShape.arrow(shared.app, windowId2, tacticId);
           }
 
-          drawShapeArrow(shared.app, tacticId, toNodeId);
+          DrawShape.arrow(shared.app, tacticId, toNodeId);
         });
 
         // 3. Draw arrows between this tactic and `have` windows
@@ -82,7 +82,7 @@ const createArrows = (shared: Shared): Element => {
           const fromWindowId = findIdInApp(shared.app, CreateId.window(shared.app, tactic.haveWindowId));
           const toTacticId = findIdInApp(shared.app, CreateId.hypTactic(shared.app, tactic.id, null, window.id));
           if (!fromWindowId || !toTacticId) return
-          drawShapeArrow(shared.app, fromWindowId, toTacticId);
+          DrawShape.arrow(shared.app, fromWindowId, toTacticId);
         }
       });
     }

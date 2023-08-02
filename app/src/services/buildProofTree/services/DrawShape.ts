@@ -1,6 +1,6 @@
 import { Editor as App, TLShapeId, TLParentId, createShapeId } from "@tldraw/tldraw";
 
-const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
+const arrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   app.createShapes([
     {
       id: createShapeId(),
@@ -22,7 +22,7 @@ const drawShapeArrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   ]);
 }
 
-const drawShapeTactic = (app: App,
+const tactic = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
 ) => {
@@ -40,7 +40,7 @@ const drawShapeTactic = (app: App,
   ]);
 }
 
-const drawShapeGoal = (app: App,
+const goal = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
 ) => {
@@ -58,7 +58,7 @@ const drawShapeGoal = (app: App,
   ]);
 }
 
-const drawShapeHypothesis = (app: App,
+const hypothesis = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
 ) => {
@@ -76,8 +76,7 @@ const drawShapeHypothesis = (app: App,
   ]);
 }
 
-// Our actual window
-const drawShapeWindow = (app: App,
+const window = (app: App,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number,
   goalUsername: string | null, goalUsernameHeight: number
@@ -94,22 +93,4 @@ const drawShapeWindow = (app: App,
   ]);
 }
 
-// Temporary window
-// const drawShapeWindow = (app: App,
-//   id: TLShapeId, parentId: TLParentId | undefined,
-//   x: number, y: number, w: number, h: number, depth: number,
-//   goalUsername: string | null, goalUsernameHeight: number
-// ) => {
-//   app.createShapes([
-//     {
-//       id,
-//       type: "frame",
-//       x,
-//       y,
-//       parentId,
-//       props: { w, h },
-//     },
-//   ]);
-// }
-
-export { drawShapeArrow, drawShapeTactic, drawShapeGoal, drawShapeHypothesis, drawShapeWindow };
+export default { arrow, tactic, goal, hypothesis, window };

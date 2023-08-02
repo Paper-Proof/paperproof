@@ -3,7 +3,7 @@ import { IdElement, Shared } from "../../../../types";
 
 import getTextSize from '../getTextSize';
 
-import { drawShapeTactic, drawShapeGoal, drawShapeHypothesis } from '../DrawShape';
+import DrawShape from '../DrawShape';
 
 const createNode = (
   shared: Shared,
@@ -21,11 +21,11 @@ const createNode = (
     draw(x, y, prefferedWidth?: number) {
       const effectiveW = !!prefferedWidth && prefferedWidth > w ? prefferedWidth : w;
       if (type === "tactic") {
-        drawShapeTactic(shared.app, id, parentId, x, y, effectiveW, h, newText);
+        DrawShape.tactic(shared.app, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "goal") {
-        drawShapeGoal(shared.app, id, parentId, x, y, effectiveW, h, newText);
+        DrawShape.goal(shared.app, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "hypothesis") {
-        drawShapeHypothesis(shared.app, id, parentId, x, y, effectiveW, h, newText);
+        DrawShape.hypothesis(shared.app, id, parentId, x, y, effectiveW, h, newText);
       }
     }
   }

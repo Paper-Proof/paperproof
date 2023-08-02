@@ -1,7 +1,7 @@
 import { TLParentId } from "@tldraw/tldraw";
 import { Element, Window, Shared } from "../../../../types";
 import withPadding from '../withPadding';
-import { drawShapeWindow } from '../DrawShape';
+import DrawShape from '../DrawShape';
 import createWindowInsides from './createWindowInsides';
 import CreateId from '../CreateId';
 
@@ -34,7 +34,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   return {
     size: [w, h],
     draw: (x: number, y: number) => {
-      drawShapeWindow(shared.app, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight);
+      DrawShape.window(shared.app, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight);
       nodes.draw(0, 0);
     }
   };
