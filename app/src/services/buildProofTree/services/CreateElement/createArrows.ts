@@ -26,7 +26,7 @@ const findWindowId = (editor: Editor, proofTree: Format, goalId: string): TLShap
     window.goalNodes.find((goalNode) => goalNode.id === goalId)
   );
   if (window) {
-    return findIdInApp(editor, CreateId.window(editor, window.id));
+    return findIdInApp(editor, CreateId.window(window.id));
   } else {
     return null;
   }
@@ -44,13 +44,13 @@ const createArrows = (shared: Shared): Element => {
             if (!window) return
 
             if (hypArrow.fromId) {
-              const fromNodeId = findIdInApp(shared.editor, CreateId.node(shared.editor, hypArrow.fromId));
-              const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(shared.editor, tactic.id, hypArrow.fromId, window.id));
+              const fromNodeId = findIdInApp(shared.editor, CreateId.node(hypArrow.fromId));
+              const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, hypArrow.fromId, window.id));
               if (!fromNodeId || !toTacticId) return
               DrawShape.arrow(shared.editor, fromNodeId, toTacticId);
             }
-            const fromTacticId = findIdInApp(shared.editor, CreateId.hypTactic(shared.editor, tactic.id, hypArrow.fromId, window.id));
-            const toNodeId = findIdInApp(shared.editor, CreateId.node(shared.editor, toId));
+            const fromTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, hypArrow.fromId, window.id));
+            const toNodeId = findIdInApp(shared.editor, CreateId.node(toId));
             if (!fromTacticId || !toNodeId) return
             DrawShape.arrow(shared.editor, fromTacticId, toNodeId);
           });
@@ -58,9 +58,9 @@ const createArrows = (shared: Shared): Element => {
 
         // 2. Draw arrows between this tactic and goals
         tactic.goalArrows.forEach((goalArrow) => {
-          const tacticId = findIdInApp(shared.editor, CreateId.goalTactic(shared.editor, tactic.id));
-          const toNodeId = findIdInApp(shared.editor, CreateId.node(shared.editor, goalArrow.fromId));
-          const fromNodeId = findIdInApp(shared.editor, CreateId.node(shared.editor, goalArrow.toId));
+          const tacticId = findIdInApp(shared.editor, CreateId.goalTactic(tactic.id));
+          const toNodeId = findIdInApp(shared.editor, CreateId.node(goalArrow.fromId));
+          const fromNodeId = findIdInApp(shared.editor, CreateId.node(goalArrow.toId));
 
           const windowId1 = findWindowId(shared.editor, shared.proofTree, goalArrow.fromId);
           const windowId2 = findWindowId(shared.editor, shared.proofTree, goalArrow.toId);
@@ -78,8 +78,8 @@ const createArrows = (shared: Shared): Element => {
         if (tactic.haveWindowId && tactic.hypArrows[0]) {
           const window = getWindowByHypId(shared.proofTree, tactic.hypArrows[0].toIds[0]);
           if (!window) return
-          const fromWindowId = findIdInApp(shared.editor, CreateId.window(shared.editor, tactic.haveWindowId));
-          const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(shared.editor, tactic.id, null, window.id));
+          const fromWindowId = findIdInApp(shared.editor, CreateId.window(tactic.haveWindowId));
+          const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, null, window.id));
           if (!fromWindowId || !toTacticId) return
           DrawShape.arrow(shared.editor, fromWindowId, toTacticId);
         }

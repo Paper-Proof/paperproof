@@ -99,7 +99,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
         topLevelTrees.add({
           tactic: createEmpty(), level, nodes: layer.map(
             node => {
-              const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", CreateId.node(shared.editor, node.id));
+              const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", CreateId.node(node.id));
               const tree = nodeToTree.get(node.id);
               if (tree) {
                 topLevelTrees.delete(tree);
@@ -123,7 +123,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
             parentId,
             tactic.text,
             "tactic",
-            CreateId.hypTactic(shared.editor, tactic.id, hypArrow.fromId, window.id)
+            CreateId.hypTactic(tactic.id, hypArrow.fromId, window.id)
           );
 
           const haveWindows = shared.proofTree.windows
@@ -134,7 +134,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
             level,
             nodes: nodesAfter.map(
               node => {
-                const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", CreateId.node(shared.editor, node.id));
+                const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", CreateId.node(node.id));
                 const tree = nodeToTree.get(node.id);
                 if (tree) {
                   topLevelTrees.delete(tree);
@@ -176,7 +176,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
       parentId,
       goalNode.text,
       "goal",
-      CreateId.node(shared.editor, goalNode.id)
+      CreateId.node(goalNode.id)
     );
     if (tactic) {
       const tacticElement = createNode(
@@ -184,7 +184,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
         parentId,
         tactic.text + (tactic.successGoalId ? " 🎉" : ""),
         "tactic",
-        CreateId.goalTactic(shared.editor, tactic.id),
+        CreateId.goalTactic(tactic.id),
       );
       return [tacticElement, goalEl];
     } else {

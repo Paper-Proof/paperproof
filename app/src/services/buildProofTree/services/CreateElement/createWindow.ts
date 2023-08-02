@@ -18,7 +18,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   const goalUsername = prettifyGoalUsername(window.goalNodes[0].name);
   const ifShowGoalUsername = !(localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]");
 
-  const frameId = CreateId.window(shared.editor, window.id);
+  const frameId = CreateId.window(window.id);
   const nodes = withPadding(
     {
       left: shared.framePadding,

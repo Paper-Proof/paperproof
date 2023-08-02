@@ -31,14 +31,13 @@ const focusProofTree = (
   }
 
   const focusedGoalId = CreateId.node(
-    editor,
     getDisplayedId(equivalentIds, currentGoal.mvarId)
   );
   const focusedHypIds = currentGoal.hyps
     .reduce < string[] > ((acc, hyp) => [...acc, ...hyp.fvarIds], [])
       .map((inferiorHypId) => {
         const hypId = getDisplayedId(equivalentIds, inferiorHypId);
-        return CreateId.node(editor, hypId);
+        return CreateId.node(hypId);
       });
   const focusedShapes = editor.currentPageShapes
     .filter((shape) => shape.id.startsWith("shape:node-"))
