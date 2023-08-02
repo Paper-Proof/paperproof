@@ -27,6 +27,9 @@ function Main() {
   const oldProofRef = useRef<ProofResponse>(null);
 
   const handleMount = (app: App) => {
+    app.updateInstanceState({ isFocusMode: true });
+    app.user.updateUserPreferences({ isSnapMode: true });
+
     if (window.sessionId) {
       console.log("Handling mount: browser mode");
 
