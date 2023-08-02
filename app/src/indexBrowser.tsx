@@ -8,11 +8,15 @@ import WindowUtil from "./shapes/WindowUtil";
 import CustomArrowUtil from "./shapes/CustomArrowUtil";
 import CustomNodeUtil from "./shapes/CustomNodeUtil";
 import updateUI from "./services/updateUI";
+import clearTldrawCache from "./services/clearTldrawCache";
 
 import { ProofResponse, PaperProofWindow } from "./types";
 
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
+
+// Tldraw saves too much, might create bugs/make development confusing in some cases
+clearTldrawCache();
 
 const customShapeUtils = [WindowUtil, CustomArrowUtil, CustomNodeUtil];
 
