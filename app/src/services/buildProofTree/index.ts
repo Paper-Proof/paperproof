@@ -1,13 +1,13 @@
-import { Editor as App } from "@tldraw/tldraw";
+import { Editor } from "@tldraw/tldraw";
 import { Format, UiConfig } from "../../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
-const buildProofTree = (app: App, proofTree: Format, uiConfig: UiConfig) => {
-  const shapes = Array.from(app.getPageShapeIds(app.currentPageId));
-  app.deleteShapes(shapes);
+const buildProofTree = (editor: Editor, proofTree: Format, uiConfig: UiConfig) => {
+  const shapes = Array.from(editor.getPageShapeIds(editor.currentPageId));
+  editor.deleteShapes(shapes);
 
   const shared = {
-    app,
+    editor: editor,
     uiConfig,
     proofTree,
     inBetweenMargin: 20,

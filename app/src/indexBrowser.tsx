@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRef } from "react";
 import { createRoot } from 'react-dom/client';
 import { createClient } from "@supabase/supabase-js";
-import { Editor as App, Tldraw } from "@tldraw/tldraw";
+import { Editor, Tldraw } from "@tldraw/tldraw";
 
 import WindowUtil from "./shapes/WindowUtil";
 import CustomArrowUtil from "./shapes/CustomArrowUtil";
@@ -26,9 +26,9 @@ declare const window: PaperProofWindow;
 function Main() {
   const oldProofRef = useRef<ProofResponse>(null);
 
-  const handleMount = (app: App) => {
-    app.updateInstanceState({ isFocusMode: true });
-    app.user.updateUserPreferences({ isSnapMode: true });
+  const handleMount = (editor: Editor) => {
+    editor.updateInstanceState({ isFocusMode: true });
+    editor.user.updateUserPreferences({ isSnapMode: true });
 
     if (window.sessionId) {
       console.log("Handling mount: browser mode");
@@ -40,7 +40,7 @@ function Main() {
           return;
         }
         const proof = response.data[0].proof;
-        updateUI(app, oldProofRef.current, proof)
+        updateUI(editor, oldProofRef.current, proof)
         oldProofRef.current = proof;
       });
 
@@ -55,7 +55,7 @@ function Main() {
         },
         (payload) => {
           const proof = (payload.new as any)["proof"];
-          updateUI(app, oldProofRef.current, proof)
+          updateUI(editor, oldProofRef.current, proof)
           oldProofRef.current = proof;
         }
       )
@@ -65,13 +65,13 @@ function Main() {
 
       // 1. Render initial proof
       const proof = window.initialInfo;
-      updateUI(app, oldProofRef.current, proof)
+      updateUI(editor, oldProofRef.current, proof)
       oldProofRef.current = proof;
 
       // 2. Render the proof on updates
       addEventListener("message", (event) => {
         const proof = event.data;
-        updateUI(app, oldProofRef.current, proof)
+        updateUI(editor, oldProofRef.current, proof)
         oldProofRef.current = proof;
       });
     }

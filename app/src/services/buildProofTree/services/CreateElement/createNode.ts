@@ -14,18 +14,18 @@ const createNode = (
   id: TLShapeId
 ): IdElement => {
   const newText = text + (localStorage.getItem("dev") === 'true' ? '      ' + id : '');
-  const [w, h] = getTextSize(shared.app, newText);
+  const [w, h] = getTextSize(shared.editor, newText);
   return {
     id,
     size: [w, h],
     draw(x, y, prefferedWidth?: number) {
       const effectiveW = !!prefferedWidth && prefferedWidth > w ? prefferedWidth : w;
       if (type === "tactic") {
-        DrawShape.tactic(shared.app, id, parentId, x, y, effectiveW, h, newText);
+        DrawShape.tactic(shared.editor, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "goal") {
-        DrawShape.goal(shared.app, id, parentId, x, y, effectiveW, h, newText);
+        DrawShape.goal(shared.editor, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "hypothesis") {
-        DrawShape.hypothesis(shared.app, id, parentId, x, y, effectiveW, h, newText);
+        DrawShape.hypothesis(shared.editor, id, parentId, x, y, effectiveW, h, newText);
       }
     }
   }

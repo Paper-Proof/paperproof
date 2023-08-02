@@ -18,7 +18,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   const goalUsername = prettifyGoalUsername(window.goalNodes[0].name);
   const ifShowGoalUsername = !(localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]");
 
-  const frameId = CreateId.window(shared.app, window.id);
+  const frameId = CreateId.window(shared.editor, window.id);
   const nodes = withPadding(
     {
       left: shared.framePadding,
@@ -34,7 +34,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   return {
     size: [w, h],
     draw: (x: number, y: number) => {
-      DrawShape.window(shared.app, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight);
+      DrawShape.window(shared.editor, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight);
       nodes.draw(0, 0);
     }
   };

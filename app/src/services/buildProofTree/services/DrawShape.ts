@@ -1,7 +1,7 @@
-import { Editor as App, TLShapeId, TLParentId, createShapeId } from "@tldraw/tldraw";
+import { Editor, TLShapeId, TLParentId, createShapeId } from "@tldraw/tldraw";
 
-const arrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
-  app.createShapes([
+const arrow = (editor: Editor, fromId: TLShapeId, toId: TLShapeId) => {
+  editor.createShapes([
     {
       id: createShapeId(),
       type: "customArrow",
@@ -22,11 +22,11 @@ const arrow = (app: App, fromId: TLShapeId, toId: TLShapeId) => {
   ]);
 }
 
-const tactic = (app: App,
+const tactic = (editor: Editor,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
 ) => {
-  app.createShapes([
+  editor.createShapes([
     {
       id, type: "geo", x, y, parentId,
       props: {
@@ -40,11 +40,11 @@ const tactic = (app: App,
   ]);
 }
 
-const goal = (app: App,
+const goal = (editor: Editor,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
 ) => {
-  app.createShapes([
+  editor.createShapes([
     {
       id, type: "customNode", x, y, parentId,
       props: {
@@ -58,11 +58,11 @@ const goal = (app: App,
   ]);
 }
 
-const hypothesis = (app: App,
+const hypothesis = (editor: Editor,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, text: string
 ) => {
-  app.createShapes([
+  editor.createShapes([
     {
       id, type: "customNode", x, y, parentId,
       props: {
@@ -76,12 +76,12 @@ const hypothesis = (app: App,
   ]);
 }
 
-const window = (app: App,
+const window = (editor: Editor,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number,
   goalUsername: string | null, goalUsernameHeight: number
 ) => {
-  app.createShapes([
+  editor.createShapes([
     {
       id,
       type: "window",

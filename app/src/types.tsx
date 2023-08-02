@@ -1,4 +1,4 @@
-import { Editor as App, TLShapeId } from "@tldraw/tldraw";
+import { Editor, TLShapeId } from "@tldraw/tldraw";
 
 export interface UiConfig {
   hideNulls: boolean
@@ -66,7 +66,7 @@ export interface Format {
 
 // What we share in tldraw code
 export interface Shared {
-  app: App;
+  editor: Editor;
   uiConfig: UiConfig;
   proofTree: Format;
   inBetweenMargin: number;

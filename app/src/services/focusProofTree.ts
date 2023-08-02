@@ -1,5 +1,5 @@
-import { Editor as App, Tldraw } from "@tldraw/tldraw";
-import { Format, InteractiveGoal, ProofState } from "../types";
+import { Editor } from "@tldraw/tldraw";
+import { Format, InteractiveGoal } from "../types";
 import CreateId from "./buildProofTree/services/CreateId";
 
 // This could be done in /extension, but doing it here for the ease of debugging
@@ -12,12 +12,12 @@ const getDisplayedId = (equivalentIds: Format["equivalentIds"], id: string) => {
 
 // lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
 const focusProofTree = (
-  app: App,
+  editor: Editor,
   equivalentIds: Format["equivalentIds"],
   currentGoal: InteractiveGoal | null
 ) => {
   if (currentGoal === null) {
-    const existingNodes = app.currentPageShapes
+    const existingNodes = editor.currentPageShapes
       .filter((shape) => shape.id.startsWith("shape:node-"))
       .map((node) => ({
         id: node.id,
@@ -26,21 +26,21 @@ const focusProofTree = (
           isFocused: true
         }
       }));
-    app.updateShapes(existingNodes);
+    editor.updateShapes(existingNodes);
     return;
   }
 
   const focusedGoalId = CreateId.node(
-    app,
+    editor,
     getDisplayedId(equivalentIds, currentGoal.mvarId)
   );
   const focusedHypIds = currentGoal.hyps
     .reduce < string[] > ((acc, hyp) => [...acc, ...hyp.fvarIds], [])
       .map((inferiorHypId) => {
         const hypId = getDisplayedId(equivalentIds, inferiorHypId);
-        return CreateId.node(app, hypId);
+        return CreateId.node(editor, hypId);
       });
-  const focusedShapes = app.currentPageShapes
+  const focusedShapes = editor.currentPageShapes
     .filter((shape) => shape.id.startsWith("shape:node-"))
     .map((node) => {
       const isFocused =
@@ -53,7 +53,7 @@ const focusProofTree = (
         }
       };
     });
-  app.updateShapes(focusedShapes);
+  editor.updateShapes(focusedShapes);
 };
 
 export default focusProofTree;
