@@ -1,4 +1,4 @@
-import { Element } from "../../types";
+import { Element } from "../../../types";
 
 const withWidth = (width: number, el: Element): Element => {
   return {

@@ -4,7 +4,7 @@ import buildProofTree from './buildProofTree';
 import focusProofTree from './focusProofTree';
 import zoomToWindow from './zoomToWindow';
 
-import { ProofResponse } from './types';
+import { ProofResponse } from '../types';
 
 const uiConfig = {
   // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing

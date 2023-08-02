@@ -1,6 +1,6 @@
 import React from 'react';
 import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnDoubleClickHandler } from '@tldraw/tldraw';
-import zoomToWindow from '../zoomToWindow';
+import zoomToWindow from '../services/zoomToWindow';
 
 export type WindowShapeType = TLBaseShape<'window',
   {

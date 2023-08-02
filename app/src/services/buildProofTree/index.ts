@@ -1,5 +1,5 @@
 import { Editor as App } from "@tldraw/tldraw";
-import { Format, UiConfig } from "../types";
+import { Format, UiConfig } from "../../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
 const buildProofTree = (app: App, proofTree: Format, uiConfig: UiConfig) => {

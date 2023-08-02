@@ -1,6 +1,6 @@
 import { TLParentId } from "@tldraw/tldraw";
 
-import { HypTree, Element, IdElement, HypLayer, Window, Shared } from "../../../types";
+import { HypTree, Element, IdElement, HypLayer, Window, Shared } from "../../../../types";
 
 import getHypNodeText from '../getHypNodeText';
 import hStack from '../hStack';

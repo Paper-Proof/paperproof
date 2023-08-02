@@ -1,4 +1,4 @@
-import { Element } from "../../types";
+import { Element } from "../../../types";
 
 const withPadding = (padding: { left: number, right: number, top: number, bottom: number }, el: Element): Element => {
   return {

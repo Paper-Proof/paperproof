@@ -1,4 +1,4 @@
-import { Element } from '../../types';
+import { Element } from '../../../types';
 
 // hStack aligns to the bottom
 const hStack = (margin: number, boxes: Element[]): Element => {

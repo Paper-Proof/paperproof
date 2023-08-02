@@ -1,6 +1,6 @@
-import { Shared, Element } from "../../../types";
+import { Shared, Element } from "../../../../types";
 import { drawShapeArrow } from '../DrawShape';
-import { Format } from "../../../types";
+import { Format } from "../../../../types";
 import { createHypTacticId, createGoalTacticId, createNodeId, createWindowId } from '../CreateId';
 import { Editor as App, TLShapeId } from "@tldraw/tldraw";
 

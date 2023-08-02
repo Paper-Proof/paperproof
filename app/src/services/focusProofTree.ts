@@ -1,5 +1,5 @@
 import { Editor as App, Tldraw } from "@tldraw/tldraw";
-import { Format, InteractiveGoal, ProofState } from "./types";
+import { Format, InteractiveGoal, ProofState } from "../types";
 import { createNodeId } from "./buildProofTree/services/CreateId";
 
 // This could be done in /extension, but doing it here for the ease of debugging

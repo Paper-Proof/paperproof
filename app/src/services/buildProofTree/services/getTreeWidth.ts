@@ -1,4 +1,4 @@
-import { HypTree } from '../../types';
+import { HypTree } from '../../../types';
 
 import sum from './sum';
 

@@ -1,5 +1,5 @@
 import { TLParentId, TLShapeId } from "@tldraw/tldraw";
-import { IdElement, Shared } from "../../../types";
+import { IdElement, Shared } from "../../../../types";
 
 import getTextSize from '../getTextSize';
 

@@ -1,4 +1,4 @@
-import { Element } from '../../types';
+import { Element } from '../../../types';
 
 const vStack = (margin: number, boxes: Element[]): Element => {
   if (boxes.length == 0) return { size: [0, 0], draw: () => { } };

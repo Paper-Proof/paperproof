@@ -7,7 +7,7 @@ import { Editor as App, Tldraw } from "@tldraw/tldraw";
 import WindowUtil from "./shapes/WindowUtil";
 import CustomArrowUtil from "./shapes/CustomArrowUtil";
 import CustomNodeUtil from "./shapes/CustomNodeUtil";
-import updateUI from "./updateUI";
+import updateUI from "./services/updateUI";
 
 import { ProofResponse, PaperProofWindow } from "./types";
 

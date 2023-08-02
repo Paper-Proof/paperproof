@@ -1,4 +1,4 @@
-import { HypTree, Element } from '../../types';
+import { HypTree, Element } from '../../../types';
 
 import hStack from './hStack';
 import vStack from './vStack';

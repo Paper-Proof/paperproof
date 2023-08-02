@@ -1,5 +1,5 @@
 import { TLParentId } from "@tldraw/tldraw";
-import { Element, Window, Shared } from "../../../types";
+import { Element, Window, Shared } from "../../../../types";
 import withPadding from '../withPadding';
 import { drawShapeWindow } from '../DrawShape';
 import createWindowInsides from './createWindowInsides';
