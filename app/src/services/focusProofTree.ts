@@ -1,6 +1,6 @@
 import { Editor as App, Tldraw } from "@tldraw/tldraw";
 import { Format, InteractiveGoal, ProofState } from "../types";
-import { createNodeId } from "./buildProofTree/services/CreateId";
+import CreateId from "./buildProofTree/services/CreateId";
 
 // This could be done in /extension, but doing it here for the ease of debugging
 const getDisplayedId = (equivalentIds: Format["equivalentIds"], id: string) => {
@@ -30,7 +30,7 @@ const focusProofTree = (
     return;
   }
 
-  const focusedGoalId = createNodeId(
+  const focusedGoalId = CreateId.node(
     app,
     getDisplayedId(equivalentIds, currentGoal.mvarId)
   );
@@ -38,7 +38,7 @@ const focusProofTree = (
     .reduce < string[] > ((acc, hyp) => [...acc, ...hyp.fvarIds], [])
       .map((inferiorHypId) => {
         const hypId = getDisplayedId(equivalentIds, inferiorHypId);
-        return createNodeId(app, hypId);
+        return CreateId.node(app, hypId);
       });
   const focusedShapes = app.currentPageShapes
     .filter((shape) => shape.id.startsWith("shape:node-"))

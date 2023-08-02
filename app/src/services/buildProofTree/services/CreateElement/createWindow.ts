@@ -3,7 +3,7 @@ import { Element, Window, Shared } from "../../../../types";
 import withPadding from '../withPadding';
 import { drawShapeWindow } from '../DrawShape';
 import createWindowInsides from './createWindowInsides';
-import { createWindowId } from '../CreateId';
+import CreateId from '../CreateId';
 
 const goalUsernameHeight = 38;
 
@@ -18,7 +18,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   const goalUsername = prettifyGoalUsername(window.goalNodes[0].name);
   const ifShowGoalUsername = !(localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]");
 
-  const frameId = createWindowId(shared.app, window.id);
+  const frameId = CreateId.window(shared.app, window.id);
   const nodes = withPadding(
     {
       left: shared.framePadding,

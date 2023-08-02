@@ -13,7 +13,7 @@ import withWidth from '../withWidth';
 import createNode from './createNode';
 import createWindow from './createWindow';
 
-import { createHypTacticId, createGoalTacticId, createNodeId } from '../CreateId';
+import CreateId from '../CreateId';
 
 const createEmpty = (): Element => {
   return {
@@ -99,7 +99,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
         topLevelTrees.add({
           tactic: createEmpty(), level, nodes: layer.map(
             node => {
-              const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", createNodeId(shared.app, node.id));
+              const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", CreateId.node(shared.app, node.id));
               const tree = nodeToTree.get(node.id);
               if (tree) {
                 topLevelTrees.delete(tree);
@@ -123,7 +123,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
             parentId,
             tactic.text,
             "tactic",
-            createHypTacticId(shared.app, tactic.id, hypArrow.fromId, window.id)
+            CreateId.hypTactic(shared.app, tactic.id, hypArrow.fromId, window.id)
           );
 
           const haveWindows = shared.proofTree.windows
@@ -134,7 +134,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
             level,
             nodes: nodesAfter.map(
               node => {
-                const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", createNodeId(shared.app, node.id));
+                const hypNode = createNode(shared, parentId, getHypNodeText(node), "hypothesis", CreateId.node(shared.app, node.id));
                 const tree = nodeToTree.get(node.id);
                 if (tree) {
                   topLevelTrees.delete(tree);
@@ -176,7 +176,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
       parentId,
       goalNode.text,
       "goal",
-      createNodeId(shared.app, goalNode.id)
+      CreateId.node(shared.app, goalNode.id)
     );
     if (tactic) {
       const tacticElement = createNode(
@@ -184,7 +184,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
         parentId,
         tactic.text + (tactic.successGoalId ? " 🎉" : ""),
         "tactic",
-        createGoalTacticId(shared.app, tactic.id),
+        CreateId.goalTactic(shared.app, tactic.id),
       );
       return [tacticElement, goalEl];
     } else {
