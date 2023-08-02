@@ -33,6 +33,14 @@ const getIfNodesTouch = (arrowShape: TLArrowShape, editor: Editor) => {
 export default class CustomArrowUtil extends ArrowShapeUtil {
   static override type = 'customArrow' as const
 
+  override canResize = () => false
+  override canEdit = () => false
+  // tldraw doesn't seem to be impressed by these
+  override hideSelectionBoundsFg = () => true
+  override hideSelectionBoundsBg = () => true
+  override hideRotateHandle = () => true
+  override hideResizeHandles = () => true
+
   override component(arrowShape: TLArrowShape) {
     // Important to store it here and not later
     const superRender = super.component(arrowShape);
@@ -44,5 +52,9 @@ export default class CustomArrowUtil extends ArrowShapeUtil {
     // Don't show the arrow when the nodes are super close
     if (ifVerticalDistanceBetweenNodesIs0 && ifNodesTouch) return null;
     return superRender;
+  }
+
+  override indicator() {
+    return null
   }
 }

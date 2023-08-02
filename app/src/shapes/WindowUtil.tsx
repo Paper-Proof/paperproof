@@ -73,12 +73,13 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   }
 
   override indicator(shape: WindowShapeType) {
-    return <rect
-      className="window-indicator"
-      width={shape.props.w}
-      height={shape.props.h}
-      rx={5}
-      ry={5}
-    />;
+    // return <rect
+    //   className="window-indicator"
+    //   width={shape.props.w}
+    //   height={shape.props.h}
+    //   rx={5}
+    //   ry={5}
+    // />;
+    return null
   }
 }
