@@ -2,7 +2,7 @@ import { Editor as App } from "@tldraw/tldraw";
 import { Format, UiConfig } from "../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
-export function buildProofTree(app: App, proofTree: Format, uiConfig: UiConfig) {
+const buildProofTree = (app: App, proofTree: Format, uiConfig: UiConfig) => {
   const shapes = Array.from(app.getPageShapeIds(app.currentPageId));
   app.deleteShapes(shapes);
 
@@ -23,3 +23,5 @@ export function buildProofTree(app: App, proofTree: Format, uiConfig: UiConfig) 
     arrows.draw(0, 0);
   }
 }
+
+export default buildProofTree;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnDoubleClickHandler } from '@tldraw/tldraw';
+import zoomToWindow from '../zoomToWindow';
 
 export type WindowShapeType = TLBaseShape<'window',
   {
@@ -26,8 +27,7 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   static hideSelectionBoundsFg = true
 
   override onDoubleClick: TLOnDoubleClickHandler<WindowShapeType> = (shape) => {
-    const bounds = this.editor.getPageBounds(shape)!
-    this.editor.zoomToBounds(bounds, 0.9, { duration: 200 });
+    zoomToWindow(this.editor, shape);
 
     // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
     return { id: shape.id, type: "window" };

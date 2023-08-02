@@ -1,13 +1,5 @@
-import { GeoShapeUtil, Group2d, TLDefaultSizeStyle, TLGeoShape } from '@tldraw/tldraw';
-import { SVGContainer } from '@tldraw/editor';
+import { GeoShapeUtil, TLGeoShape } from '@tldraw/tldraw';
 import React from 'react';
-
-const STROKE_SIZES: Record<TLDefaultSizeStyle, number> = {
-  s: 2,
-  m: 3.5,
-  l: 5,
-  xl: 10,
-}
 
 export default class CustomNodeUtil extends GeoShapeUtil {
   static override type = 'customNode' as const

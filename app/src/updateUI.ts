@@ -1,7 +1,10 @@
-import { buildProofTree } from "./buildProofTree";
+import { Editor as App, createShapeId } from '@tldraw/tldraw';
+
+import buildProofTree from './buildProofTree';
 import focusProofTree from './focusProofTree';
-import { ProofResponse } from "./types";
-import { Editor as App, Tldraw } from "@tldraw/tldraw";
+import zoomToWindow from './zoomToWindow';
+
+import { ProofResponse } from './types';
 
 const uiConfig = {
   // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing
@@ -13,6 +16,13 @@ const uiConfig = {
 const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
+
+const zoomProofTree = (app: App) => {
+  const window = app.getShape(createShapeId("window-1"));
+  if (window) {
+    zoomToWindow(app, window);
+  }
+}
 
 const updateUI = (app: App, oldProof: ProofResponse, newProof: ProofResponse) => {
   const isNewProofEmpty = !newProof || "error" in newProof;
@@ -29,6 +39,9 @@ const updateUI = (app: App, oldProof: ProofResponse, newProof: ProofResponse) =>
   }
   if (isOldProofEmpty || !areObjectsEqual(newProof.goal, oldProof.goal)) {
     focusProofTree(app, newProof.proofTree.equivalentIds, newProof.goal);
+  }
+  if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
+    zoomProofTree(app);
   }
 }
 
