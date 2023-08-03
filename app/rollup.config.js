@@ -5,8 +5,14 @@ import replace from "@rollup/plugin-replace";
 import json from "@rollup/plugin-json";
 import postcss from "rollup-plugin-postcss";
 import path from "path";
+// PSA: would be super nice to have the notification plugin work,
+// BUT we'd need to change `typescript` to `babel` like here
+// (https://stackoverflow.com/a/76278565/3192470)
+//
+// import notify from 'rollup-plugin-notify';
 
 const plugins = [
+  // TODO we don't actually use postcss? Do we?
   postcss({}),
   typescript({
     tsconfig: "./tsconfig.json",

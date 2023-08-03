@@ -11,11 +11,5 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "baseUrl": "./",
-    "paths": {
-      "shapes": ["src/tldraw_stuff/shapes"],
-      "shapes/*": ["src/tldraw_stuff/shapes/*"],
-      "components/*": ["src/tldraw_stuff/components/*"],
-      "state/*": ["src/tldraw_stuff/state/*"]
-    }
   }
 }
