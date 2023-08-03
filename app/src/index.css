@@ -123,3 +123,9 @@ html, * {
   stroke: transparent;
   display: none;
 }
+
+
+
+[data-shape-type="customArrow"] g{
+  stroke: rgb(224, 228, 233);
+}
