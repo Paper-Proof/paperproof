@@ -85,6 +85,20 @@ export default (cliArgs) => {
         sourcemap: true,
       },
       plugins,
+      // Remove safe (supposedly!) warnings,
+      // copypasted from (https://stackoverflow.com/a/43556986/3192470)
+      onwarn: function (warning, handler) {
+        // Skip certain warnings
+
+        // This is for @supabase package
+        if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+
+        // This is for @tldraw package
+        if (warning.code === 'CIRCULAR_DEPENDENCY') { return; }
+
+        // console.warn everything else
+        handler(warning);
+      }
     },
   ];
 };
