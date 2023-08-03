@@ -103,7 +103,12 @@ html, * {
 
 
 
-.node-not-focused{
+.shape-node:hover{
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.shape-node.-not-focused{
   opacity: 0.2;
 }
 

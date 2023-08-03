@@ -36,6 +36,10 @@ const tactic = (editor: Editor,
         fill: "none",
         color: "grey",
       },
+      // probably better as a separate shape
+      meta: {
+        isTactic: true
+      }
     },
   ]);
 }
