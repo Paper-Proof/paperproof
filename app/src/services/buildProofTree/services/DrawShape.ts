@@ -28,7 +28,7 @@ const tactic = (editor: Editor,
 ) => {
   editor.createShapes([
     {
-      id, type: "geo", x, y, parentId,
+      id, type: "customNode", x, y, parentId,
       props: {
         geo: "rectangle", font: "mono", size: "m", w, h, text,
 
