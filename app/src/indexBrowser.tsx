@@ -34,6 +34,8 @@ function Main() {
     editor.updateInstanceState({ isFocusMode: true });
     editor.user.updateUserPreferences({ isSnapMode: true });
 
+    editor.renderingBoundsMargin = Infinity;
+
     if (window.sessionId) {
       console.log("Handling mount: browser mode");
 

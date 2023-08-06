@@ -11,7 +11,7 @@ export default class CustomNodeUtil extends GeoShapeUtil {
   override hideRotateHandle = () => true
   override hideResizeHandles = () => true
 
-  override canUnmount = () => false
+  // override canUnmount = () => false
 
   override component(shape: TLGeoShape) {
     // Important to store it here and not later

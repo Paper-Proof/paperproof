@@ -21,7 +21,7 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   override canResize = () => false
   override hideSelectionBoundsFg = () => true
 
-  override canUnmount = () => false
+  // override canUnmount = () => false
 
   override onDoubleClick: TLOnDoubleClickHandler<WindowShapeType> = (shape) => {
     zoomToWindow(this.editor, shape);
