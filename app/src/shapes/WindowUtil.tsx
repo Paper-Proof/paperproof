@@ -35,7 +35,7 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   }
 
   override component(shape: WindowShapeType) {
-    const bounds = this.editor.getPageBounds(shape)!
+    const bounds = this.editor.getShapePageBounds(shape)!
 
     return (
       <>

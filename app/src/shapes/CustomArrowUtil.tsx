@@ -15,8 +15,8 @@ const doLinesIntersect = (start1: number, end1: number, start2: number, end2: nu
 
 const getIfNodesTouch = (arrowShape: TLArrowShape, editor: Editor) => {
   if (arrowShape.props.start.type === "binding" && arrowShape.props.end.type === "binding") {
-    const fromNodeBounds = editor.getPageBounds(arrowShape.props.start.boundShapeId)
-    const toNodeBounds = editor.getPageBounds(arrowShape.props.end.boundShapeId);
+    const fromNodeBounds = editor.getShapePageBounds(arrowShape.props.start.boundShapeId)
+    const toNodeBounds = editor.getShapePageBounds(arrowShape.props.end.boundShapeId);
 
     const fromNode = editor.getShape(arrowShape.props.start.boundShapeId);
     const toNode = editor.getShape(arrowShape.props.end.boundShapeId);

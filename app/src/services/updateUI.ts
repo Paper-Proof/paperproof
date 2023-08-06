@@ -27,8 +27,7 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
   const isOldProofEmpty = !oldProof || "error" in oldProof;
 
   if (isNewProofEmpty) {
-    const shapes = Array.from(editor.getPageShapeIds(editor.currentPageId));
-    editor.deleteShapes(shapes);
+    editor.deleteShapes(editor.currentPageShapes);
     return;
   }
 

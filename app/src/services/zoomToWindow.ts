@@ -34,7 +34,7 @@ const zoomToBoundsWithInset = (editor: Editor, bounds: Box2d, inset: number, tar
 }
 
 const zoomToWindow = (editor : Editor, window : TLShape) => {
-  const bounds = editor.getPageBounds(window)!
+  const bounds = editor.getShapePageBounds(window)!
   zoomToBoundsWithInset(editor, bounds, 20, 0.9, { duration: 200 });
 }
 

@@ -3,8 +3,7 @@ import { Format, UiConfig } from "../../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
 const buildProofTree = (editor: Editor, proofTree: Format, uiConfig: UiConfig) => {
-  const shapes = Array.from(editor.getPageShapeIds(editor.currentPageId));
-  editor.deleteShapes(shapes);
+  editor.deleteShapes(editor.currentPageShapes);
 
   const shared = {
     editor: editor,
