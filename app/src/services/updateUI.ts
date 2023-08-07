@@ -31,13 +31,21 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     return;
   }
 
+  console.info({ oldProof, newProof });
+
   if (isOldProofEmpty || !areObjectsEqual(newProof.proofTree, oldProof.proofTree)) {
+    console.info("buildProofTree");
     buildProofTree(editor, newProof.proofTree, uiConfig);
+    // Frequently, the goal arrives in the previous updateUI!
+    // TODO investigate why that is, and update this code accordingly.
+    focusProofTree(editor, newProof.proofTree.equivalentIds, newProof.goal);
   }
   if (isOldProofEmpty || !areObjectsEqual(newProof.goal, oldProof.goal)) {
+    console.info("focusProofTree");
     focusProofTree(editor, newProof.proofTree.equivalentIds, newProof.goal);
   }
   if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
+    console.info("zoomProofTree");
     zoomProofTree(editor);
   }
 }
