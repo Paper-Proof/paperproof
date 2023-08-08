@@ -23,6 +23,7 @@ const zoomProofTree = (editor: Editor) => {
 }
 
 const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse) => {
+  editor.updateInstanceState({ isReadonly: false });
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
 
@@ -48,6 +49,7 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     console.info("zoomProofTree");
     zoomProofTree(editor);
   }
+  editor.updateInstanceState({ isReadonly: true });
 }
 
 export default updateUI;
