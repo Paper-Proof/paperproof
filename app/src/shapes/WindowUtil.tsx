@@ -24,7 +24,6 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   // override canUnmount = () => false
 
   override onClick: TLOnClickHandler<WindowShapeType> = (shape) => {
-    console.log("clickkkkkkkking double");
     zoomToWindow(this.editor, shape);
 
     // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
@@ -40,10 +39,9 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   override component(shape: WindowShapeType) {
     const bounds = this.editor.getShapePageBounds(shape)!
 
-    // const handleZoom = () => {
-    //   console.log("clicking");
-    //   zoomToWindow(this.editor, shape);
-    // }
+    const handleZoom = () => {
+      zoomToWindow(this.editor, shape);
+    }
 
     return (
       <>
@@ -73,7 +71,7 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
         </SVGContainer>
         {
           shape["props"].goalUsername &&
-          <div style={{ height: shape["props"].goalUsernameHeight }} className="goalUsername">
+          <div onClick={handleZoom} style={{ height: shape["props"].goalUsernameHeight }} className="goalUsername">
             {shape["props"].goalUsername}
           </div>
         }
