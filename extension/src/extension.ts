@@ -37,7 +37,7 @@ const sendTypesToServer = async (
   sessionId: string,
   body: ProofState | ProofError
 ) =>
-  supabase
+  await supabase
     .from("sessions")
     .update([{ proof: body }])
     .eq("id", sessionId);
@@ -50,11 +50,11 @@ const sendTypes = async (
   latestInfo = body;
 
   // 1. Send directly to the webview (if it's open!) to avoid lag
-  webviewPanel?.webview.postMessage(body);
+  await webviewPanel?.webview.postMessage(body);
 
   // 2. After that, send data to .xyz
   if (sessionId) {
-    sendTypesToServer(sessionId, body);
+    await sendTypesToServer(sessionId, body);
   }
 };
 
@@ -234,7 +234,7 @@ export function activate(context: vscode.ExtensionContext) {
         );
       }
       log.appendLine("Found a Lean client");
-      sendInfoAtTdp(log, client, webviewPanel, tdp);
+      await sendInfoAtTdp(log, client, webviewPanel, tdp);
     } catch (error) {
       const message = getErrorMessage(error);
       log.appendLine(`❌ Error in sendPosition: "${message}"`);
