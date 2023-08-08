@@ -108,12 +108,12 @@ html, * {
 
 
 
-.shape-node:hover{
-  cursor: pointer;
-  opacity: 0.65;
+.shape-node > svg:hover{
+  /* cursor: pointer; */
+  opacity: 0.65 !important;
 }
 
-.shape-node.-not-focused{
+.shape-node.-not-focused > svg{
   opacity: 0.2;
 }
 
