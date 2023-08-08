@@ -108,13 +108,14 @@ html, * {
 
 
 
-.shape-node > svg:hover{
-  /* cursor: pointer; */
-  opacity: 0.65 !important;
+
+
+.hyp-or-goal-node.-not-focused > svg{
+  opacity: 0.2;
 }
 
-.shape-node.-not-focused > svg{
-  opacity: 0.2;
+.tactic-node > svg path{
+  fill: transparent;
 }
 
 /* uncomment fill to see what it's doing */
@@ -137,7 +138,8 @@ html, * {
 
 
 /* Makes it possible to select text in nodes */
-.tl-container, .tl-container * {
-  user-select: auto;
-  -webkit-user-select: auto;
-}
+/* .tl-container, .tl-container * */
+/* .shape-node, .shape-node * {
+  user-select: all;
+  -webkit-user-select: all;
+} */

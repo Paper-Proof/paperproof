@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnDoubleClickHandler } from '@tldraw/tldraw';
+import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnClickHandler, TLOnDoubleClickHandler } from '@tldraw/tldraw';
 import zoomToWindow from '../services/zoomToWindow';
 
 export type WindowShapeType = TLBaseShape<'window',
@@ -23,12 +23,15 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
 
   // override canUnmount = () => false
 
-  // override onDoubleClick: TLOnDoubleClickHandler<WindowShapeType> = (shape) => {
-  //   zoomToWindow(this.editor, shape);
+  override onClick: TLOnClickHandler<WindowShapeType> = (shape) => {
+    console.log("clickkkkkkkking double");
+    zoomToWindow(this.editor, shape);
 
-  //   // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
-  //   return { id: shape.id, type: "window" };
-  // }
+    // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
+    return { id: shape.id, type: "window" };
+  }
+
+
 
   override getDefaultProps(): WindowShapeType['props'] {
     return { w: 160 * 2, h: 90 * 2, name: "none", depth: 0, goalUsername: null, goalUsernameHeight: 20 };
@@ -37,10 +40,10 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   override component(shape: WindowShapeType) {
     const bounds = this.editor.getShapePageBounds(shape)!
 
-    const handleZoom = () => {
-      console.log("clicking");
-      zoomToWindow(this.editor, shape);
-    }
+    // const handleZoom = () => {
+    //   console.log("clicking");
+    //   zoomToWindow(this.editor, shape);
+    // }
 
     return (
       <>
@@ -59,7 +62,7 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
             fill="white"
           />
           <rect
-            onClick={handleZoom}
+            
             className={`window tl-frame_body depth-${shape.props.depth}`}
             width={bounds.width}
             height={bounds.height}

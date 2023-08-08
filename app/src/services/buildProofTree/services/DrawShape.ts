@@ -33,7 +33,7 @@ const tactic = (editor: Editor,
         geo: "rectangle", font: "mono", size: "m", w, h, text,
 
         dash: "dotted",
-        fill: "none",
+        fill: "solid",
         color: "grey",
       },
       // probably better as a separate shape
