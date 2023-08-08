@@ -134,3 +134,10 @@ html, * {
 [data-shape-type="customArrow"] g{
   stroke: rgb(224, 228, 233);
 }
+
+
+/* Makes it possible to select text in nodes */
+.tl-container, .tl-container * {
+  user-select: auto;
+  -webkit-user-select: auto;
+}
