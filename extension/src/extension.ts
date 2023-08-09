@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 // @ts-ignore
-import converter from "./converter";
+import converter from "../../app/src/converter";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
@@ -124,9 +124,7 @@ const sendInfoAtTdp = async (
   const body: ProofState = {
     goal: (goalsResponse && goalsResponse.goals[0]) || null,
     statement: proofTreeResponse.statement,
-    proofTree: converter(proofTreeResponse.steps),
-    // TODO: This is only for development, comment out this line for production (bc it's lengthy)
-    // leanProofTree: proofTreeResponse.steps,
+    proofTree: proofTreeResponse.steps,
   };
 
   await sendTypes(webviewPanel, body);

@@ -7,6 +7,8 @@ import zoomToWindow from './zoomToWindow';
 import { ProofResponse } from '../types';
 import CreateId from './buildProofTree/services/CreateId';
 
+import converter from '../converter';
+
 const uiConfig = {
   // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing to goals in any way, but determining what hyps are used in what tactics isn't implemented properly yet, e.g. in linarith.
   hideNulls: true,
@@ -38,15 +40,17 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
   }
 
   if (isOldProofEmpty || !areObjectsEqual(newProof.proofTree, oldProof.proofTree)) {
+    const newProofTree = converter(newProof.proofTree);
     console.info("buildProofTree");
-    buildProofTree(editor, newProof.proofTree, uiConfig);
+    buildProofTree(editor, newProofTree, uiConfig);
     // Frequently, the goal arrives in the previous updateUI!
     // TODO investigate why that is, and update this code accordingly.
-    focusProofTree(editor, newProof.proofTree.equivalentIds, newProof.goal);
+    focusProofTree(editor, newProofTree.equivalentIds, newProof.goal);
   }
   if (isOldProofEmpty || !areObjectsEqual(newProof.goal, oldProof.goal)) {
+    const newProofTree = converter(newProof.proofTree);
     console.info("focusProofTree");
-    focusProofTree(editor, newProof.proofTree.equivalentIds, newProof.goal);
+    focusProofTree(editor, newProofTree.equivalentIds, newProof.goal);
   }
   if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
     console.info("zoomProofTree");
