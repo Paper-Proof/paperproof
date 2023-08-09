@@ -27,9 +27,21 @@ const zoomProofTree = (editor: Editor) => {
   }
 }
 
+// lakesare: not finished, this is a step towards proof blinking debugging
+const loggableProof = (proof: ProofResponse) => {
+  if (!proof) {
+    return null;
+  } else if ("error" in proof) {
+    return proof;
+  } else {
+    return proof.proofTree;
+  }
+}
+
 const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse) => {
   editor.updateInstanceState({ isReadonly: false });
-  console.info({ oldProof, newProof });
+
+  console.table({ oldProof: loggableProof(oldProof), newProof: loggableProof(newProof) });
 
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
