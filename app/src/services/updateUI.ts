@@ -34,7 +34,7 @@ const loggableProof = (proof: ProofResponse) => {
   } else if ("error" in proof) {
     return proof;
   } else {
-    return proof.proofTree;
+    return proof;
   }
 }
 

@@ -104,8 +104,9 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
 
 partial def parse (infoTree : InfoTree) : RequestM Proof := do
   let result ← (go none infoTree : RequestM Result)
-  let some statement := (noInEdgeGoals result.allGoals result.steps).toList.head?.map (·.type)
-    | throwThe RequestError ⟨.invalidParams, "initial goal is expected for theorem"⟩
+  let statement := "hello it's me"
+  -- (noInEdgeGoals result.allGoals result.steps).toList.head?.map (·.type)
+  --   | throwThe RequestError ⟨.invalidParams, "initial goal is expected for theorem"⟩
   return {statement, steps := result.steps}
 where go
   | some (ctx : ContextInfo), .node i cs => do
