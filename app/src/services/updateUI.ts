@@ -1,10 +1,11 @@
-import { Editor, createShapeId } from '@tldraw/tldraw';
+import { Editor, TLShapeId, createShapeId } from '@tldraw/tldraw';
 
 import buildProofTree from './buildProofTree';
 import focusProofTree from './focusProofTree';
 import zoomToWindow from './zoomToWindow';
 
 import { ProofResponse } from '../types';
+import CreateId from './buildProofTree/services/CreateId';
 
 const uiConfig = {
   // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing to goals in any way, but determining what hyps are used in what tactics isn't implemented properly yet, e.g. in linarith.
@@ -16,14 +17,18 @@ const areObjectsEqual = (a: object, b: object) => {
 };
 
 const zoomProofTree = (editor: Editor) => {
-  const window = editor.getShape(createShapeId("window-1"));
-  if (window) {
-    zoomToWindow(editor, window);
+  const previouslyFocusedWindow = window.zoomedWindowId && editor.getShape(window.zoomedWindowId);
+  const rootWindow = editor.getShape(CreateId.window(1));
+  const desiredWindow = previouslyFocusedWindow || rootWindow;
+  if (desiredWindow) {
+    zoomToWindow(editor, desiredWindow);
   }
 }
 
 const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse) => {
   editor.updateInstanceState({ isReadonly: false });
+  console.info({ oldProof, newProof });
+
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
 
@@ -31,8 +36,6 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     editor.deleteShapes(editor.currentPageShapes);
     return;
   }
-
-  console.info({ oldProof, newProof });
 
   if (isOldProofEmpty || !areObjectsEqual(newProof.proofTree, oldProof.proofTree)) {
     console.info("buildProofTree");

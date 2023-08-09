@@ -26,6 +26,8 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   override onClick: TLOnClickHandler<WindowShapeType> = (shape) => {
     zoomToWindow(this.editor, shape);
 
+    window.zoomedWindowId = shape.id
+
     // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
     return { id: shape.id, type: "window" };
   }
