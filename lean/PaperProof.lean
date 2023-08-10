@@ -26,10 +26,11 @@ def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Positio
   --   => no error messages
   let isSyntaxError := hoverPos.line < (text.utf8PosToLspPos snap.beginPos).line
 
-  let mut isThereSeriousError := false
+  if isSyntaxError then
+    throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
+
   let snapBegins : Lsp.Position := text.utf8PosToLspPos snap.beginPos
   for (msg : Message) in snap.msgLog.msgs do
-    -- only log the message if it appeared AFTER the snap.beginPos
     let messageHappened := text.leanPosToLspPos msg.pos
     if messageHappened.line >= snapBegins.line then
       -- Happens in these cases:
@@ -43,11 +44,8 @@ def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Positio
       -- Everything's fine, we'll get a nice InfoTree
       let isSorried := (← msg.data.toString).startsWith "unsolved goals"
 
-      isThereSeriousError := isError && !isSorried
-
-    if (isSyntaxError || isThereSeriousError) then
-      throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
-
+      if isError && !isSorried then
+        throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
 
 @[server_rpc_method]
 def getPpContext (params : GetPpContextParams) : RequestM (RequestTask Proof) := do
