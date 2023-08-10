@@ -2,7 +2,7 @@
 
 <div align="left">
   <a href="https://www.youtube.com/watch?v=_SrJxtdejgQ&ab_channel=AntonKovsharov">
-      <img src="https://img.youtube.com/vi/_SrJxtdejgQ/0.jpg">
+      <img src="https://github.com/Paper-Proof/paper-proof/assets/7578559/f61bdbc8-1983-4315-af69-99852253d443"/>
   </a>
 </div>
 
