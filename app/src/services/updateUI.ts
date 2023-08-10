@@ -46,8 +46,9 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
 
+  //  && (newProof.error === 'File changed.' || newProof.error === 'stillTyping')
   if (isNewProofEmpty) {
-    editor.deleteShapes(editor.currentPageShapes);
+    // editor.deleteShapes(editor.currentPageShapes);
     return;
   }
 
