@@ -1,9 +1,3 @@
-// import { createRequire } from 'module';
-// const require = createRequire(import.meta.url);
-// const util = require('util');
-// 
-// import { infoTreeExample_5 } from './infoTreeExample.js';
-
 let windowId;
 
 const newWindowId = () => {
@@ -430,9 +424,9 @@ const converter = (infoTreeVast) => {
   windowId = 1;
 
   const pretty = {
-    equivalentIds: {},
     windows: [],
-    tactics: []
+    tactics: [],
+    equivalentIds: {}
   }
 
   // First of all, draw the INITIAL hypotheses and goal.
@@ -444,10 +438,10 @@ const converter = (infoTreeVast) => {
 
   postprocess(pretty);
 
-  return pretty;
+  return {
+    ...pretty,
+    initialGoal
+  }
 }
 
 export default converter;
-
-// const edges = toEdges(infoTreeExample_5)
-// console.log(util.inspect(edges, { depth: null }));

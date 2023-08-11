@@ -1,18 +1,15 @@
 import Lean
-import Lean.Elab.InfoTree
-import Lean.Data.Options
-import Lean.Widget
 import BetterParser
 
-open Lean Elab
-open Lean Meta
-open Lean.Elab.Tactic
-open Lean Widget
-open Server RequestM
+open Lean Elab Server RequestM
 
-structure GetPpContextParams where
+structure InputParams where
   pos : Lsp.Position
   deriving FromJson, ToJson
+
+structure OutputParams where
+  steps : List ProofStep
+  deriving Inhabited, FromJson, ToJson
 
 -- TODO we should move this to another file, read on this (https://leanprover.github.io/functional_programming_in_lean/hello-world/starting-a-project.html)
 def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Position) : RequestM Unit := do
@@ -48,11 +45,10 @@ def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Positio
         throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
 
 @[server_rpc_method]
-def getPpContext (params : GetPpContextParams) : RequestM (RequestTask Proof) := do
+def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     checkIfUserIsStillTyping snap params.pos
 
-    -- @anton this is probably slightly cryptic, don't read
     -- lakesare:
     -- Just thinking about making `TacticApplication`s have `isFocused: true`.
     -- This way hovers will be more under our control & we'll know the "focus path".
@@ -64,6 +60,10 @@ def getPpContext (params : GetPpContextParams) : RequestM (RequestTask Proof) :=
     -- let hoverPos := text.lspPosToUtf8Pos params.pos
     -- let focusedGoals : List GoalsAtResult := snap.infoTree.goalsAt? text hoverPos
 
-    let tree := snap.infoTree
-    let th ← parse tree
-    return th
+    let parsedTree ← parse none snap.infoTree
+    -- This happens when we hover over something other than a theorem
+    if (parsedTree.steps.length == 0) then
+      throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
+    return {
+      steps := parsedTree.steps
+    }

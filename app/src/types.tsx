@@ -62,6 +62,7 @@ export interface Format {
   windows: Window[];
   tactics: Tactic[];
   equivalentIds: {[key: string]: string[]};
+  initialGoal: GoalNode;
 }
 
 // What we share in tldraw code
@@ -93,7 +94,6 @@ export interface InteractiveGoal {
 }
 
 export interface ProofState {
-  statement: string;
   proofTree: Format;
   goal: InteractiveGoal;
 }

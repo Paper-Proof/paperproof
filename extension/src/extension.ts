@@ -1,7 +1,5 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
-// @ts-ignore
-import converter from "../../app/src/converter";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
@@ -11,7 +9,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface ProofState {
   goal: any;
-  statement: string;
   proofTree: any;
 }
 
@@ -106,7 +103,7 @@ const sendInfoAtTdp = async (
   const uri = tdp.textDocument.uri;
   const proofTreeResponse = await vscodeRequest(
     log,
-    "getPpContext",
+    "getSnapshotData",
     client,
     uri,
     tdp,
@@ -123,7 +120,6 @@ const sendInfoAtTdp = async (
 
   const body: ProofState = {
     goal: (goalsResponse && goalsResponse.goals[0]) || null,
-    statement: proofTreeResponse.statement,
     proofTree: proofTreeResponse.steps,
   };
 
