@@ -1,7 +1,7 @@
 import { Editor, TLShapeId, createShapeId } from '@tldraw/tldraw';
 
 import buildProofTree from './buildProofTree';
-import focusProofTree from './focusProofTree';
+import highlightNodes from './highlightNodes';
 import zoomToWindow from './zoomToWindow';
 
 import { ProofResponse } from '../types';
@@ -68,12 +68,12 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     buildProofTree(editor, newProofTree, uiConfig);
     // Frequently, the goal arrives in the previous updateUI!
     // TODO investigate why that is, and update this code accordingly.
-    focusProofTree(editor, newProofTree.equivalentIds, newProof.goal);
+    highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
   }
   if (isOldProofEmpty || !areObjectsEqual(newProof.goal, oldProof.goal)) {
     const newProofTree = converter(newProof.proofTree);
-    console.info("focusProofTree");
-    focusProofTree(editor, newProofTree.equivalentIds, newProof.goal);
+    console.info("highlightNodes");
+    highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
   }
   // if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
   //   console.info("zoomProofTree");

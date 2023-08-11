@@ -11,7 +11,7 @@ const getDisplayedId = (equivalentIds: Format["equivalentIds"], id: string) => {
 };
 
 // lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
-const focusProofTree = (
+const highlightNodes = (
   editor: Editor,
   equivalentIds: Format["equivalentIds"],
   currentGoal: InteractiveGoal | null
@@ -55,4 +55,4 @@ const focusProofTree = (
   editor.updateShapes(focusedShapes);
 };
 
-export default focusProofTree;
+export default highlightNodes;
