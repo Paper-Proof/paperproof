@@ -1,20 +1,13 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { createClient } from "@supabase/supabase-js";
+import { ProofState, ProofError } from "./types";
+import setupStatusBar from "./services/setupStatusBar";
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
 const supabase = createClient(supabaseUrl, supabaseKey);
-
-interface ProofState {
-  goal: any;
-  proofTree: any;
-}
-
-interface ProofError {
-  error: string;
-}
 
 const DEFAULT_SERVER_URL = "https://paperproof.xyz";
 let SERVER_URL = DEFAULT_SERVER_URL;
@@ -128,35 +121,6 @@ const sendInfoAtTdp = async (
   log.appendLine("🎉 Sent everything");
 };
 
-function showNotification(sessionId: string) {
-  const url = `${SERVER_URL}/${sessionId}`;
-  const openButton: vscode.MessageItem = { title: "Open in browser" };
-  vscode.window
-    .showInformationMessage(`Your session is available at ${url}`, openButton)
-    .then((selectedItem) => {
-      if (selectedItem === openButton) {
-        vscode.env.openExternal(vscode.Uri.parse(url));
-      }
-    });
-}
-
-function setupStatusBar(sessionId: string): vscode.Disposable {
-  const statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right
-  );
-  statusBarItem.text = "Paperproof";
-  statusBarItem.command = "paperproof.showinfo";
-  statusBarItem.show();
-  const disposable = vscode.commands.registerCommand(
-    "paperproof.showinfo",
-    () => {
-      showNotification(sessionId);
-    }
-  );
-  showNotification(sessionId);
-  return disposable;
-}
-
 export function activate(context: vscode.ExtensionContext) {
   // Settings
   const config = vscode.workspace.getConfiguration("paperproof");
@@ -188,7 +152,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
       }
 
-      context.subscriptions.push(setupStatusBar(id));
+      context.subscriptions.push(setupStatusBar(SERVER_URL, id));
     });
 
   const sendPosition = async (editor: vscode.TextEditor | undefined) => {
