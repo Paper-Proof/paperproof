@@ -46,10 +46,20 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
 
-  //  && (newProof.error === 'File changed.' || newProof.error === 'stillTyping')
   if (isNewProofEmpty) {
-    // editor.deleteShapes(editor.currentPageShapes);
-    return;
+    if (!newProof) {
+      return;
+    }
+    if (newProof.error === 'File changed.' || newProof.error === 'stillTyping') {
+      return;
+    } else if (newProof.error === 'zeroProofSteps') {
+      editor.deleteShapes(editor.currentPageShapes);
+      return;
+    } else {
+      console.warn("We are not explicitly handling some error?");
+      console.warn(newProof);
+      return;
+    }
   }
 
   if (isOldProofEmpty || !areObjectsEqual(newProof.proofTree, oldProof.proofTree)) {
@@ -65,10 +75,10 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     console.info("focusProofTree");
     focusProofTree(editor, newProofTree.equivalentIds, newProof.goal);
   }
-  if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
-    console.info("zoomProofTree");
-    zoomProofTree(editor);
-  }
+  // if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
+  //   console.info("zoomProofTree");
+  //   zoomProofTree(editor);
+  // }
   editor.updateInstanceState({ isReadonly: true });
 }
 
