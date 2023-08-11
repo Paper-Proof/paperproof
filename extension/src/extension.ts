@@ -3,6 +3,7 @@ import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { createClient } from "@supabase/supabase-js";
 import { ProofState, ProofError } from "./types";
 import setupStatusBar from "./services/setupStatusBar";
+import getWebviewContent from "./services/getWebviewContent";
 
 const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
 const supabaseKey =
@@ -69,23 +70,6 @@ const vscodeRequest = async (
   });
   return response;
 };
-
-function getWebviewContent(initialInfo: ProofState | ProofError | null) {
-  return `
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-      <title>Paperproof</title>
-    </head>
-    <body>
-      <script>initialInfo = ${JSON.stringify(initialInfo)}</script>
-      <div id="root"></div>
-      <script src="${SERVER_URL}/indexBrowser.js"></script>
-    </body>
-  </html>`;
-}
 
 const sendInfoAtTdp = async (
   log: vscode.OutputChannel,
@@ -225,7 +209,7 @@ export function activate(context: vscode.ExtensionContext) {
     log.append(
       "Opening webviewPanel with: " + (latestInfo as any)["statement"]
     );
-    webviewPanel.webview.html = getWebviewContent(latestInfo);
+    webviewPanel.webview.html = getWebviewContent(SERVER_URL, latestInfo);
   }
   context.subscriptions.push(
     vscode.commands.registerCommand("paperproof.toggle", () => {
