@@ -1,20 +1,13 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
-import { createClient } from "@supabase/supabase-js";
-import { ProofState, ProofError } from "./types";
-import setupStatusBar from "./services/setupStatusBar";
-import getWebviewContent from "./services/getWebviewContent";
-import vscodeRequest from "./services/vscodeRequest";
 
-const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { ProofState, ProofError } from "./types";
+import createWebviewPanel from "./services/createWebviewPanel";
+import vscodeRequest from "./services/vscodeRequest";
 
 const DEFAULT_SERVER_URL = "https://paperproof.xyz";
 let SERVER_URL = DEFAULT_SERVER_URL;
 
-let sessionId: string | null = null;
 let latestInfo: ProofState | ProofError | null = null;
 let onLeanClientRestarted: vscode.Disposable | null = null;
 
@@ -25,29 +18,14 @@ const getErrorMessage = (error: unknown) => {
   return String(error);
 };
 
-const sendTypesToServer = async (
-  sessionId: string,
-  body: ProofState | ProofError
-) =>
-  await supabase
-    .from("sessions")
-    .update([{ proof: body }])
-    .eq("id", sessionId);
-
 const sendTypes = async (
   webviewPanel: vscode.WebviewPanel | null,
   body: ProofState | ProofError
 ) => {
-  // Save for the later sending in case there is no session for the server or no webview open yet.
+  // Save for later sending in case there is no session for the server or no webview open yet.
   latestInfo = body;
-
-  // 1. Send directly to the webview (if it's open!) to avoid lag
+  // Send directly to the webview (if it's open!) to avoid lag
   await webviewPanel?.webview.postMessage(body);
-
-  // 2. After that, send data to .xyz
-  if (sessionId) {
-    await sendTypesToServer(sessionId, body);
-  }
 };
 
 const sendInfoAtTdp = async (
@@ -57,22 +35,8 @@ const sendInfoAtTdp = async (
   tdp: TextDocumentPositionParams
 ) => {
   const uri = tdp.textDocument.uri;
-  const proofTreeResponse = await vscodeRequest(
-    log,
-    "getSnapshotData",
-    client,
-    uri,
-    tdp,
-    { pos: tdp.position }
-  );
-  const goalsResponse = await vscodeRequest(
-    log,
-    "Lean.Widget.getInteractiveGoals",
-    client,
-    uri,
-    tdp,
-    tdp
-  );
+  const proofTreeResponse = await vscodeRequest(log, "getSnapshotData", client, uri, tdp, { pos: tdp.position });
+  const goalsResponse = await vscodeRequest(log, "Lean.Widget.getInteractiveGoals", client, uri, tdp, tdp);
 
   const body: ProofState = {
     goal: (goalsResponse && goalsResponse.goals[0]) || null,
@@ -92,31 +56,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Creates the 'paperproof' channel in vscode's "OUTPUT" pane
   let log = vscode.window.createOutputChannel("paperproof");
-  let webviewPanel: vscode.WebviewPanel | null = null;
-
-  // Creating a new paperproof working session
-  supabase
-    .from("sessions")
-    .insert([{ proof: {} }])
-    .select()
-    .then(({ data, error }) => {
-      if (error) {
-        log.appendLine(
-          `❌ Error in creating a new session: "${error.message}"`
-        );
-        return;
-      }
-      const id = data[0].id;
-      log.appendLine(`🎉 New session: ${id}`);
-      sessionId = id;
-      if (latestInfo) {
-        sendTypesToServer(id, latestInfo).then(() => {
-          log.appendLine("🎉 Pending types sent");
-        });
-      }
-
-      context.subscriptions.push(setupStatusBar(SERVER_URL, id));
-    });
 
   const sendPosition = async (editor: vscode.TextEditor | undefined) => {
     try {
@@ -174,26 +113,14 @@ export function activate(context: vscode.ExtensionContext) {
     sendPosition(event.textEditor)
   });
 
-  // Opening/hiding webviewPanel.
-  function openPanel() {
-    webviewPanel = vscode.window.createWebviewPanel(
-      "paperproof",
-      "Paper Proof",
-      { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
-      { enableScripts: true, retainContextWhenHidden: true }
-    );
-    webviewPanel.onDidDispose(() => {
-      webviewPanel = null;
-    });
-    log.append("Opening webviewPanel with: " + (latestInfo as any)["statement"]);
-    webviewPanel.webview.html = getWebviewContent(SERVER_URL, latestInfo);
-  }
+  let webviewPanel: vscode.WebviewPanel | null = null;
   context.subscriptions.push(
     vscode.commands.registerCommand("paperproof.toggle", () => {
       if (webviewPanel) {
         webviewPanel.dispose();
       } else {
-        openPanel();
+        webviewPanel = createWebviewPanel(SERVER_URL, latestInfo)
+        webviewPanel.onDidDispose(() => { webviewPanel = null; });
       }
     })
   );
