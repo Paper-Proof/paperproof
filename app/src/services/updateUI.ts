@@ -50,7 +50,7 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     if (!newProof) {
       return;
     }
-    if (newProof.error === 'File changed.' || newProof.error === 'stillTyping') {
+    if (newProof.error === 'File changed.' || newProof.error === 'stillTyping' || newProof.error === 'leanNotYetRunning') {
       return;
     } else if (newProof.error === 'zeroProofSteps') {
       editor.deleteShapes(editor.currentPageShapes);
@@ -62,23 +62,27 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     }
   }
 
-  if (isOldProofEmpty || !areObjectsEqual(newProof.proofTree, oldProof.proofTree)) {
-    const newProofTree = converter(newProof.proofTree);
-    console.info("buildProofTree");
-    buildProofTree(editor, newProofTree, uiConfig);
-    // Frequently, the goal arrives in the previous updateUI!
-    // TODO investigate why that is, and update this code accordingly.
-    highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
-  }
-  if (isOldProofEmpty || !areObjectsEqual(newProof.goal, oldProof.goal)) {
-    const newProofTree = converter(newProof.proofTree);
-    console.info("highlightNodes");
-    highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
-  }
+  // if (isOldProofEmpty || !areObjectsEqual(newProof.proofTree, oldProof.proofTree)) {
+  //   const newProofTree = converter(newProof.proofTree);
+  //   buildProofTree(editor, newProofTree, uiConfig);
+  //   // Frequently, the goal arrives in the previous updateUI!
+  //   // TODO investigate why that is, and update this code accordingly.
+  //   highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
+  // }
+  // if (isOldProofEmpty || !areObjectsEqual(newProof.goal, oldProof.goal)) {
+  //   const newProofTree = converter(newProof.proofTree);
+  //   highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
+  // }
   // if (isOldProofEmpty || newProof.statement !== oldProof.statement) {
-  //   console.info("zoomProofTree");
   //   zoomProofTree(editor);
   // }
+
+  // So just - every time editor selection is changed, we do everything!
+  const newProofTree = converter(newProof.proofTree);
+  buildProofTree(editor, newProofTree, uiConfig);
+  highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
+  zoomProofTree(editor);
+
   editor.updateInstanceState({ isReadonly: true });
 }
 

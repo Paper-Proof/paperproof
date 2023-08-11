@@ -224,7 +224,7 @@ export function activate(context: vscode.ExtensionContext) {
           onLeanClientRestarted?.dispose();
         });
         throw new Error(
-          "Lean client is not yet running, will attempt to send later"
+          "leanNotYetRunning"
         );
       }
       log.appendLine("Found a Lean client");
@@ -239,9 +239,13 @@ export function activate(context: vscode.ExtensionContext) {
   // Sending types to the server on cursor changes.
   sendPosition(vscode.window.activeTextEditor);
   vscode.window.onDidChangeActiveTextEditor(sendPosition);
-  vscode.window.onDidChangeTextEditorSelection((event) =>
+  vscode.window.onDidChangeTextEditorSelection((event) => {
+    // We should ignore it when the user is selecting some range of text
+    if (!event.selections[0].isEmpty) {
+      return;
+    }
     sendPosition(event.textEditor)
-  );
+  });
 
   // Opening/hiding webviewPanel.
   function openPanel() {
