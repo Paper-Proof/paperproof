@@ -20,11 +20,6 @@ clearTldrawCache();
 
 const customShapeUtils = [WindowUtil, CustomArrowUtil, CustomNodeUtil];
 
-const supabaseUrl = "https://rksnswkaoajpdomeblni.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrc25zd2thb2FqcGRvbWVibG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAwNjU2NjgsImV4cCI6MjAwNTY0MTY2OH0.gmF1yF-iBhzlUgalz1vT28Jbc-QoOr5OlgI2MQ5OXhg";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 declare const window: PaperProofWindow;
 
 function Main() {
@@ -33,54 +28,23 @@ function Main() {
   const handleMount = (editor: Editor) => {
     editor.updateInstanceState({ isFocusMode: true });
     editor.user.updateUserPreferences({ isSnapMode: true });
-
     editor.renderingBoundsMargin = Infinity;
 
-    if (window.sessionId) {
-      console.log("Handling mount: browser mode");
+    console.log("Handling Tldraw .onMount");
 
-      // 1. Render initial proof
-      supabase.from("sessions").select("*").eq("id", window.sessionId).then((response) => {
-        if (response.error) {
-          console.error("Error fetching initial state", response.error);
-          return;
-        }
-        const proof = response.data[0].proof;
-        updateUI(editor, oldProofRef.current, proof)
-        oldProofRef.current = proof;
-      });
+    // 1. Render initial proof
+    console.log(`Rendering initial proof`);
+    const proof = window.initialInfo;
+    updateUI(editor, oldProofRef.current, proof)
+    oldProofRef.current = proof;
 
-      // 2. Render the proof on updates
-      supabase.channel("proof-update").on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "sessions",
-          filter: `id=eq.${window.sessionId}`,
-        },
-        (payload) => {
-          const proof = (payload.new as any)["proof"];
-          updateUI(editor, oldProofRef.current, proof)
-          oldProofRef.current = proof;
-        }
-      )
-      .subscribe();
-    } else if (window.initialInfo) {
-      console.log("Handling mount: extension mode");
-
-      // 1. Render initial proof
-      const proof = window.initialInfo;
+    // 2. Render the proof on updates
+    addEventListener("message", (event) => {
+      console.log(`Rendering message`);
+      const proof = event.data;
       updateUI(editor, oldProofRef.current, proof)
       oldProofRef.current = proof;
-
-      // 2. Render the proof on updates
-      addEventListener("message", (event) => {
-        const proof = event.data;
-        updateUI(editor, oldProofRef.current, proof)
-        oldProofRef.current = proof;
-      });
-    }
+    });
   };
 
   return (
