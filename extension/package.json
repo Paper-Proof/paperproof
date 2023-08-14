@@ -21,9 +21,22 @@
     "commands": [
       {
         "command": "paperproof.toggle",
-        "title": "Paper Proof: Toggle"
+        "title": "Paperproof: Toggle",
+        "icon": {
+          "dark": "./images/menu.png",
+          "light": "./images/menu.png"
+        }
       }
     ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "paperproof.toggle",
+          "when": "editorLangId == lean4",
+          "group": "navigation@2"
+        }
+      ]
+    },
     "configuration": {
       "title": "Paper Proof",
       "properties": {
