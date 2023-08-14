@@ -24,8 +24,6 @@ export function activate(context: vscode.ExtensionContext) {
     sendPosition(shared, textEditor);
   });
   vscode.window.onDidChangeTextEditorSelection((event) => {
-    // We should ignore it when the user is selecting some range of text
-    if (!event.selections[0].isEmpty) { return; }
     sendPosition(shared, event.textEditor);
   });
 
