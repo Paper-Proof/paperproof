@@ -1,3 +1,5 @@
+// NOT USED at the moment
+
 import * as vscode from "vscode";
 
 function showNotification(serverUrl : string, sessionId: string) {

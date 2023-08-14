@@ -1,4 +1,4 @@
-import { ProofState, ProofError } from "../types";
+import { ProofState, ProofError } from "../../../types";
 
 function getWebviewContent(serverUrl : string, initialInfo: ProofState | ProofError | null) {
   return `

@@ -2,14 +2,7 @@ import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 // Simple request. We don't keep session open and create a new one for each request for now.
-const vscodeRequest = async (
-  log: vscode.OutputChannel,
-  method: string,
-  client: any,
-  uri: string,
-  tdp: TextDocumentPositionParams,
-  params: any
-): Promise<any> => {
+const vscodeRequest = async (log: vscode.OutputChannel, method: string, client: any, uri: string, tdp: TextDocumentPositionParams, params: any): Promise<any> => {
   log.appendLine(`Making ${method} request`);
   const connection = await client.sendRequest("$/lean/rpc/connect", { uri });
   const response = await client.sendRequest("$/lean/rpc/call", {
