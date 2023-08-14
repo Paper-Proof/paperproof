@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useRef } from "react";
 import { createRoot } from 'react-dom/client';
-import { createClient } from "@supabase/supabase-js";
 import { Editor, Tldraw } from "@tldraw/tldraw";
 
 import WindowUtil from "./shapes/WindowUtil";
