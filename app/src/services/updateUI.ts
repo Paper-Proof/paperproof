@@ -1,11 +1,10 @@
-import { Editor, TLShapeId, createShapeId } from '@tldraw/tldraw';
+import { Editor } from '@tldraw/tldraw';
 
 import buildProofTree from './buildProofTree';
 import highlightNodes from './highlightNodes';
-import zoomToWindow from './zoomToWindow';
+import zoomProofTree from './zoomProofTree';
 
 import { ProofResponse } from '../types';
-import CreateId from './buildProofTree/services/CreateId';
 
 import converter from '../converter';
 
@@ -18,20 +17,7 @@ const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
 
-const zoomProofTree = (editor: Editor) => {
-  // This is necessary, if we don't do this zooming will work stupidly until we click on the webview tab (this makes `editor.viewportScreenBounds` correct).
-  editor.updateViewportScreenBounds();
-
-  const previouslyFocusedWindow = window.zoomedWindowId && editor.getShape(window.zoomedWindowId);
-  const rootWindow = editor.getShape(CreateId.window(1));
-
-  const desiredWindow = previouslyFocusedWindow || rootWindow;
-  if (desiredWindow) {
-    zoomToWindow(editor, desiredWindow);
-  }
-}
-
-// lakesare: not finished, this is a step towards proof blinking debugging
+// This is resource-heavy, one of the reasons we want a production build that strips console.logs
 const loggableProof = (proof: ProofResponse) => {
   if (!proof) {
     return null;
