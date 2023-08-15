@@ -19,6 +19,7 @@ const getLeanClient = async (shared: Shared, editor: vscode.TextEditor) => {
 
   if (!client.running) {
     // TODO this is desired, but temporarily disabled to debug asynchronicity
+    // NOTE it looks like it works nicely without this too? Is this only useful on vscode editor startup?
     //
     // Dispose of the previous listener if there was one
     // shared.onLeanClientRestarted?.dispose();
@@ -58,6 +59,7 @@ const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefine
   shared.log.appendLine(`\nText selection: ${JSON.stringify(tdp)}`);
 
   const body = await getResponseOrError(shared, editor, tdp);
+  shared.latestInfo = body;
   await shared.webviewPanel?.webview.postMessage(body);
 };
 

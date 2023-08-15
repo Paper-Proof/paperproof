@@ -1,6 +1,6 @@
-import { ProofState, ProofError } from "../../../types";
+import { ProofStateOrError } from "../../../types";
 
-function getWebviewContent(serverUrl : string, initialInfo: ProofState | ProofError | null) {
+function getWebviewContent(serverUrl: string, initialInfo: ProofStateOrError) {
   return `
   <!DOCTYPE html>
   <html lang="en">

@@ -9,8 +9,10 @@ export interface ProofError {
   error: string;
 }
 
+export type ProofStateOrError = ProofState | ProofError | null;
+
 export interface Shared {
-  latestInfo: ProofState | ProofError | null;
+  latestInfo: ProofStateOrError;
   onLeanClientRestarted: vscode.Disposable | null;
   webviewPanel: vscode.WebviewPanel | null;
   log: vscode.OutputChannel;
