@@ -29,17 +29,13 @@ function Main() {
     editor.user.updateUserPreferences({ isSnapMode: true });
     editor.renderingBoundsMargin = Infinity;
 
-    console.log("Handling Tldraw .onMount");
-
     // 1. Render initial proof
-    console.log(`Rendering initial proof`);
     const proof = window.initialInfo;
     updateUI(editor, oldProofRef.current, proof)
     oldProofRef.current = proof;
 
     // 2. Render the proof on updates
     addEventListener("message", (event) => {
-      console.log(`Rendering message`);
       const proof = event.data;
       updateUI(editor, oldProofRef.current, proof)
       oldProofRef.current = proof;
