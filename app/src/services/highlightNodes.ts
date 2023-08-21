@@ -1,14 +1,7 @@
 import { Editor } from "@tldraw/tldraw";
 import { Format, InteractiveGoal } from "../types";
 import CreateId from "./buildProofTree/services/CreateId";
-
-// This could be done in /extension, but doing it here for the ease of debugging
-const getDisplayedId = (equivalentIds: Format["equivalentIds"], id: string) => {
-  const displayedId = Object.keys(equivalentIds).find((displayedId) =>
-    equivalentIds[displayedId].find((inferiorId) => inferiorId === id)
-  );
-  return displayedId ? displayedId : id;
-};
+import getDisplayedId from "src/shared/getDisplayedId";
 
 // lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
 const highlightNodes = (

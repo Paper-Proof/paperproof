@@ -59,7 +59,9 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     buildProofTree(editor, newProofTree, uiConfig);
   }
   highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
-  zoomProofTree(editor);
+  // TODO goal can totes be null, add that to types.ts
+  
+  zoomProofTree(editor, newProofTree, newProof.goal?.mvarId);
 
   editor.updateInstanceState({ isReadonly: true });
 }
