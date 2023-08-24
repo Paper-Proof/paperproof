@@ -1,14 +1,14 @@
 # Paper proof
 
 <div align="left">
-  <a href="https://youtu.be/GpKTGjF-3Sw">
+  <a href="https://www.youtube.com/watch?v=0dVj4ITAF1o">
       <img src="https://github.com/Paper-Proof/paper-proof/assets/7578559/f61bdbc8-1983-4315-af69-99852253d443"/>
   </a>
 </div>
 
-[https://www.youtube.com/watch?v=JJNXxWGVjjc](https://youtu.be/GpKTGjF-3Sw)
-
-https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD
+Coming soon.  
+Watch demo on [youtube](https://www.youtube.com/watch?v=0dVj4ITAF1o).  
+Or read our [presentation](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD).
 
 ## Overview
 
