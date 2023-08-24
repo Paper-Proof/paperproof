@@ -1,5 +1,5 @@
 import { Editor } from "@tldraw/tldraw";
-import { Format, InteractiveGoal } from "../types";
+import { Format, ProofState } from "../types";
 import CreateId from "./buildProofTree/services/CreateId";
 import getDisplayedId from "src/shared/getDisplayedId";
 
@@ -7,7 +7,7 @@ import getDisplayedId from "src/shared/getDisplayedId";
 const highlightNodes = (
   editor: Editor,
   equivalentIds: Format["equivalentIds"],
-  currentGoal: InteractiveGoal | null
+  currentGoal: ProofState["goal"]
 ) => {
   if (currentGoal === null) {
     const existingNodes = editor.currentPageShapes

@@ -1,11 +1,8 @@
 import { Editor } from '@tldraw/tldraw';
 import CreateId from './buildProofTree/services/CreateId';
-import zoomToWindow from './zoomToWindow';
+import zoomToWindow from '../shared/zoomToWindow';
 import { Format, Window } from 'src/types';
 import getDisplayedId from 'src/shared/getDisplayedId';
-
-// temporary, TODO
-declare const window: any;
 
 const getParentWindowId = (windows: Window[], childId: number): number | null => {
   const childWindow = windows.find((w) => w.id === childId);
@@ -37,33 +34,29 @@ const findLcm = (windows: Window[], windowIdA: number, windowIdB: number): numbe
 const zoomProofTree = (editor: Editor, convertedTree: Format, goalId: string | undefined) => {
   // This is necessary, if we don't do this zooming will work stupidly until we click on the webview tab (this line makes `editor.viewportScreenBounds` correct).
   editor.updateViewportScreenBounds();
-
-  let desiredWindowId : number;
-
-  const previouslyFocusedWindow = window.zoomedWindowId && editor.getShape(window.zoomedWindowId);
-
-  if (previouslyFocusedWindow) {
-    // lol TODO
-    // this should probably be metadata instead
-    desiredWindowId = Number(window.zoomedWindowId.split("shape:window-")[1]);
-  } else {
-    desiredWindowId = 1;
-  }
-
-  // zoom to root!
-  if (!goalId) {
-    const desiredWindow = editor.getShape(CreateId.window(1));
-    if (desiredWindow) {
-      zoomToWindow(editor, desiredWindow);
+  
+  // 1. If there is no interactive goal, then we're on the last line, so rezoom on root.
+  // 2. If the user never clicked on any window - then rezoom on root.
+  const lastClickedOnWindowId = localStorage.getItem('zoomedWindowId')
+  const lastClickedOnWindow = lastClickedOnWindowId && editor.getShape(CreateId.window(lastClickedOnWindowId));
+  if (!goalId || !lastClickedOnWindow) {
+    const rootWindow = editor.getShape(CreateId.window(1));
+    if (rootWindow) {
+      zoomToWindow(editor, rootWindow);
     }
     return;
   }
 
+  // 3. Rezoom on the common ancestor of (windowWithCurrentGoal, lastClickedOnWindowId)
   const windowWithCurrentGoal = convertedTree.windows.find((w) =>
     w.goalNodes.find((g) => g.id === getDisplayedId(convertedTree.equivalentIds, goalId))
   );
-  let lcmWindowId = findLcm(convertedTree.windows, windowWithCurrentGoal!.id, desiredWindowId);
+  if (!windowWithCurrentGoal) {
+    console.error(`We tried to zoom in, but couldn't find the window with the goal ${goalId}. This probably shouldn't happen, check what went wrong.`);
+    return;
+  }
 
+  let lcmWindowId = findLcm(convertedTree.windows, windowWithCurrentGoal.id, Number(lastClickedOnWindowId));
   const lcmWindow = editor.getShape(CreateId.window(lcmWindowId));
 
   if (lcmWindow) {

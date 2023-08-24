@@ -95,7 +95,7 @@ export interface InteractiveGoal {
 
 export interface ProofState {
   proofTree: Format;
-  goal: InteractiveGoal;
+  goal: InteractiveGoal | null;
 }
 
 export type ProofResponse = ProofState | { error: any } | null;

@@ -83,7 +83,7 @@ const hypothesis = (editor: Editor,
 const window = (editor: Editor,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number,
-  goalUsername: string | null, goalUsernameHeight: number
+  goalUsername: string | null, goalUsernameHeight: number, windowId: number
 ) => {
   editor.createShapes([
     {
@@ -92,7 +92,7 @@ const window = (editor: Editor,
       x,
       y,
       parentId,
-      props: { w, h, depth, goalUsername, goalUsernameHeight },
+      props: { w, h, depth, goalUsername, goalUsernameHeight, windowId },
     },
   ]);
 }

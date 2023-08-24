@@ -4,7 +4,7 @@ import buildProofTree from './buildProofTree';
 import highlightNodes from './highlightNodes';
 import zoomProofTree from './zoomProofTree';
 
-import { ProofResponse } from '../types';
+import { Format, ProofResponse } from '../types';
 
 import converter from '../converter';
 
@@ -16,6 +16,16 @@ const uiConfig = {
 const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
+
+// This is a copypaste from converter. Instead of having this function here, we should store the converted tree in the state for the old proof.
+const getInitialGoal = (subSteps: any) => {
+  const firstStep = subSteps[0];
+  if (firstStep.tacticApp) {
+    return firstStep.tacticApp.t.goalsBefore[0];
+  } else if (firstStep.haveDecl) {
+    return firstStep.haveDecl.t.goalsBefore[0];
+  }
+}
 
 // This is resource-heavy, one of the reasons we want a production build that strips console.logs
 const loggableProof = (proof: ProofResponse) => {
@@ -51,16 +61,18 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
       return;
     }
   }
+  // Delete stored zoomedWindowId if we switched the theorems.
+  if (isOldProofEmpty || isNewProofEmpty || getInitialGoal(oldProof.proofTree) !== getInitialGoal(newProof.proofTree)) {
+    localStorage.removeItem('zoomedWindowId')
+  }
 
-  // So just - every time editor selection is changed, we do everything!
+  // Every time user clicks on something, we build/highlight/zoom the tree anew!
   const newProofTree = converter(newProof.proofTree);
   // The only expensive operation here is building the proof tree, so we try not to do it unless it's necessary
   if (isOldProofEmpty || !areObjectsEqual(oldProof.proofTree, newProof.proofTree)) {
     buildProofTree(editor, newProofTree, uiConfig);
   }
   highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
-  // TODO goal can totes be null, add that to types.ts
-  
   zoomProofTree(editor, newProofTree, newProof.goal?.mvarId);
 
   editor.updateInstanceState({ isReadonly: true });

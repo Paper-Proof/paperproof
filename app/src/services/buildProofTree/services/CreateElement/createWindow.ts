@@ -34,7 +34,7 @@ const createWindow = (shared: Shared, parentId: TLParentId | undefined, window: 
   return {
     size: [w, h],
     draw: (x: number, y: number) => {
-      DrawShape.window(shared.editor, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight);
+      DrawShape.window(shared.editor, frameId, parentId, x, y, w, h, depth, ifShowGoalUsername ? goalUsername : null, goalUsernameHeight, window.id);
       nodes.draw(0, 0);
     }
   };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnClickHandler, TLOnDoubleClickHandler } from '@tldraw/tldraw';
-import zoomToWindow from '../services/zoomToWindow';
+import zoomToWindow from '../shared/zoomToWindow';
 
 export type WindowShapeType = TLBaseShape<'window',
   {
@@ -9,7 +9,8 @@ export type WindowShapeType = TLBaseShape<'window',
     h: number;
     depth: number;
     goalUsername: string | null,
-    goalUsernameHeight: number
+    goalUsernameHeight: number,
+    windowId: number
   }
 >
 
@@ -26,16 +27,14 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   override onClick: TLOnClickHandler<WindowShapeType> = (shape) => {
     zoomToWindow(this.editor, shape);
 
-    window.zoomedWindowId = shape.id
+    localStorage.setItem('zoomedWindowId', String(shape.props.windowId))
 
     // This is a fake "shape update" that updates nothing actually, we need this to avoid the creation of the new node (default tldraw behaviour if no shape updates happened on double click)
     return { id: shape.id, type: "window" };
   }
 
-
-
   override getDefaultProps(): WindowShapeType['props'] {
-    return { w: 160 * 2, h: 90 * 2, name: "none", depth: 0, goalUsername: null, goalUsernameHeight: 20 };
+    return { w: 160 * 2, h: 90 * 2, name: "none", depth: 0, goalUsername: null, goalUsernameHeight: 20, windowId: 1 };
   }
 
   override component(shape: WindowShapeType) {

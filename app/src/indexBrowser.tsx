@@ -25,6 +25,8 @@ function Main() {
   const oldProofRef = useRef<ProofResponse>(null);
 
   const handleMount = (editor: Editor) => {
+    localStorage.removeItem('zoomedWindowId')
+
     editor.updateInstanceState({ isFocusMode: true });
     editor.user.updateUserPreferences({ isSnapMode: true });
     editor.renderingBoundsMargin = Infinity;
