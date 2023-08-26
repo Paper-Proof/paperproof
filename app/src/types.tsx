@@ -1,5 +1,6 @@
 import { Editor, TLShapeId } from "@tldraw/tldraw";
 
+// TLDRAW
 export interface UiConfig {
   hideNulls: boolean
 }
@@ -23,9 +24,12 @@ export type Node = { text: string; id: string; name?: string; subNodes?: NodeLay
 
 export type NodeLayer = Node[];
 
+
+
+// ConvertedProofTree
 export interface GoalNode {
-  name: string;
   text: string;
+  name: string;
   id: string;
 }
 
@@ -38,7 +42,6 @@ export interface HypNode {
 
 export type HypLayer = HypNode[];
 
-// Converter.js types
 export interface Window {
   id: number;
   parentId: number | null;
@@ -65,34 +68,28 @@ export interface Format {
   initialGoal: GoalNode;
 }
 
-// What we share in tldraw code
-export interface Shared {
-  editor: Editor;
-  uiConfig: UiConfig;
-  proofTree: Format;
-  inBetweenMargin: number;
-  framePadding: number;
-}
 
-// Focusing on the goal types
+// InteractiveGoal
 export interface InteractiveHyp {
   // `fvarIds` and `names` are always of the same length
-  fvarIds: string[],
-  names: string[],
+  fvarIds: string[];
+  names: string[];
   // type with all the stuff that lets us hover over it
-  type: object
+  type: object;
 }
 
 export interface InteractiveGoal {
   ctx: object;
-  goalPrefix: string,
-  hyps: InteractiveHyp[],
-  mvarId: string,
+  goalPrefix: string;
+  hyps: InteractiveHyp[];
+  mvarId: string;
   // type with all the stuff that lets us hover over it
-  type: object,
-  userName: string
+  type: object;
+  userName: string;
 }
 
+
+// JUST USEFUL CODE
 export interface ProofState {
   proofTree: Format;
   goal: InteractiveGoal | null;
@@ -103,4 +100,12 @@ export type ProofResponse = ProofState | { error: any } | null;
 export interface PaperProofWindow extends Window {
   sessionId: string | null;
   initialInfo: any | null;
+}
+
+export interface Shared {
+  editor: Editor;
+  uiConfig: UiConfig;
+  proofTree: Format;
+  inBetweenMargin: number;
+  framePadding: number;
 }

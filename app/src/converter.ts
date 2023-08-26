@@ -1,4 +1,7 @@
-let windowId;
+// @ts-nocheck
+import { Format } from "./types";
+
+let windowId : number;
 
 const newWindowId = () => {
   return windowId++;
@@ -420,7 +423,7 @@ const postprocess = (pretty) => {
   });
 }
 
-const converter = (infoTreeVast) => {
+const converter = (infoTreeVast) : Format => {
   windowId = 1;
 
   const pretty = {

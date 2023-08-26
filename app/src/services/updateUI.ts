@@ -17,7 +17,7 @@ const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
 
-// This is a copypaste from converter. Instead of having this function here, we should store the converted tree in the state for the old proof.
+// TODO This is a copypaste from converter. Instead of having this function here, we should store the converted tree in the state for the old proof.
 const getInitialGoal = (subSteps: any) => {
   const firstStep = subSteps[0];
   if (firstStep.tacticApp) {
