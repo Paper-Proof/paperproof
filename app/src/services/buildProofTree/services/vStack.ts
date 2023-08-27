@@ -1,6 +1,6 @@
-import { Element } from '../../../types';
+import { UIElement } from 'types';
 
-const vStack = (margin: number, boxes: Element[]): Element => {
+const vStack = (margin: number, boxes: UIElement[]): UIElement => {
   if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
   return {
     size: [

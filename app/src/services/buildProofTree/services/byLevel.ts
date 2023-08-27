@@ -1,11 +1,11 @@
-import { HypTree, Element } from '../../../types';
+import { UIHypTree, UIElement } from 'types';
 
 import hStack from './hStack';
 import vStack from './vStack';
 
-const byLevel = (hMargin: number, trees: HypTree[]) : Element[][] => {
-  const rows: Element[][] = [];
-  function visit(t: HypTree) {
+const byLevel = (hMargin: number, trees: UIHypTree[]) : UIElement[][] => {
+  const rows: UIElement[][] = [];
+  function visit(t: UIHypTree) {
     while (rows.length <= t.level) {
       rows.push([]);
     }

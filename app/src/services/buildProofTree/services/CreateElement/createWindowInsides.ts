@@ -1,6 +1,6 @@
 import { TLParentId } from "@tldraw/tldraw";
 
-import { HypTree, Element, IdElement, HypLayer, Window, Shared } from "../../../../types";
+import { UIHypTree, UIElement, UIIdElement, HypLayer, Window, UIShared } from "types";
 
 import getHypNodeText from '../getHypNodeText';
 import hStack from '../hStack';
@@ -15,18 +15,18 @@ import createWindow from './createWindow';
 
 import CreateId from '../CreateId';
 
-const createEmpty = (): Element => {
+const createEmpty = (): UIElement => {
   return {
     size: [0, 0],
     draw: () => { }
   }
 }
 
-const createTrees = (hMargin: number, trees: HypTree[]): Element => {
+const createTrees = (hMargin: number, trees: UIHypTree[]): UIElement => {
   if (trees.length == 0) return { size: [0, 0], draw: () => { } };
   const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, row).size[1]);
   const colWidths = trees.map(t => getTreeWidth(hMargin, t));
-  function draw(x: number, y: number, level: number, t: HypTree): void {
+  function draw(x: number, y: number, level: number, t: UIHypTree): void {
     if (level < t.level) {
       draw(x, y + rowHeights[level], level + 1, t);
       return;
@@ -61,8 +61,8 @@ const createTrees = (hMargin: number, trees: HypTree[]): Element => {
   };
 }
 
-const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, window: Window, depth: number): Element => {
-  let rows: Element[] = [];
+const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined, window: Window, depth: number): UIElement => {
+  let rows: UIElement[] = [];
 
   // 1. Draw all hypothesis nodes (and their tactic nodes)
   // Layers of hypNodes can have series of `rw` tactics where
@@ -84,8 +84,8 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
   }
   // Have window can only be at the top level (since it never destructs anything but each tactic after first in rwSeq does).
   for (const rwSeq of rwSeqs) {
-    const topLevelTrees = new Set<HypTree>();
-    const nodeToTree = new Map<string, HypTree>();
+    const topLevelTrees = new Set<UIHypTree>();
+    const nodeToTree = new Map<string, UIHypTree>();
     for (let level = rwSeq.length - 1; level >= 0; level--) {
       const layer = rwSeq[level];
       const layerTactics = shared.proofTree.tactics
@@ -129,7 +129,7 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
           const haveWindows = shared.proofTree.windows
             .filter(w => tactic.haveWindowId === w.id)
             .map(w => createWindow(shared, parentId, w, depth + 1));
-          const hTree: HypTree = {
+          const hTree: UIHypTree = {
             tactic: vStack(0, [hStack(shared.inBetweenMargin, haveWindows), tacticNode]),
             level,
             nodes: nodesAfter.map(
@@ -158,20 +158,20 @@ const createWindowInsides = (shared: Shared, parentId: TLParentId | undefined, w
 
   // 2. Draw all child windows
   const subWindows = shared.proofTree.windows.filter((w) => w.parentId == window.id);
-  const frames: Element[] = [];
+  const frames: UIElement[] = [];
   for (const subWindow of subWindows) {
     frames.push(createWindow(shared, parentId, subWindow, depth + 1));
   }
 
   // 3. Draw all goal nodes (and their tactic nodes)
   const goalNodes = [...window.goalNodes].reverse();
-  const proof: Element[] = goalNodes.flatMap(goalNode => {
+  const proof: UIElement[] = goalNodes.flatMap(goalNode => {
     const tactic = shared.proofTree.tactics.find(
       (t) =>
         t.goalArrows.some((a) => a.fromId == goalNode.id) ||
         t.successGoalId == goalNode.id
     );
-    const goalEl: IdElement = createNode(
+    const goalEl: UIIdElement = createNode(
       shared,
       parentId,
       goalNode.text,

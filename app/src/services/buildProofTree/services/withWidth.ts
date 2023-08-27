@@ -1,6 +1,6 @@
-import { Element } from "../../../types";
+import { UIElement } from "types";
 
-const withWidth = (width: number, el: Element): Element => {
+const withWidth = (width: number, el: UIElement): UIElement => {
   return {
     ...el,
     draw: (x, y) => {

@@ -1,5 +1,5 @@
 import { Editor, TLShapeId } from "@tldraw/tldraw";
-import { Shared, Element, ConvertedProofTree } from "../../../../types";
+import { UIShared, UIElement, ConvertedProofTree } from "types";
 import DrawShape from '../DrawShape';
 import CreateId from '../CreateId';
 
@@ -32,7 +32,7 @@ const findWindowId = (editor: Editor, proofTree: ConvertedProofTree, goalId: str
   }
 }
 
-const createArrows = (shared: Shared): Element => {
+const createArrows = (shared: UIShared): UIElement => {
   return {
     size: [0, 0],
     draw: (x: number, y: number) => {

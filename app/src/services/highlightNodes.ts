@@ -1,5 +1,5 @@
 import { Editor } from "@tldraw/tldraw";
-import { ConvertedProofTree, ProofState } from "../types";
+import { ConvertedProofTree, ProofState } from "types";
 import CreateId from "./buildProofTree/services/CreateId";
 import getDisplayedId from "src/shared/getDisplayedId";
 

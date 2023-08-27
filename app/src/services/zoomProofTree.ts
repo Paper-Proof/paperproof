@@ -1,8 +1,8 @@
 import { Editor } from '@tldraw/tldraw';
 import CreateId from './buildProofTree/services/CreateId';
 import zoomToWindow from '../shared/zoomToWindow';
-import { ConvertedProofTree, Window } from 'src/types';
 import getDisplayedId from 'src/shared/getDisplayedId';
+import { ConvertedProofTree, Window } from 'types';
 
 const getParentWindowId = (windows: Window[], childId: string): string | null => {
   const childWindow = windows.find((w) => w.id === childId);

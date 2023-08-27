@@ -1,4 +1,4 @@
-import { ConvertedProofTree } from "src/types";
+import { ConvertedProofTree } from "types";
 
 // Copypaste from converter.js (changed the argument names though, for no serious reason, needs to be made the same)
 const getDisplayedId = (equivalentIds: ConvertedProofTree["equivalentIds"], id: string) => {

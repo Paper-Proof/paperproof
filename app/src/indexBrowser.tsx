@@ -9,7 +9,7 @@ import CustomNodeUtil from "./shapes/CustomNodeUtil";
 import updateUI from "./services/updateUI";
 import clearTldrawCache from "./services/clearTldrawCache";
 
-import { ProofResponse, PaperProofWindow } from "./types";
+import { ProofResponse, PaperProofWindow } from "types";
 
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";

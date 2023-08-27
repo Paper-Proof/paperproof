@@ -1,4 +1,4 @@
-import { ConvertedProofTree, LeanProofTree, Tactic, Window, LeanHypothesis, LeanTactic, LeanGoal, HypNode } from "./types";
+import { ConvertedProofTree, LeanProofTree, Tactic, Window, LeanHypothesis, LeanTactic, LeanGoal, HypNode } from "types";
 
 let windowId : number;
 let tacticId : number;

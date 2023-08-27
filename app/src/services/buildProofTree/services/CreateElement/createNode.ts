@@ -1,18 +1,18 @@
 import { TLParentId, TLShapeId } from "@tldraw/tldraw";
-import { IdElement, Shared } from "../../../../types";
+import { UIIdElement, UIShared } from "types";
 
 import getTextSize from '../getTextSize';
 
 import DrawShape from '../DrawShape';
 
 const createNode = (
-  shared: Shared,
+  shared: UIShared,
   parentId: TLParentId | undefined,
   text: string,
   type: "hypothesis" | "tactic" | "goal",
   // This is for arrows
   id: TLShapeId
-): IdElement => {
+): UIIdElement => {
   const newText = text + (localStorage.getItem("dev") === 'true' ? '      ' + id : '');
   const [w, h] = getTextSize(shared.editor, newText);
   return {

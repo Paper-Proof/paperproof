@@ -1,7 +1,7 @@
-import { Element } from '../../../types';
+import { UIElement } from 'types';
 
 // hStack aligns to the bottom
-const hStack = (margin: number, boxes: Element[]): Element => {
+const hStack = (margin: number, boxes: UIElement[]): UIElement => {
   if (boxes.length == 0) return { size: [0, 0], draw: () => { } };
   const [w, h] = [
     boxes.map((b) => b.size[0]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,

@@ -1,4 +1,4 @@
-import { HypNode } from "../../../types";
+import { HypNode } from "types";
 
 const getHypNodeText = (node: HypNode) => {
   const text = (() => {
