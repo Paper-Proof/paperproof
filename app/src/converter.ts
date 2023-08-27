@@ -430,14 +430,14 @@ const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
   windowId = 1;
   tacticId = 1;
 
-  // First of all, draw the INITIAL hypotheses and goal.
-  const initialGoal = getInitialGoal(leanProofTree)!;
-  const pretty = {
+  const pretty : ConvertedProofTree = {
     windows: [],
     tactics: [],
     equivalentIds: {},
-    initialGoal
   }
+
+  // First of all, draw the INITIAL hypotheses and goal.
+  const initialGoal : LeanGoal = getInitialGoal(leanProofTree)!;
   drawInitialGoal(initialGoal, pretty);
 
   // Then, draw all the other tactics and hypotheses and goals.

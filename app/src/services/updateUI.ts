@@ -4,7 +4,7 @@ import buildProofTree from './buildProofTree';
 import highlightNodes from './highlightNodes';
 import zoomProofTree from './zoomProofTree';
 
-import { ProofResponse } from 'types';
+import { LeanGoal, LeanProofTree, ProofResponse } from 'types';
 
 import converter from '../converter';
 
@@ -17,14 +17,14 @@ const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
 
-// TODO This is a copypaste from converter. Instead of having this function here, we should store the converted tree in the state for the old proof.
-const getInitialGoal = (subSteps: any) => {
+const getInitialGoal = (subSteps: LeanProofTree): string | null => {
   const firstStep = subSteps[0];
-  if (firstStep.tacticApp) {
-    return firstStep.tacticApp.t.goalsBefore[0];
-  } else if (firstStep.haveDecl) {
-    return firstStep.haveDecl.t.goalsBefore[0];
+  if ('tacticApp' in firstStep) {
+    return firstStep.tacticApp.t.goalsBefore[0].type;
+  } else if ('haveDecl' in firstStep) {
+    return firstStep.haveDecl.t.goalsBefore[0].type;
   }
+  return null;
 }
 
 // This is resource-heavy, one of the reasons we want a production build that strips console.logs
@@ -37,6 +37,8 @@ const loggableProof = (proof: ProofResponse) => {
     return converter(proof.proofTree);
   }
 }
+
+let lastValidStatement : string | null;
 
 const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse) => {
   editor.updateInstanceState({ isReadonly: false });
@@ -61,9 +63,11 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
       return;
     }
   }
+
   // Delete stored zoomedWindowId if we switched the theorems.
-  if (isOldProofEmpty || isNewProofEmpty || getInitialGoal(oldProof.proofTree) !== getInitialGoal(newProof.proofTree)) {
-    localStorage.removeItem('zoomedWindowId')
+  if (lastValidStatement !== getInitialGoal(newProof.proofTree)) {
+    localStorage.removeItem('zoomedWindowId');
+    lastValidStatement = getInitialGoal(newProof.proofTree);
   }
 
   // Every time user clicks on something, we build/highlight/zoom the tree anew!
