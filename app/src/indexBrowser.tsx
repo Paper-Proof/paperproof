@@ -1,11 +1,14 @@
 import * as React from "react";
 import { useRef } from "react";
 import { createRoot } from 'react-dom/client';
-import { Editor, Tldraw } from "@tldraw/tldraw";
+import { Canvas, Editor, Tldraw } from "@tldraw/tldraw";
 
 import WindowUtil from "./shapes/WindowUtil";
 import CustomArrowUtil from "./shapes/CustomArrowUtil";
 import CustomNodeUtil from "./shapes/CustomNodeUtil";
+
+import ErrorToast from "./components/ErrorToast";
+
 import updateUI from "./services/updateUI";
 import clearTldrawCache from "./services/clearTldrawCache";
 
@@ -46,10 +49,10 @@ function Main() {
 
   return (
     <div className="tldraw-wrapper">
-      <Tldraw
-        onMount={handleMount}
-        shapeUtils={customShapeUtils}
-      />
+      <Tldraw onMount={handleMount} shapeUtils={customShapeUtils}>
+        <Canvas/>
+        <ErrorToast/>
+      </Tldraw>
     </div>
   );
 }
