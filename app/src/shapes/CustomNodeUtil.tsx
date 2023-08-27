@@ -1,6 +1,7 @@
 import { GeoShapeUtil, TLGeoShape } from '@tldraw/tldraw';
 import React from 'react';
 
+// @ts-ignore
 export default class CustomNodeUtil extends GeoShapeUtil {
   static override type = 'customNode' as const
 

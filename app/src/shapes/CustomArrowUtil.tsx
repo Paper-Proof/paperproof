@@ -30,6 +30,7 @@ const getIfNodesTouch = (arrowShape: TLArrowShape, editor: Editor) => {
   return null;
 }
 
+// @ts-ignore
 export default class CustomArrowUtil extends ArrowShapeUtil {
   static override type = 'customArrow' as const
 
