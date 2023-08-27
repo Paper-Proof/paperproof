@@ -4,7 +4,7 @@ import CreateId from "./buildProofTree/services/CreateId";
 import getDisplayedId from "src/shared/getDisplayedId";
 
 // lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
-const highlightNodes = (
+const highlightProofTree = (
   editor: Editor,
   equivalentIds: ConvertedProofTree["equivalentIds"],
   currentGoal: ProofState["goal"]
@@ -48,4 +48,4 @@ const highlightNodes = (
   editor.updateShapes(focusedShapes);
 };
 
-export default highlightNodes;
+export default highlightProofTree;

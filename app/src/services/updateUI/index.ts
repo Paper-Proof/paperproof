@@ -1,12 +1,12 @@
 import { Editor } from '@tldraw/tldraw';
 
-import buildProofTree from './buildProofTree';
-import highlightNodes from './highlightNodes';
-import zoomProofTree from './zoomProofTree';
+import buildProofTree from './services/buildProofTree';
+import highlightProofTree from './services/highlightProofTree';
+import zoomProofTree from './services/zoomProofTree';
 
-import { LeanGoal, LeanProofTree, ProofResponse } from 'types';
+import { LeanProofTree, ProofResponse } from 'types';
 
-import converter from '../converter';
+import converter from './services/converter';
 
 const uiConfig = {
   // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing to goals in any way, but determining what hyps are used in what tactics isn't implemented properly yet, e.g. in linarith.
@@ -38,7 +38,7 @@ const loggableProof = (proof: ProofResponse) => {
   }
 }
 
-let lastValidStatement : string | null;
+let lastValidStatement: string | null;
 
 const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse) => {
   editor.updateInstanceState({ isReadonly: false });
@@ -76,7 +76,7 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
   if (isOldProofEmpty || !areObjectsEqual(oldProof.proofTree, newProof.proofTree)) {
     buildProofTree(editor, newProofTree, uiConfig);
   }
-  highlightNodes(editor, newProofTree.equivalentIds, newProof.goal);
+  highlightProofTree(editor, newProofTree.equivalentIds, newProof.goal);
   zoomProofTree(editor, newProofTree, newProof.goal?.mvarId);
 
   editor.updateInstanceState({ isReadonly: true });
