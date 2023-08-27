@@ -1,8 +1,8 @@
 import { Editor } from "@tldraw/tldraw";
-import { Format, UiConfig } from "../../types";
+import { ConvertedProofTree, UiConfig } from "../../types";
 import { createWindow, createArrows } from './services/CreateElement';
 
-const buildProofTree = (editor: Editor, proofTree: Format, uiConfig: UiConfig) => {
+const buildProofTree = (editor: Editor, proofTree: ConvertedProofTree, uiConfig: UiConfig) => {
   editor.deleteShapes(editor.currentPageShapes);
 
   const shared = {

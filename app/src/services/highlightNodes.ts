@@ -1,12 +1,12 @@
 import { Editor } from "@tldraw/tldraw";
-import { Format, ProofState } from "../types";
+import { ConvertedProofTree, ProofState } from "../types";
 import CreateId from "./buildProofTree/services/CreateId";
 import getDisplayedId from "src/shared/getDisplayedId";
 
 // lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
 const highlightNodes = (
   editor: Editor,
-  equivalentIds: Format["equivalentIds"],
+  equivalentIds: ConvertedProofTree["equivalentIds"],
   currentGoal: ProofState["goal"]
 ) => {
   if (currentGoal === null) {

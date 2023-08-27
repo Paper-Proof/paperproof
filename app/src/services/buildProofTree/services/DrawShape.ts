@@ -83,7 +83,7 @@ const hypothesis = (editor: Editor,
 const window = (editor: Editor,
   id: TLShapeId, parentId: TLParentId | undefined,
   x: number, y: number, w: number, h: number, depth: number,
-  goalUsername: string | null, goalUsernameHeight: number, windowId: number
+  goalUsername: string | null, goalUsernameHeight: number, windowId: string
 ) => {
   editor.createShapes([
     {

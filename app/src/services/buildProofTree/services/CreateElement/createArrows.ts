@@ -1,5 +1,5 @@
 import { Editor, TLShapeId } from "@tldraw/tldraw";
-import { Shared, Element, Format } from "../../../../types";
+import { Shared, Element, ConvertedProofTree } from "../../../../types";
 import DrawShape from '../DrawShape';
 import CreateId from '../CreateId';
 
@@ -16,12 +16,12 @@ const findIdInApp = (editor: Editor, desiredId: TLShapeId): TLShapeId | null => 
   }
 }
 
-const getWindowByHypId = (proofTree: Format, hypId : string) =>
+const getWindowByHypId = (proofTree: ConvertedProofTree, hypId : string) =>
   proofTree.windows.find((window) =>
     window.hypNodes.find((hypLayer) => hypLayer.find((hyp) => hyp.id === hypId))
   );
 
-const findWindowId = (editor: Editor, proofTree: Format, goalId: string): TLShapeId | null => {
+const findWindowId = (editor: Editor, proofTree: ConvertedProofTree, goalId: string): TLShapeId | null => {
   const window = proofTree.windows.find((window) =>
     window.goalNodes.find((goalNode) => goalNode.id === goalId)
   );

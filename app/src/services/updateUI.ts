@@ -4,7 +4,7 @@ import buildProofTree from './buildProofTree';
 import highlightNodes from './highlightNodes';
 import zoomProofTree from './zoomProofTree';
 
-import { Format, ProofResponse } from '../types';
+import { ConvertedProofTree, ProofResponse } from '../types';
 
 import converter from '../converter';
 

@@ -1,25 +1,25 @@
 import { Editor } from '@tldraw/tldraw';
 import CreateId from './buildProofTree/services/CreateId';
 import zoomToWindow from '../shared/zoomToWindow';
-import { Format, Window } from 'src/types';
+import { ConvertedProofTree, Window } from 'src/types';
 import getDisplayedId from 'src/shared/getDisplayedId';
 
-const getParentWindowId = (windows: Window[], childId: number): number | null => {
+const getParentWindowId = (windows: Window[], childId: string): string | null => {
   const childWindow = windows.find((w) => w.id === childId);
   const parentId = childWindow!.parentId;
   return parentId;
 }
 
-const findLcm = (windows: Window[], windowIdA: number, windowIdB: number): number => {
-  const parentsOfA: (number | null)[] = [];
-  let idA: number | null = windowIdA;
+const findLcm = (windows: Window[], windowIdA: string, windowIdB: string): string => {
+  const parentsOfA: (string | null)[] = [];
+  let idA: string | null = windowIdA;
   while (true) {
     parentsOfA.push(idA);
     if (idA === null) { break; }
     idA = getParentWindowId(windows, idA);
   }
 
-  let idB: number | null = windowIdB;
+  let idB: string | null = windowIdB;
   while (true) {
     // Shouldn't ever happen, it's only here to calm typescript
     if (idB === null) { return windowIdB; }
@@ -31,7 +31,7 @@ const findLcm = (windows: Window[], windowIdA: number, windowIdB: number): numbe
   }
 }
 
-const zoomProofTree = (editor: Editor, convertedTree: Format, goalId: string | undefined) => {
+const zoomProofTree = (editor: Editor, convertedTree: ConvertedProofTree, goalId: string | undefined) => {
   // This is necessary, if we don't do this zooming will work stupidly until we click on the webview tab (this line makes `editor.viewportScreenBounds` correct).
   editor.updateViewportScreenBounds();
   
@@ -40,7 +40,7 @@ const zoomProofTree = (editor: Editor, convertedTree: Format, goalId: string | u
   const lastClickedOnWindowId = localStorage.getItem('zoomedWindowId')
   const lastClickedOnWindow = lastClickedOnWindowId && editor.getShape(CreateId.window(lastClickedOnWindowId));
   if (!goalId || !lastClickedOnWindow) {
-    const rootWindow = editor.getShape(CreateId.window(1));
+    const rootWindow = editor.getShape(CreateId.window("1"));
     if (rootWindow) {
       zoomToWindow(editor, rootWindow);
     }
@@ -56,7 +56,7 @@ const zoomProofTree = (editor: Editor, convertedTree: Format, goalId: string | u
     return;
   }
 
-  let lcmWindowId = findLcm(convertedTree.windows, windowWithCurrentGoal.id, Number(lastClickedOnWindowId));
+  let lcmWindowId = findLcm(convertedTree.windows, windowWithCurrentGoal.id, lastClickedOnWindowId);
   const lcmWindow = editor.getShape(CreateId.window(lcmWindowId));
 
   if (lcmWindow) {

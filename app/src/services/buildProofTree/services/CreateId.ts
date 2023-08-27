@@ -13,7 +13,7 @@ const node = (nodeId: string): TLShapeId => {
   return createShapeId(`node-${nodeId}`);
 }
 
-const window = (windowId: string | number): TLShapeId => {
+const window = (windowId: string): TLShapeId => {
   return createShapeId(`window-${windowId}`);
 }
 

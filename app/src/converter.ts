@@ -1,10 +1,14 @@
-// @ts-nocheck
-import { Format } from "./types";
+import { ConvertedProofTree, LeanProofTree, Tactic, Window, LeanHypothesis, LeanTactic, LeanGoal, HypNode } from "./types";
 
 let windowId : number;
+let tacticId : number;
 
 const newWindowId = () => {
-  return windowId++;
+  return String(windowId++);
+}
+
+const newTacticId = () => {
+  return String(tacticId++);
 }
 
 // These are our weird situations:
@@ -18,7 +22,7 @@ const newWindowId = () => {
 // In such cases - let's trust Lean that the change is so miniscule it isn't worth the id update.
 //
 // IF we stumble upon the situation where this behaviour is undesirable - let's create a complex data structure that creates new fake ids; and keep track of them in a way that accounts for window parenthood relationships.
-const weirdSituation = (pretty, hypAfter) => {
+const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) => {
   console.warn("Weird situation! Changing existingHypNode into hypAfter in-place:");
   // We need a displayed id here [because, unusually enough, we're changing the already-drawn node]
   const hypAfterId = getDisplayedId(pretty, hypAfter.id);
@@ -35,12 +39,12 @@ const weirdSituation = (pretty, hypAfter) => {
   });
 }
 
-const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
-  const prettyHypNodes = [];
-  const prettyHypArrows = [];
+const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHypothesis[], hypsAfter : LeanHypothesis[]) => {
+  const prettyHypNodes: HypNode[] = [];
+  const prettyHypArrows: any[] = [];
 
-  const hypsAfterMatched = [];
-  const hypsBeforeMatched = [];
+  const hypsAfterMatched: LeanHypothesis[] = [];
+  const hypsBeforeMatched: LeanHypothesis[] = [];
 
   // 1. Draw hypotheses that are clearly connected to a particular previous hypothesis
   hypsAfter.forEach((hypAfter) => {
@@ -185,13 +189,16 @@ const drawNewHypothesisLayer = (pretty, hypsBefore, hypsAfter) => {
 
 // Any window is uniquely associated with a goal id.
 // A particular goal id only ever belongs to some window. 
-const getWindowByGoalId = (pretty, goalId) => {
+const getWindowByGoalId = (pretty : ConvertedProofTree, goalId : string) => {
   return pretty.windows.find((w) =>
     w.goalNodes.find((g) => g.id === getDisplayedId(pretty, goalId))
   )
 }
 
-const getDisplayedId = (pretty, id) => {
+const getDisplayedId = (pretty : ConvertedProofTree, id : string | null) => {
+  if (id === null) {
+    return null
+  }
   const displayedId = Object.keys(pretty.equivalentIds).find((displayedId) =>
     pretty.equivalentIds[displayedId].find((inferiorId) => inferiorId === id)
   );
@@ -200,8 +207,8 @@ const getDisplayedId = (pretty, id) => {
 
 // We always wanna talk to the representative of our equivalent goals.
 // Representative goal id is the one that's actually drawn. 
-const addToEquivalentIds = (pretty, beforeId, afterId) => {
-  const existingGoal = pretty.equivalentIds[getDisplayedId(pretty, beforeId)];
+const addToEquivalentIds = (pretty : ConvertedProofTree, beforeId : string, afterId : string) => {
+  const existingGoal = pretty.equivalentIds[getDisplayedId(pretty, beforeId)!];
   if (existingGoal) {
     existingGoal.push(afterId);
   } else {
@@ -209,7 +216,7 @@ const addToEquivalentIds = (pretty, beforeId, afterId) => {
   }
 }
 
-const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
+const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWindowId : string | null = null) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const mainGoalBefore = tactic.goalsBefore[0];
@@ -235,6 +242,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     const nextGoal = tactic.goalsAfter[0];
 
     pretty.tactics.push({
+      id           : newTacticId(),
       text         : tactic.tacticString,
       dependsOnIds : tactic.tacticDependsOn,
       goalArrows   : [],
@@ -242,7 +250,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
       // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
       // .dependsOnIds will convey all the information we want to see.
       isSuccess    : nextGoal ? '🎉' : 'For all goals, 🎉!',
-      successGoalId: mainGoalBefore.id
+      successGoalId: mainGoalBefore.id,
     });
   }
   // - we updated the goal!
@@ -250,7 +258,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     const updatedGoal = relevantGoalsAfter[0];
 
     // 1. Draw goal nodes and arrows
-    let prettyGoalArrows = [];
+    let prettyGoalArrows: Tactic["goalArrows"] = [];
     // In general, we would want to do this:
     // `if (mainGoalBefore.type !== updatedGoal.type) {`
     // However sometimes the goal id changes; and the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
@@ -280,6 +288,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     }
 
     pretty.tactics.push({
+      id           : newTacticId(),
       text         : tactic.tacticString,
       dependsOnIds : tactic.tacticDependsOn,
       goalArrows   : prettyGoalArrows,
@@ -296,7 +305,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
       toId: goal.id
     }));
 
-    const prettyHypArrows = [];
+    const prettyHypArrows: Tactic["hypArrows"] = [];
     // We are creating new child windows
     const childWindows = relevantGoalsAfter.map((goal) => {
       const hypsBefore = mainGoalBefore.hyps;
@@ -306,7 +315,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
 
       return {
         id: newWindowId(),
-        parentId: currentWindow.id,
+        parentId: currentWindow!.id,
         goalNodes: [
           {
             text: goal.type,
@@ -320,6 +329,7 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
     pretty.windows.push(...childWindows);
 
     pretty.tactics.push({
+      id           : newTacticId(),
       text         : tactic.tacticString,
       dependsOnIds : tactic.tacticDependsOn,
       goalArrows   : prettyGoalArrows,
@@ -329,8 +339,8 @@ const handleTacticApp = (tactic, pretty, haveWindowId = null) => {
   }
 }
 
-const drawInitialGoal = (initialMainGoal, pretty) => {
-  const hypNodes = initialMainGoal.hyps.map((hyp) => ({
+const drawInitialGoal = (initialMainGoal: LeanGoal, pretty : ConvertedProofTree) => {
+  const hypNodes = initialMainGoal.hyps.map((hyp: LeanHypothesis) => ({
     text: hyp.type,
     name: hyp.username,
     id  : hyp.id
@@ -350,27 +360,27 @@ const drawInitialGoal = (initialMainGoal, pretty) => {
   pretty.windows.push(initialWindow);
 }
 
-const getInitialGoal = (subSteps) => {
+const getInitialGoal = (subSteps: LeanProofTree): LeanGoal | undefined => {
   const firstStep = subSteps[0];
-  if (firstStep.tacticApp) {
+  if ('tacticApp' in firstStep) {
     return firstStep.tacticApp.t.goalsBefore[0];
-  } else if (firstStep.haveDecl) {
+  } else if ('haveDecl' in firstStep) {
     return firstStep.haveDecl.t.goalsBefore[0];
   }
 }
 
-const recursive = (subSteps, pretty) => {
+const recursive = (subSteps : LeanProofTree, pretty : ConvertedProofTree) => {
   subSteps.forEach((subStep) => {
-    if (subStep.tacticApp) {
+    if ('tacticApp' in subStep) {
       handleTacticApp(subStep.tacticApp.t, pretty);
-    } else if (subStep.haveDecl) {
+    } else if ('haveDecl' in subStep) {
       const haveWindowId = newWindowId();
 
       handleTacticApp(subStep.haveDecl.t, pretty, haveWindowId);
 
-      const initialGoal = getInitialGoal(subStep.haveDecl.subSteps);
+      const initialGoal = getInitialGoal(subStep.haveDecl.subSteps)!;
 
-      const initialWindow = {
+      const initialWindow : Window = {
         id: haveWindowId,
         // Parent window is such that has our goalId as a hypothesis.
         // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
@@ -392,59 +402,48 @@ const recursive = (subSteps, pretty) => {
   })
 }
 
-const postprocess = (pretty) => {
-  pretty.windows.forEach((w) => {
-    w.goalNodes = w.goalNodes.map((goalNode) => ({
-      ...goalNode,
-      ids: pretty.equivalentIds[goalNode.id] || []
-    }));
-  });
-
-  pretty.tactics.forEach((tactic, index) => {
+const postprocess = (pretty: ConvertedProofTree): ConvertedProofTree => {
+  pretty.tactics.forEach((tactic) => {
     tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
-      ...goalArrow,
-      fromId: getDisplayedId(pretty, goalArrow.fromId),
-      toId  : getDisplayedId(pretty, goalArrow.toId)
+      fromId: getDisplayedId(pretty, goalArrow.fromId)!,
+      toId  : getDisplayedId(pretty, goalArrow.toId)!
     }));
 
     tactic.hypArrows = tactic.hypArrows.map((hypArrow) => ({
-      ...hypArrow,
       fromId: getDisplayedId(pretty, hypArrow.fromId),
-      toIds : hypArrow.toIds.map((toId) => getDisplayedId(pretty, toId))
+      toIds : hypArrow.toIds.map((toId) => getDisplayedId(pretty, toId)!)
     }));
 
     tactic.dependsOnIds = tactic.dependsOnIds.map((id) =>
-      getDisplayedId(pretty, id)
+      getDisplayedId(pretty, id)!
     );
 
-    tactic.successGoalId = getDisplayedId(pretty, tactic.successGoalId);
-
-    tactic.id = index + 1;
+    if (tactic.successGoalId) {
+      tactic.successGoalId = getDisplayedId(pretty, tactic.successGoalId)!;
+    }
   });
+
+  return pretty
 }
 
-const converter = (infoTreeVast) : Format => {
+const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
   windowId = 1;
+  tacticId = 1;
 
+  // First of all, draw the INITIAL hypotheses and goal.
+  const initialGoal = getInitialGoal(leanProofTree)!;
   const pretty = {
     windows: [],
     tactics: [],
-    equivalentIds: {}
+    equivalentIds: {},
+    initialGoal
   }
-
-  // First of all, draw the INITIAL hypotheses and goal.
-  const initialGoal = getInitialGoal(infoTreeVast);
   drawInitialGoal(initialGoal, pretty);
 
   // Then, draw all the other tactics and hypotheses and goals.
-  recursive(infoTreeVast, pretty);
+  recursive(leanProofTree, pretty);
 
-  postprocess(pretty);
-
-  return {
-    ...pretty,
-    initialGoal
-  }
+  return postprocess(pretty);
 }
 
 export default converter;
