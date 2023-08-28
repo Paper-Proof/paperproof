@@ -25,7 +25,7 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
     if (newProof.error === 'File changed.' || newProof.error === 'stillTyping' || newProof.error === 'leanNotYetRunning') {
       return;
     } else if (newProof.error === 'zeroProofSteps') {
-      editor.deleteShapes(editor.currentPageShapes);
+      // editor.deleteShapes(editor.currentPageShapes);
       return;
     } else {
       console.warn("We are not explicitly handling some error?");
