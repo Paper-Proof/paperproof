@@ -17,7 +17,7 @@ const areObjectsEqual = (a: object, b: object) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
 
-const getInitialGoal = (subSteps: LeanProofTree): string | null => {
+const getStatement = (subSteps: LeanProofTree): string | null => {
   const firstStep = subSteps[0];
   if ('tacticApp' in firstStep) {
     return firstStep.tacticApp.t.goalsBefore[0].type;
@@ -65,9 +65,9 @@ const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofRespon
   }
 
   // Delete stored zoomedWindowId if we switched the theorems.
-  if (lastValidStatement !== getInitialGoal(newProof.proofTree)) {
+  if (lastValidStatement !== getStatement(newProof.proofTree)) {
     localStorage.removeItem('zoomedWindowId');
-    lastValidStatement = getInitialGoal(newProof.proofTree);
+    lastValidStatement = getStatement(newProof.proofTree);
   }
 
   // Every time user clicks on something, we build/highlight/zoom the tree anew!
