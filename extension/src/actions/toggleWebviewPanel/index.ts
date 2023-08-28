@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { Shared } from "../../types";
 import getWebviewContent from './services/getWebviewContent';
 
-const toggleWebviewPanel = (shared: Shared, serverUrl: string) => {
+const toggleWebviewPanel = (shared: Shared, serverUrl: string, isBrightTheme: boolean) => {
   if (shared.webviewPanel) {
     shared.webviewPanel.dispose();
   } else {
@@ -12,7 +12,7 @@ const toggleWebviewPanel = (shared: Shared, serverUrl: string) => {
       { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true }
     );
-    webviewPanel.webview.html = getWebviewContent(serverUrl, shared.latestInfo);
+    webviewPanel.webview.html = getWebviewContent(serverUrl, shared.latestInfo, isBrightTheme);
     webviewPanel.onDidDispose(() => { shared.webviewPanel = null; });
     shared.webviewPanel = webviewPanel;
   }

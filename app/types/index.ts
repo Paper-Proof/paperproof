@@ -13,6 +13,7 @@ export type ProofResponse = ProofState | { error: any } | null;
 
 export interface PaperProofWindow extends Window {
   initialInfo: any | null;
+  isBrightTheme: boolean;
 }
 
 export {

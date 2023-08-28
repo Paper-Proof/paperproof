@@ -1,6 +1,6 @@
 import { ProofStateOrError } from "../../../types";
 
-function getWebviewContent(serverUrl: string, initialInfo: ProofStateOrError) {
+function getWebviewContent(serverUrl: string, initialInfo: ProofStateOrError, isBrightTheme: boolean) {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -10,7 +10,10 @@ function getWebviewContent(serverUrl: string, initialInfo: ProofStateOrError) {
       <title>Paperproof</title>
     </head>
     <body>
-      <script>initialInfo = ${JSON.stringify(initialInfo)}</script>
+      <script>
+        window.initialInfo = ${JSON.stringify(initialInfo)};
+        window.isBrightTheme = ${isBrightTheme};
+      </script>
       <div id="root"></div>
       <script src="${serverUrl}/indexBrowser.js"></script>
     </body>

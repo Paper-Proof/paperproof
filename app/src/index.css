@@ -149,6 +149,15 @@ html, * {
 } */
 
 /* Hide tldraw menu, because it doesn't show anything useful either way, it will just confuse the users. */
-button[title="Toggle focus mode"] {
+button[title="Toggle focus mode"]{
   display: none;
+}
+
+.tldraw-wrapper.-vscode-bright-theme .tl-background{
+  /* This is the default */
+  /* background-color: white; */
+}
+
+.tldraw-wrapper.-vscode-dark-theme .tl-background{
+  background-color: var(--vscode-editor-background);
 }

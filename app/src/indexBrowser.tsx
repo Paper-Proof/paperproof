@@ -55,7 +55,7 @@ function Main() {
   };
 
   return (
-    <div className="tldraw-wrapper">
+    <div className={`tldraw-wrapper ${window.isBrightTheme === true ? '-vscode-bright-theme' : '-vscode-dark-theme'}`}>
       <Tldraw onMount={handleMount} shapeUtils={customShapeUtils}>
         {/* ContextMeny is necessary for the right-click menu to appear */}
         <ContextMenu>
