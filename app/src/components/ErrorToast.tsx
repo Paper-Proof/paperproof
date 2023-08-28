@@ -7,29 +7,33 @@ const ErrorToast = track(() => {
 
   React.useEffect(() => {
     addEventListener("message", (event) => {
+      clearToasts();
+
       const proof: ProofResponse = event.data;
+
       if (!proof || !("error" in proof)) {
-        clearToasts();
         return;
       }
 
-      console.log(proof);
-
-      clearToasts();
       if (proof.error === 'File changed.' || proof.error === 'stillTyping') {
-        addToast({ title: "Still typing" });
         return;
       } else if (proof.error === 'leanNotYetRunning') {
-        addToast({ title: "Waiting for Lean" });
+        addToast({
+          title: "Waiting for Lean",
+          keepOpen: true
+        });
       } else if (proof.error.startsWith("No RPC method")) {
         addToast({
-          title: "Please import <b>paperproof</b>",
-          description: "In order to use <b>paperpoof</b>, you need to 1. install a paperproof lean library <br/>2. import it from your file"
-        })
+          title: 'Missing "import paperproof" in this file',
+          // TODO the url is made-up, change it for the actual url!
+          description: '1. [in your lakefile] `require PaperProof from git "https://github.com/Paper-Proof/paper-proof/tree/main/lean"` 2. [in Lean file with theorems you want to explore] `import paperproof` in this Lean file',
+          keepOpen: true
+        });
       } else if (proof.error === 'zeroProofSteps') {
         addToast({
-          title: "Not within theorem"
-        })
+          title: "Not within theorem",
+          keepOpen: true
+        });
       }
     });
   })
