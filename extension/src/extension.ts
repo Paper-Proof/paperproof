@@ -34,7 +34,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("paperproof.toggle", () => {
-      toggleWebviewPanel(shared, SERVER_URL);
       const isBrightTheme = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Light;
       toggleWebviewPanel(shared, SERVER_URL, isBrightTheme);
     })
