@@ -1,7 +1,7 @@
 import React from "react";
 import { useRef } from "react";
 import { createRoot } from 'react-dom/client';
-import { Canvas, Editor, Tldraw } from "@tldraw/tldraw";
+import { Canvas, ContextMenu, Editor, Tldraw } from "@tldraw/tldraw";
 
 import WindowUtil      from "./shapes/WindowUtil";
 import CustomArrowUtil from "./shapes/CustomArrowUtil";
@@ -57,8 +57,11 @@ function Main() {
   return (
     <div className="tldraw-wrapper">
       <Tldraw onMount={handleMount} shapeUtils={customShapeUtils}>
-        <Canvas/>
-        <ErrorToast/>
+        {/* ContextMeny is necessary for the right-click menu to appear */}
+        <ContextMenu>
+          <Canvas/>
+          <ErrorToast/>
+        </ContextMenu>
       </Tldraw>
     </div>
   );
