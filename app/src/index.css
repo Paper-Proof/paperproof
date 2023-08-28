@@ -147,3 +147,8 @@ html, * {
   user-select: all;
   -webkit-user-select: all;
 } */
+
+/* Hide tldraw menu, because it doesn't show anything useful either way, it will just confuse the users. */
+button[title="Toggle focus mode"] {
+  display: none;
+}
