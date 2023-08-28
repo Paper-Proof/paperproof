@@ -1,49 +1,19 @@
+import { ProofResponse, UIConfig } from 'types';
 import { Editor } from '@tldraw/tldraw';
-
-import buildProofTree from './services/buildProofTree';
+import buildProofTree     from './services/buildProofTree';
 import highlightProofTree from './services/highlightProofTree';
-import zoomProofTree from './services/zoomProofTree';
-
-import { LeanProofTree, ProofResponse } from 'types';
-
+import zoomProofTree      from './services/zoomProofTree';
 import converter from './services/converter';
-
-const uiConfig = {
-  // Ideally it should be `hideNonContributingHyps` to hide all hyps which aren't contributing to goals in any way, but determining what hyps are used in what tactics isn't implemented properly yet, e.g. in linarith.
-  hideNulls: true,
-};
-
-const areObjectsEqual = (a: object, b: object) => {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
-
-const getStatement = (subSteps: LeanProofTree): string | null => {
-  const firstStep = subSteps[0];
-  if ('tacticApp' in firstStep) {
-    return firstStep.tacticApp.t.goalsBefore[0].type;
-  } else if ('haveDecl' in firstStep) {
-    return firstStep.haveDecl.t.goalsBefore[0].type;
-  }
-  return null;
-}
-
-// This is resource-heavy, one of the reasons we want a production build that strips console.logs
-const loggableProof = (proof: ProofResponse) => {
-  if (!proof) {
-    return null;
-  } else if ("error" in proof) {
-    return proof;
-  } else {
-    return converter(proof.proofTree);
-  }
-}
+import getStatement     from './services/getStatement';
+import areObjectsEqual  from './services/areObjectsEqual';
+import getLoggableProof from './services/getLoggableProof';
 
 let lastValidStatement: string | null;
 
-const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse) => {
+const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse, uiConfig: UIConfig) => {
   editor.updateInstanceState({ isReadonly: false });
 
-  console.table({ oldProof: loggableProof(oldProof), newProof: loggableProof(newProof) });
+  console.table({ oldProof: getLoggableProof(oldProof), newProof: getLoggableProof(newProof) });
 
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
