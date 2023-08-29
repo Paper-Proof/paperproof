@@ -1,6 +1,6 @@
 import Lean
 
-open Lean Elab Server RequestM
+open Lean Server RequestM
 
 -- TODO we should move this to another file, read on this (https://leanprover.github.io/functional_programming_in_lean/hello-world/starting-a-project.html)
 def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Position) : RequestM Unit := do

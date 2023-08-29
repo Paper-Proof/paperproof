@@ -93,11 +93,11 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
-partial def parse (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
+partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
   | some (ctx : ContextInfo), .node i cs => do
     let newCtx := i.updateContext? ctx
-    let res ← cs.toList.mapM (parse newCtx)
+    let res ← cs.toList.mapM (BetterParser newCtx)
     let steps := res.map (fun r => r.steps) |>.join
     let allSubGoals := HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
@@ -171,5 +171,5 @@ partial def parse (context: Option ContextInfo) (infoTree : InfoTree) : RequestM
     else
       return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"
-  | _, .context ctx t => parse ctx t
+  | _, .context ctx t => BetterParser ctx t
   | _, .hole .. => pure {steps := [], allGoals := .empty}
