@@ -7,3 +7,4 @@ package PaperProof
 lean_lib PaperProof
 
 lean_lib BetterParser
+lean_lib CheckIfUserIsStillTyping
