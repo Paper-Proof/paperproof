@@ -2,7 +2,7 @@
 
 Paperproof is a new proof interface for Lean 4.  
 
-Paperproof will inspect how the hypotheses and goals were changing throughout the proof, and display this history - making it exactly equivalent to how we think of a mathematical proof on paper.
+It will inspect how the hypotheses and goals were changing throughout the proof, and display this history - making it exactly equivalent to how we think of a mathematical proof on paper.
 
 Paperproof is in active development, however you can try it already, see the [Installation](#installation) instructions below.
 
