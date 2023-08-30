@@ -4,11 +4,11 @@ import Mathlib.Data.List.Chain
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 import Std.Data.Int.Basic
-import PaperProof
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Finset.Fold
 import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
+import Paperproof
 
 theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n

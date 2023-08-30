@@ -1,43 +1,53 @@
-{
-  "version": 4,
-  "packagesDir": "lake-packages",
-  "packages": [
-    {
-      "git": {
-        "url": "https://github.com/leanprover-community/mathlib4",
-        "subDir?": null,
-        "rev": "1f7abb829f7f8aa9fd5bcd2400945f18015006a3",
-        "name": "mathlib",
-        "inputRev?": "master"
-      }
-    },
-    {
-      "git": {
-        "url": "https://github.com/gebner/quote4",
-        "subDir?": null,
-        "rev": "7ae096b232087096ff0243a2b70d32720d2621ae",
-        "name": "Qq",
-        "inputRev?": "master"
-      }
-    },
-    {
-      "git": {
-        "url": "https://github.com/JLimperg/aesop",
-        "subDir?": null,
-        "rev": "071464ac36e339afb7a87640aa1f8121f707a59a",
-        "name": "aesop",
-        "inputRev?": "master"
-      }
-    },
-    {
-      "git": {
-        "url": "https://github.com/leanprover/std4",
-        "subDir?": null,
-        "rev": "5507f9d8409f93b984ce04eccf4914d534e6fca2",
-        "name": "std",
-        "inputRev?": "main"
-      }
-    },
-    { "path": { "name": "PaperProof", "dir": "./lean" } }
-  ]
-}
+{"version": 5,
+ "packagesDir": "lake-packages",
+ "packages":
+ [{"git":
+   {"url": "https://github.com/EdAyers/ProofWidgets4",
+    "subDir?": null,
+    "rev": "a0c2cd0ac3245a0dade4f925bcfa97e06dd84229",
+    "opts": {},
+    "name": "proofwidgets",
+    "inputRev?": "v0.0.13",
+    "inherited": true}},
+  {"path":
+   {"opts": {}, "name": "Paperproof", "inherited": false, "dir": "./lean"}},
+  {"git":
+   {"url": "https://github.com/mhuisi/lean4-cli.git",
+    "subDir?": null,
+    "rev": "21dac2e9cc7e3cf7da5800814787b833e680b2fd",
+    "opts": {},
+    "name": "Cli",
+    "inputRev?": "nightly",
+    "inherited": true}},
+  {"git":
+   {"url": "https://github.com/leanprover-community/mathlib4",
+    "subDir?": null,
+    "rev": "bae4f344736fec2adab0a0902a7113e3dea4161f",
+    "opts": {},
+    "name": "mathlib",
+    "inputRev?": "master",
+    "inherited": false}},
+  {"git":
+   {"url": "https://github.com/gebner/quote4",
+    "subDir?": null,
+    "rev": "e75daed95ad1c92af4e577fea95e234d7a8401c1",
+    "opts": {},
+    "name": "Qq",
+    "inputRev?": "master",
+    "inherited": true}},
+  {"git":
+   {"url": "https://github.com/JLimperg/aesop",
+    "subDir?": null,
+    "rev": "1a0cded2be292b5496e659b730d2accc742de098",
+    "opts": {},
+    "name": "aesop",
+    "inputRev?": "master",
+    "inherited": true}},
+  {"git":
+   {"url": "https://github.com/leanprover/std4",
+    "subDir?": null,
+    "rev": "dd3a248c2a22c37644ad21029ecfa38f6a36d813",
+    "opts": {},
+    "name": "std",
+    "inputRev?": "main",
+    "inherited": true}}]}
