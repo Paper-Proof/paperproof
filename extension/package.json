@@ -1,18 +1,26 @@
 {
   "name": "paperproof",
-  "displayName": "paperproof",
-  "description": "Extension which queries Lean server each time cursor position changes and sends context to the web server",
-  "version": "0.0.1",
+  "displayName": "Paperproof",
+  "description": "Lean therorem proving interface which feels like pen-and-paper proofs",
+  "version": "0.0.2",
   "publisher": "paperproof",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Paper-Proof/paper-proof"
+    "url": "https://github.com/Paper-Proof/paperproof"
   },
   "engines": {
     "vscode": "^1.78.0"
   },
   "categories": [
-    "Other"
+    "Visualization",
+    "Education"
+  ],
+  "keywords": [
+    "paperproof",
+    "paper",
+    "proof",
+    "lean",
+    "lean4"
   ],
   "activationEvents": [
     "onLanguage:lean4"
