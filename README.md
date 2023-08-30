@@ -19,23 +19,37 @@ You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
 2. In your `lakefile.lean`, write:
-```
+```lean
 require Paperproof from git "https://github.com/Paper-Proof/paperproof.git" @ "main"/"lean"
 ```
 
-3. In a Lean file with your theorems, write:
+3. Then, in your terminal, run:
+```shell
+lake update Paperproof
 ```
+
+4. In a Lean file with your theorems, write:
+```lean
 import Paperproof
 ```
 
 
-You're done!  
+**You're done!**  
 
-Now, click on the paperproof icon, this will open a paperproof panel within vscode.  
+Now, click on the paperproof icon (after you installed the Paperpoof extension, it should appear in all `.lean` files), this will open a paperproof panel within vscode.  
 
 <img width="200" src="https://user-images.githubusercontent.com/7578559/264487253-2d61e34e-6129-4a52-8156-baee20c1d761.jpg"/>
 
-Then, click inside any theorem - you should see your proof tree rendered.
+You can click on any theorem now - you should see your proof tree rendered.
+
+## Updating
+
+To update Paperproof, you only need to run `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from github, and build it.
+
+Vscode extensions are automatically updated, however you can check for new updates with  
+**`cmd+shift+p` => "Extensions: Show Extension Updates"**.  
+
+Paperproof is a development package, so you might want to remove it from your `lakefile.lean` when you're pushing to production. In order to do that, just remove the Paperproof require from `lakefile.lean`, and run `lake update Paperproof`. This will clean up `lake-manifest.json` and `lake-packages` for you.
 
 ## Development
 
