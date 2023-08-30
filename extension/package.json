@@ -25,6 +25,7 @@
   "activationEvents": [
     "onLanguage:lean4"
   ],
+  "icon": "images/paper.png",
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -32,8 +33,8 @@
         "command": "paperproof.toggle",
         "title": "Paperproof: Toggle",
         "icon": {
-          "dark": "./images/menu.png",
-          "light": "./images/menu.png"
+          "dark": "./images/paper.png",
+          "light": "./images/paper.png"
         }
       }
     ],

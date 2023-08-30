@@ -18,7 +18,7 @@ from vscode status bar
 If you change something in the `/extension` folder, run
 
 ```console
-vsce package; code --uninstall-extension undefined_publisher.paperproof; code --install-extension paperproof-0.0.1.vsix
+vsce package; code --uninstall-extension undefined_publisher.paperproof; code --install-extension paperproof-0.0.2.vsix
 ```
 and quit VSCode.
 
