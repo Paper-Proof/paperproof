@@ -19,6 +19,7 @@ You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
 2. In your `lakefile.lean`, write:
+
 ```lean
 require Paperproof from git "https://github.com/Paper-Proof/paperproof.git" @ "main"/"lean"
 ```
