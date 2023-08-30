@@ -8,7 +8,7 @@ const toggleWebviewPanel = (shared: Shared, serverUrl: string, isBrightTheme: bo
   } else {
     const webviewPanel = vscode.window.createWebviewPanel(
       "paperproof",
-      "Paper Proof",
+      "Paperproof",
       { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true }
     );

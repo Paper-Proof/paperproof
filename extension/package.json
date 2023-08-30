@@ -39,12 +39,12 @@
       ]
     },
     "configuration": {
-      "title": "Paper Proof",
+      "title": "Paperproof",
       "properties": {
         "paperproof.serverUrl": {
           "type": "string",
           "default": "https://paperproof.xyz",
-          "description": "The URL of the Paper Proof server"
+          "description": "The URL of the paperproof server"
         }
       }
     },

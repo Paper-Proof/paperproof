@@ -1,12 +1,12 @@
-# Paper Proof
+# Paperproof
 
-Paper Proof extension allows to visualize Lean 4 tactic proofs on the canvas.
+Paperproof extension allows to visualize Lean 4 tactic proofs on the canvas.
 As you edit the proof, the state is sent to the server via the extension and can be
 viewed in the webview or the browser.
 
 ## Features
 
-Command `Paper Proof : Toggle` toggles the paper proof view.
+Command `Paperproof : Toggle` toggles the paper proof view.
 
 ## Requirements
 

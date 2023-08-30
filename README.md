@@ -1,4 +1,4 @@
-# Paper proof
+# Paperproof
 
 <div align="left">
   <a href="https://www.youtube.com/watch?v=0dVj4ITAF1o">
@@ -29,7 +29,7 @@ code --install-extension paperproof-0.0.1.vsix
 cd app; yarn dev
 ```
 
-3. Toggle the view with `"Paper Proof: Toggle"` command (Ctrl+Shift+P) or open in browser
+3. Toggle the view with `"Paperproof: Toggle"` command (Ctrl+Shift+P) or open in browser
 from vscode status bar
 
 ## Reload 
@@ -41,7 +41,7 @@ vsce package; code --uninstall-extension undefined_publisher.paperproof; code --
 ```
 and quit VSCode.
 
-On some changes, running `"Paper Proof: Toggle"` is important.
+On some changes, running `"Paperproof: Toggle"` is important.
 
 ## Code structure
 

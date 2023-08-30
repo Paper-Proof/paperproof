@@ -88,7 +88,7 @@ function getInlineHtmlWithJsTag(jsUrl, sessionId) {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <title>Paper proof</title>
+        <title>Paperproof</title>
       </head>
       <body>
         <script>sessionId = ${sessionId}</script>
