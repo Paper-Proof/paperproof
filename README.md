@@ -1,57 +1,48 @@
 # Paperproof
 
-<div align="left">
+Paperproof is a new proof interface for Lean 4.  
+
+Paperproof will inspect how the hypotheses and goals were changing throughout the proof, and display this history - making it exactly equivalent to how we think of a mathematical proof on paper.
+
+Paperproof is in active development, however you can try it already, see the [Installation](#installation) instructions below.
+
+<div>
   <a href="https://www.youtube.com/watch?v=0dVj4ITAF1o">
       <img src="https://github.com/Paper-Proof/paper-proof/assets/7578559/f61bdbc8-1983-4315-af69-99852253d443"/>
   </a>
 </div>
 
-Coming soon.  
-Currently you can watch a demo on [youtube](https://www.youtube.com/watch?v=0dVj4ITAF1o),  
-or read our [presentation](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD).
+You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?v=0dVj4ITAF1o), or read our [presentation](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD).
 
-## Overview
+## Installation
 
-WIP: Supposed to be a Lean therorem proving interface (bimodal with VSCode text editing) for iPad and Apple Pencil which feels like you do pen-and-paper proofs.
-Currently working on the readonly milestone allowing to visually explore "tactic tree"s of Lean proofs on a spatial canvas (powered by tldraw).
+1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
-In future potentially with LLMs and visual transformers trying to understand user intent from sketches, formalize to Lean and assist the user. (like in OpenAI GPT 4 demo)
-
-## Developement
-
-1. Install the extension from `extension/` folder
-```console
-code --install-extension paperproof-0.0.1.vsix
+2. In your `lakefile.lean`, write:
+```
+require Paperproof from git "https://github.com/Paper-Proof/paperproof.git" @ "main"/"lean"
 ```
 
-2. Run the dev server (you might need to run `yarn install` first)
-```console
-cd app; yarn dev
+3. In a Lean file with your theorems, write:
+```
+import Paperproof
 ```
 
-3. Toggle the view with `"Paperproof: Toggle"` command (Ctrl+Shift+P) or open in browser
-from vscode status bar
 
-## Reload 
+You're done!  
 
-If you change something in the `/extension` folder, run
+Now, click on the paperproof icon, this will open a paperproof panel within vscode.  
 
-```console
-vsce package; code --uninstall-extension undefined_publisher.paperproof; code --install-extension paperproof-0.0.1.vsix
-```
-and quit VSCode.
+<img width="200" src="https://user-images.githubusercontent.com/7578559/264487253-2d61e34e-6129-4a52-8156-baee20c1d761.jpg"/>
 
-On some changes, running `"Paperproof: Toggle"` is important.
+Then, click inside any theorem - you should see your proof tree rendered.
 
-## Code structure
+## Development
 
-- `lean/` - defines the custom Lean server method which parses the InfoTree into appropriate format for visualization.
-- `app/` - contains a simple server and the browser app which renders
-the proof tree.
-- `extension/` - contains the VSCode extension which queries the Lean server method defined in `lean/` each time the cursor position changes
-and sends the proof tree to the browser app defines in `app/`.
-- `Examples.lean` - contains example theorems and can be used for testing.
+You're welcome to contribute to Paperproof, see the instructions in [CONTRIBUTING.md](https://github.com/Paper-Proof/paperproof/blob/main/CONTRIBUTING.md).
 
 ## Links
 
-Progress tracker in Notion https://safe-roof-f44.notion.site/Magic-paper-47f3f2c1d3b940428d7d981ea425a601
+- Progress tracker in Notion ([notion link](https://safe-roof-f44.notion.site/Magic-paper-47f3f2c1d3b940428d7d981ea425a601))
+- Paperproof demo ([youtube link](https://www.youtube.com/watch?v=0dVj4ITAF1o))
+- Paperproof presentation ([tldraw link](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJ))
