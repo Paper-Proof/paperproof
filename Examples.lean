@@ -86,12 +86,16 @@ theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
 theorem commutativityOfIntersections (s t : Set Nat) : s ∩ t = t ∩ s := by
   ext x
   apply Iff.intro
-  intro h1
-  rw [Set.inter_comm]
-  exact h1
-  intro h1
-  rw [Set.inter_comm]
-  exact h1
+
+  intro aaa
+  rw [Set.mem_inter_iff, and_comm] at aaa
+  exact aaa
+  
+  intro bbb
+  rw [Set.mem_inter_iff, and_comm] at bbb
+  exact bbb
+
+  
 
 example : a ∧ b → m ∧ n → a ∧ b := by
   intro hi
