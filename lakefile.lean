@@ -12,6 +12,6 @@ lean_lib «Examples» {
 -- If you're developing locally, this imports paperproof from a local "./lean" folder
 require Paperproof from "lean"
 
--- require Paperproof from git "https://github.com/Paper-Proof/paperproof.git" @ "main"/"lean"
+-- require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
 
 require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "master"

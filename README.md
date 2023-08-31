@@ -21,7 +21,7 @@ You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?
 2. In your `lakefile.lean`, write:
 
 ```lean
-require Paperproof from git "https://github.com/Paper-Proof/paperproof.git" @ "main"/"lean"
+require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
 ```
 
 3. Then, in your terminal, run:
