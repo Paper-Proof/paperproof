@@ -28,7 +28,7 @@ You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?
     lake update Paperproof
     ```
 
-    *Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean. In that case, just follow the instructions Lean server gives you.*
+    *Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`.*
 
 4. In a Lean file with your theorems, write:
     ```lean
@@ -42,13 +42,11 @@ Now, click on the paperproof icon (after you installed the Paperpoof extension, 
 
 <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
-
-
 You can click on any theorem now - you should see your proof tree rendered.
 
 ## Updating
 
-To update Paperproof, you only need to run `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from github, and build it.
+To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from github, and build it.
 
 Vscode extensions are automatically updated, however you can check for new updates with  
 **`cmd+shift+p` => "Extensions: Show Extension Updates"**.  
