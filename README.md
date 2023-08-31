@@ -1,16 +1,16 @@
-# Paperproof
+<h1 align="center">Paperproof</h1>
 
-Paperproof is a new proof interface for Lean 4.  
+<h2 align="center">
+A new proof interface for Lean 4.  
+</h2>
 
-It will inspect how the hypotheses and goals were changing throughout the proof, and display this history - making it exactly equivalent to how we think of a mathematical proof on paper.
-
-Paperproof is in active development, however you can try it already, see the [Installation](#installation) instructions below.
-
-<div>
+<div align="center">
   <a href="https://www.youtube.com/watch?v=0dVj4ITAF1o">
-      <img src="https://github.com/Paper-Proof/paper-proof/assets/7578559/f61bdbc8-1983-4315-af69-99852253d443"/>
+      <img width="900" alt="paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/b3ea18ba-98c2-4352-baa1-71257ea0f881">
   </a>
 </div>
+
+Paperproof will inspect how the hypotheses and goals were changing throughout the proof, and display this history - making it exactly equivalent to how we think of a mathematical proof on paper. Paperproof is in active development, however you can try it already, see the [Installation](#installation) instructions below.
 
 You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?v=0dVj4ITAF1o), or read our [presentation](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJD).
 
