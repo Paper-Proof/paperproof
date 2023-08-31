@@ -19,22 +19,21 @@ You can also watch a Paperproof demo on [youtube](https://www.youtube.com/watch?
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
 2. In your `lakefile.lean`, write:
-
-```lean
-require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
-```
+    ```lean
+    require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
+    ```
 
 3. Then, in your terminal, run:
-```shell
-lake update Paperproof
-```
+    ```shell
+    lake update Paperproof
+    ```
 
-Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean. In that case, just follow the instructions Lean server gives you.
+    *Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean. In that case, just follow the instructions Lean server gives you.*
 
 4. In a Lean file with your theorems, write:
-```lean
-import Paperproof
-```
+    ```lean
+    import Paperproof
+    ```
 
 
 **You're done!**  
