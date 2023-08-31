@@ -63,3 +63,7 @@ You're welcome to contribute to Paperproof, see the instructions in [CONTRIBUTIN
 - Progress tracker in Notion ([notion link](https://safe-roof-f44.notion.site/Magic-paper-47f3f2c1d3b940428d7d981ea425a601))
 - Paperproof demo ([youtube link](https://www.youtube.com/watch?v=0dVj4ITAF1o))
 - Paperproof presentation ([tldraw link](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJ))
+
+<div align="center">
+<img width="60px" src="https://github.com/Paper-Proof/paperproof/assets/7578559/58f24cf2-4336-4376-8738-6463e3802ba0">
+</div>
