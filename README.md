@@ -29,6 +29,8 @@ require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"mai
 lake update Paperproof
 ```
 
+Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean. In that case, just follow the instructions Lean server gives you.
+
 4. In a Lean file with your theorems, write:
 ```lean
 import Paperproof
