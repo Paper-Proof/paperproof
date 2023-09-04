@@ -23,7 +23,9 @@ const createEmpty = (): UIElement => {
 }
 
 const createTrees = (hMargin: number, trees: UIHypTree[]): UIElement => {
-  if (trees.length == 0) return { size: [0, 0], draw: () => { } };
+  if (trees.length == 0) {
+    return createEmpty();
+  }
   const rowHeights = byLevel(hMargin, trees).map(row => hStack(hMargin, row).size[1]);
   const colWidths = trees.map(t => getTreeWidth(hMargin, t));
   function draw(x: number, y: number, level: number, t: UIHypTree): void {
