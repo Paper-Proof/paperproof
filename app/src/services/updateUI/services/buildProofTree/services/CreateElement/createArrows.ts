@@ -47,12 +47,12 @@ const createArrows = (shared: UIShared): UIElement => {
               const fromNodeId = findIdInApp(shared.editor, CreateId.node(hypArrow.fromId));
               const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, hypArrow.fromId, window.id));
               if (!fromNodeId || !toTacticId) return
-              DrawShape.arrow(shared.editor, fromNodeId, toTacticId);
+              DrawShape.arrow(shared.editor, fromNodeId, toTacticId, "hypArrow");
             }
             const fromTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, hypArrow.fromId, window.id));
             const toNodeId = findIdInApp(shared.editor, CreateId.node(toId));
             if (!fromTacticId || !toNodeId) return
-            DrawShape.arrow(shared.editor, fromTacticId, toNodeId);
+            DrawShape.arrow(shared.editor, fromTacticId, toNodeId, "hypArrow");
           });
         });
 
@@ -66,12 +66,12 @@ const createArrows = (shared: UIShared): UIElement => {
           const windowId2 = findWindowId(shared.editor, shared.proofTree, goalArrow.toId);
           if (!tacticId || !toNodeId || !fromNodeId || !windowId1 || !windowId2) return
           if (windowId1 === windowId2) {
-            DrawShape.arrow(shared.editor, fromNodeId, tacticId);
+            DrawShape.arrow(shared.editor, fromNodeId, tacticId, "goalArrow");
           } else {
-            DrawShape.arrow(shared.editor, windowId2, tacticId);
+            DrawShape.arrow(shared.editor, windowId2, tacticId, "goalArrow");
           }
 
-          DrawShape.arrow(shared.editor, tacticId, toNodeId);
+          DrawShape.arrow(shared.editor, tacticId, toNodeId, "goalArrow");
         });
 
         // 3. Draw arrows between this tactic and `have` windows
@@ -81,7 +81,7 @@ const createArrows = (shared: UIShared): UIElement => {
           const fromWindowId = findIdInApp(shared.editor, CreateId.window(tactic.haveWindowId));
           const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, null, window.id));
           if (!fromWindowId || !toTacticId) return
-          DrawShape.arrow(shared.editor, fromWindowId, toTacticId);
+          DrawShape.arrow(shared.editor, fromWindowId, toTacticId, "goalArrow");
         }
       });
     }

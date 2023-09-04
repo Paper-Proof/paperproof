@@ -1,6 +1,6 @@
 import { Editor, TLShapeId, TLParentId, createShapeId } from "@tldraw/tldraw";
 
-const arrow = (editor: Editor, fromId: TLShapeId, toId: TLShapeId) => {
+const arrow = (editor: Editor, fromId: TLShapeId, toId: TLShapeId, arrowType: "hypArrow" | "goalArrow") => {
   editor.createShapes([
     {
       id: createShapeId(),
@@ -16,8 +16,11 @@ const arrow = (editor: Editor, fromId: TLShapeId, toId: TLShapeId) => {
           normalizedAnchor: { x: 0.5, y: 0 },
           isExact: true
         },
-        color: "grey",
+        size: "m"
       },
+      meta: {
+        arrowType
+      }
     },
   ]);
 }

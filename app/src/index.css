@@ -136,8 +136,11 @@ html, * {
 
 
 
-[data-shape-type="customArrow"] g{
-  stroke: rgb(224, 228, 233);
+.hypArrow g{
+  stroke: rgb(150, 201, 167);
+}
+.goalArrow g{
+  stroke: rgb(214, 215, 215);
 }
 
 

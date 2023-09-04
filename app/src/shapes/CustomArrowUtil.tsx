@@ -1,4 +1,5 @@
 import { ArrowShapeUtil, TLArrowShape, Editor } from '@tldraw/tldraw';
+import React from 'react';
 
 const getIfVerticalDistanceBetweenNodesIs0 = (arrowInfo: any) => {
   if (!arrowInfo) return null
@@ -44,7 +45,7 @@ export default class CustomArrowUtil extends ArrowShapeUtil {
 
   override component(arrowShape: TLArrowShape) {
     // Important to store it here and not later
-    const superRender = super.component(arrowShape);
+    const superRender: JSX.Element | null = super.component(arrowShape);
 
     const ifVerticalDistanceBetweenNodesIs0 = getIfVerticalDistanceBetweenNodesIs0(this.editor.getArrowInfo(arrowShape)!);
     const ifNodesTouch = getIfNodesTouch(arrowShape, this.editor);
@@ -52,7 +53,14 @@ export default class CustomArrowUtil extends ArrowShapeUtil {
     if (ifVerticalDistanceBetweenNodesIs0 === null || ifNodesTouch === null) return superRender;
     // Don't show the arrow when the nodes are super close
     if (ifVerticalDistanceBetweenNodesIs0 && ifNodesTouch) return null;
-    return superRender;
+
+    if (superRender) {
+      return <div className={arrowShape.meta.arrowType === 'hypArrow' ? 'hypArrow' : 'goalArrow'}>
+        {superRender}
+      </div>
+    } else {
+      return superRender;
+    }
   }
 
   override indicator() {
