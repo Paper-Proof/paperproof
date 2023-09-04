@@ -7,10 +7,10 @@ const vStack = (margin: number, boxes: UIElement[]): UIElement => {
       Math.max(...boxes.map((b) => b.size[0])),
       boxes.map((b) => b.size[1]).reduce((x, y) => x + y) + (boxes.length - 1) * margin,
     ],
-    draw(x, y, prefferedWidth) {
+    draw(x, y, preferredWidth) {
       let dy = 0;
       for (const box of boxes) {
-        box.draw(x, y + dy, prefferedWidth);
+        box.draw(x, y + dy, preferredWidth);
         dy += box.size[1] + margin;
       }
     },

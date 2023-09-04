@@ -23,7 +23,7 @@ export interface UIHypTree {
 
 export interface UIElement {
   size: [number, number];
-  draw: (x: number, y: number, prefferedWidth?: number) => void;
+  draw: (x: number, y: number, preferredWidth?: number) => void;
 }
 
 export interface UIIdElement extends UIElement {

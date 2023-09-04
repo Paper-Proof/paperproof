@@ -18,8 +18,8 @@ const createNode = (
   return {
     id,
     size: [w, h],
-    draw(x, y, prefferedWidth?: number) {
-      const effectiveW = !!prefferedWidth && prefferedWidth > w ? prefferedWidth : w;
+    draw(x, y, preferredWidth?: number) {
+      const effectiveW = !!preferredWidth && preferredWidth > w ? preferredWidth : w;
       if (type === "tactic") {
         DrawShape.tactic(shared.editor, id, parentId, x, y, effectiveW, h, newText);
       } else if (type === "goal") {
