@@ -1,4 +1,4 @@
-import { TLParentId } from "@tldraw/tldraw";
+import { TLParentId, createShapeId } from "@tldraw/tldraw";
 
 import { UIHypTree, UIElement, UIIdElement, HypLayer, Window, UIShared } from "types";
 
@@ -164,21 +164,31 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
     createWindow(shared, parentId, subWindow, depth + 1)
   );
 
+  let windowWidth = 0;
+
   // 3. Draw all goal nodes (and their tactic nodes)
   const goalNodes = [...window.goalNodes].reverse();
-  let goalEls : UIIdElement[] = [];
-  const goalAndTacticEls: UIElement[] = goalNodes.flatMap((goalNode) => {
-    const goalEl: UIIdElement = createNode(shared, parentId, goalNode.text, "goal", CreateId.node(goalNode.id));
-    goalEls.push(goalEl);
+  // let goalEls : UIIdElement[] = [];
+  let goalAndTacticEls : UIElement[] = [];
+  goalNodes.forEach((goalNode) => {
+    const goalEl: UIIdElement = withWidth(() => windowWidth, createNode(shared, parentId, goalNode.text, "goal", CreateId.node(goalNode.id))) as UIIdElement;
+
     const tactic = shared.proofTree.tactics.find((tactic) =>
-      tactic.goalArrows.some((a) => a.fromId == goalNode.id) ||
-      tactic.successGoalId == goalNode.id
+      tactic.goalArrows.some((a) => a.fromId === goalNode.id) ||
+      tactic.successGoalId === goalNode.id
     );
+    let tacticEl : UIElement;
     if (tactic) {
-      const tacticEl: UIElement = createNode(shared, parentId, tactic.text + (tactic.successGoalId ? " 🎉" : ""), "tactic", CreateId.goalTactic(tactic.id));
-      return [tacticEl, goalEl];
+      const isSuccessTactic = tactic.successGoalId && tactic.text !== "sorry";
+      tacticEl = createNode(shared, parentId, (isSuccessTactic ? `🎉 ${tactic.text} 🎉` : tactic.text), "tactic", CreateId.goalTactic(tactic.id));
     } else {
-      return [goalEl];
+      tacticEl = createNode(shared, parentId, "...", "tactic", createShapeId());
+    }
+    const isLastGoalNode = (tactic && tactic.successGoalId && tactic.text !== "sorry") || !tactic;
+    if (isLastGoalNode) {
+      goalAndTacticEls.push(withWidth(() => windowWidth, tacticEl), goalEl);
+    } else {
+      goalAndTacticEls.push(tacticEl, goalEl);
     }
   });
 
@@ -192,13 +202,9 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
     rows.push(goals);
   }
 
-  // ***EXPERIMENTAL***
+  // ***EXPERIMENTAL*** (everything with this variable is experimental)
   // Make goal nodes always span 100% width
-  const maxWidth = Math.max(...rows.map((b) => b.size[0]));
-  goalEls.forEach((goalEl) => {
-    const oldDraw = goalEl.draw
-    goalEl.draw = (x, y) => oldDraw(x, y, maxWidth)
-  });
+  windowWidth = Math.max(...rows.map((b) => b.size[0]));
   // ***EXPERIMENTAL***
 
   return vStack(shared.inBetweenMargin, rows);
