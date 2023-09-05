@@ -192,12 +192,14 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
     rows.push(goals);
   }
 
+  // ***EXPERIMENTAL***
   // Make goal nodes always span 100% width
   const maxWidth = Math.max(...rows.map((b) => b.size[0]));
   goalEls.forEach((goalEl) => {
     const oldDraw = goalEl.draw
     goalEl.draw = (x, y) => oldDraw(x, y, maxWidth)
   });
+  // ***EXPERIMENTAL***
 
   return vStack(shared.inBetweenMargin, rows);
 }
