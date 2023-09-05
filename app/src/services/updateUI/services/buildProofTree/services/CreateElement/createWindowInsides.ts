@@ -166,10 +166,10 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
 
   // 3. Draw all goal nodes (and their tactic nodes)
   const goalNodes = [...window.goalNodes].reverse();
-  const proof: UIElement[] = goalNodes.flatMap(goalNode => {
+  let goalEls : UIIdElement[] = [];
   const goalAndTacticEls: UIElement[] = goalNodes.flatMap((goalNode) => {
     const goalEl: UIIdElement = createNode(shared, parentId, goalNode.text, "goal", CreateId.node(goalNode.id));
-        t.goalArrows.some((a) => a.fromId == goalNode.id) ||
+    goalEls.push(goalEl);
     const tactic = shared.proofTree.tactics.find((tactic) =>
       tactic.goalArrows.some((a) => a.fromId == goalNode.id) ||
       tactic.successGoalId == goalNode.id
@@ -191,6 +191,13 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
     const goals = vStack(0, goalAndTacticEls);
     rows.push(goals);
   }
+
+  // Make goal nodes always span 100% width
+  const maxWidth = Math.max(...rows.map((b) => b.size[0]));
+  goalEls.forEach((goalEl) => {
+    const oldDraw = goalEl.draw
+    goalEl.draw = (x, y) => oldDraw(x, y, maxWidth)
+  });
 
   return vStack(shared.inBetweenMargin, rows);
 }
