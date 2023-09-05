@@ -165,3 +165,8 @@ button[title="Toggle focus mode"]{
 .tldraw-wrapper.-vscode-dark-theme .tl-background{
   background-color: var(--vscode-editor-background);
 }
+
+.-is-tactic-is-success > svg path {
+  fill: #c4f4ff6b;
+  stroke: #20e3ff;
+}
