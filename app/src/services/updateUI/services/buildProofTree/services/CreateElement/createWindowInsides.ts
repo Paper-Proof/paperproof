@@ -160,46 +160,35 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
 
   // 2. Draw all child windows
   const subWindows = shared.proofTree.windows.filter((w) => w.parentId == window.id);
-  const frames: UIElement[] = [];
-  for (const subWindow of subWindows) {
-    frames.push(createWindow(shared, parentId, subWindow, depth + 1));
-  }
+  const frameEls: UIElement[] = subWindows.map((subWindow) =>
+    createWindow(shared, parentId, subWindow, depth + 1)
+  );
 
   // 3. Draw all goal nodes (and their tactic nodes)
   const goalNodes = [...window.goalNodes].reverse();
   const proof: UIElement[] = goalNodes.flatMap(goalNode => {
-    const tactic = shared.proofTree.tactics.find(
-      (t) =>
+  const goalAndTacticEls: UIElement[] = goalNodes.flatMap((goalNode) => {
+    const goalEl: UIIdElement = createNode(shared, parentId, goalNode.text, "goal", CreateId.node(goalNode.id));
         t.goalArrows.some((a) => a.fromId == goalNode.id) ||
-        t.successGoalId == goalNode.id
-    );
-    const goalEl: UIIdElement = createNode(
-      shared,
-      parentId,
-      goalNode.text,
-      "goal",
-      CreateId.node(goalNode.id)
+    const tactic = shared.proofTree.tactics.find((tactic) =>
+      tactic.goalArrows.some((a) => a.fromId == goalNode.id) ||
+      tactic.successGoalId == goalNode.id
     );
     if (tactic) {
-      const tacticElement = createNode(
-        shared,
-        parentId,
-        tactic.text + (tactic.successGoalId ? " 🎉" : ""),
-        "tactic",
-        CreateId.goalTactic(tactic.id),
-      );
-      return [tacticElement, goalEl];
+      const tacticEl: UIElement = createNode(shared, parentId, tactic.text + (tactic.successGoalId ? " 🎉" : ""), "tactic", CreateId.goalTactic(tactic.id));
+      return [tacticEl, goalEl];
     } else {
       return [goalEl];
     }
   });
-  if (frames.length > 0) {
+
+  if (frameEls.length > 0) {
     // In such case we want to attach last tactic to the row with frames
-    const framesEl = hStack(shared.inBetweenMargin, frames);
+    const framesEl = hStack(shared.inBetweenMargin, frameEls);
     // We can assume that the first element is a tactic since we have frames.
-    rows.push(vStack(0, [framesEl, withWidth(framesEl.size[0], proof[0]), ...proof.slice(1)]));
+    rows.push(vStack(0, [framesEl, withWidth(framesEl.size[0], goalAndTacticEls[0]), ...goalAndTacticEls.slice(1)]));
   } else {
-    const goals = vStack(0, proof);
+    const goals = vStack(0, goalAndTacticEls);
     rows.push(goals);
   }
 
