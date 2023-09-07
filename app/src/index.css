@@ -1,60 +1,10 @@
-/* LIGHT BLUE VERSION
-.rs-canvas{
-  background: rgba(199, 210, 225, 0.18);
-}
-
-.tl-frame_body.depth-0 { fill: rgba(199, 219, 248, 0.03); }
-.tl-frame_body.depth-1 { fill: rgba(199, 219, 248, 0.21); }
-.tl-frame_body.depth-2 { fill: rgba(199, 219, 248, 0.35); }
-
-
-
-.rs-theme__light{
-  --palette-grey: rgb(180, 208, 236);
-}
-*/
-
-/*  "Cool grey material dark palette" VERSION
-const colors=[ "#1f2933",
-"#323f4b",
-"#3e4c59",
-"#52606d",
-"#616e7c",
-"#7b8794",
-"#9aa5b1",
-"#cbd2d9",
-"#e4e7eb",
-"#f5f7fa",
-"rgba(132, 147, 171, 0.40)",
-"rgba(132, 147, 171, 0.33)",
-"rgba(132, 147, 171, 0.22)",
-
-"",
-"",
-"",
-].reverse()
-
-*/
-
-/* BLUE VERSION
-.tl-frame_body.depth-0 { fill: rgba(213, 236, 253, 0.7); }
-.tl-frame_body.depth-1 { fill: rgba(213, 236, 253, 0.36); }
-.tl-frame_body.depth-2 { fill: rgba(213, 236, 253, 0.16); }
-*/
-
-/* GREY VERSION 
-.tl-frame_body.depth-0 { fill: rgba(132, 147, 171, 0.22); }
-.tl-frame_body.depth-1 { fill: rgba(132, 147, 171, 0.33); }
-.tl-frame_body.depth-2 { fill: rgba(132, 147, 171, 0.40); }
-*/
-
-/* LIGHT GREY VERSION */
+/* Backgrounds for windows */
 .tl-frame_body.depth-0 { fill: rgba(132, 147, 171, 0.11); }
 .tl-frame_body.depth-1 { fill: rgba(132, 147, 171, 0.17); }
 .tl-frame_body.depth-2 { fill: rgba(132, 147, 171, 0.24); }
 .tl-frame_body.depth-3 { fill: rgba(132, 147, 171, 0.3); }
 .tl-frame_body.depth-4 { fill: rgba(132, 147, 171, 0.4); }
-// All of the previous ones were tested on a real proof, these ones are my guesses for what would look okay
+/* All of the previous ones were tested on a real proof, these ones are my guesses for what would look okay */
 .tl-frame_body.depth-5 { fill: rgba(132, 147, 171, 0.5); }
 .tl-frame_body.depth-6 { fill: rgba(132, 147, 171, 0.55); }
 .tl-frame_body.depth-7 { fill: rgba(132, 147, 171, 0.6); }
@@ -71,12 +21,20 @@ const colors=[ "#1f2933",
   text-shadow: none;
   color: rgb(86, 95, 96);
 }
+/* uncomment fill to see what it's doing */
+/* Looks interesting, but looks like it's cleaner with no css at all */
+.window:hover {
+  /* fill: rgb(238, 228, 241); */
+  /* cursor: pointer !important; */
+}
+[data-shape-type="window"]:hover .goalUsername {
+  background: rgba(147, 153, 162, 0.16) !important;
+}
 
 /* This is directly copypasted from tldraw examples folder (https: //stackblitz.com/github/tldraw/tldraw/tree/examples?file=src%2Fstyles.css).
 I added it to make the tldraw menus render nicely.
 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
-
 html,
 body {
   padding: 0;
@@ -89,7 +47,6 @@ body {
   min-height: -webkit-fill-available;
   height: 100%;
 }
-
 /* This makes the Preferences menu icons visible (otherwise they are hidden) */
 html, * {
   box-sizing: border-box;
@@ -101,7 +58,6 @@ html, * {
   inset: 0px;
   overflow: hidden;
 }
-
 .tlui-button{
   font-size: 13px;
 }
@@ -118,16 +74,6 @@ html, * {
   fill: transparent;
 }
 
-/* uncomment fill to see what it's doing */
-/* Looks interesting, but looks like it's cleaner with no css at all */
-.window:hover{
-  /* fill: rgb(238, 228, 241); */
-  /* cursor: pointer !important; */
-}
-
-[data-shape-type="window"]:hover .goalUsername{
-  background: rgba(147, 153, 162, 0.16) !important;
-}
 
 .window-indicator{
   stroke: transparent;
@@ -146,8 +92,7 @@ html, * {
 
 
 /* Makes it possible to select text in nodes */
-/* .tl-container, .tl-container * */
-/* .shape-node, .shape-node * {
+/* .tl-container, .shape-node, .shape-node * {
   user-select: all;
   -webkit-user-select: all;
 } */
@@ -157,16 +102,12 @@ button[title="Toggle focus mode"]{
   display: none;
 }
 
-.tldraw-wrapper.-vscode-bright-theme .tl-background{
-  /* This is the default */
-  /* background-color: white; */
-}
-
+/* Make tldraw bg dark for dark vscode themes */
 .tldraw-wrapper.-vscode-dark-theme .tl-background{
   background-color: var(--vscode-editor-background);
 }
 
 .-is-tactic-is-success > svg path {
   fill: #c4f4ff6b;
-  stroke: #20e3ff;
+  /* stroke: #20e3ff; */
 }
