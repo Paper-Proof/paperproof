@@ -1,7 +1,7 @@
 import { Editor } from "@tldraw/tldraw";
 import { ConvertedProofTree, ProofState } from "types";
 import CreateId from "./buildProofTree/services/CreateId";
-import getDisplayedId from "src/shared/getDisplayedId";
+import getDisplayedId from "src/services/updateUI/services/getDisplayedId";
 
 // lakesare: I spent very much no time thinking about this, especially after the tldraw update (previously we didn't have metadata in tldraw). If you think there is a cleaner solution - there is.
 const highlightProofTree = (

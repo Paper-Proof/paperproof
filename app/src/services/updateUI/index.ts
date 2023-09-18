@@ -5,7 +5,7 @@ import highlightProofTree from './services/highlightProofTree';
 import zoomProofTree      from './services/zoomProofTree';
 import converter from './services/converter';
 import getStatement     from './services/getStatement';
-import areObjectsEqual  from './services/areObjectsEqual';
+import areObjectsEqual  from '../../library/areObjectsEqual';
 import getLoggableProof from './services/getLoggableProof';
 
 let lastValidStatement: string | null;

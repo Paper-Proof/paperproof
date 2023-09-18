@@ -1,5 +1,5 @@
 import { TLUiMenuSchema, TLUiOverrides } from "@tldraw/tldraw";
-import copyTextToClipboard from "src/shared/copyTextToClipboard";
+import copyTextToClipboard from "src/library/copyTextToClipboard";
 
 const uiOverrides: TLUiOverrides = {
   contextMenu: (editor, schema : TLUiMenuSchema, helpers): TLUiMenuSchema => {

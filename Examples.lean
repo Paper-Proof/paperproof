@@ -10,10 +10,80 @@ import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
 
+
+namespace hi
+
+inductive Prod (α : Type u) (β : Type v)
+  | mk : α → β → Prod α β
+
+inductive Sum (α : Type u) (β : Type v) where
+  | inl : α → Sum α β
+  | inr : β → Sum α β
+
+
+
+-- .rec doesn't work (Lean limitation)
+-- .recOn doesn't work (Lean limitation)
+-- .casesOn works
+
+def corr (wow : Prod Nat Nat) : Nat :=
+  Prod.casesOn (motive := λ p => Nat) wow (λ a b => 8)
+
+def hello (wow : Sum Nat String) : Nat :=
+  Sum.casesOn
+    (motive := λ s => Nat)
+    wow
+    (λ n => n * 1000)
+    (λ s => 666)
+
+#eval hello (Sum.inl 2)
+#eval hello (Sum.inr "evgenia")
+
+#eval corr (Prod.mk 2 3)
+
+
+
+
+inductive Nat where
+  | zero : Nat
+  | succ : Nat → Nat
+  deriving Repr
+
+def add (m n : Nat) : Nat :=
+  Nat.casesOn
+    (motive := λ _ => Nat)
+    m
+    n
+    (λ p => Nat.succ (add p n))
+
+
+
+#eval add (Nat.succ (Nat.succ Nat.zero)) (Nat.succ Nat.zero)
+
+
+theorem zero_add (m : Nat) : add Nat.zero n = n :=
+  rfl
+
+theore
+
+
+
+end hi
+
+
 theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
   intro n
-  exact ⟨ n + n, rfl ⟩ 
+  exact ⟨ n + n, rfl ⟩
 }
+
+example (p q : Nat → Prop) : (∃ x, p x) → ∃ x, p x ∨ q x := by
+  intro h
+  cases h with
+  | intro x px =>
+    sorry
+    -- apply Exists.intro
+
+
 
 theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
   intro N
@@ -83,19 +153,45 @@ theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
   exact hq
   exact hp
 
-theorem commutativityOfIntersections (s t : Set Nat) : s ∩ t = t ∩ s := by
+
+
+
+
+
+
+theorem commutativityOfIntersections
+(s t : Set Nat) : s ∩ t = t ∩ s := by
   ext x
   apply Iff.intro
 
-  intro aaa
-  rw [Set.mem_inter_iff, and_comm] at aaa
-  exact aaa
+  intro h1
+  rw [Set.mem_inter_iff, and_comm] at h1
+  exact h1
   
-  intro bbb
-  rw [Set.mem_inter_iff, and_comm] at bbb
-  exact bbb
+  intro h2
+  rw [Set.mem_inter_iff, and_comm] at h2
+  exact h2
 
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 example : a ∧ b → m ∧ n → a ∧ b := by
   intro hi
@@ -125,18 +221,15 @@ theorem simple : ∀ (N : ℕ), ∃ M, N + N = M := by
   use n + n
 
 example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
-  intro hello
   intro hi
-  intro aaa
-  cases aaa
-  
+  intro wow
+  intro hm
+  cases' hm with p q
   left
-  apply hello
-  assumption
-
+  exact hi p
   right
-  apply hi
-  assumption
+  
+
 
 example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
   ext x
@@ -145,24 +238,45 @@ example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
   
   rintro ⟨xs, xt⟩
   exact ⟨xt, xs⟩
-  
-  sorry
+
+
 
 theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
-  intro h
-  cases h.right
-  exact Or.inl ⟨h.left, ‹q›⟩
+  intro xxx
+  cases' xxx with hp hqr
+  cases' hqr with hq hr
+  left
+  -- apply And.intro
+  -- exact hp
+  -- exact hq
+  
+  -- apply And.intro hp hq
 
-  exact Or.inr ⟨h.left, ‹r›⟩
-  intro h
-  cases h
+  exact And.intro hp hq
 
-  rename_i hpq
-  exact ⟨hpq.left, Or.inl hpq.right⟩
+  right
+  exact And.intro hp hr
 
-  rename_i hpr
-  exact ⟨hpr.left, Or.inr hpr.right⟩
+  intro wow
+  apply And.intro
+  cases' wow with hm heh
+  exact hm.left
+  exact heh.left
+  cases' wow with a b
+  left
+  exact a.right
+  right
+  exact b.right
+
+  
+
+
+
+
+
+
+  
   
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
@@ -174,8 +288,14 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
 
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
-  have hr : p := by sorry
-  sorry
+  apply Iff.intro
+  intro wow
+  cases' wow with a b
+  cases' b with hQ hR
+  left
+  exact And.intro a hQ
+  
+
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   sorry
@@ -189,10 +309,28 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
 
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
-  have hehe : p := by
-    have easy : true := by trivial
-    sorry 
-  sorry 
+  apply Iff.intro
+  intro hi
+  cases' hi with P QR
+  cases' QR with Q R
+  left
+  exact And.intro P Q
+  right
+  apply And.intro
+  assumption
+  assumption
+  intro well
+  apply And.intro
+  cases' well with m n
+  exact m.left
+  exact n.left
+  cases' well  with m n
+  left
+  exact m.right
+  right
+  exact n.right
+
+
 
 
 example (a b c : ℕ) : (a = b) → (b = c) → (a = c) := by
@@ -255,6 +393,11 @@ theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a 
     | tail someVar h =>
       match ih h with
       | ⟨s, ⟨t, h₂⟩⟩ => exact ⟨b :: s, ⟨t, h₂ ▸ rfl⟩⟩
+
+theorem mem {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
+  induction as with
+  | nil => cases h
+  | cons m mm => sorry
 
 example (p q : Prop) : p → q := by
   have t : true = true := by trivial
