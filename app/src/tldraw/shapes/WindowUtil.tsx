@@ -1,6 +1,6 @@
 import React from 'react';
 import { BaseBoxShapeUtil, SVGContainer, TLBaseShape, TLOnClickHandler, TLOnDoubleClickHandler } from '@tldraw/tldraw';
-import zoomToWindow from '../shared/zoomToWindow';
+import zoomToWindow from '../../shared/zoomToWindow';
 
 export type WindowShapeType = TLBaseShape<'window',
   {
@@ -61,7 +61,6 @@ export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
             fill="white"
           />
           <rect
-            
             className={`window tl-frame_body depth-${shape.props.depth}`}
             width={bounds.width}
             height={bounds.height}

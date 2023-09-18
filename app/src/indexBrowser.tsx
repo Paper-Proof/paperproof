@@ -3,11 +3,11 @@ import { useRef } from "react";
 import { createRoot } from 'react-dom/client';
 import { Canvas, ContextMenu, Editor, Tldraw } from "@tldraw/tldraw";
 
-import WindowUtil      from "./shapes/WindowUtil";
-import CustomArrowUtil from "./shapes/CustomArrowUtil";
-import CustomNodeUtil  from "./shapes/CustomNodeUtil";
+import WindowUtil      from "./tldraw/shapes/WindowUtil";
+import CustomArrowUtil from "./tldraw/shapes/CustomArrowUtil";
+import CustomNodeUtil  from "./tldraw/shapes/CustomNodeUtil";
 
-import ErrorToast from "./components/ErrorToast";
+import ErrorToast from "./tldraw/components/ErrorToast";
 
 import updateUI from "./services/updateUI";
 import clearTldrawCache from "./services/clearTldrawCache";
@@ -16,6 +16,7 @@ import { ProofResponse, PaperProofWindow } from "types";
 
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
+import uiOverrides from "./tldraw/uiOverrides";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -56,7 +57,7 @@ function Main() {
 
   return (
     <div className={`tldraw-wrapper ${window.isBrightTheme === true ? '-vscode-bright-theme' : '-vscode-dark-theme'}`}>
-      <Tldraw onMount={handleMount} shapeUtils={customShapeUtils}>
+      <Tldraw onMount={handleMount} shapeUtils={customShapeUtils} overrides={uiOverrides}>
         {/* ContextMeny is necessary for the right-click menu to appear */}
         <ContextMenu>
           <Canvas/>
