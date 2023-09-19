@@ -55,7 +55,7 @@ export default class CustomArrowUtil extends ArrowShapeUtil {
     if (ifVerticalDistanceBetweenNodesIs0 && ifNodesTouch) return null;
 
     if (superRender) {
-      return <div className={arrowShape.meta.arrowType === 'hypArrow' ? 'hypArrow' : 'goalArrow'}>
+      return <div className={arrowShape.meta.arrowType}>
         {superRender}
       </div>
     } else {

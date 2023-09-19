@@ -1,6 +1,7 @@
 import { Editor } from "@tldraw/tldraw";
 import { ConvertedProofTree, UIConfig } from "types";
 import { createWindow, createArrows } from './services/CreateElement';
+import createDependsOnArrows from "./services/CreateElement/createDependsOnArrows";
 
 const buildProofTree = (editor: Editor, proofTree: ConvertedProofTree, uiConfig: UIConfig) => {
   editor.deleteShapes(editor.currentPageShapes);
@@ -20,6 +21,9 @@ const buildProofTree = (editor: Editor, proofTree: ConvertedProofTree, uiConfig:
 
     const arrows = createArrows(shared);
     arrows.draw(0, 0);
+
+    const dependsOnArrows = createDependsOnArrows(shared);
+    dependsOnArrows.draw(0, 0);
   }
 }
 

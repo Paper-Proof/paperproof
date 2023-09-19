@@ -88,6 +88,9 @@ html, * {
 .goalArrow g{
   stroke: rgb(214, 215, 215);
 }
+.successArrow g{
+  stroke: #82ccdd;
+}
 /* ***EXPERIMENTAL*** */
 
 
