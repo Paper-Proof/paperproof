@@ -24,6 +24,11 @@ const buildProofTree = (editor: Editor, proofTree: ConvertedProofTree, uiConfig:
 
     const dependsOnArrows = createDependsOnArrows(shared);
     dependsOnArrows.draw(0, 0);
+
+    // Would be nice to hide the arrows behind arrows, but that doesn't work here. Didn't investigate why.
+    //
+    // const shapes = shared.editor.currentPageShapes.filter((shape) => shape.type === "customNode")
+    // shared.editor.bringToFront(shapes)
   }
 }
 
