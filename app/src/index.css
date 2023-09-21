@@ -20,6 +20,7 @@
   align-items: center;
   text-shadow: none;
   color: rgb(86, 95, 96);
+  overflow: hidden;
 }
 /* uncomment fill to see what it's doing */
 /* Looks interesting, but looks like it's cleaner with no css at all */
