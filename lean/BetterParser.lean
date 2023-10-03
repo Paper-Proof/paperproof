@@ -1,5 +1,5 @@
 import Lean
-
+import Lean.Meta.Basic
 open Lean Elab Server
 
 structure Hypothesis where
@@ -93,6 +93,11 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
+def mayBeProof (e : Expr) : MetaM Bool := do
+  let metaType : Expr ← Lean.Meta.inferType e
+  let metaMetaType : Expr ← Lean.Meta.inferType metaType
+  return metaMetaType == Expr.sort Lean.levelZero
+
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
   | some (ctx : ContextInfo), .node i cs => do
@@ -123,13 +128,14 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       -- Find names to get decls
       let fvarIds := cs.toList.map (findFVars ctx) |>.join
       let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
+      let proofFvars ← fvars.filterM (λ decl => ctx.runMetaM mainGoalDecl.lctx (mayBeProof decl.toExpr))
       let tacticApp: TacticApplication := {
-          tacticString,
-          goalsBefore,
-          goalsAfter,
-          tacticDependsOn := fvars.map fun decl => s!"{decl.fvarId.name.toString}"
-          }
-    
+        tacticString,
+        goalsBefore,
+        goalsAfter,
+        tacticDependsOn := proofFvars.map fun decl => s!"{decl.fvarId.name.toString}"
+      }
+
       -- It's a tactic combinator
       match tInfo.stx with
       -- TODO: can we grab all have's as one pattern match branch?
