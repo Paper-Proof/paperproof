@@ -93,16 +93,12 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
-def mayBeProof (e : Expr) : MetaM Bool := do
-  let metaType : Expr ← Lean.Meta.inferType e
-  let metaMetaType : Expr ← Lean.Meta.inferType metaType
-  return metaMetaType == Expr.sort Lean.levelZero
-
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
   | some (ctx : ContextInfo), .node i cs => do
-    let newCtx := i.updateContext? ctx
-    let res ← cs.toList.mapM (BetterParser newCtx)
+    let some ctx := i.updateContext? ctx
+      | panic! "unexpected context node"
+    let res ← cs.toList.mapM (BetterParser ctx)
     let steps := res.map (fun r => r.steps) |>.join
     let allSubGoals := HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
@@ -128,7 +124,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       -- Find names to get decls
       let fvarIds := cs.toList.map (findFVars ctx) |>.join
       let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
-      let proofFvars ← fvars.filterM (λ decl => ctx.runMetaM mainGoalDecl.lctx (mayBeProof decl.toExpr))
+      let proofFvars ← fvars.filterM (λ decl => ctx.runMetaM mainGoalDecl.lctx (Meta.isProof decl.toExpr))
       let tacticApp: TacticApplication := {
         tacticString,
         goalsBefore,
