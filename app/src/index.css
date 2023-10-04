@@ -84,11 +84,11 @@ html, * {
 .hypArrow g{
   stroke: rgb(150, 201, 167);
 }
+.successArrow g{
+  stroke: rgb(150, 201, 167);
+}
 .goalArrow g{
   stroke: rgb(214, 215, 215);
-}
-.successArrow g{
-  stroke: #82ccdd;
 }
 /* ***EXPERIMENTAL*** */
 
