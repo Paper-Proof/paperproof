@@ -10,65 +10,25 @@ import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
 
-
-namespace hi
-
+namespace OurInductives
 inductive Prod (α : Type u) (β : Type v)
   | mk : α → β → Prod α β
-
 inductive Sum (α : Type u) (β : Type v) where
   | inl : α → Sum α β
   | inr : β → Sum α β
 
+theorem prod (hi: Sum Nat Nat) : True := by
+  cases' hi
+  sorry; sorry
+theorem sum (hi: Prod Nat Nat) : True := by
+  cases' hi
+  sorry
 
-
--- .rec doesn't work (Lean limitation)
--- .recOn doesn't work (Lean limitation)
--- .casesOn works
-
-def corr (wow : Prod Nat Nat) : Nat :=
-  Prod.casesOn (motive := λ p => Nat) wow (λ a b => 8)
-
-def hello (wow : Sum Nat String) : Nat :=
-  Sum.casesOn
-    (motive := λ s => Nat)
-    wow
-    (λ n => n * 1000)
-    (λ s => 666)
-
-#eval hello (Sum.inl 2)
-#eval hello (Sum.inr "evgenia")
-
-#eval corr (Prod.mk 2 3)
-
-
-
-
-inductive Nat where
-  | zero : Nat
-  | succ : Nat → Nat
-  deriving Repr
-
-def add (m n : Nat) : Nat :=
-  Nat.casesOn
-    (motive := λ _ => Nat)
-    m
-    n
-    (λ p => Nat.succ (add p n))
-
-
-
-#eval add (Nat.succ (Nat.succ Nat.zero)) (Nat.succ Nat.zero)
-
-
-theorem zero_add (m : Nat) : add Nat.zero n = n :=
-  rfl
-
-theore
-
-
-
-end hi
+open Lean Elab in
+theorem infoTree (hi: InfoTree) : True := by
+  cases' hi
+  sorry; sorry; sorry
+end OurInductives
 
 
 theorem th11 : ∀ (N : ℕ), ∃ M, N + N = M := by {
@@ -207,7 +167,7 @@ example (f : Nat → Nat) (a : Nat) (h : a + 0 = 0) : f a = f 0 := by
   rw [Nat.add_zero] at h
   rw [h]
 
-example : (a = b) → (b = c) → (c = d)  → (a = d) := by
+example : (a = b) → (b = c) → (c = d) → (a = d) := by
   intro ab
   intro bc
   intro cd
@@ -372,6 +332,7 @@ example (a b : Prop) : a ∧ b → b ∧ a := by
   cases ab
   apply And.intro <;> assumption
 
+-- Doesn't work currently
 example (p q : Prop) (hep : e = p) : p ∨ q → q ∨ e := by
   intro h
   cases h with rw[hep]
