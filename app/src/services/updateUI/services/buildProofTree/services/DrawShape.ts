@@ -39,9 +39,8 @@ const tactic = (editor: Editor,
         fill: "solid",
         color: "grey",
       },
-      // probably better as a separate shape
       meta: {
-        isTactic: true
+        type: "tactic"
       }
     },
   ]);
@@ -61,6 +60,9 @@ const goal = (editor: Editor,
         fill: "solid",
         color: "light-red"
       },
+      meta: {
+        type: "goal"
+      }
     },
   ]);
 }
@@ -79,6 +81,9 @@ const hypothesis = (editor: Editor,
         fill: "solid",
         color: "light-green"
       },
+      meta: {
+        type: "hypothesis"
+      }
     },
   ]);
 }

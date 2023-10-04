@@ -63,24 +63,22 @@ html, * {
   font-size: 13px;
 }
 
-
-
-
-
-.hyp-or-goal-node.-not-focused > svg{
+.hypothesis.-not-focused > svg,
+.goal.-not-focused > svg{
   opacity: 0.2;
 }
-
-.tactic-node > svg path{
+.tactic > svg path{
   fill: transparent;
 }
-
+.-successful-tactic > svg path {
+  fill: #c4f4ff6b;
+  /* stroke: #20e3ff; */
+}
 
 .window-indicator{
   stroke: transparent;
   display: none;
 }
-
 
 /* ***EXPERIMENTAL*** */
 .hypArrow g{
@@ -109,9 +107,4 @@ button[title="Toggle focus mode"]{
 /* Make tldraw bg dark for dark vscode themes */
 .tldraw-wrapper.-vscode-dark-theme .tl-background{
   background-color: var(--vscode-editor-background);
-}
-
-.-is-tactic-is-success > svg path {
-  fill: #c4f4ff6b;
-  /* stroke: #20e3ff; */
 }

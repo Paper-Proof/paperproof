@@ -19,9 +19,9 @@ export default class CustomNodeUtil extends GeoShapeUtil {
     const superRender = super.component(shape);
 
     const className = `
-      ${shape.meta.isTactic ? 'tactic-node' : 'hyp-or-goal-node'}
+      ${shape.meta.type}
       ${shape.meta.isFocused ? '-focused' : '-not-focused'}
-      ${shape.props.text.includes("🎉") ? '-is-tactic-is-success' : ''}
+      ${shape.props.text.includes("🎉") ? '-successful-tactic' : ''}
     `
 
     return <div className={className}>
