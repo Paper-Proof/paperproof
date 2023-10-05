@@ -19,11 +19,6 @@ export type WindowShapeType = TLBaseShape<'window',
 export default class WindowUtil extends BaseBoxShapeUtil<WindowShapeType> {
   static override type = 'window'
 
-  override canResize = () => false
-  override hideSelectionBoundsFg = () => true
-
-  // override canUnmount = () => false
-
   override onClick: TLOnClickHandler<WindowShapeType> = (shape) => {
     zoomToWindow(this.editor, shape);
 
