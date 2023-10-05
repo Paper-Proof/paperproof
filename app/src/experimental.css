@@ -1,6 +1,7 @@
 /* EXPERIMENTAL */
-/* These make the border not stick out & pattern the tactics in various ways */
 
+
+/* 1. These make the border not stick out */
 .hypothesis svg path:last-child{
   stroke: none;
   outline: 3px solid rgb(64, 192, 87);
@@ -12,6 +13,10 @@
   outline-offset: -3px;
 }
 
+/* 2. These pattern the tactic nodes */
+.tactic svg > g{
+  stroke: none;
+}
 .tactic {
   height: 100%;
 
@@ -33,28 +38,9 @@
   background-image: linear-gradient(0deg, #cacaca3d 50%, transparent 50%);
   background-size: 10px 10px;
 }
+
+/* 3. This adds a non-sticking-out border that mimics our current border */
 .tactic{
   background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23CECCCCFF' stroke-width='4' stroke-dasharray='6%2c 10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   height: 100%;
-}
-.tactic svg{
-  > g{
-    stroke: none;
-  }
-}
-
-.tl-text-content{
-  color: #343434;
-}
-
-.hypothesis .tl-text-content{
-  /* color: #285e0c; */
-  text-shadow: none;
-}
-.goal .tl-text-content{
-  /* color: #712b2b; */
-  text-shadow: none;
-}
-.tactic .tl-text-content{
-  text-shadow: rgb(255 255 255) 0px 0px 20px;
 }
