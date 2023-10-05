@@ -1,0 +1,60 @@
+/* EXPERIMENTAL */
+/* These make the border not stick out & pattern the tactics in various ways */
+
+.hypothesis svg path:last-child{
+  stroke: none;
+  outline: 3px solid rgb(64, 192, 87);
+  outline-offset: -3px;
+}
+.goal svg path:last-child{
+  stroke: none;
+  outline: 3px solid #ff8787;
+  outline-offset: -3px;
+}
+
+.tactic {
+  height: 100%;
+
+  /* Smth else */
+  background-image: radial-gradient(#7e9aa88f 1px, #ffffff00 1px);
+  background-size: 5px 5px;
+
+  /* Smth else */
+  background-color: rgba(255, 255, 255, 0);
+  background-image: linear-gradient(to right, #d7d7d87a, #e2e2e37e 5px, rgba(255, 255, 255, 0) 5px, rgba(255, 255, 255, 0) );
+  background-size: 10px 100%;
+
+  /* Striped */
+  background-color: rgb(255 255 255 / 0%);
+  background-image: linear-gradient(to right, #cacaca3d, #b6b6b638 5px, rgb(255 255 255 / 0%) 5px, rgba(255, 255, 255, 0) );
+  background-size: 10px 100%;
+}
+.-successful-tactic{
+  background-image: linear-gradient(0deg, #cacaca3d 50%, transparent 50%);
+  background-size: 10px 10px;
+}
+.tactic{
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23CECCCCFF' stroke-width='4' stroke-dasharray='6%2c 10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  height: 100%;
+}
+.tactic svg{
+  > g{
+    stroke: none;
+  }
+}
+
+.tl-text-content{
+  color: #343434;
+}
+
+.hypothesis .tl-text-content{
+  /* color: #285e0c; */
+  text-shadow: none;
+}
+.goal .tl-text-content{
+  /* color: #712b2b; */
+  text-shadow: none;
+}
+.tactic .tl-text-content{
+  text-shadow: rgb(255 255 255) 0px 0px 20px;
+}

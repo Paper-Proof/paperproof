@@ -74,6 +74,10 @@ html, * {
   fill: #c4f4ff6b;
   /* stroke: #20e3ff; */
 }
+.tl-text-content{
+  color: #343434;
+  text-shadow: none;
+}
 
 .window-indicator{
   stroke: transparent;
