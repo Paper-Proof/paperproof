@@ -63,10 +63,16 @@ html, * {
   font-size: 13px;
 }
 
-.hypothesis.-not-focused > svg,
-.goal.-not-focused > svg{
-  opacity: 0.2;
+.hypothesis.-not-focused ,
+.goal.-not-focused{
+  > svg{
+    opacity: 0.2;
+  }
+  &:hover > svg{
+    opacity: 1;
+  }
 }
+
 .tactic > svg path{
   fill: transparent;
 }

@@ -17,11 +17,11 @@ inductive Sum (α : Type u) (β : Type v) where
   | inl : α → Sum α β
   | inr : β → Sum α β
 
-theorem prod (hi: Sum Nat Nat) : True := by
-  cases' hi
+theorem sum (hi: Sum Nat Nat) : True := by
+  cases' hi with a b
   sorry; sorry
-theorem sum (hi: Prod Nat Nat) : True := by
-  cases' hi
+theorem prod (hi: Prod Nat Nat) : True := by
+  cases' hi with a b
   sorry
 
 open Lean Elab in
