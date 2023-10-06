@@ -1,28 +1,42 @@
 ## Developement
 
-1. Install the extension from `extension/` folder
-```console
-code --install-extension paperproof-0.0.1.vsix
-```
+1. Install the extension from `/extension` folder
 
-2. Run the dev server (you might need to run `yarn install` first)
-```console
-cd app; yarn dev
-```
+    ```console
+    cd extension; code --install-extension paperproof.vsix
+    ```
 
-3. Toggle the view with `"Paperproof: Toggle"` command (Ctrl+Shift+P) or open in browser
-from vscode status bar
+2. Run the dev server
+
+    ```shell
+    cd app
+    yarn install
+    yarn dev
+    ```
+
+3. Go to `/Examples.lean`, and open the Paperpoof panel by running **Cmd+Shift+P** `> Paperproof: Toggle`, or just by clicking on a piece of a crumpled paper:
+
+    <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
 ### Reload 
 
+#### Reloading /app
+
+If you change something in the `/app` folder, wait for yarn to compile it, and run **Cmd+Shift+P** `> Developer: Reload Webviews`.
+
+#### Reloading /extension
+
 If you change something in the `/extension` folder, run
 
-```console
-vsce package; code --uninstall-extension undefined_publisher.paperproof; code --install-extension paperproof-0.0.2.vsix
+```shell
+vsce package --out paperproof.vsix; code --uninstall-extension paperproof.paperproof; code --install-extension paperproof.vsix
 ```
-and quit VSCode.
+and restart VSCode (literally - quit it fully, and restart it).
 
-On some changes, running `"Paperproof: Toggle"` is important.
+#### Reloading /lean
+
+If you change something in the `/lean` folder, then go to the file where you're checking your code, usually it's `Examples.lean`, and run **Cmd+Shift+P** `> Lean 4: Refresh File Dependencies`.
+
 
 ### Publishing
 
@@ -40,7 +54,8 @@ To deploy [paperproof.xyz](paperproof.xyz) contents:
 To deploy a vscode Paperproof extension:
 
 1. Login into vsce
-```
+
+```shell
 vsce login paperproof
 ```
 
@@ -49,8 +64,11 @@ You will need the Personal Access Token for the paperproof organisation to do th
 2. Build and publish
 
 ```shell
-vsce publish
+vsce publish patch
 ```
+
+This will autoincrement the `/extension/package.json` version, and publish the extension on https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof.
+Possible increment options are `major`, `minor`, and `patch`.
 
 #### Deploying /lean
 
