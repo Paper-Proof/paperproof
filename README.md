@@ -47,6 +47,13 @@ You can click on any theorem now - you should see your proof tree rendered.
 
 ## Tutorial
 
+Something that most looks like Paperproof that you have previously encountered is probably Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux trees and Natural Deduction trees with Paperproof.  
+Unlike Gentzen, we can make use of css and javascript - so there are many visual syntax sugars on top of what would be a Gentzen tree - we don't repeat hypotheses if we need to use them multiple times, goals and hypotheses are visually differentiated, variable scopes are shown as darkening backgrounds, available hypotheses are indicated via node transparencies, etc.
+
+Green nodes represent hypotheses, red nodes represent goals.  
+A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.  
+Opaque nodes represent currently available hypotheses.
+
 Below you can see how tactics such as `apply`, `rw`, or `cases` look like in Paperproof.
 
 <details>
