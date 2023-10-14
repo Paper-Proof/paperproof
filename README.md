@@ -41,7 +41,7 @@ Here you can read about Paperproof in context of other proof trees: [lakesare.br
 
 Now, click on the paperproof icon (after you installed the Paperpoof extension, it should appear in all `.lean` files), this will open a paperproof panel within vscode.  
 
-<img width=""200 src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
+<img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
 You can click on any theorem now - you should see your proof tree rendered.
 
@@ -49,7 +49,7 @@ You can click on any theorem now - you should see your proof tree rendered.
 
 Below you can see how tactics such as `apply`, `rw`, or `cases` look like in Paperproof.
 
-<details open>
+<details>
 <summary>
   Common Tactics
 </summary>
