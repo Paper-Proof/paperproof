@@ -45,6 +45,230 @@ Now, click on the paperproof icon (after you installed the Paperpoof extension, 
 
 You can click on any theorem now - you should see your proof tree rendered.
 
+## Tutorial
+
+Something that most looks like Paperproof that you have previously encountered is probably Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux trees and Natural Deduction trees with Paperproof.  
+Unlike Gentzen, we can make use of css and javascript - so there are many visual syntax sugars on top of what would be a Gentzen tree - we don't repeat hypotheses if we need to use them multiple times, goals and hypotheses are visually differentiated, variable scopes are shown as darkening backgrounds, available hypotheses are indicated via node transparencies, etc.
+
+Green nodes represent hypotheses, red nodes represent goals.  
+A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.  
+Opaque nodes represent currently available hypotheses.
+
+Below you can see how tactics such as `apply`, `rw`, or `cases` look like in Paperproof.
+
+<details>
+<summary>
+  Common Tactics
+</summary>
+
+<table>
+<tbody>
+  
+<tr>
+<th>Lean</th>
+<th>Paperproof</th>
+</tr>
+<tr>
+<td colspan="2" align="center">
+
+**apply**
+</td>
+</tr>
+<tr>
+<td>
+
+  ```lean
+  theorem apply (a b : ℝ) : a = b := by
+    apply le_antisymm
+  ```
+
+</td>
+<td>
+  <img width="222" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/bd4f02d1-a1d4-47b2-8c4f-44059a79c543">
+</td>
+</tr>
+
+
+<tr><td colspan="2" align="center">
+
+**have**
+</td></tr>
+<td>
+
+  ```lean
+  theorem have_ (a b : ℝ) (h1 : a ≤ b) (h2 : b ≤ a) : True := by
+    have hi := le_antisymm h1 h2
+  ```
+
+</td>
+<td>
+  <img width="378" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/4f28df15-f5ea-4a9c-982f-5d81945beb41">
+</td>
+</tr>
+
+
+<tr><td colspan="2" align="center">
+
+**intro**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem intro : ∀ (N : ℕ), ∃ M, N + N = M := by
+    intro n
+  ```
+
+</td>
+<td>
+  <img width="275" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e1d862cf-0bd8-4705-9ed2-66c282f5a73d">
+</td>
+</tr> 
+
+
+<tr><td colspan="2" align="center">
+
+**rw**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem rw (a b : ℕ) (h1: a = b) : (10 * a = 666) := by
+    rw [h1]
+  ```
+
+</td>
+<td>
+  <img width="268" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cf57167c-b4ba-485b-8da2-e60af9f6b3ba">
+</td>
+</tr> 
+
+
+<tr><td colspan="2" align="center">
+
+**induction**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem induction (n : ℕ) : Nat.mul 0 n = 0 := by
+    induction' n with k ih
+  ```
+
+</td>
+<td>
+  <img width="564" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/45365de6-b5a2-4643-8e8e-82d1bd80f966">
+</td>
+</tr>
+
+
+<tr><td colspan="2" align="center">
+
+**cases**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem casesN (n : ℕ) : Nat.mul 0 n = 0 := by
+    cases' n with m
+  ```
+
+</td>
+<td>
+  <img width="552" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/b88c9f0c-6ecd-4a78-828f-de84c433a429">
+</td>
+</tr>
+<tr></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem casesAnd (A B C : Prop) (h : A ∧ B) : C := by
+    cases' h with a b
+  ```
+
+</td>
+<td>
+  <img width="485" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/ec146278-c298-43a3-b793-91b00cf7082c">
+</td>
+</tr>
+<tr></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem casesOr (A B C : Prop) (h : A ∨ B) : C := by
+    cases' h with a b
+  ```
+
+</td>
+<td>
+  <img width="431" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/d4e11a5f-32a5-463d-ad32-f874c098633b">
+</td>
+</tr>
+<tr></tr>
+<tr>
+<td>
+
+  ```lean
+  inductive Random where
+    | hi : ℕ → String → Random
+    | hello : (2 + 2 = 4) → Random 
+    | wow : Random
+  theorem casesRandom (C: Prop) (h : Random) : C := by
+    cases' h with a b c
+  ```
+
+</td>
+<td>
+  <img width="546" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cc95c055-4172-4c84-ac62-2f3515fe2383">
+</td>
+</tr>
+
+
+<tr><td colspan="2" align="center">
+
+**by_contra**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem by_contra_ (m : ℕ) : 2 ≤ m := by
+    by_contra h
+  ```
+
+</td>
+<td>
+  <img width="152" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2b5fc5bf-783b-4b31-9135-9c24bf3a9d28">
+</td>
+</tr>
+
+
+<tr><td colspan="2" align="center">
+
+**use**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem use : ∃ x : Nat, x = 5 := by
+    use 42
+  ```
+
+</td>
+<td>
+  <img width="148" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e69ffe96-5bfa-4370-9c4c-bfbb2382e75d">
+</td>
+</tr>
+</tbody>
+</table>
+</details>
+
 ## Updating
 
 To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from github, and build it.
