@@ -393,12 +393,12 @@ And in the following table, you can see what tactics such as `apply`, `rw`, or `
 
 ## Updating
 
-To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from github, and build it.
+To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from this github repo, and build it.
 
 Vscode extensions are automatically updated, however you can check for new updates with  
 **`cmd+shift+p` => "Extensions: Show Extension Updates"**.  
 
-Paperproof is a development package, so you might want to remove it from your `lakefile.lean` when you're pushing to production. In order to do that, just remove the Paperproof require from `lakefile.lean`, and run `lake update Paperproof`. This will clean up `lake-manifest.json` and `lake-packages` for you.
+Paperproof is a package that's usually only used during development, so you might want to remove it from your `lakefile.lean` when you're pushing to production. In order to do that, just remove the Paperproof require from `lakefile.lean`, and run `lake update Paperproof`. This will clean up `lake-manifest.json` and `lake-packages` for you.
 
 ## Development
 
