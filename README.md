@@ -47,14 +47,137 @@ You can click on any theorem now - you should see your proof tree rendered.
 
 ## Tutorial
 
-Something that most looks like Paperproof that you have previously encountered is probably Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux trees and Natural Deduction trees with Paperproof.  
-Unlike Gentzen, we can make use of css and javascript - so there are many visual syntax sugars on top of what would be a Gentzen tree - we don't repeat hypotheses if we need to use them multiple times, goals and hypotheses are visually differentiated, variable scopes are shown as darkening backgrounds, available hypotheses are indicated via node transparencies, etc.
+Something that most looks like Paperproof that you have previously encountered is probably Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux trees and Natural Deduction trees with Paperproof. All of these interfaces show "the history of a proof" - the way hypotheses and nodes were changing throughout the proof.
 
-Green nodes represent hypotheses, red nodes represent goals.  
+Unlike Gentzen, we can make use of css and javascript - so there are many visual syntax sugars on top of what would be a Gentzen tree - we don't repeat hypotheses if we need to use them multiple times, goals and hypotheses are visually differentiated, variable scopes are shown as darkening backgrounds, available hypotheses are indicated via node transparencies, and so on.
+
+Below, you will see a table with the main features of Paperproof.
+
+<details>
+<summary>
+  Paperproof walkthrough
+</summary>
+<table>
+  
+<tbody>
+  
+<tr>
+<th>Lean</th>
+<th>Paperproof</th>
+</tr>
+
+<tr>
+<td colspan="2" align="center">
+Hypotheses are displayed as green nodes, goals are displayed as red nodes, tactics are displayed as transparent nodes with dashed borders. 
+</td>
+</tr>
+
+<tr>
+<td>
+<img width="204" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/afc8000f-ad15-4ed4-b1fa-6740745895c6">
+</td>
+<td>
+  <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/287cf8e6-beeb-42a5-be5f-46eda9e956bd">
+</td>
+</tr>
+
+
+
+
+<tr>
+<td colspan="2" align="center">
 A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.  
-Opaque nodes represent currently available hypotheses.
 
-Below you can see how tactics such as `apply`, `rw`, or `cases` look like in Paperproof.
+</td>
+</tr>
+
+<tr>
+<td>
+  
+<img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
+
+
+</td>
+<td>
+  <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/066bb876-e7d6-4980-a725-8fe82666b5e1">
+</td>
+</tr>
+
+
+
+
+<tr>
+<td colspan="2" align="center">
+If you drag these nodes around you will see arrows, however we're not displaying them to clean up the interface.
+</td>
+</tr>
+
+<tr>
+<td>
+</td>
+<td>
+ <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a5a45209-8822-463c-b942-b395578089e9">
+
+</td>
+</tr>
+
+
+
+
+<tr>
+<td colspan="2" align="center">
+Opaque nodes represent a focused goal, and currently available hypotheses.<br/>  
+In general - slightly darker backgrounds demarcate variable scopes - you can only use hypotheses that are outside of your box, you can never dive into some new box. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider backgrounds a visual hint that will eventually become second nature.
+</td>
+</tr>
+
+<tr>
+<td>
+</td>
+<td>
+  <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/01251e80-6c43-40d2-9439-1f967d978586">
+
+</td>
+</tr>
+
+
+
+
+<tr>
+<td colspan="2" align="center">
+To zoom in on a particular dark box, you can click on it.
+</td>
+</tr>
+
+<tr>
+<td>
+</td>
+<td>
+  <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/5408a108-f754-45d7-b4ad-819e4930bc5e">
+</td>
+</tr>
+
+<tr>
+<td colspan="2" align="center">
+  To copy text of a particular tactic/hypothesis/goal, right-click on that node. 
+</td>
+</tr>
+
+<tr>
+<td>
+</td>
+<td>
+  <img width="241" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/dbf84af0-32cb-424f-bbf8-ddde5c83b287">
+</td>
+</tr>
+
+
+
+</tbody>
+</table>
+</details>
+
+And in the following table, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof.
 
 <details>
 <summary>
