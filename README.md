@@ -5,15 +5,14 @@ A new proof interface for Lean 4.
 </h2>
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=0dVj4ITAF1o">
-      <img width="900" alt="paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/4ea8c246-6087-4948-819c-59603aa49842">
-  </a>
+  <img width="900" alt="Paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a5792103-6de4-4e98-aa7a-4bcf51aabd47">
 </div>
 
-Paperproof will inspect how the hypotheses and goals were changing throughout the proof, and display this history - making it exactly equivalent to how we think of a mathematical proof on paper. Paperproof is in active development, however you can try it already, see the [Installation](#installation) instructions below.
+Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
 You can see Paperproof in action on [youtube](https://www.youtube.com/watch?v=0dVj4ITAF1o).  
 Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
+
 
 ## Installation
 
@@ -405,10 +404,6 @@ Paperproof is a development package, so you might want to remove it from your `l
 
 You're welcome to contribute to Paperproof, see the instructions in [CONTRIBUTING.md](https://github.com/Paper-Proof/paperproof/blob/main/CONTRIBUTING.md).
 
-## Additional Links
-
-- Progress tracker in Notion ([notion link](https://safe-roof-f44.notion.site/Magic-paper-47f3f2c1d3b940428d7d981ea425a601))
-- Paperproof presentation ([tldraw link](https://www.tldraw.com/v/mlp_c_7vS7iofiWJ6_fwACbZyr?viewport=-2196%2C-8449%2C5257%2C2744&page=page%3Ai9kaf9cVmFmT3-gbYZmJ))
 
 <div align="center">
 <img width="60px" src="https://github.com/Paper-Proof/paperproof/assets/7578559/58f24cf2-4336-4376-8738-6463e3802ba0">
