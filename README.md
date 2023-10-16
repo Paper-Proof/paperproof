@@ -391,6 +391,48 @@ And in the following table, you can see what tactics such as `apply`, `rw`, or `
 </table>
 </details>
 
+In this table, you can see Paperproof rendering real proofs.
+
+<details>
+<summary>
+  Full-fledged proofs
+</summary>
+
+<table>
+<tbody>
+  
+<tr>
+<td align="center">
+
+**Mathematics in Lean (Jeremy Avigad, Patrick Massot)** <br/>([mathematics_in_lean/MIL/C08_Topology/solutions/Solutions_S01_Filters.lean:40](https://github.com/leanprover-community/mathematics_in_lean/blob/4bc81ddea0a62c3bbd33cbfc4b4b501d2d0dfb03/MIL/C08_Topology/solutions/Solutions_S01_Filters.lean#L40))
+</td>
+</tr>
+<tr>
+<td align="center">  
+  <img width="1358" alt="Mathematics in Lean - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/39bf03f3-0cda-454d-be89-9441a42b2bf6">
+</td>
+</tr>
+
+
+
+
+<tr>
+<td align="center">
+
+**Mathlib** <br/>([mathlib4/Mathlib/Algebra/Field/Power.lean:30](https://github.com/leanprover-community/mathlib4/blob/9893bbd22fdca4005b93c8dbff16c1d2de21bc1a/Mathlib/Algebra/Field/Power.lean#L30))
+</td>
+</tr>
+<tr>
+<td align="center">  
+  <img width="1278" alt="Screenshot 2023-10-17 at 00 20 13" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2103c78e-be6d-46e6-b25d-86cbfb1a5fad">
+</td>
+</tr>
+
+</tbody>
+</table>
+</details>
+
+
 ## Updating
 
 To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from this github repo, and build it.
