@@ -18,7 +18,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 <details>
   <summary>
-    Common tactics
+    
+  #### Common tactics
   </summary>
 
   <table>
@@ -245,7 +246,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 <details>
   <summary>
-    Full-fledged proofs
+    
+  #### Full-fledged proofs
   </summary>
 
   <table>
@@ -341,7 +343,8 @@ Below, you will see a table with the main features of Paperproof.
 
 <details>
   <summary>
-    Paperproof walkthrough
+  
+  #### Paperproof walkthrough
   </summary>
   <table>
     
