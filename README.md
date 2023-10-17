@@ -324,14 +324,13 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
     import Paperproof
     ```
 
-    
-**You're done!**
+5. **You're done!**
 
-Now, click on the paperproof icon (after you installed the Paperpoof extension, it should appear in all `.lean` files), this will open a paperproof panel within vscode.  
+    Now, click on the paperproof icon (after you installed the Paperpoof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.  
 
-<img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
+    <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
-You can click on any theorem now - you should see your proof tree rendered.
+    You can click on any theorem now (well, those starting with `by`) - you should see your proof tree rendered.
 
 ## Tutorial
 
