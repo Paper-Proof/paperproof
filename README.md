@@ -97,8 +97,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem rw (a b: ℕ) (h1: a = b)
-  : (10 * a = 666) := by
+  theorem rw (a b: ℕ)
+  (h1: a = b) : (10 * a = 666) := by
     rw [h1]
   ```
 
