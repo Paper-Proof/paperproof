@@ -35,8 +35,8 @@ Here you can read about Paperproof in context of other proof trees: [lakesare.br
     import Paperproof
     ```
 
-
-**You're done!**  
+    
+**You're done!**
 
 Now, click on the paperproof icon (after you installed the Paperpoof extension, it should appear in all `.lean` files), this will open a paperproof panel within vscode.  
 
@@ -400,16 +400,18 @@ In this table, you can see Paperproof rendering real proofs.
 
 <table>
 <tbody>
+
+<tr></tr>
   
 <tr>
 <td align="center">
 
-**Mathematics in Lean (Jeremy Avigad, Patrick Massot)** <br/>([mathematics_in_lean/MIL/C08_Topology/solutions/Solutions_S01_Filters.lean:40](https://github.com/leanprover-community/mathematics_in_lean/blob/4bc81ddea0a62c3bbd33cbfc4b4b501d2d0dfb03/MIL/C08_Topology/solutions/Solutions_S01_Filters.lean#L40))
+**Mathematics in Lean (Jeremy Avigad, Patrick Massot)** <br/>([mathematics_in_lean/MIL/C05_Elementary_Number_Theory/solutions/Solutions_S03_Infinitely_Many_Primes.lean:155](https://github.com/leanprover-community/mathematics_in_lean/blob/4bc81ddea0a62c3bbd33cbfc4b4b501d2d0dfb03/MIL/C05_Elementary_Number_Theory/solutions/Solutions_S03_Infinitely_Many_Primes.lean#L155))
 </td>
 </tr>
 <tr>
 <td align="center">  
-  <img width="1358" alt="Mathematics in Lean - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/39bf03f3-0cda-454d-be89-9441a42b2bf6">
+  <img width="1358" alt="Mathematics in Lean - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/765bc84e-4d4c-417f-877e-48bc9a0abe1c">
 </td>
 </tr>
 
@@ -424,7 +426,22 @@ In this table, you can see Paperproof rendering real proofs.
 </tr>
 <tr>
 <td align="center">  
-  <img width="1278" alt="Screenshot 2023-10-17 at 00 20 13" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2103c78e-be6d-46e6-b25d-86cbfb1a5fad">
+  <img width="1278" alt="Mathlib - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2103c78e-be6d-46e6-b25d-86cbfb1a5fad">
+</td>
+</tr>
+
+
+
+<tr>
+<td align="center">
+
+**Hitchhiker's Guide to Logical Verification** <br/> **(Anne Baanen, Alexander Bentkamp, Jasmin Blanchette, Johannes Hölzl, Jannis Limperg)** <br/>
+([logical_verification_2023/blob/main/lean/LoVe/LoVe05_FunctionalProgramming_Demo.lean:316](https://github.com/blanchette/logical_verification_2023/blob/f709e20d2cd515d4ede3e7d2db30103d4f58aaca/lean/LoVe/LoVe05_FunctionalProgramming_Demo.lean#L316))
+</td>
+</tr>
+<tr>
+<td align="center">
+  <img width="1385" alt="Hitchhiker's Guide to Logical Verification - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/568e70e0-992e-4a65-a306-6c0693750fe8">
 </td>
 </tr>
 
