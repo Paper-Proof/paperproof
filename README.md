@@ -39,8 +39,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem apply (a b : ℝ)
-  : a = b := by
+  theorem apply (a b: ℝ) : a = b := by
     apply le_antisymm
   ```
 
@@ -58,8 +57,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem have_ (a b : ℝ)
-  (h1 : a ≤ b) (h2 : b ≤ a) : True := by
+  theorem have (a b: ℝ)
+  (h1: a ≤ b) (h2: b ≤ a) : True := by
     have hi := le_antisymm h1 h2
   ```
 
@@ -79,7 +78,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
   ```lean
   theorem intro
-  : ∀ (N : ℕ), ∃ M, N + N = M := by
+  : ∀ (N: ℕ), ∃ M, N + N = M := by
     intro n
   ```
 
@@ -98,7 +97,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem rw (a b : ℕ) (h1: a = b)
+  theorem rw (a b: ℕ) (h1: a = b)
   : (10 * a = 666) := by
     rw [h1]
   ```
@@ -119,7 +118,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem by_contra_ (m : ℕ)
+  theorem by_contra (m: ℕ)
   : 2 ≤ m := by
     by_contra h
   ```
@@ -140,7 +139,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
   ```lean
   theorem use
-  : ∃ x : Nat, x = 5 := by
+  : ∃ x: ℕ, x = 5 := by
     use 42
   ```
 
@@ -160,7 +159,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem induction (n : ℕ)
+  theorem induction (n: ℕ)
   : Nat.mul 0 n = 0 := by
     induction' n with k ih
   ```
@@ -180,7 +179,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem casesN (n : ℕ)
+  theorem casesN (n: ℕ)
   : Nat.mul 0 n = 0 := by
     cases' n with m
   ```
@@ -195,8 +194,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem casesAnd (A B C : Prop) (h : A ∧ B)
-  : C := by
+  theorem casesAnd (A B C: Prop)
+  (h: A ∧ B) : C := by
     cases' h with a b
   ```
 
@@ -210,8 +209,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <td>
 
   ```lean
-  theorem casesOr (A B C : Prop) (h : A ∨ B)
-  : C := by
+  theorem casesOr (A B C: Prop)
+  (h: A ∨ B) : C := by
     cases' h with a b
   ```
 
@@ -226,11 +225,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
   ```lean
   inductive Random where
-    | hi : ℕ → String → Random
-    | hello : (2 + 2 = 4) → Random 
-    | wow : Random
-  theorem casesRandom (C: Prop) (h : Random)
-  : C := by
+    | hi: ℕ → String → Random
+    | hello: (2 + 2 = 4) → Random 
+    | wow: Random
+  theorem casesRandom (C: Prop)
+  (h: Random) : C := by
     cases' h with a b c
   ```
 
