@@ -37,11 +37,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem apply (a b : ℝ)
-    : a = b := by
-      apply le_antisymm
-    ```
+  ```lean
+  theorem apply (a b : ℝ)
+  : a = b := by
+    apply le_antisymm
+  ```
 
   </td>
   <td>
@@ -56,11 +56,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td></tr>
   <td>
 
-    ```lean
-    theorem have_ (a b : ℝ)
-    (h1 : a ≤ b) (h2 : b ≤ a) : True := by
-      have hi := le_antisymm h1 h2
-    ```
+  ```lean
+  theorem have_ (a b : ℝ)
+  (h1 : a ≤ b) (h2 : b ≤ a) : True := by
+    have hi := le_antisymm h1 h2
+  ```
 
   </td>
   <td>
@@ -76,11 +76,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem intro
-    : ∀ (N : ℕ), ∃ M, N + N = M := by
-      intro n
-    ```
+  ```lean
+  theorem intro
+  : ∀ (N : ℕ), ∃ M, N + N = M := by
+    intro n
+  ```
 
   </td>
   <td>
@@ -96,11 +96,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem rw (a b : ℕ) (h1: a = b)
-    : (10 * a = 666) := by
-      rw [h1]
-    ```
+  ```lean
+  theorem rw (a b : ℕ) (h1: a = b)
+  : (10 * a = 666) := by
+    rw [h1]
+  ```
 
   </td>
   <td>
@@ -117,11 +117,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem by_contra_ (m : ℕ)
-    : 2 ≤ m := by
-      by_contra h
-    ```
+  ```lean
+  theorem by_contra_ (m : ℕ)
+  : 2 ≤ m := by
+    by_contra h
+  ```
 
   </td>
   <td>
@@ -137,11 +137,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem use
-    : ∃ x : Nat, x = 5 := by
-      use 42
-    ```
+  ```lean
+  theorem use
+  : ∃ x : Nat, x = 5 := by
+    use 42
+  ```
 
   </td>
   <td>
@@ -158,11 +158,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem induction (n : ℕ)
-    : Nat.mul 0 n = 0 := by
-      induction' n with k ih
-    ```
+  ```lean
+  theorem induction (n : ℕ)
+  : Nat.mul 0 n = 0 := by
+    induction' n with k ih
+  ```
 
   </td>
   <td>
@@ -178,11 +178,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem casesN (n : ℕ)
-    : Nat.mul 0 n = 0 := by
-      cases' n with m
-    ```
+  ```lean
+  theorem casesN (n : ℕ)
+  : Nat.mul 0 n = 0 := by
+    cases' n with m
+  ```
 
   </td>
   <td>
@@ -193,11 +193,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem casesAnd (A B C : Prop) (h : A ∧ B)
-    : C := by
-      cases' h with a b
-    ```
+  ```lean
+  theorem casesAnd (A B C : Prop) (h : A ∧ B)
+  : C := by
+    cases' h with a b
+  ```
 
   </td>
   <td>
@@ -208,11 +208,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    theorem casesOr (A B C : Prop) (h : A ∨ B)
-    : C := by
-      cases' h with a b
-    ```
+  ```lean
+  theorem casesOr (A B C : Prop) (h : A ∨ B)
+  : C := by
+    cases' h with a b
+  ```
 
   </td>
   <td>
@@ -223,15 +223,15 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-    ```lean
-    inductive Random where
-      | hi : ℕ → String → Random
-      | hello : (2 + 2 = 4) → Random 
-      | wow : Random
-    theorem casesRandom (C: Prop) (h : Random)
-    : C := by
-      cases' h with a b c
-    ```
+  ```lean
+  inductive Random where
+    | hi : ℕ → String → Random
+    | hello : (2 + 2 = 4) → Random 
+    | wow : Random
+  theorem casesRandom (C: Prop) (h : Random)
+  : C := by
+    cases' h with a b c
+  ```
 
   </td>
   <td>
