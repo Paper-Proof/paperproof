@@ -219,8 +219,8 @@ And in the following table, you can see what tactics such as `apply`, `rw`, or `
 <td>
 
   ```lean
-  theorem have_ (a b : ℝ) (h1 : a ≤ b) (h2 : b ≤ a)
-  : True := by
+  theorem have_ (a b : ℝ)
+  (h1 : a ≤ b) (h2 : b ≤ a) : True := by
     have hi := le_antisymm h1 h2
   ```
 
