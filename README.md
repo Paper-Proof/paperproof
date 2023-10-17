@@ -271,6 +271,48 @@ And in the following table, you can see what tactics such as `apply`, `rw`, or `
 </tr> 
 
 
+
+<tr><td colspan="2" align="center">
+
+**by_contra**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem by_contra_ (m : ℕ)
+  : 2 ≤ m := by
+    by_contra h
+  ```
+
+</td>
+<td>
+  <img width="152" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2b5fc5bf-783b-4b31-9135-9c24bf3a9d28">
+</td>
+</tr>
+
+
+<tr><td colspan="2" align="center">
+
+**use**
+</td></tr>
+<tr>
+<td>
+
+  ```lean
+  theorem use
+  : ∃ x : Nat, x = 5 := by
+    use 42
+  ```
+
+</td>
+<td>
+  <img width="148" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e69ffe96-5bfa-4370-9c4c-bfbb2382e75d">
+</td>
+</tr>
+
+
+
 <tr><td colspan="2" align="center">
 
 **induction**
@@ -359,45 +401,6 @@ And in the following table, you can see what tactics such as `apply`, `rw`, or `
 </td>
 </tr>
 
-
-<tr><td colspan="2" align="center">
-
-**by_contra**
-</td></tr>
-<tr>
-<td>
-
-  ```lean
-  theorem by_contra_ (m : ℕ)
-  : 2 ≤ m := by
-    by_contra h
-  ```
-
-</td>
-<td>
-  <img width="152" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2b5fc5bf-783b-4b31-9135-9c24bf3a9d28">
-</td>
-</tr>
-
-
-<tr><td colspan="2" align="center">
-
-**use**
-</td></tr>
-<tr>
-<td>
-
-  ```lean
-  theorem use
-  : ∃ x : Nat, x = 5 := by
-    use 42
-  ```
-
-</td>
-<td>
-  <img width="148" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e69ffe96-5bfa-4370-9c4c-bfbb2382e75d">
-</td>
-</tr>
 </tbody>
 </table>
 </details>
