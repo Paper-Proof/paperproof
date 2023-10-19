@@ -330,14 +330,15 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 ## Tutorial
 
-If you worked with formal proofs before, you might find Paperproof very similar to sequent calculus proof trees. The resemblance is not spurious, we can easily mimic classical (in the sense of "traditional" or "standard") proof tree representations, such as Semantic Tableaux trees and Natural Deduction trees, with Paperproof. All of these interfaces show "the history of a proof" - the way hypotheses and nodes were changing throughout the proof.
+If you worked with formal proofs before, you might find Paperproof most similar to proof trees/Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux and Natural Deduction trees with Paperproof. All of these interfaces show "the history of a proof" - the way hypotheses and nodes were changing throughout the proof.
 
-Unlike classical formal proof representations, Paperpoof being a modern tool makes use of CSS and javascript to provide many visual enhancements:
-- hypotheses aren't repeated when used multiple times
-- goals and hypotheses are visually differentiated
-- variable scopes are shown as darkening backgrounds
-- available hypotheses are indicated via node transparencies
-- and many more
+Unlike Gentzen, we can make use of css and javascript - so there are many visual syntax sugars on top of what would be a formal proof tree:
+
+- hypotheses aren't repeated when used multiple times,
+- goals and hypotheses are visually differentiated,
+- variable scopes are shown as darkening backgrounds,
+- available hypotheses are indicated via node transparencies,
+- and so on.
 
 Below, you will see a table with the main features of Paperproof.
 
@@ -396,7 +397,7 @@ Below, you will see a table with the main features of Paperproof.
 
   <tr>
   <td colspan="2" align="center">
-  If you drag these nodes around you will see arrows, however when tactic/goal/hypothesis nodes are stacked on top of each other the arrow will collapse into an invisible "0-length" arrow to facilitate with cleaner UI.
+  If you dragged tactic/goal/hypothesis nodes around, you would see arrows; however we stack these nodes on top of each other and collapse these arrows into invisible "0-length" arrows for cleaner UI.
   </td>
   </tr>
 
