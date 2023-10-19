@@ -13,7 +13,7 @@ let lastValidStatement: string | null;
 const updateUI = (editor: Editor, oldProof: ProofResponse, newProof: ProofResponse, uiConfig: UIConfig) => {
   editor.updateInstanceState({ isReadonly: false });
 
-  console.table({ oldProof: getLoggableProof(oldProof), newProof: getLoggableProof(newProof) });
+  // console.table({ oldProof: getLoggableProof(oldProof), newProof: getLoggableProof(newProof) });
 
   const isNewProofEmpty = !newProof || "error" in newProof;
   const isOldProofEmpty = !oldProof || "error" in oldProof;
