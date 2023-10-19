@@ -2,7 +2,7 @@
   "name": "paperproof",
   "displayName": "Paperproof",
   "description": "Lean therorem proving interface which feels like pen-and-paper proofs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "paperproof",
   "repository": {
     "type": "git",
