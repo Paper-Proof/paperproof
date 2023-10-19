@@ -326,7 +326,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
     <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
-    You can click on any theorem now (well, only tactic based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
+    You can click on any theorem now (well, only tactic-based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
 
 ## Tutorial
 
