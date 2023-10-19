@@ -24,7 +24,7 @@ const createWindow = (shared: UIShared, parentId: TLParentId | undefined, window
       left: shared.framePadding,
       right: shared.framePadding,
       top: shared.framePadding,
-      bottom: ifShowGoalUsername ? goalUsernameHeight : 0
+      bottom: ifShowGoalUsername ? goalUsernameHeight : (parentId ? 0 : 3)
     },
     createWindowInsides(shared, frameId, window, depth)
   );
