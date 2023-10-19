@@ -326,13 +326,18 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
     <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
-    You can click on any theorem now (well, those starting with `by`) - you should see your proof tree rendered.
+    You can click on any theorem now (well, only tactic based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
 
 ## Tutorial
 
-Something that most looks like Paperproof that you have previously encountered is probably Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux trees and Natural Deduction trees with Paperproof. All of these interfaces show "the history of a proof" - the way hypotheses and nodes were changing throughout the proof.
+If you worked with formal proofs before, you might find Paperproof very similar to sequent calculus proof trees. The resemblance is not spurious, we can easily mimic classical (in the sense of "traditional" or "standard") proof tree representations, such as Semantic Tableaux trees and Natural Deduction trees, with Paperproof. All of these interfaces show "the history of a proof" - the way hypotheses and nodes were changing throughout the proof.
 
-Unlike Gentzen, we can make use of css and javascript - so there are many visual syntax sugars on top of what would be a Gentzen tree - we don't repeat hypotheses if we need to use them multiple times, goals and hypotheses are visually differentiated, variable scopes are shown as darkening backgrounds, available hypotheses are indicated via node transparencies, and so on.
+Unlike classical formal proof representations, Paperpoof being a modern tool makes use of CSS and javascript to provide many visual enhancements:
+- hypotheses aren't repeated when used multiple times
+- goals and hypotheses are visually differentiated
+- variable scopes are shown as darkening backgrounds
+- available hypotheses are indicated via node transparencies
+- and many more
 
 Below, you will see a table with the main features of Paperproof.
 
@@ -391,7 +396,7 @@ Below, you will see a table with the main features of Paperproof.
 
   <tr>
   <td colspan="2" align="center">
-  If you drag these nodes around you will see arrows, however we're not displaying them to clean up the interface.
+  If you drag these nodes around you will see arrows, however when tactic/goal/hypothesis nodes are stacked on top of each other the arrow will collapse into an invisible "0-length" arrow to facilitate with cleaner UI.
   </td>
   </tr>
 
@@ -410,7 +415,7 @@ Below, you will see a table with the main features of Paperproof.
   <tr>
   <td colspan="2" align="center">
   Opaque nodes represent a focused goal, and currently available hypotheses.<br/>  
-  In general - slightly darker backgrounds demarcate variable scopes - you can only use hypotheses that are outside of your box, you can never dive into some new box. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider backgrounds a visual hint that will eventually become second nature.
+  In general - slightly darker backgrounds denote variable scopes - you can only use hypotheses that are in or outside of your scope box, you can never dive into another box. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider backgrounds a visual hint that will eventually become second nature.
   </td>
   </tr>
 
