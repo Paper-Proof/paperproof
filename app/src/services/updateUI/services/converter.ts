@@ -232,10 +232,13 @@ const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWi
   }
 
   const relevantGoalsAfter = tactic.goalsAfter
-    .filter((goalAfter) =>
-      !tactic.goalsBefore.find((goalBefore) => goalBefore.username === goalAfter.username) ||
-      mainGoalBefore.username === goalAfter.username
-    );
+    .filter(
+      (goalAfter) =>
+        !tactic.goalsBefore.find(
+          (goalBefore) => goalBefore.username === goalAfter.username
+        ) || mainGoalBefore.username === goalAfter.username
+    )
+    .sort((a, b) => a.id.localeCompare(b.id));
 
   // - we solved the goal!
   if (relevantGoalsAfter.length === 0) {

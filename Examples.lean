@@ -1,6 +1,7 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.List.Chain
+import Mathlib.Tactic.GCongr
 import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 import Std.Data.Int.Basic
@@ -9,6 +10,14 @@ import Mathlib.Data.Finset.Fold
 import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
+
+example {m n : ℤ} (h1 : m + 3 ≤ 2 * n - 1) (h2 : n ≤ 5) : m ≤ 6 := by
+  have h3 : m + 3 ≤ 9 := by calc
+      m + 3 ≤ 2 * n - 1 := by gcongr
+      _ ≤ 2 * 5 - 1 := by gcongr
+      _ = 9 := by norm_num
+  clear h1 h2
+  linarith
 
 namespace OurInductives
 inductive Prod (α : Type u) (β : Type v)
