@@ -7,7 +7,7 @@ If tactic doesn't change anything [1] -> [1] it shouldn't add an edge and be inc
 If tactic does change main goal [1] -> [2, 3] then it means that there is an incoming edge into [2, 3].
 What we should do is to have an incoming edge into every goal mentioned in the InfoTree except top goal.
 
-We can rely on the list of proof steps as it will only contain actual edges to find what goals alerady have an
+We can rely on the list of proof steps as it will only contain actual edges to find what goals already have an
 incoming edge and will also bubble up the goals which don't have the incoming edge yet. Those unmatched goals
 would be matched as a step from [goalBefore -> unmatchedGoals] at the first TacticInfo node referring to the
 actual syntax written by the user.
