@@ -34,7 +34,7 @@ structure TacticApplication where
 inductive ProofStep := 
   | tacticApp (t : TacticApplication)
   | haveDecl (t: TacticApplication)
-    (initialGoal: String)
+    (initialGoals: List GoalInfo)
     (subSteps : List ProofStep)
   deriving Inhabited, ToJson, FromJson
 
@@ -143,10 +143,8 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
                   allGoals} 
  
         let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
-        let [initialGoal] := goals.toList
           -- TODO: have ⟨ p, q ⟩ : (a = a) × (b = b) := ⟨ by rfl, by rfl ⟩ isn't supported yet
-          | throwThe RequestError ⟨.invalidParams, s!"exactly one orphaned goal is expected for have with goalsAfter {toJson goalsAfter}, but found {toJson goals.toList}"⟩
-        return {steps := [.haveDecl tacticApp initialGoal.type steps],
+        return {steps := [.haveDecl tacticApp goals.toList steps],
                 allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
       | `(tactic| rw [$_,*] $(_)?)
       | `(tactic| rewrite [$_,*] $(_)?) =>
