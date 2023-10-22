@@ -1,4 +1,4 @@
-## Developement
+## Development
 
 1. Install the extension from `/extension` folder
 
