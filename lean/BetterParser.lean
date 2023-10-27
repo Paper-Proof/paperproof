@@ -134,9 +134,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
 
       -- It's a tactic combinator
       match tInfo.stx with
-      -- TODO: can we grab all have's as one pattern match branch?
-      | `(tactic| have $_:letPatDecl)
-      | `(tactic| have $_ : $_ := $_) =>
+      | `(tactic| have $_:haveDecl) =>
         -- Something like `have p : a = a := rfl`
         if steps.isEmpty then
           return {steps := [.tacticApp tacticApp],

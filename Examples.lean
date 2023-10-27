@@ -12,7 +12,7 @@ import Lean
 import Paperproof
 
 example {m n : ℤ} (h1 : m + 3 ≤ 2 * n - 1) (h2 : n ≤ 5) : m ≤ 6 := by
-  have h3 : m + 3 ≤ 9 := calc
+  have h3 := by calc
       m + 3 ≤ 2 * n - 1 := by gcongr
       _ ≤ 2 * 5 - 1 := by gcongr
       _ = 9 := by norm_num
