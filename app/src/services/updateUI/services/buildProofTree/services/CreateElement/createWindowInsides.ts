@@ -129,8 +129,9 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
           );
 
           const haveWindows = shared.proofTree.windows
-            .filter(w => tactic.haveWindowId === w.id)
-            .map(w => createWindow(shared, parentId, w, depth + 1));
+            .filter((w) => tactic.haveWindowIds.includes(w.id))
+            .map((w) => createWindow(shared, parentId, w, depth + 1));
+          console.log("HAVE WINDOWS", tactic.haveWindowIds, haveWindows);
           const hTree: UIHypTree = {
             tactic: vStack(0, [hStack(shared.inBetweenMargin, haveWindows), tacticNode]),
             level,

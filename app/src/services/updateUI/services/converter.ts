@@ -216,7 +216,11 @@ const addToEquivalentIds = (pretty : ConvertedProofTree, beforeId : string, afte
   }
 }
 
-const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWindowId : string | null = null) => {
+const handleTacticApp = (
+  tactic: LeanTactic,
+  pretty: ConvertedProofTree,
+  haveWindowIds: string[] = []
+) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const mainGoalBefore = tactic.goalsBefore[0];
@@ -245,19 +249,20 @@ const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWi
     const nextGoal = tactic.goalsAfter[0];
 
     pretty.tactics.push({
-      id           : newTacticId(),
-      text         : tactic.tacticString,
-      dependsOnIds : tactic.tacticDependsOn,
-      goalArrows   : [],
-      hypArrows    : [],
+      id: newTacticId(),
+      text: tactic.tacticString,
+      dependsOnIds: tactic.tacticDependsOn,
+      goalArrows: [],
+      hypArrows: [],
       // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
       // .dependsOnIds will convey all the information we want to see.
-      isSuccess    : nextGoal ? '🎉' : 'For all goals, 🎉!',
+      isSuccess: nextGoal ? "🎉" : "For all goals, 🎉!",
       successGoalId: mainGoalBefore.id,
+      haveWindowIds,
     });
   }
   // - we updated the goal!
-  else if (relevantGoalsAfter.length === 1) { 
+  else if (relevantGoalsAfter.length === 1) {
     const updatedGoal = relevantGoalsAfter[0];
 
     // 1. Draw goal nodes and arrows
@@ -273,31 +278,37 @@ const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWi
       currentWindow.goalNodes.push({
         text: updatedGoal.type,
         name: updatedGoal.username,
-        id  : updatedGoal.id
+        id: updatedGoal.id,
       });
-      prettyGoalArrows = [{
-        fromId: mainGoalBefore.id,
-        toId: updatedGoal.id
-      }];
+      prettyGoalArrows = [
+        {
+          fromId: mainGoalBefore.id,
+          toId: updatedGoal.id,
+        },
+      ];
     }
 
     // 2. Draw hypothesis nodes and arrows
     const hypsBefore = mainGoalBefore.hyps;
-    const hypsAfter  = updatedGoal.hyps;
-    let [prettyHypNodes, prettyHypArrows] = drawNewHypothesisLayer(pretty, hypsBefore, hypsAfter);
+    const hypsAfter = updatedGoal.hyps;
+    let [prettyHypNodes, prettyHypArrows] = drawNewHypothesisLayer(
+      pretty,
+      hypsBefore,
+      hypsAfter
+    );
 
     if (prettyHypNodes.length > 0) {
       currentWindow.hypNodes.push(prettyHypNodes);
     }
 
     pretty.tactics.push({
-      id           : newTacticId(),
-      text         : tactic.tacticString,
-      dependsOnIds : tactic.tacticDependsOn,
-      goalArrows   : prettyGoalArrows,
-      hypArrows    : prettyHypArrows,
-      isSuccess    : false,
-      ...(haveWindowId && { haveWindowId })
+      id: newTacticId(),
+      text: tactic.tacticString,
+      dependsOnIds: tactic.tacticDependsOn,
+      goalArrows: prettyGoalArrows,
+      hypArrows: prettyHypArrows,
+      isSuccess: false,
+      haveWindowIds,
     });
   }
   // - we forked the goal!
@@ -305,15 +316,19 @@ const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWi
     // 1. Draw goal nodes and arrows
     const prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
       fromId: mainGoalBefore.id,
-      toId: goal.id
+      toId: goal.id,
     }));
 
     const prettyHypArrows: Tactic["hypArrows"] = [];
     // We are creating new child windows
     const childWindows = relevantGoalsAfter.map((goal) => {
       const hypsBefore = mainGoalBefore.hyps;
-      const hypsAfter  = goal.hyps;
-      const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(pretty, hypsBefore, hypsAfter);
+      const hypsAfter = goal.hyps;
+      const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(
+        pretty,
+        hypsBefore,
+        hypsAfter
+      );
       prettyHypArrows.push(...prettyHypArrowsForAChild);
 
       return {
@@ -323,30 +338,34 @@ const handleTacticApp = (tactic: LeanTactic, pretty : ConvertedProofTree, haveWi
           {
             text: goal.type,
             name: goal.username,
-            id: goal.id
-          }
+            id: goal.id,
+          },
         ],
-        hypNodes: prettyHypNodes.length > 0 ? [prettyHypNodes] : []
-      }
+        hypNodes: prettyHypNodes.length > 0 ? [prettyHypNodes] : [],
+      };
     });
     pretty.windows.push(...childWindows);
 
     pretty.tactics.push({
-      id           : newTacticId(),
-      text         : tactic.tacticString,
-      dependsOnIds : tactic.tacticDependsOn,
-      goalArrows   : prettyGoalArrows,
-      hypArrows    : prettyHypArrows,
-      isSuccess    : false
+      id: newTacticId(),
+      text: tactic.tacticString,
+      dependsOnIds: tactic.tacticDependsOn,
+      goalArrows: prettyGoalArrows,
+      hypArrows: prettyHypArrows,
+      isSuccess: false,
+      haveWindowIds,
     });
   }
-}
+};
 
-const drawInitialGoal = (initialMainGoal: LeanGoal, pretty : ConvertedProofTree) => {
+const drawInitialGoal = (
+  initialMainGoal: LeanGoal,
+  pretty: ConvertedProofTree
+) => {
   const hypNodes = initialMainGoal.hyps.map((hyp: LeanHypothesis) => ({
     text: hyp.type,
     name: hyp.username,
-    id  : hyp.id
+    id: hyp.id,
   }));
   const initialWindow = {
     id: newWindowId(),
@@ -355,55 +374,64 @@ const drawInitialGoal = (initialMainGoal: LeanGoal, pretty : ConvertedProofTree)
       {
         text: initialMainGoal.type,
         name: initialMainGoal.username,
-        id  : initialMainGoal.id
-      }
+        id: initialMainGoal.id,
+      },
     ],
-    hypNodes: hypNodes.length > 0 ? [hypNodes.reverse()] : []
+    hypNodes: hypNodes.length > 0 ? [hypNodes.reverse()] : [],
   };
   pretty.windows.push(initialWindow);
-}
+};
 
+// TODO: Refactor it since this function relies on obsolete assumptions:
+// - There is only one initial goal (can be multiple `have <p, q> := <by rfl, by rfl>`)
+// - Order of tactics in steps reflects the order of the proof.
 const getInitialGoal = (subSteps: LeanProofTree): LeanGoal | undefined => {
   const firstStep = subSteps[0];
-  if ('tacticApp' in firstStep) {
+  if ("tacticApp" in firstStep) {
     return firstStep.tacticApp.t.goalsBefore[0];
-  } else if ('haveDecl' in firstStep) {
+  } else if ("haveDecl" in firstStep) {
     return firstStep.haveDecl.t.goalsBefore[0];
   }
-}
+};
 
-const recursive = (subSteps : LeanProofTree, pretty : ConvertedProofTree) => {
+const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
   subSteps.forEach((subStep) => {
-    if ('tacticApp' in subStep) {
+    if ("tacticApp" in subStep) {
       handleTacticApp(subStep.tacticApp.t, pretty);
-    } else if ('haveDecl' in subStep) {
-      const haveWindowId = newWindowId();
-
-      handleTacticApp(subStep.haveDecl.t, pretty, haveWindowId);
-
-      const initialGoal = getInitialGoal(subStep.haveDecl.subSteps)!;
-
-      const initialWindow : Window = {
-        id: haveWindowId,
+    } else if ("haveDecl" in subStep) {
+      // TODO: Remove when new lean version reporting is set up.
+      const initialGoals =
+        "initialGoals" in subStep.haveDecl
+          ? subStep.haveDecl.initialGoals
+          : [getInitialGoal(subStep.haveDecl.subSteps)!];
+      console.log("Inital", initialGoals);
+      const windows = initialGoals.map((goal) => ({
+        id: newWindowId(),
         // Parent window is such that has our goalId as a hypothesis.
         // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
         parentId: "haveWindow",
         goalNodes: [
           {
-            text: initialGoal.type,
-            name: initialGoal.username,
-            id  : initialGoal.id
-          }
+            text: goal.type,
+            name: goal.username,
+            id: goal.id,
+          },
         ],
         // `have`s don't introduce any new hypotheses
-        hypNodes: []
-      };
-      pretty.windows.push(initialWindow);
+        hypNodes: [],
+      }));
+
+      handleTacticApp(
+        subStep.haveDecl.t,
+        pretty,
+        windows.map((w) => w.id)
+      );
+      pretty.windows.push(...windows);
 
       recursive(subStep.haveDecl.subSteps, pretty);
     }
-  })
-}
+  });
+};
 
 const postprocess = (pretty: ConvertedProofTree): ConvertedProofTree => {
   pretty.tactics.forEach((tactic) => {

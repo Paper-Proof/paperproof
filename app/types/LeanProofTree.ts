@@ -29,8 +29,13 @@ export type LeanHaveDecl = {
   haveDecl: {
     t: LeanTactic;
     subSteps: LeanProofTree;
-    initialGoal: string;
-  }
+  } & (
+    | { version: undefined; initialGoal: string }
+    | {
+        version: 2;
+        initialGoals: LeanGoal[];
+      }
+  );
 };
 
 export type LeanProofTree = (LeanTacticApp | LeanHaveDecl)[];

@@ -75,13 +75,29 @@ const createArrows = (shared: UIShared): UIElement => {
         });
 
         // 3. Draw arrows between this tactic and `have` windows
-        if (tactic.haveWindowId && tactic.hypArrows[0]) {
-          const window = getWindowByHypId(shared.proofTree, tactic.hypArrows[0].toIds[0]);
-          if (!window) return
-          const fromWindowId = findIdInApp(shared.editor, CreateId.window(tactic.haveWindowId));
-          const toTacticId = findIdInApp(shared.editor, CreateId.hypTactic(tactic.id, null, window.id));
-          if (!fromWindowId || !toTacticId) return
-          DrawShape.arrow(shared.editor, fromWindowId, toTacticId, "goalArrow");
+        for (const haveWindowId of tactic.haveWindowIds) {
+          if (tactic.hypArrows[0]) {
+            const window = getWindowByHypId(
+              shared.proofTree,
+              tactic.hypArrows[0].toIds[0]
+            );
+            if (!window) return;
+            const fromWindowId = findIdInApp(
+              shared.editor,
+              CreateId.window(haveWindowId)
+            );
+            const toTacticId = findIdInApp(
+              shared.editor,
+              CreateId.hypTactic(tactic.id, null, window.id)
+            );
+            if (!fromWindowId || !toTacticId) return;
+            DrawShape.arrow(
+              shared.editor,
+              fromWindowId,
+              toTacticId,
+              "goalArrow"
+            );
+          }
         }
       });
     }
