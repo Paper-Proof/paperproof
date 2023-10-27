@@ -148,7 +148,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
                   allGoals} 
  
         let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
-          -- TODO: have ⟨ p, q ⟩ : (a = a) × (b = b) := ⟨ by rfl, by rfl ⟩ isn't supported yet
+        -- TODO: have ⟨ p, q ⟩ : (3 = 3) ∧ (4 = 4) := ⟨ by rfl, by rfl ⟩ isn't supported yet
         return {steps := [.haveDecl tacticApp goals.toList steps],
                 allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
       | `(tactic| rw [$_,*] $(_)?)
