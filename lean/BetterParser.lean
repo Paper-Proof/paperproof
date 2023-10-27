@@ -60,11 +60,13 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
   let some expr := mctxAfter.eAssignment.find? goalId
     | return []
 
-  let fvarIds := (collectFVars {} expr).fvarIds
+  -- Need to instantiate it to get all fvars
+  let fullExpr ← instantiateExprMVars expr |>.run
+  let fvarIds := (collectFVars {} fullExpr).fvarIds
   let fvars := fvarIds.filterMap goalDecl.lctx.find?
   let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
-  let pretty := proofFvars.map (fun x => x.userName)
-  dbg_trace s!"Used {pretty}"
+  -- let pretty := proofFvars.map (fun x => x.userName)
+  -- dbg_trace s!"Used {pretty}"
   return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- Returns GoalInfo about unassigned goals from the provided list of goals
