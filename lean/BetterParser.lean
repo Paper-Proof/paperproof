@@ -50,11 +50,22 @@ def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashS
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
   (steps.bind stepGoalsAfter).foldl HashSet.erase allGoals
 
-partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
-  (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
-    match i with
-    | .ofTermInfo ti  => if let .fvar id := ti.expr then some id else none
-    | _ => none 
+/-
+  Instead of doing parsing of what user wrote (it wouldn't work for linarith etc),
+  let's do the following.
+  We have assigned something to our goal in mctxAfter.
+  All the fvars used in these assignments are what was actually used instead of what was in syntax.
+-/
+def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
+  let some expr := mctxAfter.eAssignment.find? goalId
+    | return []
+
+  let fvarIds := (collectFVars {} expr).fvarIds
+  let fvars := fvarIds.filterMap goalDecl.lctx.find?
+  let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
+  let pretty := proofFvars.map (fun x => x.userName)
+  dbg_trace s!"Used {pretty}"
+  return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- Returns GoalInfo about unassigned goals from the provided list of goals
 def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
@@ -122,21 +133,19 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       -- For example a tactic like `done` which ensures there are no unsolved goals,
       -- or `focus` which only leaves one goal, however has no information for the tactic tree
       -- Note: tactic like `have` changes the goal as it adds something to the context
-      if goalsBefore.isEmpty then
-        return {steps, allGoals}
-
-      let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
+      let some mainGoalId := tInfo.goalsBefore.head?
+        | return {steps, allGoals}
+      let some mainGoalDecl := tInfo.mctxBefore.findDecl? mainGoalId
         | return {steps, allGoals}
       
-      -- Find names to get decls
-      let fvarIds := cs.toList.map (findFVars ctx) |>.join
-      let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
-      let proofFvars ← fvars.filterM (λ decl => ctx.runMetaM mainGoalDecl.lctx (Meta.isProof decl.toExpr))
+      let tacticDependsOn ←
+        ctx.runMetaM mainGoalDecl.lctx
+          (findHypsUsedByTactic mainGoalId mainGoalDecl tInfo.mctxAfter)
       let tacticApp: TacticApplication := {
         tacticString,
         goalsBefore,
         goalsAfter,
-        tacticDependsOn := proofFvars.map fun decl => s!"{decl.fvarId.name.toString}"
+        tacticDependsOn
       }
 
       -- It's a tactic combinator
