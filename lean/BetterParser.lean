@@ -57,7 +57,7 @@ partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
     | _ => none 
 
 -- Returns GoalInfo about unassigned goals from the provided list of goals
-def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
+def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
   goals.filterMapM fun id => do
     let some decl := mctx.findDecl? id
       | return none
@@ -66,7 +66,7 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
       return none
     -- to get tombstones in name ✝ for unreachable hypothesis
     let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
-    let ppContext := {ctx with mctx}.toPPContext lctx
+    let ppContext := printCtx.toPPContext lctx
     let hyps ← lctx.foldlM (init := []) (fun acc decl => do
       if decl.isAuxDecl || decl.isImplementationDetail then
         return acc
@@ -88,8 +88,15 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
-  let goalsBefore ← getGoals ctx goalMVars tInfo.mctxBefore
-  let goalsAfter ← getGoals ctx goalMVars tInfo.mctxAfter
+  -- For printing purposes we always need to use the latest mctx assignments. For example in
+  -- have h := by calc
+  --  3 ≤ 4 := by trivial
+  --  4 ≤ 5 := by trivial
+  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
+  -- it's known to be `3 ≤ 5`
+  let printCtx := {ctx with mctx := tInfo.mctxAfter}
+  let goalsBefore ← getGoals printCtx goalMVars tInfo.mctxBefore
+  let goalsAfter ← getGoals printCtx goalMVars tInfo.mctxAfter
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
