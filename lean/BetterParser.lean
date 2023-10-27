@@ -135,6 +135,9 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       -- For example a tactic like `done` which ensures there are no unsolved goals,
       -- or `focus` which only leaves one goal, however has no information for the tactic tree
       -- Note: tactic like `have` changes the goal as it adds something to the context
+      if goalsBefore.isEmpty then
+        return {steps, allGoals}
+
       let some mainGoalId := tInfo.goalsBefore.head?
         | return {steps, allGoals}
       let some mainGoalDecl := tInfo.mctxBefore.findDecl? mainGoalId
