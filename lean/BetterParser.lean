@@ -148,8 +148,10 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
                   allGoals} 
  
         let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
+        -- Important for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
+        let sortedGoals := goals.toArray.insertionSort (·.id < ·.id)
         -- TODO: have ⟨ p, q ⟩ : (3 = 3) ∧ (4 = 4) := ⟨ by rfl, by rfl ⟩ isn't supported yet
-        return {steps := [.haveDecl tacticApp goals.toList steps],
+        return {steps := [.haveDecl tacticApp sortedGoals.toList steps],
                 allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
       | `(tactic| rw [$_,*] $(_)?)
       | `(tactic| rewrite [$_,*] $(_)?) =>

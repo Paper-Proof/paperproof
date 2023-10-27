@@ -404,7 +404,6 @@ const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
         "initialGoals" in subStep.haveDecl
           ? subStep.haveDecl.initialGoals
           : [getInitialGoal(subStep.haveDecl.subSteps)!];
-      console.log("Inital", initialGoals);
       const windows = initialGoals.map((goal) => ({
         id: newWindowId(),
         // Parent window is such that has our goalId as a hypothesis.
