@@ -11,8 +11,14 @@ import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
 
+theorem simple_ex (n m : ℕ)
+  (h1 : ∀ {a b : Nat}, a + b = b + a)
+  (h2 : ∀ {a b : Nat}, a = b + b):
+    n + m = m + n := by
+  simp [h1, h2]
+
 example {m n : ℤ} (h1 : m + 3 ≤ 2 * n - 1) (h2 : n ≤ 5) : m ≤ 6 := by
-  have h3 : m + 3 ≤ 9 := by calc
+  have h3 := calc
       m + 3 ≤ 2 * n - 1 := by gcongr
       _ ≤ 2 * 5 - 1 := by gcongr
       _ = 9 := by norm_num

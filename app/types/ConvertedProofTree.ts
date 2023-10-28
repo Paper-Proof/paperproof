@@ -31,7 +31,11 @@ export interface Tactic {
   // hmm
   isSuccess: boolean | string;
   successGoalId?: string;
-  haveWindowId?: string
+  // TODO: Those are actually `byWindow`s which were used to create
+  // parameters for this tactic. For example in
+  // `have <p, q> := <by rfl, by trivial>`
+  // there are 2 `byWindow`s.
+  haveWindowIds: string[];
 }
 
 export interface ConvertedProofTree {

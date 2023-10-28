@@ -34,7 +34,7 @@ structure TacticApplication where
 inductive ProofStep := 
   | tacticApp (t : TacticApplication)
   | haveDecl (t: TacticApplication)
-    (initialGoal: String)
+    (initialGoals: List GoalInfo)
     (subSteps : List ProofStep)
   deriving Inhabited, ToJson, FromJson
 
@@ -50,14 +50,27 @@ def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashS
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
   (steps.bind stepGoalsAfter).foldl HashSet.erase allGoals
 
-partial def findFVars (ctx: ContextInfo) (infoTree : InfoTree): List FVarId :=
-  (InfoTree.context ctx infoTree).deepestNodes fun _ i _ =>
-    match i with
-    | .ofTermInfo ti  => if let .fvar id := ti.expr then some id else none
-    | _ => none 
+/-
+  Instead of doing parsing of what user wrote (it wouldn't work for linarith etc),
+  let's do the following.
+  We have assigned something to our goal in mctxAfter.
+  All the fvars used in these assignments are what was actually used instead of what was in syntax.
+-/
+def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
+  let some expr := mctxAfter.eAssignment.find? goalId
+    | return []
+
+  -- Need to instantiate it to get all fvars
+  let fullExpr ← instantiateExprMVars expr |>.run
+  let fvarIds := (collectFVars {} fullExpr).fvarIds
+  let fvars := fvarIds.filterMap goalDecl.lctx.find?
+  let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
+  -- let pretty := proofFvars.map (fun x => x.userName)
+  -- dbg_trace s!"Used {pretty}"
+  return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- Returns GoalInfo about unassigned goals from the provided list of goals
-def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
+def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
   goals.filterMapM fun id => do
     let some decl := mctx.findDecl? id
       | return none
@@ -66,7 +79,7 @@ def getGoals (ctx : ContextInfo) (goals : List MVarId) (mctx : MetavarContext) :
       return none
     -- to get tombstones in name ✝ for unreachable hypothesis
     let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
-    let ppContext := {ctx with mctx}.toPPContext lctx
+    let ppContext := printCtx.toPPContext lctx
     let hyps ← lctx.foldlM (init := []) (fun acc decl => do
       if decl.isAuxDecl || decl.isImplementationDetail then
         return acc
@@ -88,8 +101,15 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
-  let goalsBefore ← getGoals ctx goalMVars tInfo.mctxBefore
-  let goalsAfter ← getGoals ctx goalMVars tInfo.mctxAfter
+  -- For printing purposes we always need to use the latest mctx assignments. For example in
+  -- have h := by calc
+  --  3 ≤ 4 := by trivial
+  --  4 ≤ 5 := by trivial
+  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
+  -- it's known to be `3 ≤ 5`
+  let printCtx := {ctx with mctx := tInfo.mctxAfter}
+  let goalsBefore ← getGoals printCtx goalMVars tInfo.mctxBefore
+  let goalsAfter ← getGoals printCtx goalMVars tInfo.mctxAfter
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
@@ -118,35 +138,34 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       if goalsBefore.isEmpty then
         return {steps, allGoals}
 
-      let some mainGoalDecl := tInfo.goalsBefore.head?.bind tInfo.mctxBefore.findDecl?
+      let some mainGoalId := tInfo.goalsBefore.head?
+        | return {steps, allGoals}
+      let some mainGoalDecl := tInfo.mctxBefore.findDecl? mainGoalId
         | return {steps, allGoals}
       
-      -- Find names to get decls
-      let fvarIds := cs.toList.map (findFVars ctx) |>.join
-      let fvars := fvarIds.filterMap mainGoalDecl.lctx.find?
-      let proofFvars ← fvars.filterM (λ decl => ctx.runMetaM mainGoalDecl.lctx (Meta.isProof decl.toExpr))
+      let tacticDependsOn ←
+        ctx.runMetaM mainGoalDecl.lctx
+          (findHypsUsedByTactic mainGoalId mainGoalDecl tInfo.mctxAfter)
       let tacticApp: TacticApplication := {
         tacticString,
         goalsBefore,
         goalsAfter,
-        tacticDependsOn := proofFvars.map fun decl => s!"{decl.fvarId.name.toString}"
+        tacticDependsOn
       }
 
       -- It's a tactic combinator
       match tInfo.stx with
-      -- TODO: can we grab all have's as one pattern match branch?
-      | `(tactic| have $_:letPatDecl)
-      | `(tactic| have $_ : $_ := $_) =>
+      | `(tactic| have $_:haveDecl) =>
         -- Something like `have p : a = a := rfl`
         if steps.isEmpty then
           return {steps := [.tacticApp tacticApp],
                   allGoals} 
  
         let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
-        let [initialGoal] := goals.toList
-          -- TODO: have ⟨ p, q ⟩ : (a = a) × (b = b) := ⟨ by rfl, by rfl ⟩ isn't supported yet
-          | throwThe RequestError ⟨.invalidParams, s!"exactly one orphaned goal is expected for have with goalsAfter {toJson goalsAfter}, but found {toJson goals.toList}"⟩
-        return {steps := [.haveDecl tacticApp initialGoal.type steps],
+        -- Important for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
+        let sortedGoals := goals.toArray.insertionSort (·.id < ·.id)
+        -- TODO: have ⟨ p, q ⟩ : (3 = 3) ∧ (4 = 4) := ⟨ by rfl, by rfl ⟩ isn't supported yet
+        return {steps := [.haveDecl tacticApp sortedGoals.toList steps],
                 allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
       | `(tactic| rw [$_,*] $(_)?)
       | `(tactic| rewrite [$_,*] $(_)?) =>
