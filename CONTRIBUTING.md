@@ -16,8 +16,8 @@
 
 3. Go to your vscode settings, and change your `Paperproof: Server Url` setting to `http://localhost:80`. Close & reopen vscode.
 
-<img width="467" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/13539e57-2a66-4067-9193-b5e324984d2f">
-<img width="478" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fb775762-4e3f-468b-94ef-5abbd1cd2593">
+    <img width="478" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/13539e57-2a66-4067-9193-b5e324984d2f">
+    <img width="478" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fb775762-4e3f-468b-94ef-5abbd1cd2593">
 
 4. Go to `/Examples.lean`, and open the Paperpoof panel by running **Cmd+Shift+P** `> Paperproof: Toggle`, or just by clicking on a piece of a crumpled paper:
 
