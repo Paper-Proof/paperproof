@@ -28,8 +28,6 @@ export interface Tactic {
   dependsOnIds: string[];
   goalArrows: { fromId: string; toId: string }[];
   hypArrows: { fromId: string | null; toIds: string[] }[];
-  // hmm
-  isSuccess: boolean | string;
   successGoalId?: string;
   // TODO: Those are actually `byWindow`s which were used to create
   // parameters for this tactic. For example in

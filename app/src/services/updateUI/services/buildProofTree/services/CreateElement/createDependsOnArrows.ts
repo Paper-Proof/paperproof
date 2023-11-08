@@ -21,7 +21,7 @@ const createDependsOnArrows = (shared: UIShared): UIElement => {
     size: [0, 0],
     draw: (x: number, y: number) => {
       shared.proofTree.tactics.forEach((tactic) => {
-        if (!tactic.isSuccess) return;
+        if (!tactic.successGoalId) return;
         tactic.dependsOnIds.forEach((dependsOnHypId) => {
           const fromNodeId = findIdInApp(shared.editor, CreateId.node(dependsOnHypId));
 

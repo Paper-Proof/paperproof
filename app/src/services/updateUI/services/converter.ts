@@ -254,7 +254,6 @@ const handleTacticApp = (
       hypArrows: [],
       // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
       // .dependsOnIds will convey all the information we want to see.
-      isSuccess: nextGoal ? "🎉" : "For all goals, 🎉!",
       successGoalId: mainGoalBefore.id,
       haveWindowIds,
     });
@@ -305,7 +304,6 @@ const handleTacticApp = (
       dependsOnIds: tactic.tacticDependsOn,
       goalArrows: prettyGoalArrows,
       hypArrows: prettyHypArrows,
-      isSuccess: false,
       haveWindowIds,
     });
   }
@@ -350,7 +348,6 @@ const handleTacticApp = (
       dependsOnIds: tactic.tacticDependsOn,
       goalArrows: prettyGoalArrows,
       hypArrows: prettyHypArrows,
-      isSuccess: false,
       haveWindowIds,
     });
   }
