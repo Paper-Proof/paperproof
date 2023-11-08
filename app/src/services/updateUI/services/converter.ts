@@ -228,11 +228,9 @@ const handleTacticApp = (
   let currentWindow = getWindowByGoalId(pretty, mainGoalBefore.id);
 
   if (!currentWindow) {
-    // currentWindow = pretty.windows[0]; // 191 lines
     console.warn("Couldn't find a window to place this tactic into.");
     console.log({ mainGoalBefore });
-    return; // 91 lines
-    // console.log(util.inspect({ windows: pretty.windows, tactic }, { depth: null }));
+    return;
   }
 
   const relevantGoalsAfter = tactic.goalsAfter
