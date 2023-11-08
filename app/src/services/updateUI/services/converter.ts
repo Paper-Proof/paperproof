@@ -246,17 +246,31 @@ const handleTacticApp = (
   if (relevantGoalsAfter.length === 0) {
     const nextGoal = tactic.goalsAfter[0];
 
-    pretty.tactics.push({
-      id: newTacticId(),
-      text: tactic.tacticString,
-      dependsOnIds: tactic.tacticDependsOn,
-      goalArrows: [],
-      hypArrows: [],
-      // success arrows are better not drawn (noisy!), we should just mark the tactic as 🎉.
-      // .dependsOnIds will convey all the information we want to see.
-      successGoalId: mainGoalBefore.id,
-      haveWindowIds,
-    });
+    // `done` has a very unusual behaviour -
+    // if we had some goals prior to it, then it's a "fake success" tactic for all of them
+    if (tactic.tacticString === "done") {
+      tactic.goalsBefore.forEach((goalBefore) => {
+        pretty.tactics.push({
+          id: newTacticId(),
+          text: "done",
+          dependsOnIds: [],
+          goalArrows: [],
+          hypArrows: [],
+          successGoalId: goalBefore.id,
+          haveWindowIds,
+        });
+      })
+    } else {
+      pretty.tactics.push({
+        id: newTacticId(),
+        text: tactic.tacticString,
+        dependsOnIds: tactic.tacticDependsOn,
+        goalArrows: [],
+        hypArrows: [],
+        successGoalId: mainGoalBefore.id,
+        haveWindowIds,
+      });
+    }
   }
   // - we updated the goal!
   else if (relevantGoalsAfter.length === 1) {
@@ -467,6 +481,8 @@ const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
 
   // Then, draw all the other tactics and hypotheses and goals.
   recursive(leanProofTree, pretty);
+
+  console.log({ leanProofTree, convertedProofTree: postprocess(pretty) });
 
   return postprocess(pretty);
 }

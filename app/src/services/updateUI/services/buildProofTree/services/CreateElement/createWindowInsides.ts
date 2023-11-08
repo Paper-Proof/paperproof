@@ -181,12 +181,12 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
     );
     let tacticEl : UIElement;
     if (tactic) {
-      const isSuccessTactic = tactic.successGoalId && tactic.text !== "sorry";
+      const isSuccessTactic = tactic.successGoalId && tactic.text !== "sorry" && tactic.text !== "done";
       tacticEl = createNode(shared, parentId, (isSuccessTactic ? `🎉 ${tactic.text} 🎉` : tactic.text), "tactic", CreateId.goalTactic(tactic.id));
     } else {
       tacticEl = createNode(shared, parentId, "...", "tactic", createShapeId());
     }
-    const isLastGoalNode = (tactic && tactic.successGoalId && tactic.text !== "sorry") || !tactic;
+    const isLastGoalNode = (tactic && tactic.successGoalId) || !tactic;
     if (isLastGoalNode) {
       goalAndTacticEls.push(withWidth(() => windowWidth, tacticEl), goalEl);
     } else {
