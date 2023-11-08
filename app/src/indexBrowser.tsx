@@ -17,6 +17,7 @@ import { ProofResponse, PaperProofWindow } from "types";
 import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
 import uiOverrides from "./tldraw/uiOverrides";
+import { Simple } from "./simple";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -55,6 +56,7 @@ function Main() {
     });
   };
 
+  return <Simple/>
   return (
     <div className={`tldraw-wrapper ${window.isBrightTheme === true ? '-vscode-bright-theme' : '-vscode-dark-theme'}`}>
       <Tldraw onMount={handleMount} shapeUtils={customShapeUtils} overrides={uiOverrides}>
