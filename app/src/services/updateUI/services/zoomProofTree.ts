@@ -2,15 +2,15 @@ import { Editor } from '@tldraw/tldraw';
 import CreateId from './buildProofTree/services/CreateId';
 import zoomToWindow from '../../../library/zoomToWindow';
 import getDisplayedId from 'src/services/updateUI/services/getDisplayedId';
-import { ConvertedProofTree, Window } from 'types';
+import { ConvertedProofTree, Box } from 'types';
 
-const getParentWindowId = (windows: Window[], childId: string): string | null => {
+const getParentWindowId = (windows: Box[], childId: string): string | null => {
   const childWindow = windows.find((w) => w.id === childId);
   const parentId = childWindow!.parentId;
   return parentId;
 }
 
-const findLcm = (windows: Window[], windowIdA: string, windowIdB: string): string => {
+const findLcm = (windows: Box[], windowIdA: string, windowIdB: string): string => {
   const parentsOfA: (string | null)[] = [];
   let idA: string | null = windowIdA;
   while (true) {
@@ -48,7 +48,7 @@ const zoomProofTree = (editor: Editor, convertedTree: ConvertedProofTree, goalId
   }
 
   // 3. Rezoom on the common ancestor of (windowWithCurrentGoal, lastClickedOnWindowId)
-  const windowWithCurrentGoal = convertedTree.windows.find((w) =>
+  const windowWithCurrentGoal = convertedTree.boxes.find((w) =>
     w.goalNodes.find((g) => g.id === getDisplayedId(convertedTree.equivalentIds, goalId))
   );
   if (!windowWithCurrentGoal) {
@@ -56,7 +56,7 @@ const zoomProofTree = (editor: Editor, convertedTree: ConvertedProofTree, goalId
     return;
   }
 
-  let lcmWindowId = findLcm(convertedTree.windows, windowWithCurrentGoal.id, lastClickedOnWindowId);
+  let lcmWindowId = findLcm(convertedTree.boxes, windowWithCurrentGoal.id, lastClickedOnWindowId);
   const lcmWindow = editor.getShape(CreateId.window(lcmWindowId));
 
   if (lcmWindow) {

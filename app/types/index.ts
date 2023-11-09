@@ -1,6 +1,6 @@
 import { LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree } from './LeanProofTree';
 import { LeanInteractiveHyp, LeanInteractiveGoal } from './LeanInteractiveGoal';
-import { GoalNode, HypNode, HypLayer, Window, Tactic, ConvertedProofTree } from './ConvertedProofTree';
+import { GoalNode, HypNode, HypLayer, Box, Tactic, ConvertedProofTree } from './ConvertedProofTree';
 import { UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer } from './UI';
 
 // SERVER REQUEST/RESPONSE
@@ -19,6 +19,6 @@ export interface PaperProofWindow extends Window {
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
   LeanInteractiveHyp, LeanInteractiveGoal,
-  GoalNode, HypNode, Window, Tactic, HypLayer, ConvertedProofTree,
+  GoalNode, HypNode, Box, Tactic, HypLayer, ConvertedProofTree,
   UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer
 };

@@ -1,6 +1,6 @@
 import { TLParentId, createShapeId } from "@tldraw/tldraw";
 
-import { UIHypTree, UIElement, UIIdElement, HypLayer, Window, UIShared } from "types";
+import { UIHypTree, UIElement, UIIdElement, HypLayer, Box, UIShared } from "types";
 
 import getHypNodeText from '../getHypNodeText';
 import hStack from '../hStack';
@@ -63,7 +63,7 @@ const createTrees = (hMargin: number, trees: UIHypTree[]): UIElement => {
   };
 }
 
-const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined, window: Window, depth: number): UIElement => {
+const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined, window: Box, depth: number): UIElement => {
   let rows: UIElement[] = [];
 
   // 1. Draw all hypothesis nodes (and their tactic nodes)
@@ -128,9 +128,9 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
             CreateId.hypTactic(tactic.id, hypArrow.fromId, window.id)
           );
 
-          const haveWindows = tactic.haveWindowIds
+          const haveWindows = tactic.haveBoxIds
             .flatMap(
-              (id) => shared.proofTree.windows.find((w) => w.id === id) ?? []
+              (id) => shared.proofTree.boxes.find((w) => w.id === id) ?? []
             )
             .map((w) => createWindow(shared, parentId, w, depth + 1));
           const hTree: UIHypTree = {
@@ -161,7 +161,7 @@ const createWindowInsides = (shared: UIShared, parentId: TLParentId | undefined,
   }
 
   // 2. Draw all child windows
-  const subWindows = shared.proofTree.windows.filter((w) => w.parentId == window.id);
+  const subWindows = shared.proofTree.boxes.filter((w) => w.parentId == window.id);
   const frameEls: UIElement[] = subWindows.map((subWindow) =>
     createWindow(shared, parentId, subWindow, depth + 1)
   );

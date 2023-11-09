@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRef } from "react";
 import { createRoot } from 'react-dom/client';
 import { Canvas, ContextMenu, Editor, Tldraw } from "@tldraw/tldraw";
@@ -18,6 +18,7 @@ import '@tldraw/tldraw/tldraw.css'
 import "./index.css";
 import uiOverrides from "./tldraw/uiOverrides";
 import { Simple } from "./simple";
+import { New } from "./new/New";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -34,40 +35,17 @@ const uiConfig = {
 };
 
 function Main() {
-  const oldProofRef = useRef<ProofResponse>(null);
+  const [proofState, setProofState] = useState(window.initialInfo);
 
-  const handleMount = (editor: Editor) => {
-    localStorage.removeItem('zoomedWindowId');
-
-    editor.updateInstanceState({ isFocusMode: true });
-    editor.user.updateUserPreferences({ isSnapMode: true });
-    editor.renderingBoundsMargin = Infinity;
-
-    // 1. Render initial proof
-    const proof = window.initialInfo;
-    updateUI(editor, oldProofRef.current, proof, uiConfig)
-    oldProofRef.current = proof;
-
-    // 2. Render the proof on updates
+  useEffect(() => {
     addEventListener("message", (event) => {
       const proof = event.data;
-      updateUI(editor, oldProofRef.current, proof, uiConfig)
-      oldProofRef.current = proof;
+      setProofState(proof);
     });
-  };
+  }, [])
 
-  return <Simple/>
-  return (
-    <div className={`tldraw-wrapper ${window.isBrightTheme === true ? '-vscode-bright-theme' : '-vscode-dark-theme'}`}>
-      <Tldraw onMount={handleMount} shapeUtils={customShapeUtils} overrides={uiOverrides}>
-        {/* ContextMeny is necessary for the right-click menu to appear */}
-        <ContextMenu>
-          <Canvas/>
-          <ErrorToast/>
-        </ContextMenu>
-      </Tldraw>
-    </div>
-  );
+  return <New proofState={proofState}/>
+  // return <Simple/>
 }
 
 const root = createRoot(document.getElementById("root")!);

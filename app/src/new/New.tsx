@@ -17,7 +17,7 @@ export const New = (props: PropsNew) => {
 
   const proofTree : ConvertedProofTree = converter(props.proofState.proofTree);
 
-  const rootWindow = proofTree.windows.find((w) => w.parentId === null);
+  const rootWindow = proofTree.boxes.find((w) => w.parentId === null);
   if (!rootWindow) return null
 
   return <Box/>

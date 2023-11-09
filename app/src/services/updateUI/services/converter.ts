@@ -1,10 +1,10 @@
-import { ConvertedProofTree, LeanProofTree, Tactic, Window, LeanHypothesis, LeanTactic, LeanGoal, HypNode } from "types";
+import { ConvertedProofTree, LeanProofTree, Tactic, Box, LeanHypothesis, LeanTactic, LeanGoal, HypNode } from "types";
 
-let windowId : number;
+let boxId : number;
 let tacticId : number;
 
-const newWindowId = () => {
-  return String(windowId++);
+const newBoxId = () => {
+  return String(boxId++);
 }
 
 const newTacticId = () => {
@@ -21,12 +21,12 @@ const newTacticId = () => {
 // Notice how they all concern the situation where something important changed, but the id didn't!
 // In such cases - let's trust Lean that the change is so miniscule it isn't worth the id update.
 //
-// IF we stumble upon the situation where this behaviour is undesirable - let's create a complex data structure that creates new fake ids; and keep track of them in a way that accounts for window parenthood relationships.
+// IF we stumble upon the situation where this behaviour is undesirable - let's create a complex data structure that creates new fake ids; and keep track of them in a way that accounts for box parenthood relationships.
 const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) => {
   console.warn("Weird situation! Changing existingHypNode into hypAfter in-place:");
   // We need a displayed id here [because, unusually enough, we're changing the already-drawn node]
   const hypAfterId = getDisplayedId(pretty, hypAfter.id);
-  pretty.windows.forEach((w) => {
+  pretty.boxes.forEach((w) => {
     w.hypNodes.forEach((hypLevel) => {
       hypLevel.forEach((existingHypNode) => {
         if (existingHypNode.id === hypAfterId) {
@@ -187,10 +187,10 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
   return [prettyHypNodes.reverse(), prettyHypArrows];
 }
 
-// Any window is uniquely associated with a goal id.
-// A particular goal id only ever belongs to some window. 
-const getWindowByGoalId = (pretty : ConvertedProofTree, goalId : string) => {
-  return pretty.windows.find((w) =>
+// Any box is uniquely associated with a goal id.
+// A particular goal id only ever belongs to some box. 
+const getBoxByGoalId = (pretty : ConvertedProofTree, goalId : string) => {
+  return pretty.boxes.find((w) =>
     w.goalNodes.find((g) => g.id === getDisplayedId(pretty, goalId))
   )
 }
@@ -219,16 +219,16 @@ const addToEquivalentIds = (pretty : ConvertedProofTree, beforeId : string, afte
 const handleTacticApp = (
   tactic: LeanTactic,
   pretty: ConvertedProofTree,
-  haveWindowIds: string[] = []
+  haveBoxIds: string[] = []
 ) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const mainGoalBefore = tactic.goalsBefore[0];
 
-  let currentWindow = getWindowByGoalId(pretty, mainGoalBefore.id);
+  let currentBox = getBoxByGoalId(pretty, mainGoalBefore.id);
 
-  if (!currentWindow) {
-    console.warn("Couldn't find a window to place this tactic into.");
+  if (!currentBox) {
+    console.warn("Couldn't find a box to place this tactic into.");
     console.log({ mainGoalBefore });
     return;
   }
@@ -257,7 +257,7 @@ const handleTacticApp = (
           goalArrows: [],
           hypArrows: [],
           successGoalId: goalBefore.id,
-          haveWindowIds,
+          haveBoxIds: haveBoxIds,
         });
       })
     } else {
@@ -268,7 +268,7 @@ const handleTacticApp = (
         goalArrows: [],
         hypArrows: [],
         successGoalId: mainGoalBefore.id,
-        haveWindowIds,
+        haveBoxIds: haveBoxIds,
       });
     }
   }
@@ -281,12 +281,12 @@ const handleTacticApp = (
     // In general, we would want to do this:
     // `if (mainGoalBefore.type !== updatedGoal.type) {`
     // However sometimes the goal id changes; and the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
-    // In such cases, we still want to put this goalNode into our window - to enable future tactics to find this window by goal id.
+    // In such cases, we still want to put this goalNode into our box - to enable future tactics to find this box by goal id.
     // Also: future tactics might well be referencing that id! So we, of course, need to mark it as equivalent to other goal ids.
     if (mainGoalBefore.type === updatedGoal.type) {
       addToEquivalentIds(pretty, mainGoalBefore.id, updatedGoal.id);
     } else {
-      currentWindow.goalNodes.push({
+      currentBox.goalNodes.push({
         text: updatedGoal.type,
         name: updatedGoal.username,
         id: updatedGoal.id,
@@ -309,7 +309,7 @@ const handleTacticApp = (
     );
 
     if (prettyHypNodes.length > 0) {
-      currentWindow.hypNodes.push(prettyHypNodes);
+      currentBox.hypNodes.push(prettyHypNodes);
     }
 
     pretty.tactics.push({
@@ -318,7 +318,7 @@ const handleTacticApp = (
       dependsOnIds: tactic.tacticDependsOn,
       goalArrows: prettyGoalArrows,
       hypArrows: prettyHypArrows,
-      haveWindowIds,
+      haveBoxIds: haveBoxIds,
     });
   }
   // - we forked the goal!
@@ -330,8 +330,8 @@ const handleTacticApp = (
     }));
 
     const prettyHypArrows: Tactic["hypArrows"] = [];
-    // We are creating new child windows
-    const childWindows = relevantGoalsAfter.map((goal) => {
+    // We are creating new child boxes
+    const childBoxes = relevantGoalsAfter.map((goal) => {
       const hypsBefore = mainGoalBefore.hyps;
       const hypsAfter = goal.hyps;
       const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(
@@ -342,8 +342,8 @@ const handleTacticApp = (
       prettyHypArrows.push(...prettyHypArrowsForAChild);
 
       return {
-        id: newWindowId(),
-        parentId: currentWindow!.id,
+        id: newBoxId(),
+        parentId: currentBox!.id,
         goalNodes: [
           {
             text: goal.type,
@@ -354,7 +354,7 @@ const handleTacticApp = (
         hypNodes: prettyHypNodes.length > 0 ? [prettyHypNodes] : [],
       };
     });
-    pretty.windows.push(...childWindows);
+    pretty.boxes.push(...childBoxes);
 
     pretty.tactics.push({
       id: newTacticId(),
@@ -362,7 +362,7 @@ const handleTacticApp = (
       dependsOnIds: tactic.tacticDependsOn,
       goalArrows: prettyGoalArrows,
       hypArrows: prettyHypArrows,
-      haveWindowIds,
+      haveBoxIds: haveBoxIds,
     });
   }
 };
@@ -376,8 +376,8 @@ const drawInitialGoal = (
     name: hyp.username,
     id: hyp.id,
   }));
-  const initialWindow = {
-    id: newWindowId(),
+  const initialBox = {
+    id: newBoxId(),
     parentId: null,
     goalNodes: [
       {
@@ -388,7 +388,7 @@ const drawInitialGoal = (
     ],
     hypNodes: hypNodes.length > 0 ? [hypNodes.reverse()] : [],
   };
-  pretty.windows.push(initialWindow);
+  pretty.boxes.push(initialBox);
 };
 
 // TODO: Refactor it since this function relies on obsolete assumptions:
@@ -413,11 +413,11 @@ const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
         "initialGoals" in subStep.haveDecl
           ? subStep.haveDecl.initialGoals
           : [getInitialGoal(subStep.haveDecl.subSteps)!];
-      const windows = initialGoals.map((goal) => ({
-        id: newWindowId(),
-        // Parent window is such that has our goalId as a hypothesis.
+      const boxes = initialGoals.map((goal) => ({
+        id: newBoxId(),
+        // Parent box is such that has our goalId as a hypothesis.
         // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
-        parentId: "haveWindow",
+        parentId: "haveBox",
         goalNodes: [
           {
             text: goal.type,
@@ -432,9 +432,9 @@ const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
       handleTacticApp(
         subStep.haveDecl.t,
         pretty,
-        windows.map((w) => w.id)
+        boxes.map((w) => w.id)
       );
-      pretty.windows.push(...windows);
+      pretty.boxes.push(...boxes);
 
       recursive(subStep.haveDecl.subSteps, pretty);
     }
@@ -466,11 +466,11 @@ const postprocess = (pretty: ConvertedProofTree): ConvertedProofTree => {
 }
 
 const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
-  windowId = 1;
+  boxId = 1;
   tacticId = 1;
 
   const pretty : ConvertedProofTree = {
-    windows: [],
+    boxes: [],
     tactics: [],
     equivalentIds: {},
   }

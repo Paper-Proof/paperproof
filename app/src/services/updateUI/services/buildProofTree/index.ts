@@ -14,7 +14,7 @@ const buildProofTree = (editor: Editor, proofTree: ConvertedProofTree, uiConfig:
     framePadding: 20
   };
 
-  const root = proofTree.windows.find((w) => w.parentId == null);
+  const root = proofTree.boxes.find((w) => w.parentId == null);
   if (root) {
     const rootWindow = createWindow(shared, undefined, root, 0);
     rootWindow.draw(0, 0);

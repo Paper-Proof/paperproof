@@ -17,12 +17,12 @@ const findIdInApp = (editor: Editor, desiredId: TLShapeId): TLShapeId | null => 
 }
 
 const getWindowByHypId = (proofTree: ConvertedProofTree, hypId : string) =>
-  proofTree.windows.find((window) =>
+  proofTree.boxes.find((window) =>
     window.hypNodes.find((hypLayer) => hypLayer.find((hyp) => hyp.id === hypId))
   );
 
 const findWindowId = (editor: Editor, proofTree: ConvertedProofTree, goalId: string): TLShapeId | null => {
-  const window = proofTree.windows.find((window) =>
+  const window = proofTree.boxes.find((window) =>
     window.goalNodes.find((goalNode) => goalNode.id === goalId)
   );
   if (window) {
@@ -75,7 +75,7 @@ const createArrows = (shared: UIShared): UIElement => {
         });
 
         // 3. Draw arrows between this tactic and `have` windows
-        for (const haveWindowId of tactic.haveWindowIds) {
+        for (const haveWindowId of tactic.haveBoxIds) {
           if (tactic.hypArrows[0]) {
             const window = getWindowByHypId(
               shared.proofTree,

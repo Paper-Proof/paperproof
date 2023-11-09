@@ -1,5 +1,5 @@
 import { TLParentId } from "@tldraw/tldraw";
-import { UIElement, Window, UIShared } from "types";
+import { UIElement, Box, UIShared } from "types";
 import withPadding from '../withPadding';
 import DrawShape from '../DrawShape';
 import createWindowInsides from './createWindowInsides';
@@ -14,7 +14,7 @@ const prettifyGoalUsername = (username : string) => {
   return username.split('._@')[0];
 }
 
-const createWindow = (shared: UIShared, parentId: TLParentId | undefined, window: Window, depth: number): UIElement => {
+const createWindow = (shared: UIShared, parentId: TLParentId | undefined, window: Box, depth: number): UIElement => {
   const goalUsername = prettifyGoalUsername(window.goalNodes[0].name);
   const ifShowGoalUsername = !(localStorage.getItem("hideGoalUsernames") || goalUsername === "[anonymous]");
 

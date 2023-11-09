@@ -10,14 +10,14 @@ export interface HypNode {
   text: string | null;
   name: string | null;
   id: string;
-  haveWindowId?: number;
+  haveBoxId?: number;
 }
 
 export type HypLayer = HypNode[];
 
-export interface Window {
+export interface Box {
   id: string;
-  parentId: string | null | "haveWindow";
+  parentId: string | null | "haveBox";
   goalNodes: GoalNode[];
   hypNodes: HypLayer[];
 }
@@ -33,11 +33,11 @@ export interface Tactic {
   // parameters for this tactic. For example in
   // `have <p, q> := <by rfl, by trivial>`
   // there are 2 `byWindow`s.
-  haveWindowIds: string[];
+  haveBoxIds: string[];
 }
 
 export interface ConvertedProofTree {
-  windows: Window[];
+  boxes: Box[];
   tactics: Tactic[];
   equivalentIds: { [key: string]: string[] };
 }
