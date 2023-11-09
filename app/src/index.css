@@ -1,13 +1,46 @@
 /* Backgrounds for windows */
-.tl-frame_body.depth-0 { fill: rgba(132, 147, 171, 0.11); }
-.tl-frame_body.depth-1 { fill: rgba(132, 147, 171, 0.17); }
-.tl-frame_body.depth-2 { fill: rgba(132, 147, 171, 0.24); }
-.tl-frame_body.depth-3 { fill: rgba(132, 147, 171, 0.3); }
-.tl-frame_body.depth-4 { fill: rgba(132, 147, 171, 0.4); }
+.box{
+  padding: 10px;
+  font-size: 14px;
+  color: #3e3f3f;
+  border-radius: 2px;
+}
+.box.depth-1 { background: rgba(132, 147, 171, 0.06); }
+.box.depth-2 { background: rgba(132, 147, 171, 0.11); }
+.box.depth-3 { background: rgba(132, 147, 171, 0.24); }
+.box.depth-4 { background: rgba(132, 147, 171, 0.3); }
+.box.depth-5 { background: rgba(132, 147, 171, 0.4); }
 /* All of the previous ones were tested on a real proof, these ones are my guesses for what would look okay */
-.tl-frame_body.depth-5 { fill: rgba(132, 147, 171, 0.5); }
-.tl-frame_body.depth-6 { fill: rgba(132, 147, 171, 0.55); }
-.tl-frame_body.depth-7 { fill: rgba(132, 147, 171, 0.6); }
+.box.depth-5 { background: rgba(132, 147, 171, 0.5); }
+.box.depth-6 { background: rgba(132, 147, 171, 0.55); }
+.box.depth-7 { background: rgba(132, 147, 171, 0.6); }
+
+.hypothesis-row{
+  display: flex;
+  padding: 5px;
+}
+.hypothesis{
+  background: rgb(107 220 151 / 23%);
+  padding: 5px 12px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+.hypothesis .name{
+  color: #c69c51;
+}
+.goal{
+  background: rgba(220, 107, 107, 0.23);
+  padding: 5px 12px;
+  border-radius: 3px;
+  margin-top: 10px;
+}
+
+.child-boxes{
+  display: flex;
+}
+
+
+
 
 .goalUsername{
   position: absolute;

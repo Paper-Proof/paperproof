@@ -4,7 +4,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import converter from "src/services/updateUI/services/converter";
 
 import { ConvertedProofTree, ProofResponse } from "types";
-import { Box } from "./Box";
+import { BoxEl } from "./BoxEl";
 
 interface PropsNew {
   proofState: ProofResponse;
@@ -17,8 +17,8 @@ export const New = (props: PropsNew) => {
 
   const proofTree : ConvertedProofTree = converter(props.proofState.proofTree);
 
-  const rootWindow = proofTree.boxes.find((w) => w.parentId === null);
-  if (!rootWindow) return null
+  const rootBox = proofTree.boxes.find((box) => box.parentId === null);
+  if (!rootBox) return null
 
-  return <Box/>
+  return <BoxEl box={rootBox} proofTree={proofTree}/>
 }
