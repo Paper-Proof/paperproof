@@ -7,6 +7,9 @@ interface MyProps {
   proofTree: ConvertedProofTree;
 }
 
+const getTactic = (proofTree: ConvertedProofTree, goalNodeId: string) =>
+  proofTree.tactics.find((tactic) => tactic.goalArrows.find((goalArrow) => goalArrow.fromId === goalNodeId))
+
 export const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
@@ -27,8 +30,18 @@ export const BoxEl = (props: MyProps) => {
       )}
     </div>
 
-    {props.box.goalNodes.map((goalNode) =>
-      <div key={goalNode.id} className="goal">{goalNode.text}</div>
+    {props.box.goalNodes.slice().reverse().map((goalNode) =>
+      <div key={goalNode.id}>
+        <div>
+          {
+            getTactic(props.proofTree, goalNode.id) &&
+            <div className="tactic">
+              {getTactic(props.proofTree, goalNode.id)?.text}
+            </div>
+          }
+        </div>
+        <div className="goal">{goalNode.text}</div>
+      </div>
     )}
   </section>
 }

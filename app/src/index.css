@@ -1,9 +1,11 @@
 /* Backgrounds for windows */
 .box{
   padding: 10px;
+  padding-bottom: 0;
   font-size: 14px;
   color: #3e3f3f;
   border-radius: 2px;
+  width: fit-content;
 }
 .box.depth-1 { background: rgba(132, 147, 171, 0.06); }
 .box.depth-2 { background: rgba(132, 147, 171, 0.11); }
@@ -17,7 +19,7 @@
 
 .hypothesis-row{
   display: flex;
-  padding: 5px;
+  padding-bottom: 5px;
 }
 .hypothesis{
   background: rgb(107 220 151 / 23%);
@@ -32,7 +34,11 @@
   background: rgba(220, 107, 107, 0.23);
   padding: 5px 12px;
   border-radius: 3px;
-  margin-top: 10px;
+}
+.tactic{
+  padding: 5px 12px;
+  border-radius: 3px;
+  border: 1px dashed #bbbebe;
 }
 
 .child-boxes{
