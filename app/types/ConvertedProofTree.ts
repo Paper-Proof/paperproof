@@ -10,7 +10,6 @@ export interface HypNode {
   text: string | null;
   name: string | null;
   id: string;
-  haveBoxId?: number;
 }
 
 export type HypLayer = HypNode[];
@@ -29,10 +28,10 @@ export interface Tactic {
   goalArrows: { fromId: string; toId: string }[];
   hypArrows: { fromId: string | null; toIds: string[] }[];
   successGoalId?: string;
-  // TODO: Those are actually `byWindow`s which were used to create
+  // TODO: Those are actually `byBox`s which were used to create
   // parameters for this tactic. For example in
   // `have <p, q> := <by rfl, by trivial>`
-  // there are 2 `byWindow`s.
+  // there are 2 `byBox`s.
   haveBoxIds: string[];
 }
 
