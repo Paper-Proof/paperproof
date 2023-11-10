@@ -1,15 +1,28 @@
 /* Backgrounds for windows */
 .box{
-  padding: 10px;
-  padding-bottom: 0;
   font-size: 14px;
-  color: #3e3f3f;
+  color: #343434;
   border-radius: 2px;
   width: fit-content;
 }
-
 .box.depth-0 { background: rgba(132, 147, 171, 0.06); }
 .box { background: rgba(132, 147, 171, 0.1); }
+
+.box-insides{
+  padding: 0 10px;
+}
+
+.goal-username{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(147, 153, 162, 0.11);
+  color: #898a8a;
+}
+.box:hover > .goal-username {
+  background: rgba(147, 153, 162, 0.16);
+}
 
 
 .hypotheses{

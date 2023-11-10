@@ -22,31 +22,37 @@ const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   return <section className={`box depth-${props.depth}`}>
-    {props.box.hypNodes.map((hypNodeRow) =>
-      <HypothesisRow proofTree={props.proofTree} depth={props.depth} hypNodeRow={hypNodeRow}/>
-    )}
-    <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
-    <div className="child-boxes">
-      {childrenBoxes.map((childBox) =>
-        <BoxEl key={childBox.id} depth={props.depth + 1} box={childBox} proofTree={props.proofTree}/>
+    <div className="box-insides">
+      {props.box.hypNodes.map((hypNodeRow) =>
+        <HypothesisRow proofTree={props.proofTree} depth={props.depth} hypNodeRow={hypNodeRow}/>
+      )}
+      <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
+      <div className="child-boxes">
+        {childrenBoxes.map((childBox) =>
+          <BoxEl key={childBox.id} depth={props.depth + 1} box={childBox} proofTree={props.proofTree}/>
+        )}
+      </div>
+
+      {props.box.goalNodes.slice().reverse().map((goalNode) =>
+        <div key={goalNode.id}>
+          {
+            getGoalTactic(props.proofTree, goalNode.id) &&
+            <div className="tactic -hint">
+              <Hint>{getGoalTactic(props.proofTree, goalNode.id)}</Hint>
+              {getGoalTactic(props.proofTree, goalNode.id)?.text}
+            </div>
+          }
+          <div className="goal -hint">
+            <Hint>{goalNode}</Hint>
+            {goalNode.text}
+          </div>
+        </div>
       )}
     </div>
 
-    {props.box.goalNodes.slice().reverse().map((goalNode) =>
-      <div key={goalNode.id}>
-        {
-          getGoalTactic(props.proofTree, goalNode.id) &&
-          <div className="tactic -hint">
-            <Hint>{getGoalTactic(props.proofTree, goalNode.id)}</Hint>
-            {getGoalTactic(props.proofTree, goalNode.id)?.text}
-          </div>
-        }
-        <div className="goal -hint">
-          <Hint>{goalNode}</Hint>
-          {goalNode.text}
-        </div>
-      </div>
-    )}
+    <div className="goal-username">
+      {props.box.goalNodes[0].name}
+    </div>
   </section>
 }
 
