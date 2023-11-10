@@ -5,6 +5,7 @@ import { ConvertedProofTree, Box } from "types";
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
+  depth: number;
 }
 
 const getTactic = (proofTree: ConvertedProofTree, goalNodeId: string) =>
@@ -13,7 +14,7 @@ const getTactic = (proofTree: ConvertedProofTree, goalNodeId: string) =>
 export const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
-  return <section className={`box depth-${props.box.id}`}>
+  return <section className={`box depth-${props.depth}`}>
     {props.box.hypNodes.map((hypNodeRow) =>
       <div className="hypothesis-row">
         {hypNodeRow.map((hypNode) =>
@@ -26,7 +27,7 @@ export const BoxEl = (props: MyProps) => {
     Box {props.box.id}
     <div className="child-boxes">
       {childrenBoxes.map((childBox) =>
-        <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree}/>
+        <BoxEl key={childBox.id} depth={props.depth + 1} box={childBox} proofTree={props.proofTree}/>
       )}
     </div>
 
