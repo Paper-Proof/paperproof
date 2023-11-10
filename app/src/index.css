@@ -71,91 +71,8 @@
 
 
 
-
-
-
-
-
-
-.goalUsername{
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  font-size: 25px;
-  background: rgba(147, 153, 162, 0.11);
-  justify-content: center;
-  align-items: center;
-  text-shadow: none;
-  color: rgb(86, 95, 96);
-  overflow: hidden;
-}
-/* uncomment fill to see what it's doing */
-/* Looks interesting, but looks like it's cleaner with no css at all */
-.window:hover {
-  /* fill: rgb(238, 228, 241); */
-  /* cursor: pointer !important; */
-}
-[data-shape-type="window"]:hover .goalUsername {
-  background: rgba(147, 153, 162, 0.16) !important;
-}
-
-/* This is directly copypasted from tldraw examples folder (https: //stackblitz.com/github/tldraw/tldraw/tree/examples?file=src%2Fstyles.css).
-I added it to make the tldraw menus render nicely.
-*/
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  overscroll-behavior: none;
-  touch-action: none;
-  min-height: 100vh;
-  /* mobile viewport bug fix */
-  min-height: -webkit-fill-available;
-  height: 100%;
-}
-/* This makes the Preferences menu icons visible (otherwise they are hidden) */
-html, * {
-  box-sizing: border-box;
-}
-
-/* This is our custom styles */
-.tldraw-wrapper {
-  position: fixed;
-  inset: 0px;
-  overflow: hidden;
-}
-.tlui-button{
-  font-size: 13px;
-}
-
-.hypothesis.-not-focused ,
-.goal.-not-focused{
-  > svg{
-    opacity: 0.2;
-  }
-  &:hover > svg{
-    opacity: 1;
-  }
-}
-
-.tactic > svg path{
-  fill: transparent;
-}
 .-successful-tactic > svg path {
   fill: #c4f4ff6b;
-  /* stroke: #20e3ff; */
-}
-.tl-text-content{
-  color: #343434;
-  text-shadow: none;
-}
-
-.window-indicator{
-  stroke: transparent;
-  display: none;
 }
 
 /* ***EXPERIMENTAL*** */
@@ -167,19 +84,6 @@ html, * {
 }
 .goalArrow g{
   stroke: rgb(214, 215, 215);
-}
-/* ***EXPERIMENTAL*** */
-
-
-/* Makes it possible to select text in nodes */
-/* .tl-container, .shape-node, .shape-node * {
-  user-select: all;
-  -webkit-user-select: all;
-} */
-
-/* Hide tldraw menu, because it doesn't show anything useful either way, it will just confuse the users. */
-button[title="Toggle focus mode"]{
-  display: none;
 }
 
 /* Make tldraw bg dark for dark vscode themes */
