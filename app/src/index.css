@@ -17,9 +17,9 @@
 .box.depth-6 { background: rgba(132, 147, 171, 0.55); }
 .box.depth-7 { background: rgba(132, 147, 171, 0.6); }
 
-.hypothesis-row{
+
+.hypotheses{
   display: flex;
-  padding-bottom: 5px;
 }
 .hypothesis{
   background: rgb(107 220 151 / 23%);
