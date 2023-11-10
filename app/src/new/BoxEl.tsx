@@ -37,23 +37,19 @@ export const BoxEl = (props: MyProps) => {
       <div className="hypothesis-row">
         {
           getHypothesisTacticBefore(props.proofTree, hypNodeRow) &&
-          <div className="tactic">
+          <div className="tactic -hint">
+            <pre>{JSON.stringify(getHypothesisTacticBefore(props.proofTree, hypNodeRow), null, 2)}</pre>
             {getHypothesisTacticBefore(props.proofTree, hypNodeRow)?.text}
           </div>
         }
         <div className="hypotheses">
           {hypNodeRow.map((hypNode) =>
-            <div key={hypNode.id} className="hypothesis">
+            <div key={hypNode.id} className="hypothesis -hint">
+              <pre>{JSON.stringify(hypNode, null, 2)}</pre>
               <span className="name">{hypNode.name}</span>: {hypNode.text}
             </div>
           )}
         </div>
-        {
-          // getHypothesisTacticAfter(props.proofTree, hypNodeRow) &&
-          // <div className="tactic">
-          //   {getHypothesisTacticAfter(props.proofTree, hypNodeRow)?.text}
-          // </div>
-        }
       </div>
     )}
     Box {props.box.id}

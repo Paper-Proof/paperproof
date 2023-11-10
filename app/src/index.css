@@ -47,6 +47,37 @@
 
 
 
+.-hint{
+  position: relative;
+}
+.-hint pre{
+  display: none;
+  position: absolute;
+  top: 0; left: 100%;
+
+  margin: 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 1000;
+  border-radius: 3px;
+}
+.-hint:hover pre{
+  display: block;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .goalUsername{
   position: absolute;
