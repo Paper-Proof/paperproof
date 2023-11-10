@@ -7,15 +7,9 @@
   border-radius: 2px;
   width: fit-content;
 }
+
 .box.depth-0 { background: rgba(132, 147, 171, 0.06); }
-.box.depth-1 { background: rgba(132, 147, 171, 0.11); }
-.box.depth-2 { background: rgba(132, 147, 171, 0.24); }
-.box.depth-3 { background: rgba(132, 147, 171, 0.3); }
-.box.depth-4 { background: rgba(132, 147, 171, 0.4); }
-/* All of the previous ones were tested on a real proof, these ones are my guesses for what would look okay */
-.box.depth-5 { background: rgba(132, 147, 171, 0.5); }
-.box.depth-6 { background: rgba(132, 147, 171, 0.55); }
-.box.depth-7 { background: rgba(132, 147, 171, 0.6); }
+.box { background: rgba(132, 147, 171, 0.1); }
 
 
 .hypotheses{
