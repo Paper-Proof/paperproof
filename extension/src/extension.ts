@@ -25,9 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
   // 
   //
   // sendPosition(shared, vscode.window.activeTextEditor);
-  // vscode.window.onDidChangeActiveTextEditor((textEditor) => {
-  //   sendPosition(shared, textEditor);
-  // });
+  vscode.window.onDidChangeActiveTextEditor((textEditor) => {
+    sendPosition(shared, textEditor);
+  });
   vscode.window.onDidChangeTextEditorSelection((event) => {
     sendPosition(shared, event.textEditor);
   });
