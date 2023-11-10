@@ -34,6 +34,9 @@
   border-radius: 3px;
   border: 1px dashed #bbbebe;
 }
+.tactic.-with-margin-top{
+  margin-top: 5px;
+}
 
 .child-boxes{
   display: flex;
@@ -58,6 +61,7 @@
 .-hint:hover pre{
   display: block;
 }
+
 
 
 

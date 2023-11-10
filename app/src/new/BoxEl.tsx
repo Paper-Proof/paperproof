@@ -1,6 +1,7 @@
 import React from "react";
 
 import { ConvertedProofTree, Box, HypNode } from "types";
+import HypothesisRow from "./HypothesisRow";
 
 interface MyProps {
   box: Box;
@@ -16,43 +17,14 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
   return goalTactic || successTactic;
 }
 
-const getHypothesisTacticBefore = (proofTree: ConvertedProofTree, hypNodeRow: HypNode[]) => {
-  const hypNodeId = hypNodeRow[0]!.id;
-  const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.toIds.includes(hypNodeId)));
-  return tactic;
-}
-
-const getHypothesisTacticAfter = (proofTree: ConvertedProofTree, hypNodeRow: HypNode[]) => {
-  const hypNodeId = hypNodeRow[0]!.id;
-  const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.fromId === hypNodeId));
-  return tactic;
-}
-
-
-export const BoxEl = (props: MyProps) => {
+const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   return <section className={`box depth-${props.depth}`}>
     {props.box.hypNodes.map((hypNodeRow) =>
-      <div className="hypothesis-row">
-        {
-          getHypothesisTacticBefore(props.proofTree, hypNodeRow) &&
-          <div className="tactic -hint">
-            <pre>{JSON.stringify(getHypothesisTacticBefore(props.proofTree, hypNodeRow), null, 2)}</pre>
-            {getHypothesisTacticBefore(props.proofTree, hypNodeRow)?.text}
-          </div>
-        }
-        <div className="hypotheses">
-          {hypNodeRow.map((hypNode) =>
-            <div key={hypNode.id} className="hypothesis -hint">
-              <pre>{JSON.stringify(hypNode, null, 2)}</pre>
-              <span className="name">{hypNode.name}</span>: {hypNode.text}
-            </div>
-          )}
-        </div>
-      </div>
+      <HypothesisRow proofTree={props.proofTree} depth={props.depth} hypNodeRow={hypNodeRow}/>
     )}
-    Box {props.box.id}
+    <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
     <div className="child-boxes">
       {childrenBoxes.map((childBox) =>
         <BoxEl key={childBox.id} depth={props.depth + 1} box={childBox} proofTree={props.proofTree}/>
@@ -72,3 +44,5 @@ export const BoxEl = (props: MyProps) => {
     )}
   </section>
 }
+
+export default BoxEl;

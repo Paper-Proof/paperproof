@@ -4,7 +4,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import converter from "src/services/updateUI/services/converter";
 
 import { ConvertedProofTree, ProofResponse } from "types";
-import { BoxEl } from "./BoxEl";
+import BoxEl from "./BoxEl";
 
 interface PropsNew {
   proofState: ProofResponse;
