@@ -2,6 +2,7 @@ import React from "react";
 
 import { ConvertedProofTree, Box, HypNode } from "types";
 import BoxEl from "./BoxEl";
+import Hint from "./Hint";
 
 interface Props {
   proofTree: ConvertedProofTree;
@@ -29,14 +30,14 @@ export default (props: Props) => {
     {
       tactic &&
       <div className={`tactic -hint ${(tactic.hypArrows[0].fromId === null && tactic.haveBoxIds.length === 0) ? "-with-margin-top" : ""}`}>
-        <pre>{JSON.stringify(tactic, null, 2)}</pre>
+        <Hint>{tactic}</Hint>
         {tactic?.text}
       </div>
     }
     <div className="hypotheses">
       {props.hypNodeRow.map((hypNode) =>
         <div key={hypNode.id} className="hypothesis -hint">
-          <pre>{JSON.stringify(hypNode, null, 2)}</pre>
+          <Hint>{{hypNode}}</Hint>
           <span className="name">{hypNode.name}</span>: {hypNode.text}
         </div>
       )}

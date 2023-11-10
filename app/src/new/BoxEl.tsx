@@ -2,6 +2,7 @@ import React from "react";
 
 import { ConvertedProofTree, Box, HypNode } from "types";
 import HypothesisRow from "./HypothesisRow";
+import Hint from "./Hint";
 
 interface MyProps {
   box: Box;
@@ -35,11 +36,15 @@ const BoxEl = (props: MyProps) => {
       <div key={goalNode.id}>
         {
           getGoalTactic(props.proofTree, goalNode.id) &&
-          <div className="tactic">
+          <div className="tactic -hint">
+            <Hint>{getGoalTactic(props.proofTree, goalNode.id)}</Hint>
             {getGoalTactic(props.proofTree, goalNode.id)?.text}
           </div>
         }
-        <div className="goal">{goalNode.text}</div>
+        <div className="goal -hint">
+          <Hint>{goalNode}</Hint>
+          {goalNode.text}
+        </div>
       </div>
     )}
   </section>
