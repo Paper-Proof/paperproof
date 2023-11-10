@@ -3,13 +3,21 @@
   font-size: 14px;
   color: #343434;
   border-radius: 2px;
-  width: fit-content;
+  min-width: fit-content;
+  flex-grow: 1;
 }
 .box.depth-0 { background: rgba(132, 147, 171, 0.06); }
 .box { background: rgba(132, 147, 171, 0.1); }
 
+.child-boxes{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .box-insides{
-  padding: 0 10px;
+  padding: 10px;
+  padding-bottom: 0;
 }
 
 .goal-username{
