@@ -127,27 +127,17 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
       });
     }
   }
-  // - if X hypotheses disappeared, and 0 hypotheses appeared, draw { id → null } arrows
+  // - if X hypotheses disappeared, and 0 hypotheses appeared - don't draw anything
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
-    hypsBeforeThatDisappeared.forEach((hypBefore) => {
-      prettyHypNodes.push({
-        text: null,
-        name: null,
-        id  : `${hypBefore.id}-null`
-      });
-
-      prettyHypArrows.push({
-        fromId: hypBefore.id,
-        toIds : [`${hypBefore.id}-null`]
-      });
-    });
+    // Don't draw anything, this will be indicated by opacities
   }
   // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
   else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
     // The 2nd part of this `else if` doesn't ever happen as far as we're aware -
     // When we actually stumble upon a tactic that does that, we'll see how good our handling of this is.
     if (hypsBeforeThatDisappeared.length > 1 && hypsAfterThatAppeared.length > 0) {
-      alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
+      // TODO: add `if this.env === "development"` and uncomment this.
+      // alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
     }
 
     // `branchingHypBefore` is taken to be the 1st hyp, but we could have taken any hypothesis.
@@ -170,18 +160,7 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
     }
 
     // 2. And other hypBefores just disappeared!
-    const restOfHypsBefore = hypsBeforeThatDisappeared.slice(1);
-    restOfHypsBefore.forEach((hypBefore) => {
-      prettyHypNodes.push({
-        text: null,
-        name: null,
-        id  : `${hypBefore.id}-null`
-      });
-      prettyHypArrows.push({
-        fromId: hypBefore.id,
-        toIds : [`${hypBefore.id}-null`]
-      });
-    });
+    // Which we don't display, this will just be shown by hypothesis opacities
   }
 
   return [prettyHypNodes.reverse(), prettyHypArrows];
