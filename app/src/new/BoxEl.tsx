@@ -21,9 +21,18 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
 const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
+  // TODO this should be based on .isProof instead!
+  const hypLayers = props.box.hypNodes.map((hypNodeLayer, index) => {
+    if (index === 0) {
+      return hypNodeLayer.filter((hypNode) => hypNode.text !== "ℕ" && hypNode.text !== "Prop");
+    } else {
+      return hypNodeLayer;
+    }
+  });
+
   return <section className={`box depth-${props.depth}`}>
     <div className="box-insides">
-      <Hypotheses proofTree={props.proofTree} hypLayers={props.box.hypNodes}/>
+      <Hypotheses proofTree={props.proofTree} hypLayers={hypLayers}/>
 
       <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
       <div className="child-boxes">

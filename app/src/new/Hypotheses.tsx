@@ -45,16 +45,20 @@ function isBetween(num, range) {
 
 const TableCell = ({ rowIndex, columnIndex, tabledHyps }: { rowIndex : number, columnIndex: number, tabledHyps: TabledHyp[] }) => {
   const tabledHypsOnThisRow = tabledHyps.filter((tabledHyp) => tabledHyp.row === rowIndex);
-  
+
   const hypThatBelongsToThisColumn = tabledHypsOnThisRow
   .find((hyp) =>
   isBetween(columnIndex, [hyp.columnFrom, hyp.columnTo - 1])
   );
-  console.log({ rowIndex, columnIndex, tabledHypsOnThisRow, hypThatBelongsToThisColumn });
   if (!hypThatBelongsToThisColumn) {
     return <td/>
   } else if (hypThatBelongsToThisColumn.columnFrom === columnIndex) {
-    return <td colSpan={hypThatBelongsToThisColumn.columnTo - hypThatBelongsToThisColumn.columnFrom}>{hypThatBelongsToThisColumn.hypNode.name}</td>
+    return <td colSpan={hypThatBelongsToThisColumn.columnTo - hypThatBelongsToThisColumn.columnFrom}>
+      <div className="hypothesis -hint">
+        <Hint>{hypThatBelongsToThisColumn.hypNode}</Hint>
+        <span className="name">{hypThatBelongsToThisColumn.hypNode.name}</span>: {hypThatBelongsToThisColumn.hypNode.text}
+      </div>
+    </td>
   } else {
     return null;
   }
@@ -81,7 +85,6 @@ const TableComponent = ({ tabledHyps }: { tabledHyps: TabledHyp[] }) => {
     </table>
   );
 };
-
 
 const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: HypNode[][], hypNodeId: string) : string[] => {
   for (const tactic of proofTree.tactics) {
@@ -117,7 +120,6 @@ const getChildIndex = (proofTree: ConvertedProofTree, parentHyp: HypNode, childH
   for (const tactic of proofTree.tactics) {
     const hypArrow = tactic.hypArrows.find((hypArrow) => hypArrow.fromId === parentHyp.id);
     if (hypArrow) {
-      console.log(hypArrow);
       return hypArrow.toIds.findIndex((toId) => toId === childHyp.id);
     }
   }
@@ -151,7 +153,7 @@ export default (props: Props) => {
           columnTo: maxColumn + childrenWidth,
           row: hypLayerIndex
         });
-        maxColumn += 1;
+        maxColumn = maxColumn + childrenWidth + 1;
       }
     });
   });

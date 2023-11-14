@@ -99,19 +99,19 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
     sorry
   have ⟨d', h₃⟩ : ∃ d', d = 2 * d' := by sorry
   rw [h₂, h₃] at h₁
-  have r : (∀ k, ¬ 2 * k = 1) := by sorry 
+  have r : (∀ k, ¬ 2 * k = 1) := by sorry
   rw [Nat.coprime_iff_gcd_eq_one, h₂, h₃] at coprime
   rw [Nat.gcd_mul_left] at coprime
   apply r _ coprime
 
 theorem mini_example : true = true := by
   have ⟨a, b⟩: ∃ c, c = 2 := by sorry
-  have ⟨c, d⟩: ∃ e, e = 2 := ⟨2, rfl⟩ 
+  have ⟨c, d⟩: ∃ e, e = 2 := ⟨2, rfl⟩
   exact rfl
 
 example : (a = b) → (b = c) → (c = d)  → (a = d) := by
   intro ab bc cd
-  rw [ab, bc, cd] 
+  rw [ab, bc, cd]
 
 example (p : Prop) (hp : p) : p := by
   exact hp
@@ -142,12 +142,12 @@ theorem commutativityOfIntersections
   intro h1
   rw [Set.mem_inter_iff, and_comm] at h1
   exact h1
-  
+
   intro h2
   rw [Set.mem_inter_iff, and_comm] at h2
   exact h2
 
-  
+
 
 
 
@@ -186,7 +186,7 @@ example : (a = b) → (b = c) → (c = d) → (a = d) := by
   intro ab
   intro bc
   intro cd
-  -- rw [ab, bc, cd] 
+  -- rw [ab, bc, cd]
   rw [ab]
   rw [bc]
   rw [cd]
@@ -203,14 +203,14 @@ example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
   left
   exact hi p
   right
-  
+
 
 
 example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
   ext x
   simp only [Set.mem_inter_iff]
   apply Iff.intro
-  
+
   rintro ⟨xs, xt⟩
   exact ⟨xt, xs⟩
 
@@ -225,7 +225,7 @@ theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :
   -- apply And.intro
   -- exact hp
   -- exact hq
-  
+
   -- apply And.intro hp hq
 
   exact And.intro hp hq
@@ -244,15 +244,15 @@ theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :
   right
   exact b.right
 
-  
 
 
 
 
 
 
-  
-  
+
+
+
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro h
@@ -269,18 +269,18 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   cases' b with hQ hR
   left
   exact And.intro a hQ
-  
+
 
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   sorry
 
 -- example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
-  
+
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   have hehe : true := by trivial
-  sorry 
+  sorry
 
 
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
@@ -332,7 +332,7 @@ theorem small_irrational : ¬ ∃ (q : ℚ), q * q = 2 := by
   have h₁ : n * n = 2 * d * d:= by sorry
   rw [← Int.natAbs_mul_self'] at h₁
   rw [h₂, h₃] at h₁
-  have r : (∀ k, ¬ 2 * k = 1) := by sorry 
+  have r : (∀ k, ¬ 2 * k = 1) := by sorry
   rw [Nat.coprime_iff_gcd_eq_one, h₂, h₃] at coprime
   rw [Nat.gcd_mul_left] at coprime
   apply r _ coprime
@@ -392,7 +392,7 @@ example (h : p = q) : p ∨ q → p := by
 
 -- Example with a grid any multi-out goals
 example (p q r s : Prop) (h : q = s) : p ∧ q → r ∧ s → true := by
-  intros hpq 
+  intros hpq
   cases' hpq with hp hq
   rewrite [h] at hq
   intros hrs
@@ -449,4 +449,3 @@ example (p q : Prop) (hq : q) : p ∨ q := by
 example (p q r: Prop) : p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r := by
   refine' ⟨_, fun h => _⟩
   sorry
-
