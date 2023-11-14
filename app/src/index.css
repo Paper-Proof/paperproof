@@ -3,7 +3,7 @@
   font-size: 14px;
   color: #343434;
   border-radius: 2px;
-  min-width: fit-content;
+  /* min-width: fit-content; */
   flex-grow: 1;
 }
 .box.depth-0 { background: rgba(132, 147, 171, 0.06); }

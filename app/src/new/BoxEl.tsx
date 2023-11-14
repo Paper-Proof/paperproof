@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ConvertedProofTree, Box, HypNode } from "types";
-import HypothesisRow from "./HypothesisRow";
+import Hypotheses from "./Hypotheses";
 import Hint from "./Hint";
 
 interface MyProps {
@@ -23,9 +23,8 @@ const BoxEl = (props: MyProps) => {
 
   return <section className={`box depth-${props.depth}`}>
     <div className="box-insides">
-      {props.box.hypNodes.map((hypNodeRow) =>
-        <HypothesisRow proofTree={props.proofTree} depth={props.depth} hypNodeRow={hypNodeRow}/>
-      )}
+      <Hypotheses proofTree={props.proofTree} hypLayers={props.box.hypNodes}/>
+
       <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
       <div className="child-boxes">
         {childrenBoxes.map((childBox) =>
