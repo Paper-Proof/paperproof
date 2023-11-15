@@ -5,4 +5,5 @@ interface Props {
 }
 
 export default (props: Props) =>
-  <pre>{JSON.stringify(props.children, null, 2)}</pre>
+  // <pre>{JSON.stringify(props.children, null, 2)}</pre>
+  null

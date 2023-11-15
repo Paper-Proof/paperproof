@@ -60,9 +60,8 @@
 
 .child-boxes{
   display: flex;
+  align-items: flex-end;
 }
-
-
 
 .-hint{
   position: relative;
@@ -93,6 +92,12 @@ table td{
   padding: 0;
 }
 
+
+
+
+.react-transform-wrapper{
+  height: 100%;
+}
 
 
 

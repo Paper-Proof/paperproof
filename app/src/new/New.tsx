@@ -1,6 +1,6 @@
 import React from "react";
 
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper } from "react-zoom-pan-pinch";
 import converter from "src/services/updateUI/services/converter";
 
 import { ConvertedProofTree, ProofResponse } from "types";
@@ -20,5 +20,13 @@ export const New = (props: PropsNew) => {
   const rootBox = proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null
 
-  return <BoxEl box={rootBox} proofTree={proofTree}/>
+  return <TransformWrapper
+    centerZoomedOut
+    centerOnInit
+    wheel={{
+      'disabled': true
+    }}
+  >{({ zoomToElement, resetTransform }) =>
+    <BoxEl zoomToElement={zoomToElement} box={rootBox} proofTree={proofTree}/>
+  </TransformWrapper>
 }
