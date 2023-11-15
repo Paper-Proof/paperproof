@@ -20,5 +20,5 @@ export const New = (props: PropsNew) => {
   const rootBox = proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null
 
-  return <BoxEl depth={0} box={rootBox} proofTree={proofTree}/>
+  return <BoxEl box={rootBox} proofTree={proofTree}/>
 }

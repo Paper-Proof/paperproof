@@ -7,7 +7,6 @@ import Hint from "./Hint";
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
-  depth: number;
 }
 
 const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
@@ -32,14 +31,14 @@ const BoxEl = (props: MyProps) => {
     })
     .filter((hypLayer) => hypLayer.length > 0);
 
-  return <section className={`box depth-${props.depth}`}>
+  return <section className="box">
     <div className="box-insides">
       <Hypotheses proofTree={props.proofTree} hypLayers={hypLayers}/>
 
       <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
       <div className="child-boxes">
         {childrenBoxes.map((childBox) =>
-          <BoxEl key={childBox.id} depth={props.depth + 1} box={childBox} proofTree={props.proofTree}/>
+          <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree}/>
         )}
       </div>
 

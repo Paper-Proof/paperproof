@@ -6,7 +6,7 @@
   /* min-width: fit-content; */
   flex-grow: 1;
 }
-.box.depth-0 { background: rgba(132, 147, 171, 0.06); }
+#root > .box { background: rgba(132, 147, 171, 0.06); }
 .box { background: rgba(132, 147, 171, 0.1); }
 
 .child-boxes{
