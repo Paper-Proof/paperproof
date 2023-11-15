@@ -40,7 +40,6 @@
   background: rgb(107 220 151 / 23%);
   padding: 5px 12px;
   border-radius: 3px;
-  margin-right: 5px;
 }
 .hypothesis .name{
   color: #c69c51;
@@ -84,7 +83,15 @@
 }
 
 
-
+.hypothesis{
+  margin: 0 1px;
+}
+table{
+  border-spacing: 0;
+}
+table td{
+  padding: 0;
+}
 
 
 

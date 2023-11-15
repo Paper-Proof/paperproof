@@ -22,13 +22,15 @@ const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   // TODO this should be based on .isProof instead!
-  const hypLayers = props.box.hypNodes.map((hypNodeLayer, index) => {
-    if (index === 0) {
-      return hypNodeLayer.filter((hypNode) => hypNode.text !== "ℕ" && hypNode.text !== "Prop");
-    } else {
-      return hypNodeLayer;
-    }
-  });
+  const hypLayers = props.box.hypNodes
+    .map((hypNodeLayer, index) => {
+      if (index === 0) {
+        return hypNodeLayer.filter((hypNode) => hypNode.text !== "ℕ" && hypNode.text !== "Prop");
+      } else {
+        return hypNodeLayer;
+      }
+    })
+    .filter((hypLayer) => hypLayer.length > 0);
 
   return <section className={`box depth-${props.depth}`}>
     <div className="box-insides">

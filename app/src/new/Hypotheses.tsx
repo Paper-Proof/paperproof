@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode } from "types";
+import { ConvertedProofTree, Box, HypNode, Tactic } from "types";
 import BoxEl from "./BoxEl";
 import Hint from "./Hint";
 
@@ -9,10 +9,9 @@ interface Props {
   hypLayers: HypNode[][];
 }
 
-const getHypothesisTacticBefore = (proofTree: ConvertedProofTree, hypNodeRow: HypNode[]) => {
-  const hypNodeId = hypNodeRow[0]!.id;
-  const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.toIds.includes(hypNodeId)));
-  return tactic;
+const whichTacticBirthedThisHypothesis = (proofTree: ConvertedProofTree, hypNode: HypNode) : Tactic => {
+  const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.toIds.includes(hypNode.id)));
+  return tactic || { text: "init" };
 }
 
 const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], hypNode: HypNode) : TabledHyp | undefined => {
@@ -35,40 +34,54 @@ const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], h
 interface TabledHyp {
   hypNode : HypNode;
   columnFrom : number;
-  columnTo : number,
+  columnTo : number;
   row : number;
 }
 
-function isBetween(num, range) {
+interface TabledTactic {
+  tactic : Tactic;
+  columnFrom : number;
+  columnTo : number;
+  row : number;
+}
+
+type TabledCell = TabledHyp | TabledTactic;
+
+function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
 }
 
-const TableCell = ({ rowIndex, columnIndex, tabledHyps }: { rowIndex : number, columnIndex: number, tabledHyps: TabledHyp[] }) => {
-  const tabledHypsOnThisRow = tabledHyps.filter((tabledHyp) => tabledHyp.row === rowIndex);
+const TableCell = ({ rowIndex, columnIndex, tabledCells }: { rowIndex : number, columnIndex: number, tabledCells: TabledCell[] }) => {
+  const tabledCellsOnThisRow = tabledCells.filter((tabledHyp) => tabledHyp.row === rowIndex);
 
-  const hypThatBelongsToThisColumn = tabledHypsOnThisRow
-  .find((hyp) =>
-  isBetween(columnIndex, [hyp.columnFrom, hyp.columnTo - 1])
-  );
-  if (!hypThatBelongsToThisColumn) {
+  const cellThatBelongsToThisColumn = tabledCellsOnThisRow
+    .find((hyp) => isBetween(columnIndex, [hyp.columnFrom, hyp.columnTo - 1]));
+  if (!cellThatBelongsToThisColumn) {
     return <td/>
-  } else if (hypThatBelongsToThisColumn.columnFrom === columnIndex) {
-    return <td colSpan={hypThatBelongsToThisColumn.columnTo - hypThatBelongsToThisColumn.columnFrom}>
-      <div className="hypothesis -hint">
-        <Hint>{hypThatBelongsToThisColumn.hypNode}</Hint>
-        <span className="name">{hypThatBelongsToThisColumn.hypNode.name}</span>: {hypThatBelongsToThisColumn.hypNode.text}
-      </div>
+  } else if (cellThatBelongsToThisColumn.columnFrom === columnIndex) {
+    return <td colSpan={cellThatBelongsToThisColumn.columnTo - cellThatBelongsToThisColumn.columnFrom}>
+      {
+        'hypNode' in cellThatBelongsToThisColumn ?
+          <div className="hypothesis -hint">
+            <Hint>{cellThatBelongsToThisColumn}</Hint>
+            <span className="name">{cellThatBelongsToThisColumn.hypNode.name}</span>: {cellThatBelongsToThisColumn.hypNode.text}
+          </div> :
+          <div className="tactic -hint">
+            <Hint>{cellThatBelongsToThisColumn}</Hint>
+            {cellThatBelongsToThisColumn.tactic.text}
+          </div>
+      }
     </td>
   } else {
     return null;
   }
 }
 
-const TableComponent = ({ tabledHyps }: { tabledHyps: TabledHyp[] }) => {
-  const maxRow = Math.max(...tabledHyps.map(hyp => hyp.row));
+const TableComponent = ({ tabledCells }: { tabledCells: TabledCell[] }) => {
+  const maxRow = Math.max(...tabledCells.map(hyp => hyp.row));
   const rows = Array.from({length: maxRow + 1}, (_, i) => i);
 
-  const maxColumn = Math.max(...tabledHyps.map(hyp => hyp.columnTo));
+  const maxColumn = Math.max(...tabledCells.map(hyp => hyp.columnTo));
   const columns = Array.from({length: maxColumn + 1}, (_, i) => i);
 
   return (
@@ -77,7 +90,7 @@ const TableComponent = ({ tabledHyps }: { tabledHyps: TabledHyp[] }) => {
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
             {columns.map((columnIndex) =>
-              <TableCell columnIndex={columnIndex} rowIndex={rowIndex} tabledHyps={tabledHyps}/>
+              <TableCell columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={tabledCells}/>
             )}
           </tr>
         ))}
@@ -158,36 +171,29 @@ export default (props: Props) => {
     });
   });
 
-  console.log({ tabledHyps });
+  const tabledTactics : TabledTactic[] = [];
+  let currentRow = 0;
+  props.hypLayers.forEach((hypLayer, hypLayerIndex) => {
+    const tactic : Tactic = whichTacticBirthedThisHypothesis(props.proofTree, hypLayer[0]!);
+    const relevantTabledHyps = tabledHyps
+    .filter((tabledHyp) => hypLayer.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
+    const columnFrom = Math.min(
+      ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnFrom)
+    );
+    const columnTo = Math.max(
+      ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnTo)
+    );
+    tabledTactics.push({
+      tactic,
+      columnFrom,
+      columnTo: columnTo,
+      row: currentRow
+    });
+    relevantTabledHyps.forEach((tabledHyp) => tabledHyp.row = currentRow + 1);
+    currentRow += 2;
+  });
 
-  return <TableComponent tabledHyps={tabledHyps}/>
-
-
-
-
-  // const tactic = getHypothesisTacticBefore(props.proofTree, props.hypNodeRow);
-  // return <div className="hypothesis-row">
-  //   {
-  //     tactic &&
-  //     props.proofTree.boxes.filter((box) => tactic.haveBoxIds.includes(box.id))
-  //     .map((haveBox) =>
-  //       <BoxEl proofTree={props.proofTree} depth={props.depth + 1} box={haveBox}/>
-  //     )
-  //   }
-  //   {
-  //     tactic &&
-  //     <div className={`tactic -hint ${(tactic.hypArrows[0].fromId === null && tactic.haveBoxIds.length === 0) ? "-with-margin-top" : ""}`}>
-  //       <Hint>{tactic}</Hint>
-  //       {tactic?.text}
-  //     </div>
-  //   }
-  //   <div className="hypotheses">
-  //     {props.hypNodeRow.map((hypNode) =>
-  //       <div key={hypNode.id} className="hypothesis -hint">
-  //         <Hint>{{hypNode}}</Hint>
-  //         <span className="name">{hypNode.name}</span>: {hypNode.text}
-  //       </div>
-  //     )}
-  //   </div>
-  // </div>
+  return <TableComponent tabledCells={[...tabledHyps, ...tabledTactics]}/>
 }
+
+
