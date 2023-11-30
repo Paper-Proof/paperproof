@@ -1,17 +1,30 @@
+
+.goal{
+  max-height: 26px;
+  overflow-y: scroll;
+  max-width: 200px;
+  min-width: calc(100% - 24px);
+}
+
 /* Backgrounds for windows */
 .box{
-  font-size: 14px;
-  color: #343434;
+  font-size: 12px;
+  color: #434343;
   border-radius: 2px;
-  /* min-width: fit-content; */
   flex-grow: 1;
 }
-#root > .box { background: rgba(132, 147, 171, 0.06); }
+#root{
+  width: max-content;
+  padding: 20px;
+}
+#root > .react-transform-wrapper > .react-transform-component > .box { background: rgb(245, 249, 255); }
+/* #root > .box { background: rgba(132, 147, 171, 0.06); } */
 .box { background: rgba(132, 147, 171, 0.1); }
 
 .child-boxes{
   display: flex;
   justify-content: space-between;
+  align-items: flex-end;
   gap: 10px;
 }
 
@@ -58,11 +71,6 @@
   margin-top: 5px;
 }
 
-.child-boxes{
-  display: flex;
-  align-items: flex-end;
-}
-
 .-hint{
   position: relative;
 }
@@ -81,6 +89,18 @@
   display: block;
 }
 
+.box{
+  width: max-content;
+}
+.hypothesis{
+  width: fit-content;
+}
+.tactic{
+  width: fit-content;
+}
+.tactic.-spans-multiple-hypotheses{
+  width: auto;
+}
 
 .hypothesis{
   margin: 0 1px;
@@ -95,11 +115,19 @@ table td{
 
 
 
+
 .react-transform-wrapper{
+  width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
-
+body{
+  padding: 0px;
+  background: white;
+  /* height: calc(100% - 40px);
+  overflow: hidden; */
+}
 
 
 

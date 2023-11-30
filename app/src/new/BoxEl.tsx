@@ -5,7 +5,7 @@ import Hypotheses from "./Hypotheses";
 import Hint from "./Hint";
 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-
+import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
@@ -34,16 +34,7 @@ const BoxEl = (props: MyProps) => {
     })
     .filter((hypLayer) => hypLayer.length > 0);
 
-  return <TransformComponent>
-    <section
-      className="box"
-      onClick={(event) => {
-        event.stopPropagation();
-        console.log(`clicked on box ${props.box.id}`);
-        props.zoomToElement(`box-${props.box.id}`)
-      }}
-      id={`box-${props.box.id}`}
-    >
+  return <section className="box" id={`box-${props.box.id}`}>
       <div className="box-insides">
         <Hypotheses proofTree={props.proofTree} hypLayers={hypLayers}/>
 
@@ -71,11 +62,25 @@ const BoxEl = (props: MyProps) => {
         )}
       </div>
 
-      <div className="goal-username">
+      <div className="goal-username" onClick={(event) => {
+        event.stopPropagation();
+        console.log(`clicked on box ${props.box.id}`);
+        const box = (event.target as HTMLElement).parentElement;
+        console.log({box});
+        if (!box) return
+        // box.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+
+        scrollIntoView(box, {
+          scrollMode: 'always',
+          block: 'center',
+          inline: 'center',
+        })
+
+        // props.zoomToElement(`box-${props.box.id}`)
+      }}>
         {props.box.goalNodes[0].name}
       </div>
     </section>
-  </TransformComponent>
 }
 
 export default BoxEl;

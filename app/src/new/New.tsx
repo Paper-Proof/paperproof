@@ -20,13 +20,5 @@ export const New = (props: PropsNew) => {
   const rootBox = proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null
 
-  return <TransformWrapper
-    centerZoomedOut
-    centerOnInit
-    wheel={{
-      'disabled': true
-    }}
-  >{({ zoomToElement, resetTransform }) =>
-    <BoxEl zoomToElement={zoomToElement} box={rootBox} proofTree={proofTree}/>
-  </TransformWrapper>
+  return <BoxEl zoomToElement={() => {}} box={rootBox} proofTree={proofTree}/>
 }

@@ -59,14 +59,15 @@ const TableCell = ({ rowIndex, columnIndex, tabledCells }: { rowIndex : number, 
   if (!cellThatBelongsToThisColumn) {
     return <td/>
   } else if (cellThatBelongsToThisColumn.columnFrom === columnIndex) {
-    return <td colSpan={cellThatBelongsToThisColumn.columnTo - cellThatBelongsToThisColumn.columnFrom}>
+    const colSpan = cellThatBelongsToThisColumn.columnTo - cellThatBelongsToThisColumn.columnFrom;
+    return <td colSpan={colSpan}>
       {
         'hypNode' in cellThatBelongsToThisColumn ?
           <div className="hypothesis -hint">
             <Hint>{cellThatBelongsToThisColumn}</Hint>
             <span className="name">{cellThatBelongsToThisColumn.hypNode.name}</span>: {cellThatBelongsToThisColumn.hypNode.text}
           </div> :
-          <div className="tactic -hint">
+          <div className={`tactic -hint ${colSpan > 1 ? "-spans-multiple-hypotheses" : ""}`}>
             <Hint>{cellThatBelongsToThisColumn}</Hint>
             {cellThatBelongsToThisColumn.tactic.text}
           </div>
