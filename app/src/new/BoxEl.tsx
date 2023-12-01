@@ -4,7 +4,7 @@ import { ConvertedProofTree, Box, HypNode } from "types";
 import Hypotheses from "./Hypotheses";
 import Hint from "./Hint";
 
-// import scrollIntoView from 'smooth-scroll-into-view-if-needed'
+import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
@@ -32,8 +32,43 @@ const BoxEl = (props: MyProps) => {
       }
     })
     .filter((hypLayer) => hypLayer.length > 0);
+  
+  const zoomOnBox = (event: React.MouseEvent<HTMLElement>) => {
+    console.log(`clicked on box ${props.box.id}`);
+    event.stopPropagation();
+    const box = event.currentTarget.closest('.box') as HTMLElement;
+    if (!box) return
+    // 1. apply `transform: scale(scaleFactor)` so that `box` can fit into viewport
+    const scaleFactor = Math.min(
+      window.innerWidth / box.offsetWidth,
+      window.innerHeight / box.offsetHeight
+    );
+    const rootEl = document.getElementById("root")!;
+    rootEl.style.transform = `scale(${scaleFactor})`;
 
-  return <section className="box" id={`box-${props.box.id}`}>
+    // 2. scroll it into view
+    // Predict where the `box` will be after the scale
+    const boxRect = box.getBoundingClientRect();
+    console.log(boxRect);
+    const predictedBoxTop = box.offsetTop * scaleFactor;
+    const predictedBoxLeft = box.offsetLeft * scaleFactor;
+
+    // Apply the `scrollTop` and `.scrollLeft`
+    // window.scroll({ top: predictedBoxTop, left: predictedBoxLeft })
+    // window.scrollTo({ top: 50, left: 20 })
+    // const bodyEl = document.getElementsByTagName("body")[0]
+    // bodyEl.scroll(100, 50)
+
+    scrollIntoView(box, {
+      scrollMode: "always",
+      block: "center",
+      inline: "center"
+    });
+
+    // Make both the `scale() css transform` and
+  }
+
+  return <section className="box" id={`box-${props.box.id}`} onClick={zoomOnBox}>
       <div className="box-insides">
         <Hypotheses proofTree={props.proofTree} hypLayers={hypLayers}/>
 
@@ -61,22 +96,7 @@ const BoxEl = (props: MyProps) => {
         )}
       </div>
 
-      <div className="goal-username" onClick={(event) => {
-        event.stopPropagation();
-        console.log(`clicked on box ${props.box.id}`);
-        const box = (event.target as HTMLElement).parentElement;
-        console.log({box});
-        if (!box) return
-        // box.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
-
-        scrollIntoView(box, {
-          scrollMode: 'always',
-          block: 'center',
-          inline: 'center',
-        })
-
-        // props.zoomToElement(`box-${props.box.id}`)
-      }}>
+      <div className="goal-username">
         {props.box.goalNodes[0].name}
       </div>
     </section>
