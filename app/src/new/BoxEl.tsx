@@ -4,8 +4,7 @@ import { ConvertedProofTree, Box, HypNode } from "types";
 import Hypotheses from "./Hypotheses";
 import Hint from "./Hint";
 
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import scrollIntoView from 'smooth-scroll-into-view-if-needed'
+// import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
