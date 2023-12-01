@@ -4,34 +4,44 @@ const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   event.stopPropagation();
   const box = event.currentTarget.closest('.box') as HTMLElement;
   if (!box) return
-  // 1. apply `transform: scale(scaleFactor)` so that `box` can fit into viewport
+  const animationLength = 300;
+  const updateEveryNMs = 3;
+  // 1. calculate final destination of scrolling (as if scaling is already applied!)
   const scaleFactor = Math.min(
     window.innerWidth / box.offsetWidth,
     window.innerHeight / box.offsetHeight
   );
-  const rootEl = document.getElementById("root")!;
-  rootEl.style.transform = `scale(${scaleFactor})`;
-
-  // 2. scroll it into view
-  // Predict where the `box` will be after the scale
-  const boxRect = box.getBoundingClientRect();
-  console.log(boxRect);
   const predictedBoxTop = box.offsetTop * scaleFactor;
   const predictedBoxLeft = box.offsetLeft * scaleFactor;
 
-  // Apply the `scrollTop` and `.scrollLeft`
-  // window.scroll({ top: predictedBoxTop, left: predictedBoxLeft })
-  // window.scrollTo({ top: 50, left: 20 })
-  // const bodyEl = document.getElementsByTagName("body")[0]
-  // bodyEl.scroll(100, 50)
+  // 2. update both scaling and scrolling every updateEveryNMs ms during animationLength ms
+  const rootEl = document.getElementById("root")!;
+  const htmlEl = document.getElementsByTagName("html")[0]!;
+  const initialScale = parseFloat(getComputedStyle(rootEl).transform.split(',')[3]) || 1;
+  const initialScrollTop = htmlEl.scrollTop;
+  const initialScrollLeft = htmlEl.scrollLeft;
+  const scaleIncrement = (scaleFactor - initialScale) / (animationLength / updateEveryNMs);
 
-  scrollIntoView(box, {
-    scrollMode: "always",
-    block: "center",
-    inline: "center"
-  });
 
-  // Make both the `scale() css transform` and
+  const totalUpdates = Math.ceil(animationLength / updateEveryNMs);
+  const scrollTopIncrement = (predictedBoxTop - initialScrollTop) / totalUpdates;
+  const scrollLeftIncrement = (predictedBoxLeft - initialScrollLeft) / totalUpdates;
+
+  
+  let i = 0;
+  const intervalId = setInterval(() => {
+    rootEl.style.transform = `scale(${initialScale + scaleIncrement * i})`;
+    htmlEl.scrollTop = initialScrollTop + scrollTopIncrement * i;
+    htmlEl.scrollLeft = initialScrollLeft + scrollLeftIncrement * i;
+    i++;
+    if (i >= totalUpdates) {
+      clearInterval(intervalId);
+      // Ensure final values are set correctly
+      rootEl.style.transform = `scale(${scaleFactor})`;
+      htmlEl.scrollTop = predictedBoxTop;
+      htmlEl.scrollLeft = predictedBoxLeft;
+    }
+  }, updateEveryNMs);
 }
 
 export default zoomAndScroll;
