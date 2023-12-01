@@ -16,8 +16,18 @@
 #root{
   width: max-content;
   transform-origin: 0% 0% 0px;
+  
   /* transition: transform 50ms ease-in-out; */
 }
+body{
+  /* padding: 500px; */
+  padding: 0px;
+  width: fit-content;
+}
+#root{
+  padding: 500px;
+}
+
 #root > .react-transform-wrapper > .react-transform-component > .box { background: rgb(245, 249, 255); }
 /* #root > .box { background: rgba(132, 147, 171, 0.06); } */
 .box { background: rgba(132, 147, 171, 0.1); }
@@ -124,7 +134,6 @@ table td{
 }
 
 body{
-  padding: 0px;
   background: white;
 }
 /* hides scrollbars - we can still scroll, but we don't want to show scrollbars */
