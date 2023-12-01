@@ -91,7 +91,7 @@ const TableComponent = ({ tabledCells }: { tabledCells: TabledCell[] }) => {
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
             {columns.map((columnIndex) =>
-              <TableCell columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={tabledCells}/>
+              <TableCell key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={tabledCells}/>
             )}
           </tr>
         ))}
