@@ -11,5 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "baseUrl": "./",
-  }
+  },
+  "exclude": ["src/old"]
 }

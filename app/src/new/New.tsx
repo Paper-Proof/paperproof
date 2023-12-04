@@ -1,7 +1,6 @@
 import React from "react";
 
-import { TransformWrapper } from "react-zoom-pan-pinch";
-import converter from "src/services/updateUI/services/converter";
+import converter from "../library/converter";
 
 import { ConvertedProofTree, ProofResponse } from "types";
 import BoxEl from "./BoxEl";

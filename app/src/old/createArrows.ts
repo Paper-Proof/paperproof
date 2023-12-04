@@ -1,7 +1,7 @@
 import { Editor, TLShapeId } from "@tldraw/tldraw";
 import { UIShared, UIElement, ConvertedProofTree } from "types";
-import DrawShape from '../DrawShape';
-import CreateId from '../CreateId';
+import DrawShape from './updateUI/services/buildProofTree/services/DrawShape';
+import CreateId from './updateUI/services/buildProofTree/services/CreateId';
 
 const findIdInApp = (editor: Editor, desiredId: TLShapeId): TLShapeId | null => {
   const existingShapeIds = editor.currentPageShapes;

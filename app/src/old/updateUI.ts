@@ -1,12 +1,12 @@
 import { ProofResponse, UIConfig } from 'types';
 import { Editor } from '@tldraw/tldraw';
-import buildProofTree     from './services/buildProofTree';
-import highlightProofTree from './services/highlightProofTree';
-import zoomProofTree      from './services/zoomProofTree';
-import converter from './services/converter';
-import getStatement     from './services/getStatement';
-import areObjectsEqual  from '../../library/areObjectsEqual';
-import getLoggableProof from './services/getLoggableProof';
+import buildProofTree     from './updateUI/services/buildProofTree';
+import highlightProofTree from './updateUI/services/highlightProofTree';
+import zoomProofTree      from './updateUI/services/zoomProofTree';
+import converter from './updateUI/services/converter';
+import getStatement     from './updateUI/services/getStatement';
+import areObjectsEqual  from '../library/areObjectsEqual';
+import getLoggableProof from './updateUI/services/getLoggableProof';
 
 let lastValidStatement: string | null;
 
