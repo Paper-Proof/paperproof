@@ -5,10 +5,12 @@ const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   const box = event.currentTarget.closest('.box') as HTMLElement;
   if (!box) return
 
-  const scaleFactor = Math.min(
+  // We can make the content look smaller, but max zoom is 1
+  const scaleFactorWanted = Math.min(
     window.innerWidth / box.offsetWidth,
     window.innerHeight / box.offsetHeight
   );
+  const scaleFactor = Math.min(scaleFactorWanted, 1)
 
   const rootEl = document.getElementById("root")!;
   const htmlEl = document.getElementsByTagName("html")[0]!;
