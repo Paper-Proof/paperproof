@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode } from "types";
+import { ConvertedProofTree, Box, HypNode, Highlights } from "types";
 import Hypotheses from "./Hypotheses";
 import Hint from "./Hint";
 
@@ -9,7 +9,7 @@ import zoomAndScroll from './zoomAndScroll';
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
-  zoomToElement: (elementId: string) => void;
+  highlights: Highlights
 }
 
 const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
@@ -36,12 +36,12 @@ const BoxEl = (props: MyProps) => {
 
   return <section className="box" id={`box-${props.box.id}`} onClick={zoomAndScroll}>
     <div className="box-insides">
-      <Hypotheses proofTree={props.proofTree} hypLayers={hypLayers}/>
+      <Hypotheses proofTree={props.proofTree} hypLayers={hypLayers} highlights={props.highlights}/>
 
       <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
       <div className="child-boxes">
         {childrenBoxes.map((childBox) =>
-          <BoxEl zoomToElement={props.zoomToElement} key={childBox.id} box={childBox} proofTree={props.proofTree}/>
+          <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree} highlights={props.highlights}/>
         )}
       </div>
 
@@ -54,7 +54,7 @@ const BoxEl = (props: MyProps) => {
               {getGoalTactic(props.proofTree, goalNode.id)?.text}
             </div>
           }
-          <div className="goal -hint">
+          <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
             <Hint>{goalNode}</Hint>
             {goalNode.text}
           </div>

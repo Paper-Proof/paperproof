@@ -1,12 +1,13 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode, Tactic } from "types";
+import { ConvertedProofTree, Box, HypNode, Tactic, Highlights } from "types";
 import BoxEl from "./BoxEl";
 import Hint from "./Hint";
 
 interface Props {
   proofTree: ConvertedProofTree;
   hypLayers: HypNode[][];
+  highlights: Highlights;
 }
 
 const whichTacticBirthedThisHypothesis = (proofTree: ConvertedProofTree, hypNode: HypNode) : Tactic => {
@@ -51,19 +52,26 @@ function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
 }
 
-const TableCell = ({ rowIndex, columnIndex, tabledCells }: { rowIndex : number, columnIndex: number, tabledCells: TabledCell[] }) => {
-  const tabledCellsOnThisRow = tabledCells.filter((tabledHyp) => tabledHyp.row === rowIndex);
+interface TableCellProps {
+  rowIndex: number;
+  columnIndex: number;
+  tabledCells: TabledCell[];
+  highlights: Highlights;
+}
+
+const TableCell = (props: TableCellProps) => {
+  const tabledCellsOnThisRow = props.tabledCells.filter((tabledHyp) => tabledHyp.row === props.rowIndex);
 
   const cellThatBelongsToThisColumn = tabledCellsOnThisRow
-    .find((hyp) => isBetween(columnIndex, [hyp.columnFrom, hyp.columnTo - 1]));
+    .find((hyp) => isBetween(props.columnIndex, [hyp.columnFrom, hyp.columnTo - 1]));
   if (!cellThatBelongsToThisColumn) {
     return <td/>
-  } else if (cellThatBelongsToThisColumn.columnFrom === columnIndex) {
+  } else if (cellThatBelongsToThisColumn.columnFrom === props.columnIndex) {
     const colSpan = cellThatBelongsToThisColumn.columnTo - cellThatBelongsToThisColumn.columnFrom;
     return <td colSpan={colSpan}>
       {
         'hypNode' in cellThatBelongsToThisColumn ?
-          <div className="hypothesis -hint">
+          <div className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(cellThatBelongsToThisColumn.hypNode.id) ? "" : "-faded"}`}>
             <Hint>{cellThatBelongsToThisColumn}</Hint>
             <span className="name">{cellThatBelongsToThisColumn.hypNode.name}</span>: {cellThatBelongsToThisColumn.hypNode.text}
           </div> :
@@ -78,11 +86,16 @@ const TableCell = ({ rowIndex, columnIndex, tabledCells }: { rowIndex : number, 
   }
 }
 
-const TableComponent = ({ tabledCells }: { tabledCells: TabledCell[] }) => {
-  const maxRow = Math.max(...tabledCells.map(hyp => hyp.row));
+interface TableComponentProps {
+  tabledCells: TabledCell[];
+  highlights: Highlights;
+}
+
+const TableComponent = (props: TableComponentProps) => {
+  const maxRow = Math.max(...props.tabledCells.map(hyp => hyp.row));
   const rows = Array.from({length: maxRow + 1}, (_, i) => i);
 
-  const maxColumn = Math.max(...tabledCells.map(hyp => hyp.columnTo));
+  const maxColumn = Math.max(...props.tabledCells.map(hyp => hyp.columnTo));
   const columns = Array.from({length: maxColumn + 1}, (_, i) => i);
 
   return (
@@ -91,7 +104,7 @@ const TableComponent = ({ tabledCells }: { tabledCells: TabledCell[] }) => {
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
             {columns.map((columnIndex) =>
-              <TableCell key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={tabledCells}/>
+              <TableCell key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={props.tabledCells} highlights={props.highlights}/>
             )}
           </tr>
         ))}
@@ -194,7 +207,7 @@ export default (props: Props) => {
     currentRow += 2;
   });
 
-  return <TableComponent tabledCells={[...tabledHyps, ...tabledTactics]}/>
+  return <TableComponent tabledCells={[...tabledHyps, ...tabledTactics]} highlights={props.highlights}/>
 }
 
 

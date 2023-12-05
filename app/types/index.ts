@@ -16,9 +16,18 @@ export interface PaperProofWindow extends Window {
   isBrightTheme: boolean;
 }
 
+// These are our /new types
+type Highlights = HighlightsBody | null;
+interface HighlightsBody {
+  goalId: string;
+  hypIds: string[];
+}
+
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
   LeanInteractiveHyp, LeanInteractiveGoal,
   GoalNode, HypNode, Box, Tactic, HypLayer, ConvertedProofTree,
-  UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer
+  UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer,
+
+  Highlights
 };

@@ -61,7 +61,7 @@ body{
   display: flex;
 }
 .hypothesis{
-  background: rgb(107 220 151 / 23%);
+  background: rgb(107 220 151 / 33%);
   padding: 5px 12px;
   border-radius: 3px;
 }
@@ -69,9 +69,17 @@ body{
   color: #c69c51;
 }
 .goal{
-  background: rgba(220, 107, 107, 0.23);
+  background: rgba(220, 107, 107, 0.33);
   padding: 5px 12px;
   border-radius: 3px;
+}
+.hypothesis.-faded{
+  background: rgb(107 220 151 / 13%);
+  opacity: 0.5;
+}
+.goal.-faded{
+  background: rgba(220, 107, 107, 0.1);
+  opacity: 0.5;
 }
 .tactic{
   padding: 5px 12px;
@@ -125,13 +133,6 @@ table td{
 
 
 
-
-
-.react-transform-wrapper{
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
 
 body{
   background: white;
