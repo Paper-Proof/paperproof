@@ -1,10 +1,10 @@
 import React from "react";
 
 import { ConvertedProofTree, Box, HypNode, Highlights } from "types";
-import Hypotheses from "./Hypotheses";
-import Hint from "./Hint";
+import Hypotheses from "./components/Hypotheses";
+import Hint from "./components/Hint";
 
-import zoomAndScroll from './zoomAndScroll';
+import zoomAndScroll from '../services/zoomAndScroll';
 
 interface MyProps {
   box: Box;

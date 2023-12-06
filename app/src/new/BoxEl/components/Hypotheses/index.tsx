@@ -1,8 +1,8 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode, Tactic, Highlights } from "types";
-import BoxEl from "./BoxEl";
-import Hint from "./Hint";
+import { ConvertedProofTree, Box, HypNode, Tactic, Highlights, TabledHyp, TabledTactic } from "types";
+import BoxEl from "../..";
+import TableComponent from "./TableComponent";
 
 interface Props {
   proofTree: ConvertedProofTree;
@@ -31,87 +31,6 @@ const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], h
   });
   return tabledHypInThisBox;
 }
-
-interface TabledHyp {
-  hypNode : HypNode;
-  columnFrom : number;
-  columnTo : number;
-  row : number;
-}
-
-interface TabledTactic {
-  tactic : Tactic;
-  columnFrom : number;
-  columnTo : number;
-  row : number;
-}
-
-type TabledCell = TabledHyp | TabledTactic;
-
-function isBetween(num: number, range: [number, number]): boolean {
-  return num >= Math.min(...range) && num <= Math.max(...range);
-}
-
-interface TableCellProps {
-  rowIndex: number;
-  columnIndex: number;
-  tabledCells: TabledCell[];
-  highlights: Highlights;
-}
-
-const TableCell = (props: TableCellProps) => {
-  const tabledCellsOnThisRow = props.tabledCells.filter((tabledHyp) => tabledHyp.row === props.rowIndex);
-
-  const cellThatBelongsToThisColumn = tabledCellsOnThisRow
-    .find((hyp) => isBetween(props.columnIndex, [hyp.columnFrom, hyp.columnTo - 1]));
-  if (!cellThatBelongsToThisColumn) {
-    return <td/>
-  } else if (cellThatBelongsToThisColumn.columnFrom === props.columnIndex) {
-    const colSpan = cellThatBelongsToThisColumn.columnTo - cellThatBelongsToThisColumn.columnFrom;
-    return <td colSpan={colSpan}>
-      {
-        'hypNode' in cellThatBelongsToThisColumn ?
-          <div className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(cellThatBelongsToThisColumn.hypNode.id) ? "" : "-faded"}`}>
-            <Hint>{cellThatBelongsToThisColumn}</Hint>
-            <span className="name">{cellThatBelongsToThisColumn.hypNode.name}</span>: {cellThatBelongsToThisColumn.hypNode.text}
-          </div> :
-          <div className={`tactic -hint ${colSpan > 1 ? "-spans-multiple-hypotheses" : ""}`}>
-            <Hint>{cellThatBelongsToThisColumn}</Hint>
-            {cellThatBelongsToThisColumn.tactic.text}
-          </div>
-      }
-    </td>
-  } else {
-    return null;
-  }
-}
-
-interface TableComponentProps {
-  tabledCells: TabledCell[];
-  highlights: Highlights;
-}
-
-const TableComponent = (props: TableComponentProps) => {
-  const maxRow = Math.max(...props.tabledCells.map(hyp => hyp.row));
-  const rows = Array.from({length: maxRow + 1}, (_, i) => i);
-
-  const maxColumn = Math.max(...props.tabledCells.map(hyp => hyp.columnTo));
-  const columns = Array.from({length: maxColumn + 1}, (_, i) => i);
-
-  return (
-    <table>
-      <tbody>
-        {rows.map((rowIndex) => (
-          <tr key={rowIndex}>
-            {columns.map((columnIndex) =>
-              <TableCell key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={props.tabledCells} highlights={props.highlights}/>
-            )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
 
 const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: HypNode[][], hypNodeId: string) : string[] => {
   for (const tactic of proofTree.tactics) {
@@ -154,7 +73,7 @@ const getChildIndex = (proofTree: ConvertedProofTree, parentHyp: HypNode, childH
   return 0;
 }
 
-export default (props: Props) => {
+const HypothesesComponent = (props: Props) => {
   const tabledHyps : TabledHyp[] = [];
   let maxColumn = 0;
   props.hypLayers.forEach((hypLayer, hypLayerIndex) => {
@@ -210,4 +129,4 @@ export default (props: Props) => {
   return <TableComponent tabledCells={[...tabledHyps, ...tabledTactics]} highlights={props.highlights}/>
 }
 
-
+export default HypothesesComponent;

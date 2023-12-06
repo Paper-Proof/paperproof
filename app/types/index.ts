@@ -23,11 +23,28 @@ interface HighlightsBody {
   hypIds: string[];
 }
 
+interface TabledHyp {
+  hypNode: HypNode;
+  columnFrom: number;
+  columnTo: number;
+  row: number;
+}
+interface TabledTactic {
+  tactic: Tactic;
+  columnFrom: number;
+  columnTo: number;
+  row: number;
+}
+
+type TabledCell = TabledHyp | TabledTactic;
+
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
   LeanInteractiveHyp, LeanInteractiveGoal,
   GoalNode, HypNode, Box, Tactic, HypLayer, ConvertedProofTree,
   UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer,
 
-  Highlights
+  Highlights,
+  TabledHyp, TabledTactic, TabledCell
 };
+
