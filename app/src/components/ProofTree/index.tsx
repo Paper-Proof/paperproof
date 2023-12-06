@@ -1,14 +1,14 @@
 import React from "react";
 import { ConvertedProofTree, ProofResponse } from "types";
-import converter from "../library/converter";
-import BoxEl from "./BoxEl";
+import BoxEl from "./components/BoxEl";
+import converter from "src/services/converter";
 import getHighlights from "./services/getHighlights";
 
 interface PropsNew {
   proofState: ProofResponse;
 }
 
-export const New = (props: PropsNew) => {
+const ProofTree = (props: PropsNew) => {
   if (!props.proofState || "error" in props.proofState) {
     return;
   }
@@ -21,3 +21,5 @@ export const New = (props: PropsNew) => {
 
   return <BoxEl box={rootBox} proofTree={proofTree} highlights={highlights}/>
 }
+
+export default ProofTree

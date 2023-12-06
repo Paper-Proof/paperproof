@@ -109,7 +109,7 @@ const HypothesesComponent = (props: Props) => {
   props.hypLayers.forEach((hypLayer, hypLayerIndex) => {
     const tactic : Tactic = whichTacticBirthedThisHypothesis(props.proofTree, hypLayer[0]!);
     const relevantTabledHyps = tabledHyps
-    .filter((tabledHyp) => hypLayer.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
+      .filter((tabledHyp) => hypLayer.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
     const columnFrom = Math.min(
       ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnFrom)
     );

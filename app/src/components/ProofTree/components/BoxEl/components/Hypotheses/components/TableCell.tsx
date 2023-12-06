@@ -1,7 +1,7 @@
 import React from "react";
 import { ConvertedProofTree, Highlights, TabledCell, TabledHyp, TabledTactic } from "types";
 import Hint from "../../Hint";
-import BoxEl from "src/new/BoxEl";
+import BoxEl from "src/components/ProofTree/components/BoxEl";
 
 function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
@@ -19,18 +19,31 @@ const Hypothesis = (props: HypothesisProps) => {
   </div>
 }
 
+const ourHypothesisTactic = {
+  "id": "4", "text": "cases' hm with p q",
+  "dependsOnIds": ["_uniq.10026"],
+  "goalArrows": [{"fromId": "_uniq.10027", "toId": "_uniq.10073"}, {"fromId": "_uniq.10027", "toId": "_uniq.10087"}],
+  "hypArrows": [{"fromId": "_uniq.10026", "toIds": ["_uniq.10059"]}, {"fromId": "_uniq.10026", "toIds": ["_uniq.10074"]}],
+  "haveBoxIds": []
+}
+// We shall look into the hypothesis tactic we found (`ourHypothesisTactic`), and look at its `ourHypothesisTactic.hypArrows`. Then we're searching for our personal parent!
+// 1. Do we have a parent that's in another window? Draw an arrow.
+// 2. Do we have a parent that's multiple rows above us? Draw an arrow.
+
 interface TacticProps {
   cell: TabledTactic;
   colSpan: number;
   proofTree: ConvertedProofTree;
 }
-
 const Tactic = (props: TacticProps) => {
-  const doesSpan = props.cell.tactic.haveBoxIds.length > 0 || props.colSpan > 1;
+  const tactic = props.cell.tactic;
+
+  const doesSpan = tactic.haveBoxIds.length > 0 || props.colSpan > 1;
+
   return (
     <>
       <div className="child-boxes">
-        {props.cell.tactic.haveBoxIds.map((haveBoxId) => (
+        {tactic.haveBoxIds.map((haveBoxId) => (
           <BoxEl
             key={haveBoxId}
             box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!}
@@ -41,7 +54,7 @@ const Tactic = (props: TacticProps) => {
       </div>
       <div className={`tactic -hint ${doesSpan ? "-spans-multiple-hypotheses" : ""}`}>
         <Hint>{props.cell}</Hint>
-        {props.cell.tactic.text}
+        {tactic.text}
       </div>
     </>
   );

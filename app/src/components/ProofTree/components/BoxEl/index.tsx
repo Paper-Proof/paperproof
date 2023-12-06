@@ -4,7 +4,7 @@ import { ConvertedProofTree, Box, HypNode, Highlights } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
-import zoomAndScroll from '../services/zoomAndScroll';
+import zoomAndScroll from '../../services/zoomAndScroll';
 
 interface MyProps {
   box: Box;

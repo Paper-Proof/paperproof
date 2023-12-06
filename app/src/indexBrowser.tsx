@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from 'react-dom/client';
 import { ProofResponse, PaperProofWindow } from "types";
 import "./index.css";
-import { New } from "./new/New";
+import ProofTree from "./components/ProofTree";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -17,7 +17,7 @@ function Main() {
     });
   }, [])
 
-  return <New proofState={proofState}/>
+  return <ProofTree proofState={proofState}/>
 }
 
 const root = createRoot(document.getElementById("root")!);

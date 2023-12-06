@@ -1,5 +1,5 @@
 import { ConvertedProofTree, Highlights, LeanInteractiveGoal } from "types";
-import getDisplayedId from "src/library/getDisplayedId";
+import getDisplayedId from "src/services/getDisplayedId";
 
 const getHighlights = (equivalentIds: ConvertedProofTree['equivalentIds'], currentGoal: LeanInteractiveGoal | null): Highlights => {
   if (!currentGoal) return null;
