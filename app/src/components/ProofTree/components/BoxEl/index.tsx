@@ -1,10 +1,11 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode, Highlights } from "types";
+import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
 import zoomAndScroll from '../../services/zoomAndScroll';
+import PerfectArrow from "../PerfectArrow";
 
 interface MyProps {
   box: Box;
@@ -18,6 +19,37 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
   const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
 
   return goalTactic || successTactic;
+}
+
+interface TacticNodeProps {
+  tactic: Tactic
+}
+const TacticNode = (props: TacticNodeProps) => {
+  const tacticRef = React.useRef<HTMLDivElement | null>(null);
+  // const arrows = props.tactic.dependsOnIds.map((hypId) => {
+  //   const hypEl = document.getElementById(`hypothesis-${hypId}`);
+  //   if (!tacticRef.current || !hypEl) return null;
+
+  //   const hypRect = hypEl.getBoundingClientRect();
+  //   const p1 = {x: hypRect.left + hypRect.width / 2, y: hypRect.bottom};
+
+  //   const tacticRect = tacticRef.current.getBoundingClientRect();
+  //   const p2 = {x: tacticRect.left + tacticRect.width / 2, y: tacticRect.top};
+
+  //   // const p1 = { x: 0, y: 0 };
+  //   // const p2 = { x: 200, y: 200 }
+
+  //   return <PerfectArrow key={hypId} p1={p1} p2={p2}/>
+  // });
+  return(
+    <>
+      {/* {arrows} */}
+      <div className="tactic -hint" ref={tacticRef}>
+        <Hint>{props.tactic}</Hint>
+        {props.tactic.text}
+      </div>
+    </>
+  );
 }
 
 const BoxEl = (props: MyProps) => {
@@ -49,10 +81,7 @@ const BoxEl = (props: MyProps) => {
         <div key={goalNode.id}>
           {
             getGoalTactic(props.proofTree, goalNode.id) &&
-            <div className="tactic -hint">
-              <Hint>{getGoalTactic(props.proofTree, goalNode.id)}</Hint>
-              {getGoalTactic(props.proofTree, goalNode.id)?.text}
-            </div>
+            <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/>
           }
           <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
             <Hint>{goalNode}</Hint>

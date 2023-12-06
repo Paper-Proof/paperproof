@@ -1,11 +1,13 @@
 import * as React from "react"
 import { getArrow } from "perfect-arrows"
 
-const PerfectArrow = () => {
-  const p1 = { x: 64, y: 64 }
-  const p2 = { x: 128, y: 96 }
+interface PerfectArrowProps {
+  p1: { x: number, y: number },
+  p2: { x: number, y: number }
+}
 
-  const arrow = getArrow(p1.x, p1.y, p2.x, p2.y, {
+const PerfectArrow = (props: PerfectArrowProps) => {
+  const arrow = getArrow(props.p1.x, props.p1.y, props.p2.x, props.p2.y, {
     padEnd: 20,
   })
 
@@ -15,14 +17,15 @@ const PerfectArrow = () => {
 
   return (
     <svg
-      viewBox="0 0 720 480"
-      style={{ width: 720, height: 480 }}
+      className="perfect-arrow"
+      viewBox="0 0 1000 1000"
+      style={{ width: 1000, height: 1000 }}
       stroke="#000"
       fill="#000"
       strokeWidth={3}
     >
-      <circle cx={sx} cy={sy} r={4} />
-      <path d={`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`} fill="none" />
+      <circle cx={sx} cy={sy} r={4}/>
+      <path d={`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`} fill="none"/>
       <polygon
         points="0,-6 12,0, 0,6"
         transform={`translate(${ex},${ey}) rotate(${endAngleAsDegrees})`}

@@ -2,21 +2,10 @@ import React from "react";
 import { ConvertedProofTree, Highlights, TabledCell, TabledHyp, TabledTactic } from "types";
 import Hint from "../../Hint";
 import BoxEl from "src/components/ProofTree/components/BoxEl";
+import HypothesisNode from "./HypothesisNode";
 
 function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
-}
-
-interface HypothesisProps {
-  cell: TabledHyp;
-  highlights: Highlights;
-}
-
-const Hypothesis = (props: HypothesisProps) => {
-  return <div className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(props.cell.hypNode.id) ? "" : "-faded"}`}>
-    <Hint>{props.cell}</Hint>
-    <span className="name">{props.cell.hypNode.name}</span>: {props.cell.hypNode.text}
-  </div>
 }
 
 const ourHypothesisTactic = {
@@ -79,7 +68,7 @@ const TableCell = (props: TableCellProps) => {
     const colSpan = cell.columnTo - cell.columnFrom;
     return <td colSpan={colSpan}>
       {'hypNode' in cell ?
-        <Hypothesis cell={cell} highlights={props.highlights}/> :
+        <HypothesisNode cell={cell} highlights={props.highlights}/> :
         <Tactic cell={cell} colSpan={colSpan} proofTree={props.proofTree}/>
       }
     </td>;
