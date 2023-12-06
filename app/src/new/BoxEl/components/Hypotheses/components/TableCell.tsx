@@ -1,5 +1,5 @@
 import React from "react";
-import { ConvertedProofTree, Highlights, TabledCell, TabledHyp } from "types";
+import { ConvertedProofTree, Highlights, TabledCell, TabledHyp, TabledTactic } from "types";
 import Hint from "../../Hint";
 import BoxEl from "src/new/BoxEl";
 
@@ -19,6 +19,34 @@ const Hypothesis = (props: HypothesisProps) => {
   </div>
 }
 
+interface TacticProps {
+  cell: TabledTactic;
+  colSpan: number;
+  proofTree: ConvertedProofTree;
+}
+
+const Tactic = (props: TacticProps) => {
+  const doesSpan = props.cell.tactic.haveBoxIds.length > 0 || props.colSpan > 1;
+  return (
+    <>
+      <div className="child-boxes">
+        {props.cell.tactic.haveBoxIds.map((haveBoxId) => (
+          <BoxEl
+            key={haveBoxId}
+            box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!}
+            proofTree={props.proofTree}
+            highlights={null}
+          />
+        ))}
+      </div>
+      <div className={`tactic -hint ${doesSpan ? "-spans-multiple-hypotheses" : ""}`}>
+        <Hint>{props.cell}</Hint>
+        {props.cell.tactic.text}
+      </div>
+    </>
+  );
+};
+
 interface TableCellProps {
   rowIndex: number;
   columnIndex: number;
@@ -26,7 +54,6 @@ interface TableCellProps {
   highlights: Highlights;
   proofTree: ConvertedProofTree;
 }
-
 const TableCell = (props: TableCellProps) => {
   const tabledCellsOnThisRow = props.tabledCells.filter((tabledHyp) => tabledHyp.row === props.rowIndex);
 
@@ -40,15 +67,7 @@ const TableCell = (props: TableCellProps) => {
     return <td colSpan={colSpan}>
       {'hypNode' in cell ?
         <Hypothesis cell={cell} highlights={props.highlights}/> :
-        <>
-          {cell.tactic.haveBoxIds.map((haveBoxId) =>
-            <BoxEl key={haveBoxId} box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!} proofTree={props.proofTree} highlights={null}/>
-          )}
-          <div className={`tactic -hint ${colSpan > 1 ? "-spans-multiple-hypotheses" : ""}`}>
-            <Hint>{cell}</Hint>
-            {cell.tactic.text}
-          </div>
-        </>
+        <Tactic cell={cell} colSpan={colSpan} proofTree={props.proofTree}/>
       }
     </td>;
   } else {
