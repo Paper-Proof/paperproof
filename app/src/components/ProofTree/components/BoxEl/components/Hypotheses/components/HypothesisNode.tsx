@@ -8,12 +8,23 @@ export interface HypothesisProps {
 }
 
 const HypothesisNode = (props: HypothesisProps) => {
+  const hypNode = props.cell.hypNode;
+
+  // Example input: hypNode.name = "h._@.Examples._hyg.1162"
+  // Example output: name = "h✝"
+  const name = hypNode.name &&
+    hypNode.name.includes(".")
+    ? `${hypNode.name.split(".")[0]}✝`
+    : hypNode.name;
+
   return <div
-    id={`hypothesis-${props.cell.hypNode.id}`}
-    className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(props.cell.hypNode.id) ? "" : "-faded"}`}
+    id={`hypothesis-${hypNode.id}`}
+    className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(hypNode.id) ? "" : "-faded"}`}
   >
     <Hint>{props.cell}</Hint>
-    <span className="name">{props.cell.hypNode.name}</span>: {props.cell.hypNode.text}
+    {name && <span className="name">{hypNode.name}</span>}
+    {name && ": "}
+    <span className="text">{hypNode.text}</span>
   </div>;
 };
 
