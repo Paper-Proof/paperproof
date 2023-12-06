@@ -89,7 +89,8 @@ theorem irrational_sqrt_2 : ¬ ∃ (q : ℚ), q * q = 2 := by
   have h₁ : n * n = 2 * d * d:= by
     rw [← Rat.normalize_self 2, Rat.mul_def, Rat.normalize_eq_iff] at h
     simp at h
-    linarith
+    sorry
+    -- linarith
   rw [← Int.natAbs_mul_self'] at h₁
   have ⟨n', h₂⟩ : ∃ n', n.natAbs = 2 * n' := by
     have hm : Even (2 * d * d) := by

@@ -1,12 +1,13 @@
 import React from "react";
-import { Highlights, TabledCell } from "types";
-import { TableCell } from "./TabledHyp";
+import { ConvertedProofTree, Highlights, TabledCell } from "types";
+import TableCell from "./TableCell";
 
 interface TableComponentProps {
   tabledCells: TabledCell[];
   highlights: Highlights;
+  proofTree: ConvertedProofTree;
 }
-const TableComponent = (props: TableComponentProps) => {
+const Table = (props: TableComponentProps) => {
   const maxRow = Math.max(...props.tabledCells.map(hyp => hyp.row));
   const rows = Array.from({ length: maxRow + 1 }, (_, i) => i);
 
@@ -18,7 +19,7 @@ const TableComponent = (props: TableComponentProps) => {
       <tbody>
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
-            {columns.map((columnIndex) => <TableCell key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={props.tabledCells} highlights={props.highlights} />
+            {columns.map((columnIndex) => <TableCell proofTree={props.proofTree} key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={props.tabledCells} highlights={props.highlights} />
             )}
           </tr>
         ))}
@@ -27,4 +28,4 @@ const TableComponent = (props: TableComponentProps) => {
   );
 };
 
-export default TableComponent;
+export default Table;

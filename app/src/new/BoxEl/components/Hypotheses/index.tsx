@@ -2,7 +2,7 @@ import React from "react";
 
 import { ConvertedProofTree, Box, HypNode, Tactic, Highlights, TabledHyp, TabledTactic } from "types";
 import BoxEl from "../..";
-import TableComponent from "./TableComponent";
+import Table from "./components/Table";
 
 interface Props {
   proofTree: ConvertedProofTree;
@@ -12,7 +12,7 @@ interface Props {
 
 const whichTacticBirthedThisHypothesis = (proofTree: ConvertedProofTree, hypNode: HypNode) : Tactic => {
   const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.toIds.includes(hypNode.id)));
-  return tactic || { text: "init" };
+  return tactic || { text: "init", id: "666", dependsOnIds: [], goalArrows: [], hypArrows: [], haveBoxIds: [] };
 }
 
 const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], hypNode: HypNode) : TabledHyp | undefined => {
@@ -79,7 +79,7 @@ const HypothesesComponent = (props: Props) => {
   props.hypLayers.forEach((hypLayer, hypLayerIndex) => {
     hypLayer.forEach((hypNode) => {
       const tabledHypAbove : TabledHyp | undefined = getHypAbove(props.proofTree, tabledHyps, hypNode);
-      
+
       const childrenWidth = getChildrenWidth(props.proofTree, props.hypLayers, hypNode.id);
       // "under something" hyps
       if (tabledHypAbove) {
@@ -126,7 +126,7 @@ const HypothesesComponent = (props: Props) => {
     currentRow += 2;
   });
 
-  return <TableComponent tabledCells={[...tabledHyps, ...tabledTactics]} highlights={props.highlights}/>
+  return <Table proofTree={props.proofTree} tabledCells={[...tabledHyps, ...tabledTactics]} highlights={props.highlights}/>
 }
 
 export default HypothesesComponent;
