@@ -7,6 +7,7 @@ function getWebviewContent(serverUrl: string, initialInfo: ProofStateOrError, is
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+      <link href="${serverUrl}/indexBrowser.css" rel="stylesheet">
       <title>Paperproof</title>
     </head>
     <body>
