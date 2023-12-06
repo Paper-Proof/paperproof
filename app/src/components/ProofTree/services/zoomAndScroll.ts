@@ -22,7 +22,7 @@ const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   const predictedBoxLeft = box.offsetLeft * scaleFactor;
   const scrollTopEnd = (predictedBoxTop + box.offsetHeight * scaleFactor / 2) - window.innerHeight / 2;
   const scrollLeftEnd = (predictedBoxLeft + box.offsetWidth * scaleFactor / 2) - window.innerWidth / 2;
-  
+
   const animationLength = 300;
   const start = performance.now();
   const scaleIncrement = (scaleFactor - initialScale) / animationLength;

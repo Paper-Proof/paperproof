@@ -1,5 +1,7 @@
 import { LeanProofTree } from 'types';
 
+// NOTE: this is for updateUI
+// (https://github.com/Paper-Proof/paperproof/blob/47dd21da64d8b1ce42a5f1fe921e96072e376023/app/src/services/updateUI/index.ts#L38)
 const getStatement = (subSteps: LeanProofTree): string | null => {
   const firstStep = subSteps[0];
   if ('tacticApp' in firstStep) {
