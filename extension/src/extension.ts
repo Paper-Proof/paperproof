@@ -7,6 +7,7 @@ const DEFAULT_SERVER_URL = "https://paperproof.xyz";
 
 export function activate(context: vscode.ExtensionContext) {
   const shared : Shared = {
+    context,
     latestInfo: null,
     onLeanClientRestarted: null,
     webviewPanel: null,

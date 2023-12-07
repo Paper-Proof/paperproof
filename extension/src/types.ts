@@ -12,6 +12,7 @@ export interface ProofError {
 export type ProofStateOrError = ProofState | ProofError | null;
 
 export interface Shared {
+  context: vscode.ExtensionContext;
   latestInfo: ProofStateOrError;
   onLeanClientRestarted: vscode.Disposable | null;
   webviewPanel: vscode.WebviewPanel | null;

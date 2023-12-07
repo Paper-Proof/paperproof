@@ -1,6 +1,13 @@
-import { ProofStateOrError } from "../../../types";
+import * as vscode from 'vscode';
+import { ProofStateOrError, Shared } from "../../../types";
 
-function getWebviewContent(serverUrl: string, initialInfo: ProofStateOrError, isBrightTheme: boolean) {
+function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, serverUrl: string, initialInfo: ProofStateOrError, isBrightTheme: boolean) {
+  // [For paperproof:offline]
+  // const pathJs = vscode.Uri.joinPath(shared.context.extensionUri, 'dist', 'indexBrowser.js');
+  // const webviewPathJs = webviewPanel.webview.asWebviewUri(pathJs);
+  // const pathCss = vscode.Uri.joinPath(shared.context.extensionUri, 'dist', 'indexBrowser.css');
+  // const webviewPathCss = webviewPanel.webview.asWebviewUri(pathCss);
+
   return `
   <!DOCTYPE html>
   <html lang="en">

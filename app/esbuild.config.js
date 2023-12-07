@@ -4,6 +4,8 @@ import path from 'path';
 let ctx = await esbuild.context({
   entryPoints: ['src/indexBrowser.tsx'],
   bundle: true,
+  // [For paperproof:offline]
+  // outfile: '../extension/dist/indexBrowser.js',
   outfile: 'dist/indexBrowser.js',
   sourcemap: true,
   platform: 'browser',
@@ -11,9 +13,7 @@ let ctx = await esbuild.context({
     '.json': 'json',
     '.css': 'css',
   },
-  plugins: [
-    // TODO: Add necessary plugins here
-  ],
+  plugins: [],
   logLevel: 'info',
   logLimit: 0,
 })

@@ -12,7 +12,7 @@ const toggleWebviewPanel = (shared: Shared, serverUrl: string, isBrightTheme: bo
       { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true }
     );
-    webviewPanel.webview.html = getWebviewContent(serverUrl, shared.latestInfo, isBrightTheme);
+    webviewPanel.webview.html = getWebviewContent(shared, webviewPanel, serverUrl, shared.latestInfo, isBrightTheme);
     webviewPanel.onDidDispose(() => { shared.webviewPanel = null; });
     shared.webviewPanel = webviewPanel;
   }

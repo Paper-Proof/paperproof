@@ -21,18 +21,18 @@ app.use((req, res, next) => {
   }
 });
  
-try {
-  const options = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/paperproof.xyz/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/paperproof.xyz/privkey.pem')
-  };
-  https.createServer(options, app).listen(443, () => {
-    console.log('HTTPS server is running on port 443')
-    withHttps = true;
- });
-} catch (e) {
-  console.log('Error starting https server', e);
-}
+// try {
+//   const options = {
+//     cert: fs.readFileSync('/etc/letsencrypt/live/paperproof.xyz/fullchain.pem'),
+//     key: fs.readFileSync('/etc/letsencrypt/live/paperproof.xyz/privkey.pem')
+//   };
+//   https.createServer(options, app).listen(443, () => {
+//     console.log('HTTPS server is running on port 443')
+//     withHttps = true;
+//  });
+// } catch (e) {
+//   console.log('Error starting https server', e);
+// }
 
 // Serve static files from the 'app/dist' directory
 app.use("/", express.static(path.join(__dirname, "dist")));
