@@ -21,19 +21,15 @@ table td{
   border-radius: 2px;
   flex-grow: 1;
 }
-#root{
+#box-1{
   width: max-content;
   transform-origin: 0% 0% 0px;
   
   /* transition: transform 50ms ease-in-out; */
 }
 body{
-  /* padding: 500px; */
-  padding: 0px;
+  padding: 70vh 70vw;
   width: fit-content;
-}
-#root{
-  padding: 500px;
 }
 
 #root > .react-transform-wrapper > .react-transform-component > .box { background: rgb(245, 249, 255); }

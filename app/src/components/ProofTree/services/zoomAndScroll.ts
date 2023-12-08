@@ -1,49 +1,70 @@
+const distanceTop = (el1: HTMLElement, el2: HTMLElement) => {
+  const rect1 = el1.getBoundingClientRect();
+  const rect2 = el2.getBoundingClientRect();
+  return Math.abs(rect1.top - rect2.top);
+}
 
+const distanceLeft = (el1: HTMLElement, el2: HTMLElement) => {
+  const rect1 = el1.getBoundingClientRect();
+  const rect2 = el2.getBoundingClientRect();
+  return Math.abs(rect1.left - rect2.left);
+}
 
 const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   event.stopPropagation();
-  const box = event.currentTarget.closest('.box') as HTMLElement;
-  if (!box) return
+  const htmlEl = document.getElementsByTagName("html")[0]!;
+  const proofTreeEl = document.getElementById("box-1")!;
+  const boxEl = event.currentTarget.closest('.box') as HTMLElement;
+  const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
 
-  // We can make the content look smaller, but max zoom is 1
+  // We can make the content look smaller, but can't make it look bigger - max zoom is 1
   const scaleFactorWanted = Math.min(
-    window.innerWidth / box.offsetWidth,
-    window.innerHeight / box.offsetHeight
+    window.innerWidth / boxEl.offsetWidth, 
+    window.innerHeight / boxEl.offsetHeight // .offsetHeight ignores transforms
   );
   const scaleFactor = Math.min(scaleFactorWanted, 1)
 
-  const rootEl = document.getElementById("root")!;
-  const htmlEl = document.getElementsByTagName("html")[0]!;
-  const initialScale = parseFloat(getComputedStyle(rootEl).transform.split(',')[3]) || 1;
+  const scrollTopFinal_top =
+    distanceTop(htmlEl, proofTreeEl) +
+    distanceTop(proofTreeEl, boxEl) / initialScale * scaleFactor;
+  const scrollTopFinal = scrollTopFinal_top - (
+    window.innerHeight/2 - boxEl.offsetHeight * scaleFactor / 2
+  );
+
+  const scrollLeftFinal_left =
+    distanceLeft(proofTreeEl, htmlEl) +
+    distanceLeft(proofTreeEl, boxEl) / initialScale * scaleFactor;
+  const scrollLeftFinal = scrollLeftFinal_left - (
+    window.innerWidth/2 - boxEl.offsetWidth * scaleFactor / 2
+  );
+
   const initialScrollTop = htmlEl.scrollTop;
   const initialScrollLeft = htmlEl.scrollLeft;
 
-  const predictedBoxTop = box.offsetTop * scaleFactor;
-  const predictedBoxLeft = box.offsetLeft * scaleFactor;
-  const scrollTopEnd = (predictedBoxTop + box.offsetHeight * scaleFactor / 2) - window.innerHeight / 2;
-  const scrollLeftEnd = (predictedBoxLeft + box.offsetWidth * scaleFactor / 2) - window.innerWidth / 2;
-
-  const animationLength = 300;
+  const animationLength = 300; // 300ms
   const start = performance.now();
-  const scaleIncrement = (scaleFactor - initialScale) / animationLength;
-  const scrollTopIncrement = (scrollTopEnd - initialScrollTop) / animationLength;
-  const scrollLeftIncrement = (scrollLeftEnd - initialScrollLeft) / animationLength;
+  const scalePerMs = (scaleFactor - initialScale) / animationLength;
+  const scrollTopPerMs = (scrollTopFinal - initialScrollTop) / animationLength;
+  const scrollLeftPerMs = (scrollLeftFinal - initialScrollLeft) / animationLength;
 
-  function step() {
+  // This is a "oh, we're past the deadline again!" animation -
+  // every time the browser allows us to update our UI (so every time `window.requestAnimationFrame` is called),
+  // we look at how much time has passed since the beginning of the animation, and progress the appropriate amount.
+  const step = () => {
     const elapsed = performance.now() - start;
 
     if (elapsed < animationLength) {
-      rootEl.style.transform = `scale(${initialScale + scaleIncrement * elapsed})`;
-      htmlEl.scrollTop = initialScrollTop + scrollTopIncrement * elapsed;
-      htmlEl.scrollLeft = initialScrollLeft + scrollLeftIncrement * elapsed;
+      proofTreeEl.style.transform = `scale(${initialScale + scalePerMs * elapsed})`;
+      htmlEl.scrollTop = initialScrollTop + scrollTopPerMs * elapsed;
+      htmlEl.scrollLeft = initialScrollLeft + scrollLeftPerMs * elapsed;
       window.requestAnimationFrame(step);
     } else {
-      rootEl.style.transform = `scale(${scaleFactor})`;
-      htmlEl.scrollTop = scrollTopEnd;
-      htmlEl.scrollLeft = scrollLeftEnd;
+      proofTreeEl.style.transform = `scale(${scaleFactor})`;
+      htmlEl.scrollTop = scrollTopFinal;
+      htmlEl.scrollLeft = scrollLeftFinal;
     }
   }
-  
+
   window.requestAnimationFrame(step);
 }
 
