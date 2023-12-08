@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { ProofResponse, PaperProofWindow } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
+// @ts-ignore
+import LeaderLine from './services/LeaderLine.min.js';
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -15,6 +17,11 @@ function Main() {
       const proof = event.data;
       setProofState(proof);
     });
+
+    new LeaderLine(
+      document.getElementById('hypothesis-_uniq.574'),
+      document.getElementById('hypothesis-_uniq.730')
+    );
   }, [])
 
   return <ProofTree proofState={proofState}/>
