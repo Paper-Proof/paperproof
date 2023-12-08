@@ -21,10 +21,4 @@ function Main() {
 }
 
 const root = createRoot(document.getElementById("root")!);
-root.render(
-  // We get a double component mount with StrictMode
-  // (https://stackoverflow.com/a/64394524/3192470)
-  // <React.StrictMode>
-    <Main/>
-  // </React.StrictMode>
-);
+root.render(<Main/>);
