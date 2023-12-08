@@ -24,8 +24,6 @@ table td{
 #box-1{
   width: max-content;
   transform-origin: 0% 0% 0px;
-  
-  /* transition: transform 50ms ease-in-out; */
 }
 body{
   padding: 70vh 70vw;
