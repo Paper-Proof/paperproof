@@ -1,25 +1,29 @@
-import React from "react";
-import { ConvertedProofTree, ProofResponse } from "types";
+import React, { useEffect, useState } from "react";
+import { ConvertedProofTree, Highlights, ProofResponse } from "types";
 import BoxEl from "./components/BoxEl";
-import converter from "src/services/converter";
-import getHighlights from "./services/getHighlights";
 
 interface PropsNew {
-  proofState: ProofResponse;
+  proofTree: ConvertedProofTree;
+  highlights: Highlights
 }
 
 const ProofTree = (props: PropsNew) => {
-  if (!props.proofState || "error" in props.proofState) {
-    return;
-  }
+  // const [leaderLines, setLeaderLines] = useState<LeaderLine[]>([]);
 
-  const proofTree : ConvertedProofTree = converter(props.proofState.proofTree);
-  const highlights = getHighlights(proofTree.equivalentIds, props.proofState.goal);
+  // useEffect(() => {
+  //   // Remove previous leaderLines if they exist
+  //   leaderLines.forEach((leaderLine) => {
+  //     leaderLine.remove();
+  //   });
+  //   // Create new leaderLines and store them in state
+  //   const newLeaderLines = createDependsOnArrows(props.proofTree)
+  //   setLeaderLines(newLeaderLines);
+  // }, [props.proofTree]);
 
-  const rootBox = proofTree.boxes.find((box) => box.parentId === null);
+  const rootBox = props.proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null;
 
-  return <BoxEl box={rootBox} proofTree={proofTree} highlights={highlights}/>
+  return <BoxEl box={rootBox} proofTree={props.proofTree} highlights={props.highlights}/>
 }
 
 export default ProofTree

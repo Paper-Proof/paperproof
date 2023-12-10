@@ -1,41 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow } from "types";
+import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
-// @ts-ignore
-import LeaderLine from './services/LeaderLine.min.js';
-import createDependsOnArrows from './services/createDependsOnArrows';
+import converter from "./services/converter";
+import getHighlights from "./components/ProofTree/services/getHighlights";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
 
 function Main() {
   const [proofState, setProofState] = useState(window.initialInfo);
-  const [leaderLine, setLeaderLine] = useState<LeaderLine | null>(null);
+  const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
+  const [highlights, setHighlights] = useState<Highlights | null>(null);
 
   useEffect(() => {
     addEventListener("message", (event) => {
       const proof = event.data;
       setProofState(proof);
+
+      if (!proof || "error" in proof) {
+        return;
+      }
+
+      const convertedProofTree : ConvertedProofTree = converter(proof.proofTree);
+      setProofTree(convertedProofTree);
+      const newHighlights = getHighlights(convertedProofTree.equivalentIds, proof.goal);
+      setHighlights(newHighlights);
     });
   }, [])
 
-  const refreshArrows = () => {    
-    // Remove previous leaderLine if it exists
-    if (leaderLine) {
-      leaderLine.remove();
-    }
-    // Create new leaderLine and store it in state
-    const newLeaderLine = createDependsOnArrows()
-    setLeaderLine(newLeaderLine);
-  }
-
-  useEffect(() => {
-    refreshArrows();
-  }, [proofState]);
-
-  return <ProofTree proofState={proofState}/>
+  return proofTree && <ProofTree proofTree={proofTree} highlights={highlights}/>
 }
 
 const root = createRoot(document.getElementById("root")!);
