@@ -3,10 +3,12 @@ body *{
 }
 
 .goal{
-  max-height: 26px;
-  overflow-y: scroll;
   max-width: 200px;
   min-width: 100%;
+}
+.goal, .hypothesis{
+  max-height: 35px;
+  overflow-y: scroll;
 }
 .hypothesis, .tactic{
   max-width: 200px;
