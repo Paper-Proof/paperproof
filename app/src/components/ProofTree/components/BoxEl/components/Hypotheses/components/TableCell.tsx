@@ -3,6 +3,7 @@ import { ConvertedProofTree, Highlights, TabledCell, TabledHyp, TabledTactic } f
 import Hint from "../../Hint";
 import BoxEl from "src/components/ProofTree/components/BoxEl";
 import HypothesisNode from "./HypothesisNode";
+import TacticNode from "src/components/TacticNode";
 
 function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
@@ -41,10 +42,7 @@ const Tactic = (props: TacticProps) => {
           />
         ))}
       </div>
-      <div className={`tactic -hint ${doesSpan ? "-spans-multiple-hypotheses" : ""}`}>
-        <Hint>{props.cell}</Hint>
-        {tactic.text}
-      </div>
+      <TacticNode tactic={props.cell.tactic} className={doesSpan ? "-spans-multiple-hypotheses" : ""}/>
     </>
   );
 };

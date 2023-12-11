@@ -1,10 +1,11 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
+import { ConvertedProofTree, Box, HypNode, Highlights } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
 import zoomAndScroll from '../../services/zoomAndScroll';
+import TacticNode from "../../../TacticNode";
 
 interface MyProps {
   box: Box;
@@ -18,18 +19,6 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
   const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
 
   return goalTactic || successTactic;
-}
-
-interface TacticNodeProps {
-  tactic: Tactic
-}
-const TacticNode = (props: TacticNodeProps) => {
-  return(
-    <div className="tactic -hint">
-      <Hint>{props.tactic}</Hint>
-      {props.tactic.text}
-    </div>
-  );
 }
 
 const BoxEl = (props: MyProps) => {
