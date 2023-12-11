@@ -1,13 +1,15 @@
+body *{
+  box-sizing: border-box;
+}
 
 .goal{
   max-height: 26px;
   overflow-y: scroll;
   max-width: 200px;
-  min-width: calc(100% - 24px);
+  min-width: 100%;
 }
 .hypothesis, .tactic{
   max-width: 200px;
-  /* min-width: calc(100% - 24px); */
 }
 table td{
   /* this if for hypotheses, e.g. see irrational proof */
