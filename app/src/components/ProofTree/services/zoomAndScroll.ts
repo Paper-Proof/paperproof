@@ -18,10 +18,11 @@ const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
 
   // We can make the content look smaller, but can't make it look bigger - max zoom is 1
-  const scaleFactorWanted = Math.min(
+  const scaleFactorWantedOld = Math.min(
     window.innerWidth / boxEl.offsetWidth, 
     window.innerHeight / boxEl.offsetHeight // .offsetHeight ignores transforms
   );
+  const scaleFactorWanted = window.innerWidth / boxEl.offsetWidth;
   const scaleFactor = Math.min(scaleFactorWanted, 1)
 
   const scrollTopFinal_top =
