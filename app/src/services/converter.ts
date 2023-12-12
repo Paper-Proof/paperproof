@@ -424,7 +424,7 @@ const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
   });
 };
 
-const postprocess = (pretty: ConvertedProofTree): ConvertedProofTree => {
+const postprocess = (pretty: ConvertedProofTree) => {
   pretty.tactics.forEach((tactic) => {
     tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
       fromId: getDisplayedId(pretty, goalArrow.fromId)!,
@@ -448,26 +448,53 @@ const postprocess = (pretty: ConvertedProofTree): ConvertedProofTree => {
   return pretty
 }
 
+const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
+  tactic.goalsAfter.forEach((goal) => {
+    goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"))
+  });
+  tactic.goalsBefore.forEach((goal) => {
+    goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"))
+  });
+}
+
+const preprocess = (subSteps: LeanProofTree) => {
+  // Remove all ".universe" hypotheses.
+  // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof. 
+  // Note: we don't remove corresponding .dependsOn arrows here - in general we treat arrows liberally, and determine if some hypothesis disappeared just by seeing if that element exists on frontend.
+  subSteps.forEach((subStep) => {
+    if ("tacticApp" in subStep) {
+      removeUniverseHypsFromTactic(subStep.tacticApp.t);
+    } else if ("haveDecl" in subStep) {
+      const tactic = subStep.haveDecl.t;
+      removeUniverseHypsFromTactic(subStep.haveDecl.t);
+      preprocess(subStep.haveDecl.subSteps);
+    }
+  });
+}
+
 const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
   boxId = 1;
   tacticId = 1;
 
-  const pretty : ConvertedProofTree = {
+  const convertedProofTree : ConvertedProofTree = {
     boxes: [],
     tactics: [],
     equivalentIds: {},
   }
 
+  preprocess(leanProofTree);
+
   // First of all, draw the INITIAL hypotheses and goal.
   const initialGoal : LeanGoal = getInitialGoal(leanProofTree)!;
-  drawInitialGoal(initialGoal, pretty);
-
+  drawInitialGoal(initialGoal, convertedProofTree);
   // Then, draw all the other tactics and hypotheses and goals.
-  recursive(leanProofTree, pretty);
+  recursive(leanProofTree, convertedProofTree);
 
-  console.log({ leanProofTree, convertedProofTree: postprocess(pretty) });
+  postprocess(convertedProofTree);
 
-  return postprocess(pretty);
+  console.log({ leanProofTree, convertedProofTree });
+
+  return convertedProofTree;
 }
 
 export default converter;
