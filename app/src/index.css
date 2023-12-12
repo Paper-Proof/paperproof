@@ -13,8 +13,12 @@ body *{
 .hypothesis, .tactic{
   max-width: 200px;
 }
-.hypothesis.-is-not-proof{
-  background: #d024b324;
+
+.hypothesis.data{
+  background: rgba(254, 254, 0, 0.349);
+}
+.hypothesis.universe{
+  background: rgb(245 156 156 / 44%);
 }
 table td{
   /* this if for hypotheses, e.g. see irrational proof */

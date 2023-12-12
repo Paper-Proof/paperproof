@@ -6,3 +6,5 @@
 .DS_Store
 
 .buildt
+
+lean/lakefile.olean

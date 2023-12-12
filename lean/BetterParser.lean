@@ -8,7 +8,7 @@ structure Hypothesis where
   value : Option String
   -- unique identifier for the hypothesis, fvarId
   id : String
-  isProof : Bool
+  isProof : String
   deriving Inhabited, ToJson, FromJson
 
 structure GoalInfo where
@@ -70,6 +70,15 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
   -- dbg_trace s!"Used {pretty}"
   return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
+def mayBeProof (expr : Expr) : MetaM String := do
+  let type : Expr ← Lean.Meta.inferType expr
+  if ← Meta.isProof expr then
+    return "proof"
+  if type.isSort then
+    return "universe"
+  else
+    return "data"
+
 -- Returns GoalInfo about unassigned goals from the provided list of goals
 def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
   goals.filterMapM fun id => do
@@ -86,7 +95,7 @@ def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContex
         return acc
       let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
       let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-      let isProof : Bool ← printCtx.runMetaM decl.lctx (Meta.isProof hypDecl.toExpr)
+      let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
       return ({
         username := hypDecl.userName.toString,
         type := type.fmt.pretty,

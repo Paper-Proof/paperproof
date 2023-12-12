@@ -10,7 +10,7 @@ export interface HypNode {
   text: string | null;
   name: string | null;
   id: string;
-  isProof: boolean;
+  isProof: string;
 }
 
 export type HypLayer = HypNode[];

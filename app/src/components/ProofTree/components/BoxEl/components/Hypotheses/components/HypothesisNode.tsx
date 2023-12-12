@@ -19,7 +19,7 @@ const HypothesisNode = (props: HypothesisProps) => {
 
   return <div
     id={`hypothesis-${hypNode.id}`}
-    className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(hypNode.id) ? "" : "-faded"} ${hypNode.isProof ? '-is-proof' : '-is-not-proof'}`}
+    className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(hypNode.id) ? "" : "-faded"} ${hypNode.isProof}`}
   >
     <Hint>{props.cell}</Hint>
     {name && <span className="name">{hypNode.name}</span>}
