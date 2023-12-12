@@ -92,7 +92,8 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
         prettyHypNodes.push({
           text: hypAfter.type,
           name: hypAfter.username,
-          id  : hypAfter.id
+          id  : hypAfter.id,
+          isProof: hypAfter.isProof
         });
 
         prettyHypArrows.push({
@@ -117,7 +118,8 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
       prettyHypNodes.push({
         text: hypAfter.type,
         name: hypAfter.username,
-        id  : hypAfter.id
+        id  : hypAfter.id,
+        isProof: hypAfter.isProof
       });
     });
     if (hypsAfterThatAppeared.length > 0) {
@@ -149,7 +151,8 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
       prettyHypNodes.push({
         text: hypAfter.type,
         name: hypAfter.username,
-        id  : hypAfter.id
+        id  : hypAfter.id,
+        isProof: hypAfter.isProof
       });
     });
     if (hypsAfterThatAppeared.length > 0) {
@@ -354,6 +357,7 @@ const drawInitialGoal = (
     text: hyp.type,
     name: hyp.username,
     id: hyp.id,
+    isProof: hyp.isProof
   }));
   const initialBox = {
     id: newBoxId(),

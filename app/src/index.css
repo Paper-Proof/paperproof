@@ -7,11 +7,14 @@ body *{
   min-width: 100%;
 }
 .goal, .hypothesis{
-  max-height: 35px;
+  max-height: 39px;
   overflow-y: scroll;
 }
 .hypothesis, .tactic{
   max-width: 200px;
+}
+.hypothesis.-is-not-proof{
+  background: #d024b324;
 }
 table td{
   /* this if for hypotheses, e.g. see irrational proof */
@@ -89,14 +92,14 @@ body{
   padding: 5px 12px;
   border-radius: 3px;
 }
-.hypothesis.-faded{
+/* .hypothesis.-faded{
   background: rgb(107 220 151 / 13%);
   opacity: 0.5;
 }
 .goal.-faded{
   background: rgba(220, 107, 107, 0.1);
   opacity: 0.5;
-}
+} */
 .tactic{
   padding: 5px 12px;
   border-radius: 3px;

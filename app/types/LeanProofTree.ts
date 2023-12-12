@@ -3,6 +3,7 @@ export type LeanHypothesis = {
   username: string;
   type: string;
   id: string;
+  isProof: boolean
 };
 
 export type LeanGoal = {
