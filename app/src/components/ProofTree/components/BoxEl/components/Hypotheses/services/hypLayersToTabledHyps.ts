@@ -1,10 +1,5 @@
 import { ConvertedProofTree, HypNode, Tactic, TabledHyp, TabledTactic, Box } from "types";
 
-const whichTacticBirthedThisHypothesis = (proofTree: ConvertedProofTree, hypNode: HypNode) : Tactic => {
-  const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.toIds.includes(hypNode.id)));
-  return tactic || { text: "init", id: "666", dependsOnIds: [], goalArrows: [], hypArrows: [], haveBoxIds: [] };
-}
-
 const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], hypNode: HypNode) : TabledHyp | undefined => {
   let tabledHypInThisBox : TabledHyp | undefined = undefined;
   proofTree.tactics.find((tactic) => {
@@ -98,7 +93,7 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
   const tabledTactics : TabledTactic[] = [];
   let currentRow = 0;
   hypLayers.forEach((hypLayer, hypLayerIndex) => {
-    const tactic : Tactic = whichTacticBirthedThisHypothesis(proofTree, hypLayer.hypNodes[0]!);
+    const tactic : Tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
     const relevantTabledHyps = tabledHyps
       .filter((tabledHyp) => hypLayer.hypNodes.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
     const columnFrom = Math.min(

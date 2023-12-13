@@ -359,11 +359,11 @@ const handleTacticApp = (
   }
 };
 
-const drawInitialGoal = (
-  initialMainGoal: LeanGoal,
-  pretty: ConvertedProofTree
-) => {
-  const hypNodes = initialMainGoal.hyps.map((hyp: LeanHypothesis) => ({
+const drawInitialGoal = (leanProofTree: LeanProofTree, pretty: ConvertedProofTree) => {
+  const tacticId = newTacticId();
+
+  const initialGoal : LeanGoal = getInitialGoal(leanProofTree)!;
+  const hypNodes = initialGoal.hyps.map((hyp: LeanHypothesis) => ({
     text: hyp.type,
     name: hyp.username,
     id: hyp.id,
@@ -374,14 +374,23 @@ const drawInitialGoal = (
     parentId: null,
     goalNodes: [
       {
-        text: initialMainGoal.type,
-        name: initialMainGoal.username,
-        id: initialMainGoal.id,
+        text: initialGoal.type,
+        name: initialGoal.username,
+        id: initialGoal.id,
       },
     ],
-    hypLayers: hypNodes.length > 0 ? [{ tacticId: "1", hypNodes: hypNodes.reverse() }] : [],
+    hypLayers: hypNodes.length > 0 ? [{ tacticId: tacticId, hypNodes: hypNodes.reverse() }] : [],
   };
+
   pretty.boxes.push(initialBox);
+  pretty.tactics.push({
+    id: tacticId,
+    text: "init",
+    dependsOnIds: [],
+    goalArrows: [],
+    hypArrows: [],
+    haveBoxIds: []
+  });
 };
 
 // TODO: Refactor it since this function relies on obsolete assumptions:
@@ -495,8 +504,7 @@ const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
   preprocess(leanProofTree);
 
   // First of all, draw the INITIAL hypotheses and goal.
-  const initialGoal : LeanGoal = getInitialGoal(leanProofTree)!;
-  drawInitialGoal(initialGoal, convertedProofTree);
+  drawInitialGoal(leanProofTree, convertedProofTree);
   // Then, draw all the other tactics and hypotheses and goals.
   recursive(leanProofTree, convertedProofTree);
 
