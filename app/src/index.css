@@ -113,13 +113,13 @@ body{
   margin-top: 5px;
 }
 
-.-hint{
+/* .-hint{
   position: relative;
-}
+} */
 .-hint pre{
   display: none;
-  position: absolute;
-  top: 0; left: 100%;
+  position: fixed;
+  bottom: 0; right: 0;
 
   margin: 0;
   padding: 10px;
