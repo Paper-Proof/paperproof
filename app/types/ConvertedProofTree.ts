@@ -13,13 +13,11 @@ export interface HypNode {
   isProof: string;
 }
 
-export type HypLayer = HypNode[];
-
 export interface Box {
   id: string;
   parentId: string | null | "haveBox";
   goalNodes: GoalNode[];
-  hypNodes: HypLayer[];
+  hypLayers: { tacticId: string, hypNodes: HypNode[] }[];
 }
 
 export interface Tactic {

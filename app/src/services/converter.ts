@@ -30,8 +30,8 @@ const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) =>
   // We need a displayed id here [because, unusually enough, we're changing the already-drawn node]
   const hypAfterId = getDisplayedId(pretty, hypAfter.id);
   pretty.boxes.forEach((w) => {
-    w.hypNodes.forEach((hypLevel) => {
-      hypLevel.forEach((existingHypNode) => {
+    w.hypLayers.forEach((hypLayer) => {
+      hypLayer.hypNodes.forEach((existingHypNode) => {
         if (existingHypNode.id === hypAfterId) {
           console.log({ existingHypNode, hypAfter });
           existingHypNode.name = hypAfter.username;
@@ -42,9 +42,10 @@ const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) =>
   });
 }
 
-const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHypothesis[], hypsAfter : LeanHypothesis[]) => {
+const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHypothesis[], hypsAfter : LeanHypothesis[])
+: [HypNode[], Tactic['hypArrows']] => {
   const prettyHypNodes: HypNode[] = [];
-  const prettyHypArrows: any[] = [];
+  const prettyHypArrows: Tactic['hypArrows'] = [];
 
   const hypsAfterMatched: LeanHypothesis[] = [];
   const hypsBeforeMatched: LeanHypothesis[] = [];
@@ -293,12 +294,17 @@ const handleTacticApp = (
       hypsAfter
     );
 
+    const tacticId : string = newTacticId();
+
     if (prettyHypNodes.length > 0) {
-      currentBox.hypNodes.push(prettyHypNodes);
+      currentBox.hypLayers.push({
+        tacticId: tacticId,
+        hypNodes: prettyHypNodes
+      });
     }
 
     pretty.tactics.push({
-      id: newTacticId(),
+      id: tacticId,
       text: tactic.tacticString,
       dependsOnIds: tactic.tacticDependsOn,
       goalArrows: prettyGoalArrows,
@@ -315,6 +321,7 @@ const handleTacticApp = (
     }));
 
     const prettyHypArrows: Tactic["hypArrows"] = [];
+    const tacticId = newTacticId();
     // We are creating new child boxes
     const childBoxes = relevantGoalsAfter.map((goal) => {
       const hypsBefore = mainGoalBefore.hyps;
@@ -336,13 +343,13 @@ const handleTacticApp = (
             id: goal.id,
           },
         ],
-        hypNodes: prettyHypNodes.length > 0 ? [prettyHypNodes] : [],
+        hypLayers: prettyHypNodes.length > 0 ? [{ tacticId, hypNodes: prettyHypNodes }] : [],
       };
     });
     pretty.boxes.push(...childBoxes);
 
     pretty.tactics.push({
-      id: newTacticId(),
+      id: tacticId,
       text: tactic.tacticString,
       dependsOnIds: tactic.tacticDependsOn,
       goalArrows: prettyGoalArrows,
@@ -372,7 +379,7 @@ const drawInitialGoal = (
         id: initialMainGoal.id,
       },
     ],
-    hypNodes: hypNodes.length > 0 ? [hypNodes.reverse()] : [],
+    hypLayers: hypNodes.length > 0 ? [{ tacticId: "1", hypNodes: hypNodes.reverse() }] : [],
   };
   pretty.boxes.push(initialBox);
 };
@@ -412,7 +419,7 @@ const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
           },
         ],
         // `have`s don't introduce any new hypotheses
-        hypNodes: [],
+        hypLayers: [],
       }));
 
       handleTacticApp(

@@ -33,7 +33,7 @@ const BoxEl = (props: MyProps) => {
 
   return <section className="box" id={`box-${props.box.id}`} onClick={zoomAndScroll}>
     <div className="box-insides">
-      <Hypotheses proofTree={props.proofTree} hypLayers={props.box.hypNodes} highlights={props.highlights}/>
+      <Hypotheses proofTree={props.proofTree} hypLayers={props.box.hypLayers} highlights={props.highlights}/>
 
       <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
       <div className="child-boxes">

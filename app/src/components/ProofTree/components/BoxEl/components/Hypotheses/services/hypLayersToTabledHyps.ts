@@ -1,4 +1,4 @@
-import { ConvertedProofTree, HypNode, Tactic, TabledHyp, TabledTactic } from "types";
+import { ConvertedProofTree, HypNode, Tactic, TabledHyp, TabledTactic, Box } from "types";
 
 const whichTacticBirthedThisHypothesis = (proofTree: ConvertedProofTree, hypNode: HypNode) : Tactic => {
   const tactic = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.toIds.includes(hypNode.id)));
@@ -22,21 +22,21 @@ const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], h
   return tabledHypInThisBox;
 }
 
-const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: HypNode[][], hypNodeId: string) : string[] => {
+const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeId: string) : string[] => {
   for (const tactic of proofTree.tactics) {
     const relevantHypArrow = tactic.hypArrows.find((hypArrow) => hypArrow.fromId === hypNodeId);
     if (relevantHypArrow) {
       const directChildIds = relevantHypArrow.toIds;
       const directChildIdsInThisBox = directChildIds.filter((directChildId) =>
-        hypLayers.flat().find((hypNode) => hypNode.id === directChildId)
+        hypLayers.map((hypLayer) => hypLayer.hypNodes).flat().find((hypNode) => hypNode.id === directChildId)
       );
       return directChildIdsInThisBox;
     }
   }
-  return []
+  return [];
 }
 
-const getChildrenWidth = (proofTree: ConvertedProofTree, hypLayers: HypNode[][], hypNodeId: string) : number => {
+const getChildrenWidth = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeId: string) : number => {
   const directChildIds : string[] = getDirectChildHypsInThisBox(proofTree, hypLayers, hypNodeId);
 
   // base case
@@ -63,11 +63,12 @@ const getChildIndex = (proofTree: ConvertedProofTree, parentHyp: HypNode, childH
   return 0;
 }
 
-const hypLayersToTabledCells = (hypLayers : HypNode[][], proofTree: ConvertedProofTree) => {
+const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) => {
   const tabledHyps : TabledHyp[] = [];
+
   let maxColumn = 0;
   hypLayers.forEach((hypLayer, hypLayerIndex) => {
-    hypLayer.forEach((hypNode) => {
+    hypLayer.hypNodes.forEach((hypNode) => {
       const tabledHypAbove : TabledHyp | undefined = getHypAbove(proofTree, tabledHyps, hypNode);
   
       const childrenWidth = getChildrenWidth(proofTree, hypLayers, hypNode.id);
@@ -93,13 +94,13 @@ const hypLayersToTabledCells = (hypLayers : HypNode[][], proofTree: ConvertedPro
       }
     });
   });
-  
+
   const tabledTactics : TabledTactic[] = [];
   let currentRow = 0;
   hypLayers.forEach((hypLayer, hypLayerIndex) => {
-    const tactic : Tactic = whichTacticBirthedThisHypothesis(proofTree, hypLayer[0]!);
+    const tactic : Tactic = whichTacticBirthedThisHypothesis(proofTree, hypLayer.hypNodes[0]!);
     const relevantTabledHyps = tabledHyps
-      .filter((tabledHyp) => hypLayer.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
+      .filter((tabledHyp) => hypLayer.hypNodes.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
     const columnFrom = Math.min(
       ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnFrom)
     );
