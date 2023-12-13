@@ -1,4 +1,7 @@
-import { ConvertedProofTree, LeanProofTree, Tactic, Box, LeanHypothesis, LeanTactic, LeanGoal, HypNode } from "types";
+import {
+  LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal,
+  ConvertedProofTree, Tactic, HypNode
+} from "types";
 
 let boxId : number;
 let tacticId : number;
