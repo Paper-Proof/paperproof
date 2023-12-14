@@ -47,6 +47,14 @@ const getChildrenWidth = (proofTree: ConvertedProofTree, hypLayers: Box['hypLaye
   }
 }
 
+const getChildrenWidths = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeIds: string[]) : number => {
+  let sum = 0;
+  hypNodeIds.forEach((hypNodeId) => {
+    sum += getChildrenWidth(proofTree, hypLayers, hypNodeId);
+  });
+  return sum;
+}
+
 const getChildIndex = (proofTree: ConvertedProofTree, parentHyp: HypNode, childHyp: HypNode) : number => {
   for (const tactic of proofTree.tactics) {
     const hypArrow = tactic.hypArrows.find((hypArrow) => hypArrow.fromId === parentHyp.id);
@@ -58,59 +66,106 @@ const getChildIndex = (proofTree: ConvertedProofTree, parentHyp: HypNode, childH
   return 0;
 }
 
-const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) => {
-  const tabledHyps : TabledHyp[] = [];
-
-  let maxColumn = 0;
-  hypLayers.forEach((hypLayer, hypLayerIndex) => {
-    hypLayer.hypNodes.forEach((hypNode) => {
-      const tabledHypAbove : TabledHyp | undefined = getHypAbove(proofTree, tabledHyps, hypNode);
-  
-      const childrenWidth = getChildrenWidth(proofTree, hypLayers, hypNode.id);
-      // "under something" hyps
-      if (tabledHypAbove) {
-        const childIndex = getChildIndex(proofTree, tabledHypAbove.hypNode, hypNode);
-        const columnFrom = childIndex + tabledHypAbove.columnFrom;
-        tabledHyps.push({
-          hypNode,
-          columnFrom,
-          columnTo: columnFrom + childrenWidth,
-          row: hypLayerIndex
-        });
-      // "intro" hyps
-      } else {
-        tabledHyps.push({
-          hypNode,
-          columnFrom: maxColumn,
-          columnTo: maxColumn + childrenWidth,
-          row: hypLayerIndex
-        });
-        maxColumn = maxColumn + childrenWidth + 1;
-      }
+const findHyp = (proofTree: ConvertedProofTree, hypId: string) => {
+  proofTree.boxes.forEach((box) => {
+    box.hypLayers.forEach((l) => {
+      l.hypNodes.forEach((hypNode) => {
+        if (hypNode.id === hypId) {
+          return hypNode;
+        }
+      });
     });
   });
+}
 
+const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) => {
+  const tabledHyps : TabledHyp[] = [];
   const tabledTactics : TabledTactic[] = [];
+
+  let maxColumn = 0;
   let currentRow = 0;
   hypLayers.forEach((hypLayer, hypLayerIndex) => {
     const tactic : Tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
-    const relevantTabledHyps = tabledHyps
-      .filter((tabledHyp) => hypLayer.hypNodes.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
-    const columnFrom = Math.min(
-      ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnFrom)
-    );
-    const columnTo = Math.max(
-      ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnTo)
-    );
-    tabledTactics.push({
-      tactic,
-      columnFrom,
-      columnTo: columnTo,
-      row: currentRow
+    tactic.hypArrows.forEach((tacticShard) => {
+
+      const parentHyp = tabledHyps.find((tabledHyp) => tabledHyp.hypNode.id === tacticShard.fromId);
+
+      const columnFrom = parentHyp ? parentHyp.columnFrom : maxColumn;
+      const allChildrenWidths = getChildrenWidths(proofTree, hypLayers, tacticShard.toIds);
+
+      tabledTactics.push({
+        tactic,
+        columnFrom,
+        columnTo: columnFrom + allChildrenWidths,
+        row: currentRow
+      });
+
+      let hypColumnFrom = columnFrom;
+      tacticShard.toIds.forEach((toId) => {
+        const hypNode = hypLayer.hypNodes.find((hypNode) => hypNode.id === toId)!;
+        const childrenWidth = getChildrenWidth(proofTree, hypLayers, toId);
+        tabledHyps.push({
+          hypNode,
+          columnFrom: hypColumnFrom,
+          columnTo: hypColumnFrom + childrenWidth,
+          row: currentRow + 1
+        });
+        hypColumnFrom += childrenWidth;
+      });
     });
-    relevantTabledHyps.forEach((tabledHyp) => tabledHyp.row = currentRow + 1);
     currentRow += 2;
   });
+
+  // let maxColumn = 0;
+  // hypLayers.forEach((hypLayer, hypLayerIndex) => {
+  //   hypLayer.hypNodes.forEach((hypNode) => {
+  //     const tabledHypAbove : TabledHyp | undefined = getHypAbove(proofTree, tabledHyps, hypNode);
+  
+  //     const childrenWidth = getChildrenWidth(proofTree, hypLayers, hypNode.id);
+  //     // "under something" hyps
+  //     if (tabledHypAbove) {
+  //       const childIndex = getChildIndex(proofTree, tabledHypAbove.hypNode, hypNode);
+  //       const columnFrom = childIndex + tabledHypAbove.columnFrom;
+  //       tabledHyps.push({
+  //         hypNode,
+  //         columnFrom,
+  //         columnTo: columnFrom + childrenWidth,
+  //         row: hypLayerIndex
+  //       });
+  //     // "intro" hyps
+  //     } else {
+  //       tabledHyps.push({
+  //         hypNode,
+  //         columnFrom: maxColumn,
+  //         columnTo: maxColumn + childrenWidth,
+  //         row: hypLayerIndex
+  //       });
+  //       maxColumn = maxColumn + childrenWidth + 1;
+  //     }
+  //   });
+  // });
+
+  // const tabledTactics : TabledTactic[] = [];
+  // let currentRow = 0;
+  // hypLayers.forEach((hypLayer, hypLayerIndex) => {
+  //   const tactic : Tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
+  //   const relevantTabledHyps = tabledHyps
+  //     .filter((tabledHyp) => hypLayer.hypNodes.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
+  //   const columnFrom = Math.min(
+  //     ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnFrom)
+  //   );
+  //   const columnTo = Math.max(
+  //     ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnTo)
+  //   );
+  //   tabledTactics.push({
+  //     tactic,
+  //     columnFrom,
+  //     columnTo: columnTo,
+  //     row: currentRow
+  //   });
+  //   relevantTabledHyps.forEach((tabledHyp) => tabledHyp.row = currentRow + 1);
+  //   currentRow += 2;
+  // });
   
   return [...tabledHyps, ...tabledTactics];
 }

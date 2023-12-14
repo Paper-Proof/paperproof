@@ -388,7 +388,7 @@ const drawInitialGoal = (leanProofTree: LeanProofTree, pretty: ConvertedProofTre
     text: "init",
     dependsOnIds: [],
     goalArrows: [],
-    hypArrows: [],
+    hypArrows: [{ fromId: null, toIds: hypNodes.map((hypNode) => hypNode.id) }],
     haveBoxIds: []
   });
 };
@@ -484,7 +484,6 @@ const preprocess = (subSteps: LeanProofTree) => {
     if ("tacticApp" in subStep) {
       removeUniverseHypsFromTactic(subStep.tacticApp.t);
     } else if ("haveDecl" in subStep) {
-      const tactic = subStep.haveDecl.t;
       removeUniverseHypsFromTactic(subStep.haveDecl.t);
       preprocess(subStep.haveDecl.subSteps);
     }
