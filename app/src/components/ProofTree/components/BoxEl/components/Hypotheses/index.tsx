@@ -10,8 +10,11 @@ interface Props {
 }
 
 const HypothesesComponent = (props: Props) => {
-  const tabledCells = hypLayersToTabledCells(props.hypLayers, props.proofTree);
-  return <Table proofTree={props.proofTree} highlights={props.highlights} tabledCells={tabledCells}/>
+  const tables = hypLayersToTabledCells(props.hypLayers, props.proofTree);
+
+  return tables.map((table, index) =>
+    <Table key={index} proofTree={props.proofTree} highlights={props.highlights} tabledCells={[...table.tabledHyps, ...table.tabledTactics]}/>
+  )
 }
 
 export default HypothesesComponent;

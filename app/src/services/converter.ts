@@ -479,7 +479,7 @@ const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
 const preprocess = (subSteps: LeanProofTree) => {
   // Remove all ".universe" hypotheses.
   // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof. 
-  // Note: we don't remove corresponding .dependsOn arrows here - in general we treat arrows liberally, and determine if some hypothesis disappeared just by seeing if that element exists on frontend.
+  // Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
   subSteps.forEach((subStep) => {
     if ("tacticApp" in subStep) {
       removeUniverseHypsFromTactic(subStep.tacticApp.t);

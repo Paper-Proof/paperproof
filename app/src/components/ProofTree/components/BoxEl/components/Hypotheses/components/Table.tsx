@@ -23,7 +23,15 @@ const Table = (props: TableComponentProps) => {
       <tbody>
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
-            {columns.map((columnIndex) => <TableCell proofTree={props.proofTree} key={columnIndex} columnIndex={columnIndex} rowIndex={rowIndex} tabledCells={props.tabledCells} highlights={props.highlights} />
+            {columns.map((columnIndex) =>
+              <TableCell
+                key={columnIndex}
+                proofTree={props.proofTree}
+                columnIndex={columnIndex}
+                rowIndex={rowIndex}
+                tabledCells={props.tabledCells}
+                highlights={props.highlights}
+              />
             )}
           </tr>
         ))}

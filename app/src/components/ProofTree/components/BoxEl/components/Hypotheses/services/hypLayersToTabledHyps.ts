@@ -1,32 +1,10 @@
-import { ConvertedProofTree, HypNode, Tactic, TabledHyp, TabledTactic, Box } from "types";
-
-const getHypAbove = (proofTree : ConvertedProofTree, tabledHyps : TabledHyp[], hypNode: HypNode) : TabledHyp | undefined => {
-  let tabledHypInThisBox : TabledHyp | undefined = undefined;
-  proofTree.tactics.find((tactic) => {
-    const hypArrow = tactic.hypArrows.find((hypArrow) =>
-      hypArrow.toIds.includes(hypNode.id)
-    );
-
-    if (hypArrow) {
-      tabledHypInThisBox = tabledHyps.find((tabledHyp) =>
-        tabledHyp.hypNode.id == hypArrow.fromId
-      );
-      return true;
-    }
-  });
-  return tabledHypInThisBox;
-}
+import { ConvertedProofTree, Tactic, TabledHyp, TabledTactic, Box, HypNode } from "types";
 
 const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeId: string) : string[] => {
-  for (const tactic of proofTree.tactics) {
-    const relevantHypArrow = tactic.hypArrows.find((hypArrow) => hypArrow.fromId === hypNodeId);
-    if (relevantHypArrow) {
-      const directChildIds = relevantHypArrow.toIds;
-      const directChildIdsInThisBox = directChildIds.filter((directChildId) =>
-        hypLayers.map((hypLayer) => hypLayer.hypNodes).flat().find((hypNode) => hypNode.id === directChildId)
-      );
-      return directChildIdsInThisBox;
-    }
+  for (const hypLayer of hypLayers) {
+    const tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
+    const tacticShard = tactic.hypArrows.find((shard) => shard.fromId === hypNodeId);
+    if (tacticShard) return tacticShard.toIds;
   }
   return [];
 }
@@ -55,119 +33,85 @@ const getChildrenWidths = (proofTree: ConvertedProofTree, hypLayers: Box['hypLay
   return sum;
 }
 
-const getChildIndex = (proofTree: ConvertedProofTree, parentHyp: HypNode, childHyp: HypNode) : number => {
-  for (const tactic of proofTree.tactics) {
-    const hypArrow = tactic.hypArrows.find((hypArrow) => hypArrow.fromId === parentHyp.id);
-    if (hypArrow) {
-      return hypArrow.toIds.findIndex((toId) => toId === childHyp.id);
-    }
-  }
-  // Shouldn't really be called ever
-  return 0;
-}
-
-const findHyp = (proofTree: ConvertedProofTree, hypId: string) => {
-  proofTree.boxes.forEach((box) => {
-    box.hypLayers.forEach((l) => {
-      l.hypNodes.forEach((hypNode) => {
-        if (hypNode.id === hypId) {
-          return hypNode;
-        }
+const doAnyLayersBelowHaveParentsAbove = (hypLayers: Box['hypLayers'], hypLayerIndex: number, proofTree: ConvertedProofTree) : boolean => {
+  const hypLayersAbove = hypLayers.slice(0, hypLayerIndex);
+  const hypLayersBelow = hypLayers.slice(hypLayerIndex);
+  return hypLayersBelow.some((hypLayer) => {
+    const tactic : Tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
+    return tactic.hypArrows.some((tacticShard) => {
+      return hypLayersAbove.some((hypLayer) => {
+        const parent = hypLayer.hypNodes.find((hypNode) => hypNode.id === tacticShard.fromId);
+        return parent ? true : false;
       });
     });
   });
 }
 
-const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) => {
-  const tabledHyps : TabledHyp[] = [];
-  const tabledTactics : TabledTactic[] = [];
+interface Table {
+  tabledHyps: TabledHyp[];
+  tabledTactics: TabledTactic[];
+  currentRow: number
+}
 
-  let maxColumn = 0;
-  let currentRow = 0;
+const getTabledHypFromTables = (tables : Table[], hypId: string | null) : TabledHyp | undefined => {
+  if (hypId === null) return undefined;
+  const tabledHyps = tables.map((table) => table.tabledHyps).flat();
+  return tabledHyps.find((tabledHyp) => tabledHyp.hypNode.id === hypId);
+}
+
+const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) => {
+  const tables : Table[] = [];
+  let currentTable : Table = tables[tables.length - 1];
+
   hypLayers.forEach((hypLayer, hypLayerIndex) => {
     const tactic : Tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
-    tactic.hypArrows.forEach((tacticShard) => {
 
-      const parentHyp = tabledHyps.find((tabledHyp) => tabledHyp.hypNode.id === tacticShard.fromId);
+    // Start a new table if none of the hypotheses inherit from each other!
+    if (!doAnyLayersBelowHaveParentsAbove(hypLayers, hypLayerIndex, proofTree)) {
+      tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0 });
+      currentTable = tables[tables.length - 1];
+    }
 
+    // Some tactic shards are outside the box we're currently drawing
+    const interestingTacticShards = tactic.hypArrows.filter((tacticShard) =>
+      tacticShard.toIds.some((toId) =>
+        hypLayer.hypNodes.map((hypNode) => hypNode.id).includes(toId)
+      )
+    );
+    interestingTacticShards.forEach((tacticShard) => {
+      const parentHyp = getTabledHypFromTables(tables, tacticShard.fromId);
+
+      const maxColumn = Math.max(...currentTable.tabledHyps.map((hyp) => hyp.columnTo), 0);
       const columnFrom = parentHyp ? parentHyp.columnFrom : maxColumn;
       const allChildrenWidths = getChildrenWidths(proofTree, hypLayers, tacticShard.toIds);
 
-      tabledTactics.push({
+      currentTable.tabledTactics.push({
         tactic,
         columnFrom,
         columnTo: columnFrom + allChildrenWidths,
-        row: currentRow
+        row: currentTable.currentRow
       });
 
       let hypColumnFrom = columnFrom;
       tacticShard.toIds.forEach((toId) => {
         const hypNode = hypLayer.hypNodes.find((hypNode) => hypNode.id === toId)!;
+        // This shouldn't happen as far as I'm aware, but can be investigated in the converter. 
+        if (!hypNode) return
+
         const childrenWidth = getChildrenWidth(proofTree, hypLayers, toId);
-        tabledHyps.push({
+        currentTable.tabledHyps.push({
           hypNode,
           columnFrom: hypColumnFrom,
           columnTo: hypColumnFrom + childrenWidth,
-          row: currentRow + 1
+          row: currentTable.currentRow + 1
         });
         hypColumnFrom += childrenWidth;
       });
     });
-    currentRow += 2;
+    currentTable.currentRow += 2;
   });
 
-  // let maxColumn = 0;
-  // hypLayers.forEach((hypLayer, hypLayerIndex) => {
-  //   hypLayer.hypNodes.forEach((hypNode) => {
-  //     const tabledHypAbove : TabledHyp | undefined = getHypAbove(proofTree, tabledHyps, hypNode);
-  
-  //     const childrenWidth = getChildrenWidth(proofTree, hypLayers, hypNode.id);
-  //     // "under something" hyps
-  //     if (tabledHypAbove) {
-  //       const childIndex = getChildIndex(proofTree, tabledHypAbove.hypNode, hypNode);
-  //       const columnFrom = childIndex + tabledHypAbove.columnFrom;
-  //       tabledHyps.push({
-  //         hypNode,
-  //         columnFrom,
-  //         columnTo: columnFrom + childrenWidth,
-  //         row: hypLayerIndex
-  //       });
-  //     // "intro" hyps
-  //     } else {
-  //       tabledHyps.push({
-  //         hypNode,
-  //         columnFrom: maxColumn,
-  //         columnTo: maxColumn + childrenWidth,
-  //         row: hypLayerIndex
-  //       });
-  //       maxColumn = maxColumn + childrenWidth + 1;
-  //     }
-  //   });
-  // });
-
-  // const tabledTactics : TabledTactic[] = [];
-  // let currentRow = 0;
-  // hypLayers.forEach((hypLayer, hypLayerIndex) => {
-  //   const tactic : Tactic = proofTree.tactics.find((tactic) => tactic.id === hypLayer.tacticId)!;
-  //   const relevantTabledHyps = tabledHyps
-  //     .filter((tabledHyp) => hypLayer.hypNodes.find((hypNode) => hypNode.id === tabledHyp.hypNode.id));
-  //   const columnFrom = Math.min(
-  //     ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnFrom)
-  //   );
-  //   const columnTo = Math.max(
-  //     ...relevantTabledHyps.map((tabledHyp) => tabledHyp.columnTo)
-  //   );
-  //   tabledTactics.push({
-  //     tactic,
-  //     columnFrom,
-  //     columnTo: columnTo,
-  //     row: currentRow
-  //   });
-  //   relevantTabledHyps.forEach((tabledHyp) => tabledHyp.row = currentRow + 1);
-  //   currentRow += 2;
-  // });
-  
-  return [...tabledHyps, ...tabledTactics];
+  return tables;
 }
 
 export default hypLayersToTabledCells;

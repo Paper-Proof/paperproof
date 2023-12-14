@@ -145,14 +145,22 @@ body{
   max-width: 100%;
 }
 
-.hypothesis{
+.hypothesis, .tactic{
   margin: 0 1px;
+}
+/* Temporary solution, just for easier hypothesis table viewing  */
+table .tactic{
+  width: calc(100% - 2px);
 }
 table{
   border-spacing: 0;
 }
 table td{
   padding: 0;
+}
+
+.box-insides table:not(:first-child) {
+  padding-top: 10px;
 }
 
 
