@@ -2,17 +2,7 @@ body *{
   box-sizing: border-box;
 }
 
-.goal{
-  max-width: 200px;
-  min-width: 100%;
-}
-.goal, .hypothesis{
-  max-height: 39px;
-  overflow-y: scroll;
-}
-.hypothesis, .tactic{
-  max-width: 200px;
-}
+
 
 .hypothesis.data{
   background: rgba(254, 254, 0, 0.349);
@@ -131,6 +121,32 @@ body{
   display: block;
 }
 
+
+
+
+
+
+
+
+
+
+/* Temporary solution, just for easier hypothesis table viewing  */
+table .tactic{
+  width: calc(100% - 2px);
+}
+.data-hypotheses{
+  max-width: 100% !important;
+  width: min-content;
+  min-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tactic{
+  width: min-content !important;
+  min-width: 100% !important;
+  display: flex !important;
+}
 .box{
   width: max-content;
 }
@@ -144,13 +160,29 @@ body{
   width: auto;
   max-width: 100%;
 }
+.goal{
+  max-width: 200px;
+  min-width: 100%;
+}
+.goal, .hypothesis{
+  max-height: 40px;
+  overflow-y: scroll;
+}
+.hypothesis, .tactic{
+  max-width: 200px;
+}
+
+
+
+
+
+
+
+
+
 
 .hypothesis, .tactic{
   margin: 0 1px;
-}
-/* Temporary solution, just for easier hypothesis table viewing  */
-table .tactic{
-  width: calc(100% - 2px);
 }
 table{
   border-spacing: 0;
@@ -163,9 +195,6 @@ table td{
   padding-top: 10px;
 }
 
-
-
-
 body{
   background: white;
 }
@@ -173,9 +202,6 @@ body{
 body::-webkit-scrollbar { 
   display: none;
 }
-
-
-
 
 .-successful-tactic > svg path {
   fill: #c4f4ff6b;

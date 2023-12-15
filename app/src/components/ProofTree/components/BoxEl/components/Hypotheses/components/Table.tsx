@@ -25,7 +25,7 @@ const Table = (props: TableProps) => {
       <tbody>
         {
           props.dataRow &&
-          <tr>
+          <tr key="dataRow">
             <td colSpan={props.dataRow.width}>
               <div className="data-hypotheses">
                 {props.dataRow.hypNodes.map((hypNode, index) =>
