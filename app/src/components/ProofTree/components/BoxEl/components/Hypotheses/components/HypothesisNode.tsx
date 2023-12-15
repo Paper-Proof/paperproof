@@ -1,30 +1,28 @@
 import React from "react";
 import Hint from "../../Hint";
-import { Highlights, TabledHyp } from "types";
+import { Highlights, HypNode, TabledHyp } from "types";
 
 export interface HypothesisProps {
-  cell: TabledHyp;
+  hypNode: HypNode;
   highlights: Highlights;
 }
 
 const HypothesisNode = (props: HypothesisProps) => {
-  const hypNode = props.cell.hypNode;
-
   // Example input: hypNode.name = "h._@.Examples._hyg.1162"
   // Example output: name = "h✝"
-  const name = hypNode.name &&
-    hypNode.name.includes(".")
-    ? `${hypNode.name.split(".")[0]}✝`
-    : hypNode.name;
+  const name = props.hypNode.name &&
+    props.hypNode.name.includes(".")
+    ? `${props.hypNode.name.split(".")[0]}✝`
+    : props.hypNode.name;
 
   return <div
-    id={`hypothesis-${hypNode.id}`}
-    className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(hypNode.id) ? "" : "-faded"} ${hypNode.isProof}`}
+    id={`hypothesis-${props.hypNode.id}`}
+    className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(props.hypNode.id) ? "" : "-faded"} ${props.hypNode.isProof}`}
   >
-    <Hint>{props.cell}</Hint>
-    {name && <span className="name">{hypNode.name}</span>}
+    <Hint>{props.hypNode}</Hint>
+    {name && <span className="name">{props.hypNode.name}</span>}
     {name && ": "}
-    <span className="text">{hypNode.text}</span>
+    <span className="text">{props.hypNode.text}</span>
   </div>;
 };
 

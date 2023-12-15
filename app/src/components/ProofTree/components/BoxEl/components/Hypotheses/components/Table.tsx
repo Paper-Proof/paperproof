@@ -1,13 +1,15 @@
 import React from "react";
-import { ConvertedProofTree, Highlights, TabledCell } from "types";
+import { ConvertedProofTree, DataRow, Highlights, TabledCell } from "types";
 import TableCell from "./TableCell";
+import HypothesisNode from "./HypothesisNode";
 
-interface TableComponentProps {
+interface TableProps {
   tabledCells: TabledCell[];
+  dataRow?: DataRow;
   highlights: Highlights;
   proofTree: ConvertedProofTree;
 }
-const Table = (props: TableComponentProps) => {
+const Table = (props: TableProps) => {
   // Example input: props.tabledCells = [{row: 1}, {row: 2}, {row: 3}, {row: 4}, {row: 5}]
   // Example output: maxRow = 5
   const maxRow = Math.max(...props.tabledCells.map(hyp => hyp.row));
@@ -21,6 +23,18 @@ const Table = (props: TableComponentProps) => {
   return (
     <table>
       <tbody>
+        {
+          props.dataRow &&
+          <tr>
+            <td colSpan={props.dataRow.width}>
+              <div className="data-hypotheses">
+                {props.dataRow.hypNodes.map((hypNode, index) =>
+                  <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
+                )}
+              </div>
+            </td>
+          </tr>
+        }
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
             {columns.map((columnIndex) =>

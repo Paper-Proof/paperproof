@@ -66,7 +66,7 @@ const TableCell = (props: TableCellProps) => {
     const colSpan = cell.columnTo - cell.columnFrom;
     return <td colSpan={colSpan}>
       {'hypNode' in cell ?
-        <HypothesisNode cell={cell} highlights={props.highlights}/> :
+        <HypothesisNode hypNode={cell.hypNode} highlights={props.highlights}/> :
         <Tactic cell={cell} colSpan={colSpan} proofTree={props.proofTree}/>
       }
     </td>;

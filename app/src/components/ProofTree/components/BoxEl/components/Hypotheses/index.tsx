@@ -13,7 +13,7 @@ const HypothesesComponent = (props: Props) => {
   const tables = hypLayersToTabledCells(props.hypLayers, props.proofTree);
 
   return tables.map((table, index) =>
-    <Table key={index} proofTree={props.proofTree} highlights={props.highlights} tabledCells={[...table.tabledHyps, ...table.tabledTactics]}/>
+    <Table key={index} proofTree={props.proofTree} dataRow={table.dataRow} highlights={props.highlights} tabledCells={[...table.tabledHyps, ...table.tabledTactics]}/>
   )
 }
 

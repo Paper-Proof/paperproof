@@ -24,19 +24,30 @@ interface HighlightsBody {
 }
 
 interface TabledHyp {
+  type: "hypothesis";
   hypNode: HypNode;
   columnFrom: number;
   columnTo: number;
   row: number;
 }
 interface TabledTactic {
+  type: "tactic";
   tactic: Tactic;
   columnFrom: number;
   columnTo: number;
   row: number;
 }
-
 type TabledCell = TabledHyp | TabledTactic;
+interface DataRow {
+  hypNodes: HypNode[];
+  width: number;
+}
+interface Table {
+  tabledHyps: TabledHyp[];
+  tabledTactics: TabledTactic[];
+  currentRow: number;
+  dataRow?: DataRow;
+}
 
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
@@ -45,6 +56,6 @@ export {
   UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer,
 
   Highlights,
-  TabledHyp, TabledTactic, TabledCell
+  TabledHyp, TabledTactic, TabledCell, Table, DataRow
 };
 
