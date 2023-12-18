@@ -1,6 +1,6 @@
 import { LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree } from './LeanProofTree';
 import { LeanInteractiveHyp, LeanInteractiveGoal } from './LeanInteractiveGoal';
-import { GoalNode, HypNode, HypLayer, Box, Tactic, ConvertedProofTree } from './ConvertedProofTree';
+import { GoalNode, HypNode, Box, Tactic, ConvertedProofTree, TabledHyp, TabledTactic, TabledCell, Table, DataRow } from './ConvertedProofTree';
 import { UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer } from './UI';
 
 // SERVER REQUEST/RESPONSE
@@ -23,38 +23,10 @@ interface HighlightsBody {
   hypIds: string[];
 }
 
-interface TabledHyp {
-  type: "hypothesis";
-  hypNode: HypNode;
-  columnFrom: number;
-  columnTo: number;
-  row: number;
-}
-interface TabledTactic {
-  type: "tactic";
-  tactic: Tactic;
-  columnFrom: number;
-  columnTo: number;
-  row: number;
-  arrowFrom: string | null;
-  shardId: string;
-}
-type TabledCell = TabledHyp | TabledTactic;
-interface DataRow {
-  hypNodes: HypNode[];
-  width: number;
-}
-interface Table {
-  tabledHyps: TabledHyp[];
-  tabledTactics: TabledTactic[];
-  currentRow: number;
-  dataRow?: DataRow;
-}
-
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
   LeanInteractiveHyp, LeanInteractiveGoal,
-  GoalNode, HypNode, Box, Tactic, HypLayer, ConvertedProofTree,
+  GoalNode, HypNode, Box, Tactic, ConvertedProofTree,
   UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer,
 
   Highlights,

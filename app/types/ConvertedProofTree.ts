@@ -13,11 +13,40 @@ export interface HypNode {
   isProof: string;
 }
 
+export interface TabledHyp {
+  type: "hypothesis";
+  hypNode: HypNode;
+  columnFrom: number;
+  columnTo: number;
+  row: number;
+}
+export interface TabledTactic {
+  type: "tactic";
+  tactic: Tactic;
+  columnFrom: number;
+  columnTo: number;
+  row: number;
+  arrowFrom: string | null;
+  shardId: string;
+}
+export type TabledCell = TabledHyp | TabledTactic;
+export interface DataRow {
+  hypNodes: HypNode[];
+  width: number;
+}
+export interface Table {
+  tabledHyps: TabledHyp[];
+  tabledTactics: TabledTactic[];
+  currentRow: number;
+  dataRow?: DataRow;
+}
+
 export interface Box {
   id: string;
   parentId: string | null | "haveBox";
   goalNodes: GoalNode[];
   hypLayers: { tacticId: string, hypNodes: HypNode[] }[];
+  hypTables: Table[];
 }
 
 export interface Tactic {

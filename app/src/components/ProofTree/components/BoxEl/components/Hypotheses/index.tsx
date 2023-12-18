@@ -1,14 +1,14 @@
 import React from "react";
 import { ConvertedProofTree, HypNode, Highlights, Box } from "types";
 import Table from "./components/Table";
-import hypLayersToTabledCells from "./services/hypLayersToTabledHyps";
+import hypLayersToTabledCells from "../../../../../../services/hypsToTables";
 // @ts-ignore
 import LeaderLine from 'src/services/LeaderLine.min.js';
 
 interface Props {
   proofTree: ConvertedProofTree;
   highlights: Highlights;
-  hypLayers: Box['hypLayers'];
+  hypTables: Box['hypTables'];
 }
 
 const options = {
@@ -20,10 +20,8 @@ const options = {
 }
 
 const HypothesesComponent = (props: Props) => {
-  const tables = hypLayersToTabledCells(props.hypLayers, props.proofTree);
-
   React.useEffect(() => {
-    tables.forEach((table) => {
+    props.hypTables.forEach((table) => {
       table.tabledTactics.forEach((tabledTactic) => {
         if (!tabledTactic.arrowFrom) return
         const hypEl = document.getElementById(`hypothesis-${tabledTactic.arrowFrom}`);
@@ -35,7 +33,7 @@ const HypothesesComponent = (props: Props) => {
     })
   }, []);
 
-  return tables.map((table, index) =>
+  return props.hypTables.map((table, index) =>
     <Table key={index} proofTree={props.proofTree} dataRow={table.dataRow} highlights={props.highlights} tabledCells={[...table.tabledHyps, ...table.tabledTactics]}/>
   )
 }
