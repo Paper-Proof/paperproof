@@ -4,10 +4,10 @@ import Hint from "./ProofTree/components/BoxEl/components/Hint";
 
 interface TacticNodeProps {
   tactic: Tactic;
-  className?: string
+  className?: string;
+  shardId?: string
 }
 const TacticNode = (props: TacticNodeProps) => {
-  const uniqueId = useId();
   const thisEl = React.useRef(null);
   const handleMouseEnter = () => {
     const releventLeaderLines = window.leaderLines
@@ -23,7 +23,10 @@ const TacticNode = (props: TacticNodeProps) => {
   return (
     <div 
       className={`tactic -hint ${props.className || ''}`} 
-      id={`tactic-${props.tactic.id}-${uniqueId}`}
+      id={props.shardId ?
+        `tactic-${props.tactic.id}-${props.shardId}` :
+        `tactic-${props.tactic.id}`
+      }
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       ref={thisEl}

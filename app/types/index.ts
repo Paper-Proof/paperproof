@@ -36,6 +36,8 @@ interface TabledTactic {
   columnFrom: number;
   columnTo: number;
   row: number;
+  arrowFrom: string | null;
+  shardId: string;
 }
 type TabledCell = TabledHyp | TabledTactic;
 interface DataRow {

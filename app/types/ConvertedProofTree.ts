@@ -25,7 +25,7 @@ export interface Tactic {
   text: string;
   dependsOnIds: string[];
   goalArrows: { fromId: string; toId: string }[];
-  hypArrows: { fromId: string | null; toIds: string[] }[];
+  hypArrows: { fromId: string | null; toIds: string[]; shardId: string }[];
   successGoalId?: string;
   // TODO: Those are actually `byBox`s which were used to create
   // parameters for this tactic. For example in

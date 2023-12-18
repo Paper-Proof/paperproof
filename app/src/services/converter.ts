@@ -450,7 +450,8 @@ const postprocess = (pretty: ConvertedProofTree) => {
       toId  : getDisplayedId(pretty, goalArrow.toId)!
     }));
 
-    tactic.hypArrows = tactic.hypArrows.map((hypArrow) => ({
+    tactic.hypArrows = tactic.hypArrows.map((hypArrow, index) => ({
+      shardId: index.toString(),
       fromId: getDisplayedId(pretty, hypArrow.fromId),
       toIds : hypArrow.toIds.map((toId) => getDisplayedId(pretty, toId)!)
     }));

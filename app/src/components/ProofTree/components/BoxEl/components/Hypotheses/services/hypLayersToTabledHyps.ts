@@ -109,12 +109,22 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
       const allChildrenIds = tacticShard.toIds.filter((id) => thisLayerHypNodes.find((hypNode) => hypNode.id === id));
       const allChildrenWidths = getChildrenWidths(proofTree, hypLayers, allChildrenIds);
 
+      // Drawing parent arrows.
+      // 1. Do we have a parent that's in another window? Draw an arrow.
+      // 2. Do we have a parent that's multiple rows above us? Draw an arrow.
+      let arrowFrom = null;
+      if (!parentHyp || currentTable.currentRow - parentHyp.row > 2) {
+        arrowFrom = tacticShard.fromId;
+      }
+
       currentTable.tabledTactics.push({
         type: "tactic",
         tactic,
         columnFrom,
         columnTo: columnFrom + allChildrenWidths,
-        row: currentTable.currentRow
+        row: currentTable.currentRow,
+        arrowFrom,
+        shardId: tacticShard.shardId
       });
 
       let hypColumnFrom = columnFrom;

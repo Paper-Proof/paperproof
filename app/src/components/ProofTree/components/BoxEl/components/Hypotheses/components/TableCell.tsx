@@ -1,6 +1,5 @@
 import React from "react";
-import { ConvertedProofTree, Highlights, TabledCell, TabledHyp, TabledTactic } from "types";
-import Hint from "../../Hint";
+import { ConvertedProofTree, Highlights, TabledCell, TabledTactic } from "types";
 import BoxEl from "src/components/ProofTree/components/BoxEl";
 import HypothesisNode from "./HypothesisNode";
 import TacticNode from "src/components/TacticNode";
@@ -8,17 +7,6 @@ import TacticNode from "src/components/TacticNode";
 function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
 }
-
-const ourHypothesisTactic = {
-  "id": "4", "text": "cases' hm with p q",
-  "dependsOnIds": ["_uniq.10026"],
-  "goalArrows": [{"fromId": "_uniq.10027", "toId": "_uniq.10073"}, {"fromId": "_uniq.10027", "toId": "_uniq.10087"}],
-  "hypArrows": [{"fromId": "_uniq.10026", "toIds": ["_uniq.10059"]}, {"fromId": "_uniq.10026", "toIds": ["_uniq.10074"]}],
-  "haveBoxIds": []
-}
-// We shall look into the hypothesis tactic we found (`ourHypothesisTactic`), and look at its `ourHypothesisTactic.hypArrows`. Then we're searching for our personal parent!
-// 1. Do we have a parent that's in another window? Draw an arrow.
-// 2. Do we have a parent that's multiple rows above us? Draw an arrow.
 
 interface TacticProps {
   cell: TabledTactic;
@@ -42,7 +30,7 @@ const Tactic = (props: TacticProps) => {
           />
         ))}
       </div>
-      <TacticNode tactic={props.cell.tactic} className={doesSpan ? "-spans-multiple-hypotheses" : ""}/>
+      <TacticNode tactic={props.cell.tactic} className={doesSpan ? "-spans-multiple-hypotheses" : ""} shardId={props.cell.shardId}/>
     </>
   );
 };
