@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ConvertedProofTree, Highlights } from "types";
 import BoxEl from "./components/BoxEl";
-// @ts-ignore
-import LeaderLine from './services/LeaderLine.min.js';
-import createDependsOnArrows from '../../services/createDependsOnArrows';
 
 interface PropsNew {
   proofTree: ConvertedProofTree;
@@ -11,16 +8,6 @@ interface PropsNew {
 }
 
 const ProofTree = (props: PropsNew) => {
-  const [leaderLines, setLeaderLines] = useState<LeaderLine[]>([]);
-
-  useEffect(() => {
-    leaderLines.forEach((leaderLine) => {
-      leaderLine.remove();
-    });
-    const newLeaderLines = createDependsOnArrows(props.proofTree)
-    setLeaderLines(newLeaderLines);
-  }, [props.proofTree]);
-
   const rootBox = props.proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null;
 

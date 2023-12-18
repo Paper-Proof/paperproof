@@ -12,6 +12,8 @@ const options = {
 
 const createDependsOnArrows = (proofTree : ConvertedProofTree) : LeaderLine[] => {
   let leaderLines: LeaderLine[] = [];
+  
+  // CREATE DEPENDS ON ARROWS
   proofTree.tactics.forEach((tactic) => {
     const allTacticUniqueIds = Array.from(document.querySelectorAll(`[id^="tactic-${tactic.id}-"]`)).map((node) => node.id.split('-')[2]);
     tactic.dependsOnIds.forEach((dependsOnHypId) => {
@@ -26,6 +28,22 @@ const createDependsOnArrows = (proofTree : ConvertedProofTree) : LeaderLine[] =>
   });
   // TODO this is wild of course, shall fix this later
   window.leaderLines = leaderLines;
+
+  // CREATE PARENT ARROWS
+  proofTree.boxes.forEach((box) => {
+    box.hypTables.forEach((table) => {
+      table.tabledTactics.forEach((tabledTactic) => {
+        if (!tabledTactic.arrowFrom) return
+        const hypEl = document.getElementById(`hypothesis-${tabledTactic.arrowFrom}`);
+        const tacticEl = document.getElementById(`tactic-${tabledTactic.tactic.id}-${tabledTactic.shardId}`);
+        console.log({ hypEl, tacticEl });
+        if (!hypEl || !tacticEl) return;
+        const newLeaderLine = new LeaderLine(hypEl, tacticEl, { ...options, hide: false });
+        leaderLines.push(newLeaderLine);
+      })
+    });
+  })
+
   return leaderLines;
 }
 

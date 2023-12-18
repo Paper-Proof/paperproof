@@ -6,6 +6,9 @@ import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./components/ProofTree/services/getHighlights";
 import hypsToTables from "./services/hypsToTables";
+// @ts-ignore
+import LeaderLine from './services/LeaderLine.min.js';
+import createArrows from './services/createArrows';
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -14,6 +17,7 @@ function Main() {
   const [proofState, setProofState] = useState(window.initialInfo);
   const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
   const [highlights, setHighlights] = useState<Highlights | null>(null);
+  const [leaderLines, setLeaderLines] = useState<LeaderLine[]>([]);
 
   useEffect(() => {
     addEventListener("message", (event) => {
@@ -25,7 +29,6 @@ function Main() {
       }
 
       const convertedProofTree : ConvertedProofTree = converter(proof.proofTree);
-      // Inject `.hypTables`
       convertedProofTree.boxes.forEach((box) => {
         box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
       });
@@ -34,6 +37,14 @@ function Main() {
       setHighlights(newHighlights);
     });
   }, [])
+  
+  useEffect(() => {
+    if (proofTree) {
+      leaderLines.forEach((leaderLine) => { leaderLine.remove(); });
+      const newLeaderLines = createArrows(proofTree);
+      setLeaderLines(newLeaderLines);
+    }
+  }, [proofTree])
 
   return proofTree && <ProofTree proofTree={proofTree} highlights={highlights}/>
 }
