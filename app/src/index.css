@@ -120,67 +120,55 @@ body{
 .-hint:hover pre{
   display: block;
 }
-
-
-
-
-
-
-
-
-
-
-/* Temporary solution, just for easier hypothesis table viewing  */
-table .tactic{
-  width: calc(100% - 2px);
+.box{
+  width: max-content;
 }
 .data-hypotheses{
-  max-width: 100% !important;
-  width: min-content;
-  min-width: 100%;
   display: flex;
   flex-wrap: wrap;
 }
 
-.tactic{
-  width: min-content !important;
-  min-width: 100% !important;
-  display: flex !important;
-}
-.box{
-  width: max-content;
-}
-.hypothesis{
-  width: fit-content;
-}
-.tactic{
-  width: fit-content;
-}
-.tactic.-spans-multiple-hypotheses{
-  width: auto;
+
+
+
+
+
+
+
+
+
+.data-hypotheses{
   max-width: 100%;
+  width: min-content;
+  /* min-width: 100%; */
+  min-width: 200px;
 }
-.goal{
+.hypotheses-rows .hypothesis{
+  width: fit-content;
+  max-width: 200px;
+}
+.goals .goal{
   max-width: 200px;
   min-width: 100%;
 }
+.goals .tactic{
+  width: min-content;
+  max-width: 100%;
+  min-width: 100%;
+}
+
+
+
+
+
+
+
+
+
 .goal, .hypothesis{
   max-height: 40px;
   overflow-y: scroll;
 }
-.hypothesis, .tactic{
-  max-width: 200px;
-}
-
-
-
-
-
-
-
-
-
-
 .hypothesis, .tactic{
   margin: 0 1px;
 }

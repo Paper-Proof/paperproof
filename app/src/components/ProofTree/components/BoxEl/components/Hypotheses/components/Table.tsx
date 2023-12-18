@@ -36,7 +36,7 @@ const Table = (props: TableProps) => {
           </tr>
         }
         {rows.map((rowIndex) => (
-          <tr key={rowIndex}>
+          <tr className="hypotheses-rows" key={rowIndex}>
             {columns.map((columnIndex) =>
               <TableCell
                 key={columnIndex}

@@ -43,7 +43,7 @@ const BoxEl = (props: MyProps) => {
       </div>
 
       {props.box.goalNodes.slice().reverse().map((goalNode) =>
-        <div key={goalNode.id}>
+        <div className="goals" key={goalNode.id}>
           {
             getGoalTactic(props.proofTree, goalNode.id) &&
             <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/>

@@ -24,6 +24,7 @@ const createDependsOnArrows = (proofTree : ConvertedProofTree) : LeaderLine[] =>
       })
     });
   });
+  // TODO this is wild of course, shall fix this later
   window.leaderLines = leaderLines;
   return leaderLines;
 }
