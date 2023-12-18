@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ConvertedProofTree, Highlights, ProofResponse } from "types";
+import { ConvertedProofTree, Highlights } from "types";
 import BoxEl from "./components/BoxEl";
-import converter from "src/services/converter";
-import getHighlights from "./services/getHighlights";
 // @ts-ignore
 import LeaderLine from './services/LeaderLine.min.js';
 import createDependsOnArrows from '../../services/createDependsOnArrows';

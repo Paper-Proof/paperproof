@@ -58,9 +58,9 @@ const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayers
   const initialNormalHyps : HypNode[] = [];
   hypLayer.hypNodes.forEach((hypNode : HypNode) => {
     if (hypNode.isProof === "data") {
-      const childHyps = getDirectChildHypsInThisBox(proofTree, hypLayers, hypNode.id);
-      if (childHyps.length === 0) { initialDataHyps.push(hypNode); }
-      else { initialNormalHyps.push(hypNode); }
+      const anyChildrenEver = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.fromId === hypNode.id));
+      if (anyChildrenEver) { initialNormalHyps.push(hypNode); }
+      else { initialDataHyps.push(hypNode); }
     } else {
       initialNormalHyps.push(hypNode);
     }
