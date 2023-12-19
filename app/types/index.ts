@@ -23,6 +23,15 @@ interface HighlightsBody {
   hypIds: string[];
 }
 
+interface Point {
+  x: number;
+  y: number;
+}
+interface Arrow {
+  from: Point;
+  to: Point;
+}
+
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
   LeanInteractiveHyp, LeanInteractiveGoal,
@@ -30,6 +39,8 @@ export {
   UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer,
 
   Highlights,
-  TabledHyp, TabledTactic, TabledCell, Table, DataRow
+  TabledHyp, TabledTactic, TabledCell, Table, DataRow,
+
+  Point, Arrow
 };
 

@@ -31,6 +31,34 @@ body{
   transform-origin: 0% 0% 0px;
 }
 
+
+.proof-tree{
+  position: relative;
+}
+.perfect-arrow{
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+
+.tactic .perfect-arrow{
+  display: none;
+}
+.tactic:hover .perfect-arrow{
+  display: block;
+}
+
+
+
+
+
+
+
+
+
+
 #root > .react-transform-wrapper > .react-transform-component > .box { background: rgb(245, 249, 255); }
 /* #root > .box { background: rgba(132, 147, 171, 0.06); } */
 .box { background: rgba(132, 147, 171, 0.1); }

@@ -1,50 +1,49 @@
-import { ConvertedProofTree } from 'types';
-// @ts-ignore
-import LeaderLine from './LeaderLine.min.js';
+import { Arrow, ConvertedProofTree, Point } from 'types';
 
-const options = {
-  path: "straight",
-  startSocket: "bottom",
-  endSocket: "top",
-  size: 3,
-  hide: true
+const distanceTop = (el1: HTMLElement, el2: HTMLElement) => {
+  const rect1 = el1.getBoundingClientRect();
+  const rect2 = el2.getBoundingClientRect();
+  return Math.abs(rect1.top - rect2.top);
 }
 
-const createDependsOnArrows = (proofTree : ConvertedProofTree) : LeaderLine[] => {
-  let leaderLines: LeaderLine[] = [];
-  
-  // CREATE DEPENDS ON ARROWS
-  proofTree.tactics.forEach((tactic) => {
-    const allTacticUniqueIds = Array.from(document.querySelectorAll(`[id^="tactic-${tactic.id}-"]`)).map((node) => node.id.split('-')[2]);
-    tactic.dependsOnIds.forEach((dependsOnHypId) => {
-      const hypEl = document.getElementById(`hypothesis-${dependsOnHypId}`);
-      allTacticUniqueIds.forEach((uniqueId) => {
-        const tacticEl = document.getElementById(`tactic-${tactic.id}-${uniqueId}`)
-        if (!hypEl || !tacticEl) return
-        const newLeaderLine = new LeaderLine(hypEl, tacticEl, options);
-        leaderLines.push(newLeaderLine);
-      })
-    });
-  });
-  // TODO this is wild of course, shall fix this later
-  window.leaderLines = leaderLines;
+const distanceLeft = (el1: HTMLElement, el2: HTMLElement) => {
+  const rect1 = el1.getBoundingClientRect();
+  const rect2 = el2.getBoundingClientRect();
+  return Math.abs(rect1.left - rect2.left);
+}
 
-  // CREATE PARENT ARROWS
+const createArrows = (proofTree : ConvertedProofTree) : Arrow[] => {
+  let perfectArrows: Arrow[] = [];
+
   proofTree.boxes.forEach((box) => {
     box.hypTables.forEach((table) => {
       table.tabledTactics.forEach((tabledTactic) => {
         if (!tabledTactic.arrowFrom) return
-        const hypEl = document.getElementById(`hypothesis-${tabledTactic.arrowFrom}`);
-        const tacticEl = document.getElementById(`tactic-${tabledTactic.tactic.id}-${tabledTactic.shardId}`);
-        console.log({ hypEl, tacticEl });
-        if (!hypEl || !tacticEl) return;
-        const newLeaderLine = new LeaderLine(hypEl, tacticEl, { ...options, hide: false });
-        leaderLines.push(newLeaderLine);
-      })
-    });
-  })
+        const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
+        const fromId = `hypothesis-${tabledTactic.arrowFrom}`;
+        const toId = `tactic-${tabledTactic.tactic.id}-${tabledTactic.shardId}`;
+        const fromEl = document.getElementById(fromId);
+        const toEl = document.getElementById(toId);
+        if (!proofTreeEl || !fromEl || !toEl) return;
 
-  return leaderLines;
+        const currentZoom = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
+
+        const pointFrom : Point = {
+          x: distanceLeft(fromEl, proofTreeEl)/currentZoom + fromEl.offsetWidth/2,
+          y: distanceTop(fromEl, proofTreeEl)/currentZoom + fromEl.offsetHeight
+        };
+
+        const pointTo : Point = {
+          x: distanceLeft(toEl, proofTreeEl)/currentZoom + toEl.offsetWidth/2,
+          y: distanceTop(toEl, proofTreeEl)/currentZoom
+        };
+
+        perfectArrows.push({ from: pointFrom, to: pointTo });
+      });
+    });
+  });
+
+  return perfectArrows;
 }
 
-export default createDependsOnArrows;
+export default createArrows;
