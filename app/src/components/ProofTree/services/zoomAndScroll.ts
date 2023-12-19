@@ -1,14 +1,4 @@
-const distanceTop = (el1: HTMLElement, el2: HTMLElement) => {
-  const rect1 = el1.getBoundingClientRect();
-  const rect2 = el2.getBoundingClientRect();
-  return Math.abs(rect1.top - rect2.top);
-}
-
-const distanceLeft = (el1: HTMLElement, el2: HTMLElement) => {
-  const rect1 = el1.getBoundingClientRect();
-  const rect2 = el2.getBoundingClientRect();
-  return Math.abs(rect1.left - rect2.left);
-}
+import distance from "src/services/distance";
 
 const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   event.stopPropagation();
@@ -27,15 +17,15 @@ const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   const scaleFactor = Math.min(scaleFactorWanted, 1)
 
   const scrollTopFinal_top =
-    distanceTop(htmlEl, proofTreeEl) +
-    distanceTop(proofTreeEl, boxEl) / initialScale * scaleFactor;
+    distance('top', htmlEl, proofTreeEl) +
+    distance('top', proofTreeEl, boxEl) / initialScale * scaleFactor;
   const scrollTopFinal = scrollTopFinal_top - (
     window.innerHeight/2 - boxEl.offsetHeight * scaleFactor / 2
   );
 
   const scrollLeftFinal_left =
-    distanceLeft(proofTreeEl, htmlEl) +
-    distanceLeft(proofTreeEl, boxEl) / initialScale * scaleFactor;
+    distance('left', proofTreeEl, htmlEl) +
+    distance('left', proofTreeEl, boxEl) / initialScale * scaleFactor;
   const scrollLeftFinal = scrollLeftFinal_left - (
     window.innerWidth/2 - boxEl.offsetWidth * scaleFactor / 2
   );
