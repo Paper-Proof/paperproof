@@ -27,8 +27,8 @@ const TacticNode = (props: TacticNodeProps) => {
         `tactic-${props.tactic.id}-${props.shardId}` :
         `tactic-${props.tactic.id}`
       }
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      // onMouseEnter={handleMouseEnter}
+      // onMouseLeave={handleMouseLeave}
       ref={thisEl}
     >
       <Hint>{props.tactic}</Hint>

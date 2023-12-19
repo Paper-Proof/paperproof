@@ -12,9 +12,10 @@ const distanceLeft = (el1: HTMLElement, el2: HTMLElement) => {
 
 const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   event.stopPropagation();
-  const htmlEl = document.getElementsByTagName("html")[0]!;
-  const proofTreeEl = document.getElementById("box-1")!;
-  const boxEl = event.currentTarget.closest('.box') as HTMLElement;
+  const htmlEl = document.getElementsByTagName("html")[0];
+  const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
+  const boxEl = event.currentTarget.closest(".box") as HTMLElement;
+  if (!htmlEl || !proofTreeEl || !boxEl) return;
   const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
 
   // We can make the content look smaller, but can't make it look bigger - max zoom is 1

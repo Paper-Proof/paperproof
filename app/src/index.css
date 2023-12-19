@@ -22,13 +22,13 @@ table td{
   border-radius: 2px;
   flex-grow: 1;
 }
-#box-1{
-  width: max-content;
-  transform-origin: 0% 0% 0px;
-}
 body{
   padding: 70vh 70vw;
   width: fit-content;
+}
+.proof-tree{
+  width: max-content;
+  transform-origin: 0% 0% 0px;
 }
 
 #root > .react-transform-wrapper > .react-transform-component > .box { background: rgb(245, 249, 255); }
