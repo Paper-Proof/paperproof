@@ -8,7 +8,8 @@ interface PerfectArrowProps {
 
 const PerfectArrow = (props: PerfectArrowProps) => {
   const arrow = getArrow(props.p1.x, props.p1.y, props.p2.x, props.p2.y, {
-    padEnd: 15,
+    padStart: -10,
+    padEnd: 8,
     stretch: 0,
   })
 
@@ -21,14 +22,12 @@ const PerfectArrow = (props: PerfectArrowProps) => {
       className="perfect-arrow"
       viewBox="0 0 1000 1000"
       style={{ width: 1000, height: 1000 }}
-      stroke="#000"
-      fill="#000"
-      strokeWidth={3}
     >
-      <circle cx={sx} cy={sy} r={4}/>
+      {/* line */}
       <path d={`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`} fill="none"/>
+      {/* arrow */}
       <polygon
-        points="0,-6 12,0, 0,6"
+        points="0,-3 6,0, 0,3"
         transform={`translate(${ex},${ey}) rotate(${endAngleAsDegrees})`}
       />
     </svg>

@@ -49,6 +49,11 @@ body{
 .tactic:hover .perfect-arrow{
   display: block;
 }
+.perfect-arrow{
+  stroke: #dcdedf;
+  fill: #dcdedf;
+  stroke-width: 2px;
+}
 
 
 
