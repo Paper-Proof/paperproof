@@ -19,16 +19,35 @@ function Main() {
   const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
   const [highlights, setHighlights] = useState<Highlights | null>(null);
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
+  // We do need separate state vars for prettier animations
+  const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
   useEffect(() => {
     addEventListener("message", (event) => {
       const proof = event.data;
       setProofState(proof);
 
-      if (!proof || "error" in proof) {
+      // Does it ever happen?
+      if (!proof) return;
+
+      if ("error" in proof) {
+        if (proof.error === 'File changed.' || proof.error === 'stillTyping') {
+          return;
+        } else if (proof.error === 'leanNotYetRunning') {
+          setSnackbarMessage("Waiting for Lean");
+          setSnackbarOpen(true);
+        } else if (proof.error.startsWith("No RPC method")) {
+          setSnackbarMessage(`Missing "import Paperproof" in this file. Please import a Paperproof Lean library in this file.`);
+          setSnackbarOpen(true);
+        } else if (proof.error === 'zeroProofSteps') {
+          setSnackbarMessage("Not within theorem");
+          setSnackbarOpen(true);
+        }
         return;
       }
 
+      setSnackbarOpen(false);
       const convertedProofTree : ConvertedProofTree = converter(proof.proofTree);
       convertedProofTree.boxes.forEach((box) => {
         box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
@@ -58,9 +77,9 @@ function Main() {
       </div>
     }
     <Snackbar
-      open={true}
+      open={snackbarOpen}
       autoHideDuration={null}
-      message="Note archived"
+      message={snackbarMessage}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     />
   </>
