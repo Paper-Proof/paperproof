@@ -50,11 +50,27 @@ body{
   display: block;
 }
 .perfect-arrow{
-  stroke: #dcdedf;
-  fill: #dcdedf;
+  stroke: #b0e4c2;
+  fill: #b0e4c2;
   stroke-width: 2px;
 }
-
+.tactic.-success{
+  background: rgb(0 213 255 / 12%);
+  border-color: rgb(6 183 219 / 56%);
+}
+.tactic.-sorried{
+  background: #f2f1d9;
+  border-color: #d2ce59;
+}
+.tactic.-sorried, .tactic.-success{
+  margin-top: 20px;
+}
+.tactic.-success .perfect-arrow{
+  display: block;
+}
+.child-boxes{
+  margin-top: 10px;
+}
 
 
 
@@ -119,14 +135,14 @@ body{
   padding: 5px 12px;
   border-radius: 3px;
 }
-/* .hypothesis.-faded{
+.hypothesis.-faded{
   background: rgb(107 220 151 / 13%);
   opacity: 0.5;
 }
 .goal.-faded{
   background: rgba(220, 107, 107, 0.1);
   opacity: 0.5;
-} */
+}
 .tactic{
   padding: 5px 12px;
   border-radius: 3px;
@@ -222,21 +238,6 @@ body{
 /* hides scrollbars - we can still scroll, but we don't want to show scrollbars */
 body::-webkit-scrollbar { 
   display: none;
-}
-
-.-successful-tactic > svg path {
-  fill: #c4f4ff6b;
-}
-
-/* ***EXPERIMENTAL*** */
-.hypArrow g{
-  stroke: rgb(150, 201, 167);
-}
-.successArrow g{
-  stroke: rgb(150, 201, 167);
-}
-.goalArrow g{
-  stroke: rgb(214, 215, 215);
 }
 
 /* Make tldraw bg dark for dark vscode themes */

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, HypNode, Highlights } from "types";
+import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
@@ -13,12 +13,12 @@ interface MyProps {
   highlights: Highlights
 }
 
-const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) => {
+const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tactic => {
   const goalTactic = proofTree.tactics.find((tactic) => tactic.goalArrows.find((goalArrow) => goalArrow.fromId === goalNodeId));
 
   const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
 
-  return goalTactic || successTactic;
+  return (goalTactic || successTactic)!;
 }
 
 // "a._@.Mathlib.Init.Algebra.Order._hyg.1764" => "a"
@@ -35,12 +35,14 @@ const BoxEl = (props: MyProps) => {
     <div className="box-insides">
       <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
 
-      <div style={{ padding: "10px 0px", color: "#356e9d" }}>Box {props.box.id}</div>
-      <div className="child-boxes">
-        {childrenBoxes.map((childBox) =>
-          <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree} highlights={props.highlights}/>
-        )}
-      </div>
+      {
+        childrenBoxes.length > 0 &&
+        <div className="child-boxes">
+          {childrenBoxes.map((childBox) =>
+            <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree} highlights={props.highlights}/>
+          )}
+        </div>
+      }
 
       {props.box.goalNodes.slice().reverse().map((goalNode) =>
         <div className="goals" key={goalNode.id}>

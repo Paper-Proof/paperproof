@@ -20,16 +20,19 @@ const Tactic = (props: TacticProps) => {
 
   return (
     <>
-      <div className="child-boxes">
-        {tactic.haveBoxIds.map((haveBoxId) => (
-          <BoxEl
-            key={haveBoxId}
-            box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!}
-            proofTree={props.proofTree}
-            highlights={null}
-          />
-        ))}
-      </div>
+      {
+        tactic.haveBoxIds.length > 0 &&
+        <div className="child-boxes">
+          {tactic.haveBoxIds.map((haveBoxId) => (
+            <BoxEl
+              key={haveBoxId}
+              box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!}
+              proofTree={props.proofTree}
+              highlights={null}
+            />
+          ))}
+        </div>
+      }
       <TacticNode tactic={props.cell.tactic} className={doesSpan ? "-spans-multiple-hypotheses" : ""} shardId={props.cell.shardId}/>
     </>
   );

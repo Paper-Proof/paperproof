@@ -41,9 +41,12 @@ const TacticNode = (props: TacticNodeProps) => {
     setPerfectArrows(newPerfectArrows);
   }, [props.tactic]);
 
+  const isSorried = props.tactic.text === "sorry" || props.tactic.text === "done";
+  const isSuccess = props.tactic.successGoalId && !isSorried
+
   return (
     <div 
-      className={`tactic -hint ${props.className || ''}`} 
+      className={`tactic -hint ${props.className || ''} ${isSuccess ? '-success' : ''} ${isSorried ? '-sorried' : ''}`} 
       id={props.shardId ?
         `tactic-${props.tactic.id}-${props.shardId}` :
         `tactic-${props.tactic.id}`
