@@ -33,7 +33,6 @@ const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) =>
     w.hypLayers.forEach((hypLayer) => {
       hypLayer.hypNodes.forEach((existingHypNode) => {
         if (existingHypNode.id === hypAfterId) {
-          console.log({ existingHypNode, hypAfter });
           existingHypNode.name = hypAfter.username;
           existingHypNode.text = hypAfter.type;
         }

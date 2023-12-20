@@ -62,7 +62,7 @@ body{
   background: #f2f1d9;
   border-color: #d2ce59;
 }
-.tactic.-sorried, .tactic.-success{
+.tactic.-sorried, .tactic.-success, .tactic.-ellipsis{
   margin-top: 20px;
 }
 .tactic.-success .perfect-arrow{
@@ -137,11 +137,11 @@ body{
 }
 .hypothesis.-faded{
   background: rgb(107 220 151 / 13%);
-  opacity: 0.5;
+  /* opacity: 0.5; */
 }
 .goal.-faded{
   background: rgba(220, 107, 107, 0.1);
-  opacity: 0.5;
+  /* opacity: 0.5; */
 }
 .tactic{
   padding: 5px 12px;

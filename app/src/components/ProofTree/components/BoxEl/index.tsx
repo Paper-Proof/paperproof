@@ -13,12 +13,12 @@ interface MyProps {
   highlights: Highlights
 }
 
-const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tactic => {
+const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tactic | undefined => {
   const goalTactic = proofTree.tactics.find((tactic) => tactic.goalArrows.find((goalArrow) => goalArrow.fromId === goalNodeId));
 
   const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
 
-  return (goalTactic || successTactic)!;
+  return goalTactic || successTactic;
 }
 
 // "a._@.Mathlib.Init.Algebra.Order._hyg.1764" => "a"
@@ -47,8 +47,9 @@ const BoxEl = (props: MyProps) => {
       {props.box.goalNodes.slice().reverse().map((goalNode) =>
         <div className="goals" key={goalNode.id}>
           {
-            getGoalTactic(props.proofTree, goalNode.id) &&
-            <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/>
+            getGoalTactic(props.proofTree, goalNode.id) ?
+              <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/> :
+              <div className="tactic -ellipsis">...</div>
           }
           <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
             <Hint>{goalNode}</Hint>
