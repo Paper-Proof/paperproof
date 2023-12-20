@@ -1,7 +1,6 @@
 import { LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree } from './LeanProofTree';
 import { LeanInteractiveHyp, LeanInteractiveGoal } from './LeanInteractiveGoal';
 import { GoalNode, HypNode, Box, Tactic, ConvertedProofTree, TabledHyp, TabledTactic, TabledCell, Table, DataRow } from './ConvertedProofTree';
-import { UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer } from './UI';
 
 // SERVER REQUEST/RESPONSE
 export interface ProofState {
@@ -34,13 +33,13 @@ interface Arrow {
 
 export {
   LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
+
   LeanInteractiveHyp, LeanInteractiveGoal,
+
   GoalNode, HypNode, Box, Tactic, ConvertedProofTree,
-  UIConfig, UIShared, UIHypTree, UIElement, UIIdElement, UINode, UINodeLayer,
 
   Highlights,
   TabledHyp, TabledTactic, TabledCell, Table, DataRow,
-
   Point, Arrow
 };
 
