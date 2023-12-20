@@ -15,7 +15,7 @@ import Snackbar from '@mui/material/Snackbar';
 declare const window: PaperProofWindow;
 
 function Main() {
-  const [proofState, setProofState] = useState(window.initialInfo);
+  const [proofState, setProofState] = useState<ProofResponse>(window.initialInfo);
   const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
   const [highlights, setHighlights] = useState<Highlights | null>(null);
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
@@ -33,7 +33,7 @@ function Main() {
 
       if ("error" in proof) {
         if (proof.error === 'File changed.' || proof.error === 'stillTyping') {
-          return;
+          // This is a normal situation, just return.
         } else if (proof.error === 'leanNotYetRunning') {
           setSnackbarMessage("Waiting for Lean");
           setSnackbarOpen(true);
@@ -43,11 +43,18 @@ function Main() {
         } else if (proof.error === 'zeroProofSteps') {
           setSnackbarMessage("Not within theorem");
           setSnackbarOpen(true);
+        } else {
+          console.warn("We are not handling some error explicitly?", proof);
         }
         return;
       }
 
       setSnackbarOpen(false);
+
+      // ___Why don't we memoize these functions/avoid rerenders?
+      //    These seem like expensive operations, however they aren't!
+      //    The whole converter()+hypsToTables() process takes from 2ms to 5ms.
+      //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
       const convertedProofTree : ConvertedProofTree = converter(proof.proofTree);
       convertedProofTree.boxes.forEach((box) => {
         box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
@@ -56,7 +63,6 @@ function Main() {
 
       const newHighlights = getHighlights(convertedProofTree.equivalentIds, proof.goal);
       setHighlights(newHighlights);
-
     });
   }, [])
   
