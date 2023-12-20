@@ -9,6 +9,8 @@ import hypsToTables from "./services/hypsToTables";
 import createArrows from './services/createArrows';
 import PerfectArrow from "./components/PerfectArrow";
 
+import Snackbar from '@mui/material/Snackbar';
+
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
 
@@ -45,13 +47,23 @@ function Main() {
     setPerfectArrows(newPerfectArrows);
   }, [proofTree]);
 
-  return proofTree &&
-  <div className="proof-tree">
-    <ProofTree proofTree={proofTree} highlights={highlights}/>
-    {perfectArrows.map((arrow, index) =>
-      <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
-    )}
-  </div>
+  return <>
+    {
+      proofTree &&
+      <div className="proof-tree">
+        <ProofTree proofTree={proofTree} highlights={highlights}/>
+        {perfectArrows.map((arrow, index) =>
+          <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
+        )}
+      </div>
+    }
+    <Snackbar
+      open={true}
+      autoHideDuration={null}
+      message="Note archived"
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+    />
+  </>
 }
 
 const root = createRoot(document.getElementById("root")!);
