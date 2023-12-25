@@ -119,10 +119,11 @@ body{
   word-break: break-word;
 }
 .tactic{
-  border: 1px dashed #bbbebe;
+  color: #72787c;
   &.-success{
     background: rgb(0 213 255 / 12%);
-    border-color: rgb(6 183 219 / 56%);
+    /* border-color: rgb(6 183 219 / 56%); */
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%2306b7db8c' stroke-width='2' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   &.-sorried{
     background: #f2f1d9;
@@ -135,7 +136,7 @@ body{
 .hypothesis{
   background: rgba(98 202 139 / 51%);
   &.data{
-    background: rgba(250 214 94 / 68%);
+    background: rgb(251 228 154 / 69%);
     &.-faded{
       background: rgba(250 214 94 / 13%);
     }
@@ -147,10 +148,21 @@ body{
   & .name{ color: #c69c51; }
 }
 .goal{
-  background: rgba(220, 107, 107, 0.33);
+  background: rgb(249, 195, 195);
   &.-faded{
-    background: rgba(220, 107, 107, 0.1);
+    background: rgba(243, 173, 173, 0.1);
   }
+}
+/* that's pretty interesting */
+.goal, .hypothesis{
+  position: relative;
+}
+.tactic{
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='2' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  margin-top: -1px;
+  margin-bottom: -1px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 /*______________________ PROOF-TREE: widths ______________________*/
