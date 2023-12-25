@@ -20,8 +20,8 @@ const PerfectArrow = (props: PerfectArrowProps) => {
   return (
     <svg
       className="perfect-arrow"
-      viewBox="0 0 1000 1000"
-      style={{ width: 1000, height: 1000 }}
+      viewBox="0 0 10000 10000"
+      style={{ width: 10000, height: 10000 }}
     >
       {/* line */}
       <path d={`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`} fill="none"/>
