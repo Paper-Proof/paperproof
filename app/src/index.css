@@ -1,160 +1,188 @@
+/*______________________ BODY: prettiness ______________________*/
 body *{
   box-sizing: border-box;
 }
-
-
-
-.hypothesis.data{
-  background: rgba(254, 254, 0, 0.349);
-}
-.hypothesis.universe{
-  background: rgb(245 156 156 / 44%);
-}
-table td{
-  /* this if for hypotheses, e.g. see irrational proof */
-  vertical-align: top;
-}
-
-/* Backgrounds for windows */
-.box{
-  font-size: 12px;
+body{
+  background: white;
   color: #3a505a;
-  border-radius: 2px;
-  flex-grow: 1;
+  font-weight: 500;
+  /* hides scrollbars - we can still scroll, but we don't want to show scrollbars */
+  &::-webkit-scrollbar { 
+    display: none;
+  }
+  /* Make tldraw bg dark for dark vscode themes */
+  &.vscode-dark{
+    background-color: var(--vscode-editor-background);
+  }
+
+  & .proof-tree{
+    border-radius: 3px;
+    background: white;
+  }
 }
+
+/*______________________ BODY: widths for zooming ______________________*/
 body{
   padding: 70vh 70vw;
   width: fit-content;
-}
-.proof-tree{
-  width: max-content;
-  transform-origin: 0% 0% 0px;
+  & .proof-tree{
+    width: max-content;
+    transform-origin: 0% 0% 0px;
+  }
 }
 
-
+/*______________________ ARROWS ______________________*/
 .proof-tree{
   position: relative;
 }
 .perfect-arrow{
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   z-index: -1;
-}
 
-
-.tactic .perfect-arrow{
-  display: none;
-}
-.tactic:hover .perfect-arrow{
-  display: block;
-}
-.perfect-arrow{
+  stroke-width: 2px;
   stroke: #b0e4c2;
   fill: #b0e4c2;
-  stroke-width: 2px;
 }
-.tactic.-success{
-  background: rgb(0 213 255 / 12%);
-  border-color: rgb(6 183 219 / 56%);
-}
-.tactic.-sorried{
-  background: #f2f1d9;
-  border-color: #d2ce59;
-}
-.tactic.-sorried, .tactic.-success, .tactic.-ellipsis{
-  margin-top: 20px;
-}
-.tactic.-success .perfect-arrow{
-  display: block;
-}
-.child-boxes{
-  margin-top: 10px;
+.tactic{
+  & .perfect-arrow{
+    display: none;
+  }
+  &:hover .perfect-arrow,
+  &.-success .perfect-arrow{
+    display: block;
+  }
 }
 
+/*______________________ PROOF-TREE: prettiness ______________________*/
+.box{
+  font-size: 12px;
+  border-radius: 2px;
+  flex-grow: 1;
+  background: rgba(132, 147, 171, 0.1);
 
+  & .box-insides{
+    padding: 10px;
+    padding-bottom: 0;
+  }
 
+  & .child-boxes{
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+  }
 
+  & table.hypothesis-table{
+    padding-top: 10px;
+    border-spacing: 0;
+    &:first-child {
+      padding-top: 0;
+    }
 
+    & .data-hypotheses{
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 2px;
+    }
 
+    & td{
+      padding: 0;
+      padding-right: 2px;
+      vertical-align: top;
+    }
+    & td:last-child {
+      padding-right: 0;
+    }
+  }
 
-
-
-#root > .react-transform-wrapper > .react-transform-component > .box { background: rgb(245, 249, 255); }
-/* #root > .box { background: rgba(132, 147, 171, 0.06); } */
-.box { background: rgba(132, 147, 171, 0.1); }
-
-.child-boxes{
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 10px;
+  & .goal-username{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(147, 153, 162, 0.11);
+    color: #898a8a;
+  }
+  &:hover > .goal-username {
+    background: rgba(147, 153, 162, 0.3);
+  }
 }
-
-.box-insides{
-  padding: 10px;
-  padding-bottom: 0;
-}
-
-.goal-username{
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(147, 153, 162, 0.11);
-  color: #898a8a;
-}
-.box:hover > .goal-username {
-  background: rgba(147, 153, 162, 0.16);
-}
-
-
-/* #box-1{
-  position: relative;
-} */
-/* .perfect-arrow{
-  position: absolute;
-  top: 0;
-  left: 0;
-} */
-
-
-.hypotheses{
-  display: flex;
-}
-.hypothesis{
-  background: rgb(107 220 151 / 33%);
+.hypothesis, .goal, .tactic{
   padding: 5px 12px;
   border-radius: 3px;
+  max-height: 55px;
+  overflow-y: scroll;
+  word-break: break-word;
 }
-.hypothesis .name{
-  color: #c69c51;
+.tactic{
+  border: 1px dashed #bbbebe;
+  &.-success{
+    background: rgb(0 213 255 / 12%);
+    border-color: rgb(6 183 219 / 56%);
+  }
+  &.-sorried{
+    background: #f2f1d9;
+    border-color: #d2ce59;
+  }
+  &.-sorried, &.-success, &.ellipsis{
+    margin-top: 20px;
+  }
+}
+.hypothesis{
+  background: rgba(98 202 139 / 51%);
+  &.data{
+    background: rgba(250 214 94 / 68%);
+    &.-faded{
+      background: rgba(250 214 94 / 13%);
+    }
+  }
+  &.-faded{
+    background: rgba(98 202 139 / 13%)
+  }
+
+  & .name{ color: #c69c51; }
 }
 .goal{
   background: rgba(220, 107, 107, 0.33);
-  padding: 5px 12px;
-  border-radius: 3px;
-}
-.hypothesis.-fadedx{
-  background: rgb(107 220 151 / 13%);
-  /* opacity: 0.5; */
-}
-.goal.-fadedx{
-  background: rgba(220, 107, 107, 0.1);
-  /* opacity: 0.5; */
-}
-.tactic{
-  padding: 5px 12px;
-  border-radius: 3px;
-  border: 1px dashed #bbbebe;
-}
-.tactic.-with-margin-top{
-  margin-top: 5px;
+  &.-faded{
+    background: rgba(220, 107, 107, 0.1);
+  }
 }
 
-/* .-hint{
-  position: relative;
-} */
+/*______________________ PROOF-TREE: widths ______________________*/
+.box{
+  width: max-content;
+}
+.hypothesis-table{
+  & .hypothesis{
+    width: fit-content;
+    max-width: 200px;
+  }
+  & .tactic{
+    width: min-content;
+    min-width: 100%;
+  }
+}
+.goals{
+  & .goal{
+    max-width: 200px;
+    min-width: 100%;
+  }
+  & .tactic{
+    width: 200px;
+    min-width: 100%;
+  }
+}
+
+/*______________________ MUI: error toast colors ______________________*/
+.MuiSnackbar-root .MuiSnackbarContent-root {
+  background-color: white;
+  color: #434343;
+}
+
+/*______________________ DEVELOPMENT ______________________*/
 .-hint pre{
   display: none;
   position: fixed;
@@ -168,86 +196,4 @@ body{
 }
 .-hint:hover pre{
   display: block;
-}
-.box{
-  width: max-content;
-}
-.data-hypotheses{
-  display: flex;
-  flex-wrap: wrap;
-}
-
-
-
-
-
-
-
-
-
-
-.data-hypotheses {
-  column-gap: 2px;
-}
-
-.hypotheses-rows .hypothesis{
-  width: fit-content;
-  max-width: 200px;
-}
-.hypotheses-rows .tactic{
-  width: min-content;
-  min-width: 100%;
-}
-.goals .goal{
-  max-width: 200px;
-  min-width: 100%;
-}
-.goals .tactic{
-  width: 200px;
-  min-width: 100%;
-}
-
-
-
-
-
-
-
-
-
-.goal, .hypothesis{
-  max-height: 49px;
-  overflow-y: scroll;
-}
-.hypotheses-rows td:not(:last-child){
-  padding-right: 2px;
-}
-table{
-  border-spacing: 0;
-}
-table td{
-  padding: 0;
-}
-
-.box-insides table:not(:first-child) {
-  padding-top: 10px;
-}
-
-body{
-  background: white;
-}
-/* hides scrollbars - we can still scroll, but we don't want to show scrollbars */
-body::-webkit-scrollbar { 
-  display: none;
-}
-
-/* Make tldraw bg dark for dark vscode themes */
-.tldraw-wrapper.-vscode-dark-theme .tl-background{
-  background-color: var(--vscode-editor-background);
-}
-
-
-.MuiSnackbar-root .MuiSnackbarContent-root {
-  background-color: white;
-  color: #434343;
 }

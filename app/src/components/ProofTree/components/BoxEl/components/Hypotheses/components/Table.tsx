@@ -21,7 +21,7 @@ const Table = (props: TableProps) => {
   const columns = Array.from({ length: maxColumn + 1 }, (_, i) => i);
 
   return (
-    <table>
+    <table className="hypothesis-table">
       <tbody>
         {
           props.dataRow &&
@@ -36,7 +36,7 @@ const Table = (props: TableProps) => {
           </tr>
         }
         {rows.map((rowIndex) => (
-          <tr className="hypotheses-rows" key={rowIndex}>
+          <tr key={rowIndex}>
             {columns.map((columnIndex) =>
               <TableCell
                 key={columnIndex}

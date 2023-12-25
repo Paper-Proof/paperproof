@@ -16,8 +16,6 @@ interface TacticProps {
 const Tactic = (props: TacticProps) => {
   const tactic = props.cell.tactic;
 
-  const doesSpan = tactic.haveBoxIds.length > 0 || props.colSpan > 1;
-
   return (
     <>
       {
@@ -33,7 +31,7 @@ const Tactic = (props: TacticProps) => {
           ))}
         </div>
       }
-      <TacticNode tactic={props.cell.tactic} className={doesSpan ? "-spans-multiple-hypotheses" : ""} shardId={props.cell.shardId}/>
+      <TacticNode tactic={props.cell.tactic} shardId={props.cell.shardId}/>
     </>
   );
 };
