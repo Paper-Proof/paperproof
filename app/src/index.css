@@ -112,7 +112,9 @@ body{
 .hypothesis, .goal, .tactic{
   padding: 5px 12px;
   border-radius: 3px;
-  max-height: 55px;
+  /* exactly 3 lines */
+  line-height: 1.3em;
+  max-height: calc(1.3em * 3 + 12px);
   overflow-y: scroll;
   word-break: break-word;
 }
