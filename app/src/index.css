@@ -18,7 +18,7 @@ table td{
 /* Backgrounds for windows */
 .box{
   font-size: 12px;
-  color: #434343;
+  color: #3a505a;
   border-radius: 2px;
   flex-grow: 1;
 }
@@ -135,11 +135,11 @@ body{
   padding: 5px 12px;
   border-radius: 3px;
 }
-.hypothesis.-faded{
+.hypothesis.-fadedx{
   background: rgb(107 220 151 / 13%);
   /* opacity: 0.5; */
 }
-.goal.-faded{
+.goal.-fadedx{
   background: rgba(220, 107, 107, 0.1);
   /* opacity: 0.5; */
 }
@@ -186,23 +186,24 @@ body{
 
 
 
-.data-hypotheses{
-  max-width: 100%;
-  width: min-content;
-  /* min-width: 100%; */
-  min-width: 200px;
+.data-hypotheses {
+  column-gap: 2px;
 }
+
 .hypotheses-rows .hypothesis{
   width: fit-content;
   max-width: 200px;
+}
+.hypotheses-rows .tactic{
+  width: min-content;
+  min-width: 100%;
 }
 .goals .goal{
   max-width: 200px;
   min-width: 100%;
 }
 .goals .tactic{
-  width: min-content;
-  max-width: 100%;
+  width: 200px;
   min-width: 100%;
 }
 
@@ -215,11 +216,11 @@ body{
 
 
 .goal, .hypothesis{
-  max-height: 40px;
+  max-height: 49px;
   overflow-y: scroll;
 }
-.hypothesis, .tactic{
-  margin: 0 1px;
+.hypotheses-rows td:not(:last-child){
+  padding-right: 2px;
 }
 table{
   border-spacing: 0;
