@@ -38,11 +38,12 @@ body{
 .perfect-arrow{
   position: absolute;
   top: 0; left: 0;
-  z-index: -1;
+  z-index: 0;
+  pointer-events: none;
 
   stroke-width: 2px;
-  stroke: #b0e4c2;
-  fill: #b0e4c2;
+  stroke: #a0ceb0;
+  fill: #a0ceb0;
 }
 .tactic{
   & .perfect-arrow{
@@ -103,18 +104,20 @@ body{
     justify-content: center;
     align-items: center;
     background: rgba(147, 153, 162, 0.11);
-    color: #898a8a;
+    color: #9c9797;
+    border-bottom: 2px #e1e1e1 solid;
   }
-  &:hover > .goal-username {
+  /* &:hover > .goal-username {
     background: rgba(147, 153, 162, 0.3);
-  }
+    border-bottom: 2px solid #c5d0d6;
+  } */
 }
 .hypothesis, .goal, .tactic{
   padding: 5px 12px;
   border-radius: 3px;
   /* exactly 3 lines */
   line-height: 1.3em;
-  max-height: calc(1.3em * 3 + 12px);
+  /* max-height: calc(1.3em * 3 + 12px); */
   overflow-y: scroll;
   word-break: break-word;
 }
@@ -122,8 +125,7 @@ body{
   color: #72787c;
   &.-success{
     background: rgb(0 213 255 / 12%);
-    /* border-color: rgb(6 183 219 / 56%); */
-    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%2306b7db8c' stroke-width='2' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%239ed6e1' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   &.-sorried{
     background: #f2f1d9;
@@ -135,22 +137,26 @@ body{
 }
 .hypothesis{
   background: rgba(98 202 139 / 51%);
+  border: 2px solid rgb(124 211 158);
+  &.-faded{
+    background: rgba(98 202 139 / 13%)
+  }
   &.data{
     background: rgb(251 228 154 / 69%);
+    border: 2px solid rgb(239, 227, 152);
     &.-faded{
       background: rgba(250 214 94 / 13%);
     }
   }
-  &.-faded{
-    background: rgba(98 202 139 / 13%)
-  }
-
   & .name{ color: #c69c51; }
 }
+
 .goal{
   background: rgb(249, 195, 195);
+  border: 2px solid #f3b3b3;
+  color: #5a5656;
   &.-faded{
-    background: rgba(243, 173, 173, 0.1);
+    border: 2px solid #f7cfcf;
   }
 }
 /* that's pretty interesting */
@@ -158,11 +164,11 @@ body{
   position: relative;
 }
 .tactic{
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='2' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-  margin-top: -1px;
-  margin-bottom: -1px;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  margin-top: -2px;
+  margin-bottom: -2px;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 /*______________________ PROOF-TREE: widths ______________________*/

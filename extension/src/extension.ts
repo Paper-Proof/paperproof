@@ -20,12 +20,6 @@ export function activate(context: vscode.ExtensionContext) {
   const SERVER_URL = config.get("serverUrl", DEFAULT_SERVER_URL);
 
   // Sending types to the server on cursor changes.
-  //
-  // These events seem to get called twice. We only need `onDidChangeTextEditorSelection`.
-  // E.g., when we click on a neighbouring tab, we do get `onDidChangeTextEditorSelection` called.
-  // 
-  //
-  // sendPosition(shared, vscode.window.activeTextEditor);
   vscode.window.onDidChangeActiveTextEditor((textEditor) => {
     sendPosition(shared, textEditor);
   });
