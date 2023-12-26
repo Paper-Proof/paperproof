@@ -20,63 +20,64 @@ function Main() {
   const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
   const [highlights, setHighlights] = useState<Highlights | null>(null);
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
-  const [lastValidProofResponse, setLastValidProofResponse] = useState<ValidProofResponse>(window.initialInfo);
+  const [lastValidProofResponse, setLastValidProofResponse] = useState<ValidProofResponse | null>(null);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
+  const updateUI = (proofResponse : ProofResponse) => {
+    if ("error" in proofResponse) {
+      if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
+        // This is a normal situation, just return.
+      } else if (proofResponse.error === 'leanNotYetRunning') {
+        setSnackbarMessage("Waiting for Lean");
+        setSnackbarOpen(true);
+      } else if (proofResponse.error.startsWith("No RPC method")) {
+        setSnackbarMessage(`Missing "import Paperproof" in this file. Please import a Paperproof Lean library in this file.`);
+        setSnackbarOpen(true);
+      } else if (proofResponse.error === 'zeroProofSteps') {
+        setSnackbarMessage("Not within theorem");
+        setSnackbarOpen(true);
+      } else {
+        console.warn("We are not handling some error explicitly?", proofResponse);
+      }
+      return;
+    }
+
+    setSnackbarOpen(false);
+
+    // ___Why don't we memoize these functions/avoid rerenders?
+    //    These seem like expensive operations, however they aren't!
+    //    The whole converter()+hypsToTables() process takes from 2ms to 5ms.
+    //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
+    const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
+    convertedProofTree.boxes.forEach((box) => {
+      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
+    });
+    setProofTree(convertedProofTree);
+
+    const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
+    setHighlights(newHighlights);
+
+    // Delete stored zoomedBoxId if we switched the theorems.
+    const currentStatement = getStatement(proofResponse.proofTree);
+    const lastStatement = lastValidProofResponse && getStatement(lastValidProofResponse.proofTree);
+    if (lastStatement !== currentStatement) {
+      localStorage.removeItem('zoomedBoxId');
+    }
+    setLastValidProofResponse(proofResponse);
+  }
 
   useEffect(() => {
+    if (window.initialInfo) {
+      const proofResponse : ProofResponse = window.initialInfo;
+      updateUI(proofResponse);
+    }
+
     addEventListener("message", (event) => {
       const proofResponse : ProofResponse = event.data as ProofResponse;
-
-      // Does it ever happen?
-      if (!proofResponse) {
-        console.error("NO PROOOF???");
-        return;
-      };
-
-      if ("error" in proofResponse) {
-        if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
-          // This is a normal situation, just return.
-        } else if (proofResponse.error === 'leanNotYetRunning') {
-          setSnackbarMessage("Waiting for Lean");
-          setSnackbarOpen(true);
-        } else if (proofResponse.error.startsWith("No RPC method")) {
-          setSnackbarMessage(`Missing "import Paperproof" in this file. Please import a Paperproof Lean library in this file.`);
-          setSnackbarOpen(true);
-        } else if (proofResponse.error === 'zeroProofSteps') {
-          setSnackbarMessage("Not within theorem");
-          setSnackbarOpen(true);
-        } else {
-          console.warn("We are not handling some error explicitly?", proofResponse);
-        }
-        return;
-      }
-
-      setSnackbarOpen(false);
-
-      // ___Why don't we memoize these functions/avoid rerenders?
-      //    These seem like expensive operations, however they aren't!
-      //    The whole converter()+hypsToTables() process takes from 2ms to 5ms.
-      //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
-      const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
-      convertedProofTree.boxes.forEach((box) => {
-        box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
-      });
-      setProofTree(convertedProofTree);
-
-      const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
-      setHighlights(newHighlights);
-
-      // Delete stored zoomedBoxId if we switched the theorems.
-      const currentStatement = getStatement(proofResponse.proofTree);
-      const lastStatement = getStatement(lastValidProofResponse.proofTree);
-      if (lastStatement !== currentStatement) {
-        localStorage.removeItem('zoomedBoxId');
-      }
-      setLastValidProofResponse(proofResponse);
+      updateUI(proofResponse);
     });
   }, [])
 
@@ -84,7 +85,8 @@ function Main() {
     if (!proofTree) return;
     const newPerfectArrows = createArrows(proofTree);
     setPerfectArrows(newPerfectArrows);
-  
+
+    if (!lastValidProofResponse) return;
     zoomOnNavigation(proofTree, lastValidProofResponse.goal?.mvarId);
   }, [proofTree]);
 

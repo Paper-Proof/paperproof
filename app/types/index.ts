@@ -8,10 +8,10 @@ export interface ValidProofResponse {
   goal: LeanInteractiveGoal | null;
 }
 
-export type ProofResponse = ValidProofResponse | { error: any } | null;
+export type ProofResponse = ValidProofResponse | { error: any };
 
 export interface PaperProofWindow extends Window {
-  initialInfo: any | null;
+  initialInfo: ProofResponse | null;
   isBrightTheme: boolean;
 }
 
