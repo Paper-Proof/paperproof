@@ -4,7 +4,7 @@ import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
-import zoomAndScroll from '../../services/zoomAndScroll';
+import zoomToBox from '../../services/zoomToBox';
 import TacticNode from "../../../TacticNode";
 
 interface MyProps {
@@ -31,7 +31,14 @@ const prettifyGoalUsername = (username : string) => {
 const BoxEl = (props: MyProps) => {
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
-  return <section className="box" id={`box-${props.box.id}`} onClick={zoomAndScroll}>
+  const onClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    localStorage.setItem('zoomedBoxId', props.box.id);
+    const boxEl = event.currentTarget.closest(".box") as HTMLElement;
+    zoomToBox(boxEl);
+  }
+
+  return <section className="box" id={`box-${props.box.id}`} onClick={onClick}>
     <div className="box-insides">
       <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
 

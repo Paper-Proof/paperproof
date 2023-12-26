@@ -1,10 +1,8 @@
 import distance from "src/services/distance";
 
-const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
-  event.stopPropagation();
+const zoomToBox = (boxEl: HTMLElement) => {
   const htmlEl = document.getElementsByTagName("html")[0];
   const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
-  const boxEl = event.currentTarget.closest(".box") as HTMLElement;
   if (!htmlEl || !proofTreeEl || !boxEl) return;
   const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
 
@@ -60,4 +58,4 @@ const zoomAndScroll = (event: React.MouseEvent<HTMLElement>) => {
   window.requestAnimationFrame(step);
 }
 
-export default zoomAndScroll;
+export default zoomToBox;

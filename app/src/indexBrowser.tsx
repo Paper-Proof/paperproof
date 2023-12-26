@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow } from "types";
+import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, ValidProofResponse } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
@@ -10,41 +10,47 @@ import createArrows from './services/createArrows';
 import PerfectArrow from "./components/PerfectArrow";
 
 import Snackbar from '@mui/material/Snackbar';
+import zoomOnNavigation from "./components/ProofTree/services/zoomOnNavigation";
+import getStatement from "./services/getStatement";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
 
 function Main() {
-  const [proofState, setProofState] = useState<ProofResponse>(window.initialInfo);
   const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
   const [highlights, setHighlights] = useState<Highlights | null>(null);
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
+  const [lastValidProofResponse, setLastValidProofResponse] = useState<ValidProofResponse>(window.initialInfo);
+
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
+
   useEffect(() => {
     addEventListener("message", (event) => {
-      const proof = event.data;
-      setProofState(proof);
+      const proofResponse : ProofResponse = event.data as ProofResponse;
 
       // Does it ever happen?
-      if (!proof) return;
+      if (!proofResponse) {
+        console.error("NO PROOOF???");
+        return;
+      };
 
-      if ("error" in proof) {
-        if (proof.error === 'File changed.' || proof.error === 'stillTyping') {
+      if ("error" in proofResponse) {
+        if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
           // This is a normal situation, just return.
-        } else if (proof.error === 'leanNotYetRunning') {
+        } else if (proofResponse.error === 'leanNotYetRunning') {
           setSnackbarMessage("Waiting for Lean");
           setSnackbarOpen(true);
-        } else if (proof.error.startsWith("No RPC method")) {
+        } else if (proofResponse.error.startsWith("No RPC method")) {
           setSnackbarMessage(`Missing "import Paperproof" in this file. Please import a Paperproof Lean library in this file.`);
           setSnackbarOpen(true);
-        } else if (proof.error === 'zeroProofSteps') {
+        } else if (proofResponse.error === 'zeroProofSteps') {
           setSnackbarMessage("Not within theorem");
           setSnackbarOpen(true);
         } else {
-          console.warn("We are not handling some error explicitly?", proof);
+          console.warn("We are not handling some error explicitly?", proofResponse);
         }
         return;
       }
@@ -55,21 +61,31 @@ function Main() {
       //    These seem like expensive operations, however they aren't!
       //    The whole converter()+hypsToTables() process takes from 2ms to 5ms.
       //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
-      const convertedProofTree : ConvertedProofTree = converter(proof.proofTree);
+      const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
       convertedProofTree.boxes.forEach((box) => {
         box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
       });
       setProofTree(convertedProofTree);
 
-      const newHighlights = getHighlights(convertedProofTree.equivalentIds, proof.goal);
+      const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
       setHighlights(newHighlights);
+
+      // Delete stored zoomedBoxId if we switched the theorems.
+      const currentStatement = getStatement(proofResponse.proofTree);
+      const lastStatement = getStatement(lastValidProofResponse.proofTree);
+      if (lastStatement !== currentStatement) {
+        localStorage.removeItem('zoomedBoxId');
+      }
+      setLastValidProofResponse(proofResponse);
     });
   }, [])
-  
+
   React.useLayoutEffect(() => {
-    if (!proofTree) return
+    if (!proofTree) return;
     const newPerfectArrows = createArrows(proofTree);
     setPerfectArrows(newPerfectArrows);
+  
+    zoomOnNavigation(proofTree, lastValidProofResponse.goal?.mvarId);
   }, [proofTree]);
 
   return <>

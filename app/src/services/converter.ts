@@ -180,7 +180,7 @@ const getBoxByGoalId = (pretty : ConvertedProofTree, goalId : string) => {
   )
 }
 
-const getDisplayedId = (pretty : ConvertedProofTree, id : string | null) => {
+export const getDisplayedId = (pretty : ConvertedProofTree, id : string | null) => {
   if (id === null) {
     return null
   }

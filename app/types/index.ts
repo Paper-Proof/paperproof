@@ -3,12 +3,12 @@ import { LeanInteractiveHyp, LeanInteractiveGoal } from './LeanInteractiveGoal';
 import { GoalNode, HypNode, Box, Tactic, ConvertedProofTree, TabledHyp, TabledTactic, TabledCell, Table, DataRow } from './ConvertedProofTree';
 
 // SERVER REQUEST/RESPONSE
-export interface ProofState {
+export interface ValidProofResponse {
   proofTree: LeanProofTree;
   goal: LeanInteractiveGoal | null;
 }
 
-export type ProofResponse = ProofState | { error: any } | null;
+export type ProofResponse = ValidProofResponse | { error: any } | null;
 
 export interface PaperProofWindow extends Window {
   initialInfo: any | null;
