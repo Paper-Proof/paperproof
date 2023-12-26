@@ -49,7 +49,7 @@ const getResponseOrError = async (shared: Shared, editor: vscode.TextEditor, tdp
   }
 };
 
-const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefined) => {
+const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefined, token: vscode.CancellationToken) => {
   if (!editor || shouldIgnoreEvent(editor)) { return; };
 
   let tdp = {
@@ -59,6 +59,7 @@ const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefine
   shared.log.appendLine(`\nText selection: ${JSON.stringify(tdp)}`);
 
   const body = await getResponseOrError(shared, editor, tdp);
+  if (token.isCancellationRequested) { return; }
   shared.latestInfo = body;
   await shared.webviewPanel?.webview.postMessage(body);
 };

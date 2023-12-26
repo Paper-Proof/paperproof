@@ -20,11 +20,17 @@ export function activate(context: vscode.ExtensionContext) {
   const SERVER_URL = config.get("serverUrl", DEFAULT_SERVER_URL);
 
   // Sending types to the server on cursor changes.
+  // We use a `cancellationToken` to make sure only the last request gets through.
+  let cancellationToken: vscode.CancellationTokenSource | null = null;
   vscode.window.onDidChangeActiveTextEditor((textEditor) => {
-    sendPosition(shared, textEditor);
+    if (cancellationToken) { cancellationToken.cancel(); }
+    cancellationToken = new vscode.CancellationTokenSource();
+    sendPosition(shared, textEditor, cancellationToken.token);
   });
   vscode.window.onDidChangeTextEditorSelection((event) => {
-    sendPosition(shared, event.textEditor);
+    if (cancellationToken) { cancellationToken.cancel(); }
+    cancellationToken = new vscode.CancellationTokenSource();
+    sendPosition(shared, event.textEditor, cancellationToken.token);
   });
 
   context.subscriptions.push(

@@ -131,7 +131,7 @@ body{
     background: #f2f1d9;
     border-color: #d2ce59;
   }
-  &.-sorried, &.-success, &.ellipsis{
+  &.-sorried, &.-success, &.-ellipsis{
     margin-top: 20px;
   }
 }
@@ -156,6 +156,7 @@ body{
   border: 2px solid #f3b3b3;
   color: #5a5656;
   &.-faded{
+    background: rgb(241 217 217);
     border: 2px solid #f7cfcf;
   }
 }
