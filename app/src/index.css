@@ -180,9 +180,13 @@ body{
   & .hypothesis{
     width: fit-content;
     max-width: 200px;
+    /* Used to be: */
+    min-width: 100%;
   }
   & .tactic{
-    width: min-content;
+    /* Used to be: */
+    /* width: min-content; */
+    width: fit-content;
     min-width: 100%;
   }
 }
