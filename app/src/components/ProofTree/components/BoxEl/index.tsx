@@ -7,6 +7,10 @@ import Hint from "./components/Hint";
 import zoomToBox from '../../services/zoomToBox';
 import TacticNode from "../../../TacticNode";
 
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+
+
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
@@ -29,6 +33,35 @@ const prettifyGoalUsername = (username : string) => {
 }
 
 const BoxEl = (props: MyProps) => {
+  const [contextMenu, setContextMenu] = React.useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+          // Other native context menus might behave different.
+          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+          null,
+    );
+  };
+
+  const handleClose = (event) => {
+    // event.preventDefault();
+    event.stopPropagation();
+    setContextMenu(null);
+  };
+
+
+
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -37,7 +70,22 @@ const BoxEl = (props: MyProps) => {
     zoomToBox(props.box.id);
   }
 
-  return <section className="box" id={`box-${props.box.id}`} onClick={onClick}>
+  return <section className="box" id={`box-${props.box.id}`} onClick={onClick} onContextMenu={handleContextMenu}>
+    <Menu
+      open={contextMenu !== null}
+      onClose={handleClose}
+      anchorReference="anchorPosition"
+      anchorPosition={
+        contextMenu !== null
+          ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+          : undefined
+      }
+    >
+      <MenuItem onClick={handleClose}>Collapse</MenuItem>
+      <MenuItem onClick={handleClose}>Zoom In [Alt +]</MenuItem>
+      <MenuItem onClick={handleClose}>Zoom Out [Alt -]</MenuItem>
+    </Menu>
+
     <div className="box-insides">
       <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
 

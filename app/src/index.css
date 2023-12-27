@@ -203,6 +203,11 @@ body{
   color: #434343;
 }
 
+.MuiMenuItem-root {
+  font-size: 14px !important;
+  min-height: 0 !important;
+}
+
 /*______________________ DEVELOPMENT ______________________*/
 .-hint pre{
   display: none;
