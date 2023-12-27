@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, ValidProofResponse } from "types";
+import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, ValidProofResponse, LeanInteractiveGoal } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
@@ -16,11 +16,17 @@ import getStatement from "./services/getStatement";
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
 
+interface Converted {
+  proofTree: ConvertedProofTree;
+  highlights: Highlights;
+  statement: string | null;
+  currentGoal: LeanInteractiveGoal | null;
+}
+
 function Main() {
-  const [proofTree, setProofTree] = useState<ConvertedProofTree | null>(null);
-  const [highlights, setHighlights] = useState<Highlights | null>(null);
+  const [converted, setConverted] = useState<Converted | null>(null);
+
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
-  const [lastValidProofResponse, setLastValidProofResponse] = useState<ValidProofResponse | null>(null);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -34,7 +40,7 @@ function Main() {
         setSnackbarMessage("Waiting for Lean");
         setSnackbarOpen(true);
       } else if (proofResponse.error.startsWith("No RPC method")) {
-        setSnackbarMessage(`Missing "import Paperproof" in this file. Please import a Paperproof Lean library in this file.`);
+        setSnackbarMessage(`Missing "import Paperproof" in this .lean file, please import it.`);
         setSnackbarOpen(true);
       } else if (proofResponse.error === 'zeroProofSteps') {
         setSnackbarMessage("Not within theorem");
@@ -44,7 +50,6 @@ function Main() {
       }
       return;
     }
-
     setSnackbarOpen(false);
 
     // ___Why don't we memoize these functions/avoid rerenders?
@@ -55,18 +60,15 @@ function Main() {
     convertedProofTree.boxes.forEach((box) => {
       box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
     });
-    setProofTree(convertedProofTree);
-
     const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
-    setHighlights(newHighlights);
-
-    // Delete stored zoomedBoxId if we switched the theorems.
     const currentStatement = getStatement(proofResponse.proofTree);
-    const lastStatement = lastValidProofResponse && getStatement(lastValidProofResponse.proofTree);
-    if (lastStatement !== currentStatement) {
-      localStorage.removeItem('zoomedBoxId');
-    }
-    setLastValidProofResponse(proofResponse);
+
+    setConverted({
+      proofTree: convertedProofTree,
+      highlights: newHighlights,
+      statement: currentStatement,
+      currentGoal: proofResponse.goal
+    });
   }
 
   useEffect(() => {
@@ -82,19 +84,23 @@ function Main() {
   }, [])
 
   React.useLayoutEffect(() => {
-    if (!proofTree) return;
-    const newPerfectArrows = createArrows(proofTree);
+    if (!converted) return;
+
+    const newPerfectArrows = createArrows(converted.proofTree);
     setPerfectArrows(newPerfectArrows);
 
-    if (!lastValidProofResponse) return;
-    zoomOnNavigation(proofTree, lastValidProofResponse.goal?.mvarId);
-  }, [proofTree]);
+    zoomOnNavigation(converted.proofTree, converted.currentGoal?.mvarId);
+  }, [converted]);
+
+  React.useEffect(() => {
+    localStorage.removeItem('zoomedBoxId');
+  }, [converted?.statement])
 
   return <>
     {
-      proofTree &&
+      converted &&
       <div className="proof-tree">
-        <ProofTree proofTree={proofTree} highlights={highlights}/>
+        <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
         {perfectArrows.map((arrow, index) =>
           <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
         )}
