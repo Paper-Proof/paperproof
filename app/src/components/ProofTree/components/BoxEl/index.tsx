@@ -34,8 +34,7 @@ const BoxEl = (props: MyProps) => {
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     localStorage.setItem('zoomedBoxId', props.box.id);
-    const boxEl = event.currentTarget.closest(".box") as HTMLElement;
-    zoomToBox(boxEl);
+    zoomToBox(props.box.id);
   }
 
   return <section className="box" id={`box-${props.box.id}`} onClick={onClick}>

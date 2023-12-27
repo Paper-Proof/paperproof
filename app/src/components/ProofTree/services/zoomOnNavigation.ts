@@ -35,8 +35,7 @@ const zoomOnNavigation = (convertedTree: ConvertedProofTree, goalId: string | un
   const lastClickedOnBoxId = localStorage.getItem('zoomedBoxId');
   const lastClickedOnBox = lastClickedOnBoxId && document.getElementById(`box-${lastClickedOnBoxId}`);
   if (!goalId || !lastClickedOnBox) {
-    const rootBox = document.getElementById("box-1");
-    if (rootBox) { zoomToBox(rootBox); }
+    zoomToBox("1");
     return;
   }
 
@@ -50,11 +49,7 @@ const zoomOnNavigation = (convertedTree: ConvertedProofTree, goalId: string | un
   }
 
   let lcmBoxId = findLcm(convertedTree.boxes, boxWithCurrentGoal.id, lastClickedOnBoxId);
-  const lcmBox = document.getElementById(`box-${lcmBoxId}`);
-
-  if (lcmBox) {
-    zoomToBox(lcmBox);
-  }
+  zoomToBox(lcmBoxId);
 }
 
 export default zoomOnNavigation;

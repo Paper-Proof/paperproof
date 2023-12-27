@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, ValidProofResponse, LeanInteractiveGoal } from "types";
+import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, LeanInteractiveGoal } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";

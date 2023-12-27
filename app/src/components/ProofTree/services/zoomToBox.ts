@@ -1,7 +1,8 @@
 import distance from "src/services/distance";
 
-const zoomToBox = (boxEl: HTMLElement) => {
+const zoomToBox = (boxId: string) => {
   const htmlEl = document.getElementsByTagName("html")[0];
+  const boxEl = document.getElementById(`box-${boxId}`);
   const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
   if (!htmlEl || !proofTreeEl || !boxEl) return;
   const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
