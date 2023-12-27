@@ -66,8 +66,18 @@ const BoxEl = (props: MyProps) => {
     setContextMenu(null);
   };
 
-  const handleZoomIn = (event: React.MouseEvent) => {
+  const handleZoom = (event: React.MouseEvent, type: "in" | "out") => {
     event.stopPropagation();
+
+    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
+    if (!proofTreeEl) return;
+    const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
+    proofTreeEl.style.transition = 'transform 0.2s';
+    const increment = type === "in" ? 0.1 : -0.1;
+    proofTreeEl.style.transform = `scale(${initialScale + increment})`;
+    setTimeout(() => {
+      proofTreeEl.style.transition = '';
+    }, 200);
   }
 
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
@@ -90,8 +100,8 @@ const BoxEl = (props: MyProps) => {
       }
     >
       <MenuItem onClick={handleCollapse}>{collapsed ? "Expand" : "Collapse"}</MenuItem>
-      <MenuItem onClick={handleZoomIn}>Zoom In [Alt +]</MenuItem>
-      <MenuItem onClick={handleClose}>Zoom Out [Alt -]</MenuItem>
+      <MenuItem onClick={(event) => handleZoom(event, "in")}>Zoom In</MenuItem>
+      <MenuItem onClick={(event) => handleZoom(event, "out")}>Zoom Out</MenuItem>
       <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
 
