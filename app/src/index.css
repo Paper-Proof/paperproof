@@ -223,3 +223,10 @@ body{
 .-hint:hover pre{
   display: block;
 }
+
+
+
+/* new styles for `collapsed` state */
+.goal-username {
+  padding: 0 10px;
+}

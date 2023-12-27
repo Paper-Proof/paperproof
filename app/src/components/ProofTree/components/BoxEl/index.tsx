@@ -37,6 +37,7 @@ const BoxEl = (props: MyProps) => {
     mouseX: number;
     mouseY: number;
   } | null>(null);
+  const [collapsed, setCollapsed] = React.useState<boolean>(false);
 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -54,13 +55,20 @@ const BoxEl = (props: MyProps) => {
     );
   };
 
-  const handleClose = (event) => {
-    // event.preventDefault();
+  const handleClose = (event: React.MouseEvent) => {
     event.stopPropagation();
     setContextMenu(null);
   };
 
+  const handleCollapse = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setCollapsed(!collapsed)
+    setContextMenu(null);
+  };
 
+  const handleZoomIn = (event: React.MouseEvent) => {
+    event.stopPropagation();
+  }
 
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
@@ -81,38 +89,40 @@ const BoxEl = (props: MyProps) => {
           : undefined
       }
     >
-      <MenuItem onClick={handleClose}>Collapse</MenuItem>
-      <MenuItem onClick={handleClose}>Zoom In [Alt +]</MenuItem>
+      <MenuItem onClick={handleCollapse}>{collapsed ? "Expand" : "Collapse"}</MenuItem>
+      <MenuItem onClick={handleZoomIn}>Zoom In [Alt +]</MenuItem>
       <MenuItem onClick={handleClose}>Zoom Out [Alt -]</MenuItem>
+      <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
 
-    <div className="box-insides">
-      <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
+    {!collapsed &&
+      <div className="box-insides">
+        <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
 
-      {
-        childrenBoxes.length > 0 &&
-        <div className="child-boxes">
-          {childrenBoxes.map((childBox) =>
-            <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree} highlights={props.highlights}/>
-          )}
-        </div>
-      }
-
-      {props.box.goalNodes.slice().reverse().map((goalNode) =>
-        <div className="goals" key={goalNode.id}>
-          {
-            getGoalTactic(props.proofTree, goalNode.id) ?
-              <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/> :
-              <div className="tactic -ellipsis">...</div>
-          }
-          <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
-            <Hint>{goalNode}</Hint>
-            {goalNode.text}
+        {
+          childrenBoxes.length > 0 &&
+          <div className="child-boxes">
+            {childrenBoxes.map((childBox) =>
+              <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree} highlights={props.highlights}/>
+            )}
           </div>
-        </div>
-      )}
-    </div>
+        }
 
+        {props.box.goalNodes.slice().reverse().map((goalNode) =>
+          <div className="goals" key={goalNode.id}>
+            {
+              getGoalTactic(props.proofTree, goalNode.id) ?
+                <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/> :
+                <div className="tactic -ellipsis">...</div>
+            }
+            <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
+              <Hint>{goalNode}</Hint>
+              {goalNode.text}
+            </div>
+          </div>
+        )}
+      </div>
+    }
     <div className="goal-username">
       {prettifyGoalUsername(props.box.goalNodes[0].name)}
     </div>
