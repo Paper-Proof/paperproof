@@ -80,6 +80,14 @@ const BoxEl = (props: MyProps) => {
     }, 200);
   }
 
+  const handleCompactMode = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
+    if (!proofTreeEl) return;
+    proofTreeEl.classList.toggle('-compact');
+    setContextMenu(null);
+  };
+
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -102,6 +110,7 @@ const BoxEl = (props: MyProps) => {
       <MenuItem onClick={handleCollapse}>{collapsed ? "Expand" : "Collapse"}</MenuItem>
       <MenuItem onClick={(event) => handleZoom(event, "in")}>Zoom In</MenuItem>
       <MenuItem onClick={(event) => handleZoom(event, "out")}>Zoom Out</MenuItem>
+      <MenuItem onClick={handleCompactMode}>Compact mode</MenuItem>
       <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
 

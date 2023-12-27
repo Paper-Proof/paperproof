@@ -20,6 +20,14 @@ body{
     background: white;
   }
 }
+.proof-tree.-compact{
+  & .box-insides{
+    padding: 0;
+  }
+  & .hypothesis, & .goal, & .tactic{
+    padding: 3px 7px;
+  }
+}
 
 /*______________________ BODY: widths for zooming ______________________*/
 body{
