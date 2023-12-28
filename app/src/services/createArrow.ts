@@ -1,7 +1,7 @@
 import { Arrow, Point } from 'types';
 import distance from './distance';
 
-const createArrow = (from: string | HTMLInputElement | null, to: string | HTMLInputElement | null) : Arrow | null => {
+const createArrow = (from: string | HTMLElement | null, to: string | HTMLElement | null) : Arrow | null => {
   const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
   const fromEl = typeof from === 'string' ? document.getElementById(from) : from;
   const toEl = typeof to === 'string' ? document.getElementById(to) : to;

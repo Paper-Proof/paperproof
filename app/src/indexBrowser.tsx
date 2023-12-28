@@ -28,7 +28,6 @@ interface Converted {
   proofTree: ConvertedProofTree;
   highlights: Highlights;
   statement: string | null;
-  currentGoal: LeanInteractiveGoal | null;
 }
 
 function Main() {
@@ -76,7 +75,6 @@ function Main() {
       proofTree: convertedProofTree,
       highlights: newHighlights,
       statement: currentStatement,
-      currentGoal: proofResponse.goal
     });
   }
 
@@ -98,7 +96,7 @@ function Main() {
     const newPerfectArrows = createHypArrows(converted.proofTree);
     setPerfectArrows(newPerfectArrows);
 
-    zoomOnNavigation(converted.proofTree, converted.currentGoal?.mvarId);
+    zoomOnNavigation(converted.proofTree, converted.highlights?.goalId);
   }, [converted, UIVersion]);
 
   React.useEffect(() => {
@@ -132,4 +130,3 @@ function Main() {
 
 const root = createRoot(document.getElementById("root")!);
 root.render(<Main/>);
-
