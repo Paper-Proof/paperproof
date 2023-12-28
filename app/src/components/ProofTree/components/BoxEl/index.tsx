@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
 import Hypotheses from "./components/Hypotheses";
@@ -9,7 +9,7 @@ import TacticNode from "../../../TacticNode";
 
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
+import { GlobalContext } from "src/indexBrowser";
 
 interface MyProps {
   box: Box;
@@ -39,6 +39,8 @@ const BoxEl = (props: MyProps) => {
   } | null>(null);
   const [collapsed, setCollapsed] = React.useState<boolean>(false);
 
+  const { refreshUI } = useContext(GlobalContext);
+
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -62,8 +64,9 @@ const BoxEl = (props: MyProps) => {
 
   const handleCollapse = (event: React.MouseEvent) => {
     event.stopPropagation();
-    setCollapsed(!collapsed)
+    setCollapsed(!collapsed);
     setContextMenu(null);
+    refreshUI();
   };
 
   const handleZoom = (event: React.MouseEvent, type: "in" | "out") => {
@@ -85,6 +88,7 @@ const BoxEl = (props: MyProps) => {
     const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
     if (!proofTreeEl) return;
     proofTreeEl.classList.toggle('-compact');
+    refreshUI();
     setContextMenu(null);
   };
 

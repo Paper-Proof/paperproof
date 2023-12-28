@@ -16,6 +16,14 @@ import getStatement from "./services/getStatement";
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
 
+export const GlobalContext = React.createContext<{ proofTree: ConvertedProofTree; highlights: Highlights; UIVersion: number, refreshUI: () => void; }>({
+  // These value are never used because we only render the children once convertedProofTree is already non-null - we're just inserting these values so that typescript doesn't complain in children.
+  proofTree: { boxes: [], tactics: [], equivalentIds: {} },
+  highlights: null,
+  refreshUI: () => {},
+  UIVersion: 1
+});
+
 interface Converted {
   proofTree: ConvertedProofTree;
   highlights: Highlights;
@@ -27,6 +35,7 @@ function Main() {
   const [converted, setConverted] = useState<Converted | null>(null);
 
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
+  const [UIVersion, setUIVersion] = useState<number>(1);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -90,21 +99,27 @@ function Main() {
     setPerfectArrows(newPerfectArrows);
 
     zoomOnNavigation(converted.proofTree, converted.currentGoal?.mvarId);
-  }, [converted]);
+  }, [converted, UIVersion]);
 
   React.useEffect(() => {
     localStorage.removeItem('zoomedBoxId');
   }, [converted?.statement])
 
+  const refreshUI = () => {
+    setUIVersion((UIVersion) => UIVersion + 1);
+  }
+
   return <>
     {
       converted &&
-      <div className="proof-tree">
-        <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
-        {perfectArrows.map((arrow, index) =>
-          <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
-        )}
-      </div>
+      <GlobalContext.Provider value={{ proofTree: converted.proofTree, highlights: converted.highlights, UIVersion, refreshUI }}>
+        <div className="proof-tree">
+          <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
+          {perfectArrows.map((arrow, index) =>
+            <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
+          )}
+        </div>
+      </GlobalContext.Provider>
     }
     <Snackbar
       open={snackbarOpen}
@@ -117,3 +132,4 @@ function Main() {
 
 const root = createRoot(document.getElementById("root")!);
 root.render(<Main/>);
+
