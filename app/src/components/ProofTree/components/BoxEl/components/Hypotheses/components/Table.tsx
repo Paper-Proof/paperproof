@@ -18,7 +18,7 @@ const Table = (props: TableProps) => {
   const rows = Array.from({ length: maxRow + 1 }, (_, i) => i);
 
   const maxColumn = Math.max(...props.tabledCells.map(hyp => hyp.columnTo));
-  const columns = Array.from({ length: maxColumn + 1 }, (_, i) => i);
+  const columns = Array.from({ length: maxColumn }, (_, i) => i);
 
   return (
     <table className="hypothesis-table">
