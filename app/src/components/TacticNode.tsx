@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
-import { Arrow, Point, Tactic } from "types";
+import { Arrow, Tactic } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
-import distance from "src/services/distance";
 import { GlobalContext } from "src/indexBrowser";
+import createArrow from "src/services/createArrow";
 
 interface TacticNodeProps {
   tactic: Tactic;
@@ -17,30 +17,9 @@ const TacticNode = (props: TacticNodeProps) => {
   const global = useContext(GlobalContext);
 
   React.useLayoutEffect(() => {
-    const newPerfectArrows : Arrow[] = [];
-
-    props.tactic.dependsOnIds.forEach((dependsOnHypId) => {
-      const fromId =`hypothesis-${dependsOnHypId}`;
-      const fromEl = document.getElementById(fromId)!;
-      const toEl = thisEl.current;
-      if (!fromEl || !toEl) return;
-
-      const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
-      const currentZoom = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
-
-      const pointFrom : Point = {
-        x: distance('left', fromEl, proofTreeEl)/currentZoom + fromEl.offsetWidth/2,
-        y: distance('top', fromEl, proofTreeEl)/currentZoom + fromEl.offsetHeight
-      };
-
-      const pointTo : Point = {
-        x: distance('left', toEl, proofTreeEl)/currentZoom + toEl.offsetWidth/2,
-        y: distance('top', toEl, proofTreeEl)/currentZoom
-      };
-
-      newPerfectArrows.push({ from: pointFrom, to: pointTo })
-    });
-
+    const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
+      .map((dependsOnHypId) => createArrow(`hypothesis-${dependsOnHypId}`, thisEl.current))
+      .filter((arrow) : arrow is Arrow => arrow !== null);
     setPerfectArrows(newPerfectArrows);
   }, [props.tactic, global.UIVersion]);
 

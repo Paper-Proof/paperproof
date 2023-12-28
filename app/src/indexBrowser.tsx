@@ -6,7 +6,7 @@ import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./components/ProofTree/services/getHighlights";
 import hypsToTables from "./services/hypsToTables";
-import createArrows from './services/createArrows';
+import createHypArrows from './services/createHypArrows';
 import PerfectArrow from "./components/PerfectArrow";
 
 import Snackbar from '@mui/material/Snackbar';
@@ -95,7 +95,7 @@ function Main() {
   React.useLayoutEffect(() => {
     if (!converted) return;
 
-    const newPerfectArrows = createArrows(converted.proofTree);
+    const newPerfectArrows = createHypArrows(converted.proofTree);
     setPerfectArrows(newPerfectArrows);
 
     zoomOnNavigation(converted.proofTree, converted.currentGoal?.mvarId);
