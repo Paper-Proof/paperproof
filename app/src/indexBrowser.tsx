@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, LeanInteractiveGoal } from "types";
+import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, LeanInteractiveGoal, HypNode } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
@@ -12,6 +12,7 @@ import PerfectArrow from "./components/PerfectArrow";
 import Snackbar from '@mui/material/Snackbar';
 import zoomOnNavigation from "./components/ProofTree/services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
+import HypothesisNode from "./components/ProofTree/components/BoxEl/components/Hypotheses/components/HypothesisNode";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -39,6 +40,8 @@ function Main() {
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+
+  const [idsOutsideViewport, setIdsOutsideViewport] = React.useState<string[]>([]);
 
   const updateUI = (proofResponse : ProofResponse) => {
     if ("error" in proofResponse) {
@@ -76,9 +79,10 @@ function Main() {
       highlights: newHighlights,
       statement: currentStatement,
     });
+    setIdsOutsideViewport([]);
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (window.initialInfo) {
       const proofResponse : ProofResponse = window.initialInfo;
       updateUI(proofResponse);
@@ -107,10 +111,55 @@ function Main() {
     setUIVersion((UIVersion) => UIVersion + 1);
   }
 
+  React.useLayoutEffect(() => {
+    if (!converted || !converted.highlights) {
+      return;
+    }
+
+    const highlightedHypEls = converted.highlights.hypIds
+      .map((hypId) => document.getElementById(`hypothesis-${hypId}`))
+      .filter((hypEl) => hypEl) as HTMLElement[];
+
+    const observer = new IntersectionObserver((entries) => {
+      setIdsOutsideViewport((outsiderIds) => {
+        let newIdsOutsideViewport = [...outsiderIds];
+        entries.forEach((entry) => {
+          const hypId = entry.target.id.replace('hypothesis-', '');
+          if (outsiderIds.includes(hypId) && entry.isIntersecting) {
+            newIdsOutsideViewport = newIdsOutsideViewport.filter((id) => id !== hypId);
+          } else if (!outsiderIds.includes(hypId) && !entry.isIntersecting) {
+            newIdsOutsideViewport.push(hypId);
+          }
+        });
+        return newIdsOutsideViewport;
+      });
+    }, { threshold: 1.0 });
+
+    highlightedHypEls.forEach((hypEl) => observer.observe(hypEl));
+
+    return () => { observer.disconnect() };
+  }, [converted]);
+
+  let displayHyps : HypNode[] = []; 
+  if (converted && converted.highlights) {
+    const allHyps = converted.proofTree.boxes
+      .flatMap((box) => box.hypLayers.flatMap((hypLayer) => hypLayer.hypNodes))
+      // .filter((hyp) => hyp.isProof === "proof")
+      displayHyps = idsOutsideViewport.map((id) => allHyps.find((hyp) => hyp.id === id)).filter((hyp) => hyp) as HypNode[];
+  }
+
   return <>
     {
       converted &&
       <GlobalContext.Provider value={{ proofTree: converted.proofTree, highlights: converted.highlights, UIVersion, refreshUI }}>
+        {
+          displayHyps.length > 0 &&
+          <div className="in-scope-hypotheses">
+            {displayHyps.map((hypNode) =>
+              <HypothesisNode key={hypNode.id} hypNode={hypNode} highlights={converted.highlights} withId={false}/>
+            )}
+          </div>
+        }
         <div className="proof-tree">
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>

@@ -5,9 +5,10 @@ import { Highlights, HypNode, TabledHyp } from "types";
 export interface HypothesisProps {
   hypNode: HypNode;
   highlights: Highlights;
+  withId?: boolean
 }
 
-const HypothesisNode = (props: HypothesisProps) => {
+const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   // Example input: hypNode.name = "h._@.Examples._hyg.1162"
   // Example output: name = "h✝"
   const name = props.hypNode.name &&
@@ -16,7 +17,7 @@ const HypothesisNode = (props: HypothesisProps) => {
     : props.hypNode.name;
 
   return <div
-    id={`hypothesis-${props.hypNode.id}`}
+    id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
     className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(props.hypNode.id) ? "" : "-faded"} ${props.hypNode.isProof}`}
   >
     <Hint>{props.hypNode}</Hint>
