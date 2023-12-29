@@ -36,7 +36,7 @@ const TacticNode = (props: TacticNodeProps) => {
       ref={thisEl}
     >
       <Hint>{props.tactic}</Hint>
-      {props.tactic.text}
+      {isSuccess ? <><span>🎉</span> <span>{props.tactic.text}</span> <span>🎉</span></> : props.tactic.text}
       {perfectArrows.map((arrow, index) =>
         <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
       )}

@@ -132,28 +132,45 @@ body{
 .tactic{
   color: #72787c;
   &.-success{
+    /* center text */
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+
     background: rgb(0 213 255 / 12%);
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%239ed6e1' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   &.-sorried{
+    text-align: center;
     background: #f2f1d9;
     border-color: #d2ce59;
   }
+  &.-ellipsis{
+    text-align: center;
+    background: rgba(82, 95, 98, 0.049);
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  }
   &.-sorried, &.-success, &.-ellipsis{
     margin-top: 20px;
+
+    /* increase padding by 1px */
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 }
 .hypothesis{
-  background: rgba(98 202 139 / 51%);
+  background: #a4dabc;
   border: 2px solid rgb(124 211 158);
   &.-faded{
-    background: rgba(98 202 139 / 13%)
+    background: rgba(98 202 139 / 13%);
+    border: 2px solid #c1e1d7;
   }
   &.data{
-    background: rgb(251 228 154 / 69%);
+    background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
     &.-faded{
       background: rgba(250 214 94 / 13%);
+      border-color: #f1ead3;
     }
   }
   & .name{ color: #c69c51; }
@@ -161,11 +178,11 @@ body{
 
 .goal{
   background: rgb(249, 195, 195);
-  border: 2px solid #f3b3b3;
+  border: 2px solid #f6b9b9;
   color: #5a5656;
   &.-faded{
-    background: rgb(241 217 217);
-    border: 2px solid #f7cfcf;
+    background: #ede2e4;
+    border: 2px solid #efd9dd;
   }
 }
 /* that's pretty interesting */
