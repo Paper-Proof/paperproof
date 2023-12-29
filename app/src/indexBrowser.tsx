@@ -144,15 +144,22 @@ function Main() {
   if (converted && converted.highlights) {
     const allHyps = converted.proofTree.boxes
       .flatMap((box) => box.hypLayers.flatMap((hypLayer) => hypLayer.hypNodes))
-      // .filter((hyp) => hyp.isProof === "proof")
-      displayHyps = idsOutsideViewport.map((id) => allHyps.find((hyp) => hyp.id === id)).filter((hyp) => hyp) as HypNode[];
+      .filter((hyp) => hyp.isProof === "proof")
+    displayHyps = idsOutsideViewport.map((id) => allHyps.find((hyp) => hyp.id === id)).filter((hyp) => hyp) as HypNode[];
   }
+
+  const canWriteTactic = converted && converted.highlights &&
+    !converted.proofTree.tactics.find((tactic) =>
+    tactic.successGoalId === converted.highlights!.goalId ||
+    tactic.goalArrows.find((goalArrow) => goalArrow.fromId === converted.highlights!.goalId)
+  );
 
   return <>
     {
       converted &&
       <GlobalContext.Provider value={{ proofTree: converted.proofTree, highlights: converted.highlights, UIVersion, refreshUI }}>
         {
+          canWriteTactic &&
           displayHyps.length > 0 &&
           <div className="in-scope-hypotheses">
             {displayHyps.map((hypNode) =>
