@@ -186,16 +186,16 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       -- It's a tactic combinator
       let steps := prettifySteps tInfo.stx steps
 
-      match tInfo.stx with
-      | `(tactic| have $_:haveDecl) =>
-        return {steps := .haveDecl tacticApp orphanedGoals [] :: steps,
-                allGoals}
-      | _ =>
-        -- Don't add anything new if we already handled it in subtree.
-        if steps.map stepGoalsBefore |>.elem goalsBefore then
-          return {steps, allGoals}
-        return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals} :: steps,
-                allGoals}
+      -- Don't add anything new if we already handled it in subtree (still prettify steps as per above).
+      if steps.map stepGoalsBefore |>.elem goalsBefore then
+        return {steps, allGoals}
+
+      let newStep :=
+        match tInfo.stx with
+        | `(tactic| have $_:haveDecl) =>.haveDecl tacticApp orphanedGoals []
+        | _ => .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals}
+
+      return { steps := newStep :: steps, allGoals }
     else
       return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"
