@@ -61,6 +61,17 @@ function Main() {
       }
       return;
     }
+    // Check version for compatibility
+    const leanRpcVersion = proofResponse.version ?? 1;
+    const desiredLeanRpcVersion = 2;
+    if (leanRpcVersion !== desiredLeanRpcVersion) {
+      setSnackbarMessage(`Incompatible versions of vscode extension and Lean library detected.
+        Please run "lake update Paperproof" to update the libary.
+        Reload vscode window to update the extension.`);
+      setSnackbarOpen(true);
+      return;
+    } 
+
     setSnackbarOpen(false);
 
     // ___Why don't we memoize these functions/avoid rerenders?

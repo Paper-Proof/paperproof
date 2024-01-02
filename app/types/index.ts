@@ -4,6 +4,10 @@ import { GoalNode, HypNode, Box, Tactic, ConvertedProofTree, TabledHyp, TabledTa
 
 // SERVER REQUEST/RESPONSE
 export interface ValidProofResponse {
+  // Version of the Lean RPC response. `undefined` is version 1. We use to issue
+  // user messages to update lean library or refresh vscode to avoid maintaining
+  // backwards compatibility between lean/app versions.
+  version?: number;
   proofTree: LeanProofTree;
   goal: LeanInteractiveGoal | null;
 }
