@@ -325,7 +325,6 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
       goal.hyps
     );
     prettyHypArrows.push(...prettyHypArrowsForAChild);
-    console.log({ prettyHypNodes, goalBefore, goalsAfter });
 
     const box =
       goalsAfter.length > 1 ? createNewBox(pretty, currentBox.id) : currentBox;
