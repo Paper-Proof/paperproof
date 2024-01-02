@@ -285,7 +285,9 @@ const handleTacticApp = (
     return;
   }
 
-  const goalsAfter = tactic.goalsAfter.sort((a, b) => a.id.localeCompare(b.id));
+  const goalsAfter = [...tactic.goalsAfter].sort((a, b) =>
+    a.id.localeCompare(b.id)
+  );
   // 1. Draw goal nodes and arrows
   const prettyGoalArrows = [];
   if (goalsAfter.length === 1 && goalsAfter[0].type === goalBefore.type) {
@@ -445,12 +447,11 @@ const postprocess = (pretty: ConvertedProofTree) => {
 }
 
 const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
-  tactic.goalsAfter.forEach((goal) => {
-    goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"))
-  });
-  tactic.goalsBefore.forEach((goal) => {
-    goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"))
-  });
+  [...tactic.goalsAfter, ...tactic.goalsBefore, ...tactic.spawnedGoals].forEach(
+    (goal) => {
+      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"));
+    }
+  );
 }
 
 const preprocess = (subSteps: LeanProofTree) => {
