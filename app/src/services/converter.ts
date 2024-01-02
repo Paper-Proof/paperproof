@@ -1,18 +1,24 @@
 import {
-  LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal,
-  ConvertedProofTree, Tactic, HypNode
+  LeanProofTree,
+  LeanHypothesis,
+  LeanTactic,
+  LeanGoal,
+  ConvertedProofTree,
+  Tactic,
+  HypNode,
+  Box,
 } from "types";
 
-let boxId : number;
-let tacticId : number;
+let boxId: number;
+let tacticId: number;
 
 const newBoxId = () => {
   return String(boxId++);
-}
+};
 
 const newTacticId = () => {
   return String(tacticId++);
-}
+};
 
 // These are our weird situations:
 //
@@ -25,8 +31,13 @@ const newTacticId = () => {
 // In such cases - let's trust Lean that the change is so miniscule it isn't worth the id update.
 //
 // IF we stumble upon the situation where this behaviour is undesirable - let's create a complex data structure that creates new fake ids; and keep track of them in a way that accounts for box parenthood relationships.
-const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) => {
-  console.warn("Weird situation! Changing existingHypNode into hypAfter in-place:");
+const weirdSituation = (
+  pretty: ConvertedProofTree,
+  hypAfter: LeanHypothesis
+) => {
+  console.warn(
+    "Weird situation! Changing existingHypNode into hypAfter in-place:"
+  );
   // We need a displayed id here [because, unusually enough, we're changing the already-drawn node]
   const hypAfterId = getDisplayedId(pretty, hypAfter.id);
   pretty.boxes.forEach((w) => {
@@ -39,108 +50,148 @@ const weirdSituation = (pretty: ConvertedProofTree, hypAfter: LeanHypothesis) =>
       });
     });
   });
-}
+};
 
-const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHypothesis[], hypsAfter : LeanHypothesis[])
-: [HypNode[], Tactic['hypArrows']] => {
+const drawNewHypothesisLayer = (
+  pretty: ConvertedProofTree,
+  hypsBefore: LeanHypothesis[],
+  hypsAfter: LeanHypothesis[]
+): [HypNode[], Tactic["hypArrows"]] => {
   const prettyHypNodes: HypNode[] = [];
-  const prettyHypArrows: Tactic['hypArrows'] = [];
+  const prettyHypArrows: Tactic["hypArrows"] = [];
 
   const hypsAfterMatched: LeanHypothesis[] = [];
   const hypsBeforeMatched: LeanHypothesis[] = [];
 
   // 1. Draw hypotheses that are clearly connected to a particular previous hypothesis
   hypsAfter.forEach((hypAfter) => {
-    const hypBeforeById   = hypsBefore.find((hyp) => hyp.id === hypAfter.id);
-    const hypBeforeByName = hypsBefore.find((hypBefore) =>
-      (hypBefore.username === hypAfter.username) &&
-      // Only match by username if that hypBefore wasn't already matched by id with someone else.
-      // See github.com/antonkov/paper-proof/issues/10.
-      !(hypsAfter.find((h) => h.id === hypBefore.id && h.id !== hypAfter.id))
+    const hypBeforeById = hypsBefore.find((hyp) => hyp.id === hypAfter.id);
+    const hypBeforeByName = hypsBefore.find(
+      (hypBefore) =>
+        hypBefore.username === hypAfter.username &&
+        // Only match by username if that hypBefore wasn't already matched by id with someone else.
+        // See github.com/antonkov/paper-proof/issues/10.
+        !hypsAfter.find((h) => h.id === hypBefore.id && h.id !== hypAfter.id)
     );
 
     if (hypBeforeById) {
       hypsAfterMatched.push(hypAfter);
       hypsBeforeMatched.push(hypBeforeById);
 
-      if      (hypAfter.username === hypBeforeById.username && hypAfter.type === hypBeforeById.type) {
+      if (
+        hypAfter.username === hypBeforeById.username &&
+        hypAfter.type === hypBeforeById.type
+      ) {
         // do nothing!
-      }
-      else if (hypAfter.username === hypBeforeById.username && hypAfter.type !== hypBeforeById.type) {
+      } else if (
+        hypAfter.username === hypBeforeById.username &&
+        hypAfter.type !== hypBeforeById.type
+      ) {
+        weirdSituation(pretty, hypAfter);
+      } else if (
+        hypAfter.username !== hypBeforeById.username &&
+        hypAfter.type === hypBeforeById.type
+      ) {
+        weirdSituation(pretty, hypAfter);
+      } else if (
+        hypAfter.username !== hypBeforeById.username &&
+        hypAfter.type !== hypBeforeById.type
+      ) {
         weirdSituation(pretty, hypAfter);
       }
-      else if (hypAfter.username !== hypBeforeById.username && hypAfter.type === hypBeforeById.type) {
-        weirdSituation(pretty, hypAfter);
-      }
-      else if (hypAfter.username !== hypBeforeById.username && hypAfter.type !== hypBeforeById.type) {
-        weirdSituation(pretty, hypAfter);
-      }
-    }
-    else if (hypBeforeByName) {
+    } else if (hypBeforeByName) {
       hypsAfterMatched.push(hypAfter);
       hypsBeforeMatched.push(hypBeforeByName);
 
-      if      (hypAfter.id === hypBeforeByName.id && hypAfter.type === hypBeforeByName.type) {
+      if (
+        hypAfter.id === hypBeforeByName.id &&
+        hypAfter.type === hypBeforeByName.type
+      ) {
         // do nothing!
-      }
-      else if (hypAfter.id === hypBeforeByName.id && hypAfter.type !== hypBeforeByName.type) {
+      } else if (
+        hypAfter.id === hypBeforeByName.id &&
+        hypAfter.type !== hypBeforeByName.type
+      ) {
         weirdSituation(pretty, hypAfter);
-      }
-      else if (hypAfter.id !== hypBeforeByName.id && hypAfter.type === hypBeforeByName.type) {
+      } else if (
+        hypAfter.id !== hypBeforeByName.id &&
+        hypAfter.type === hypBeforeByName.type
+      ) {
         // don't create any new nodes or arrows, just add `hypAfter.id` to equivalentIds
         addToEquivalentIds(pretty, hypBeforeByName.id, hypAfter.id);
-      }
-      else if (hypAfter.id !== hypBeforeByName.id && hypAfter.type !== hypBeforeByName.type) {
+      } else if (
+        hypAfter.id !== hypBeforeByName.id &&
+        hypAfter.type !== hypBeforeByName.type
+      ) {
         // draw a new node, draw an arrow
         prettyHypNodes.push({
           text: hypAfter.type,
           name: hypAfter.username,
-          id  : hypAfter.id,
-          isProof: hypAfter.isProof
+          id: hypAfter.id,
+          isProof: hypAfter.isProof,
         });
 
         prettyHypArrows.push({
           fromId: hypBeforeByName.id,
-          toIds : [hypAfter.id]
+          toIds: [hypAfter.id],
         });
       }
     }
   });
 
   // 2. Draw hypotheses that disappeared and appeared out of nowhere
-  const hypsBeforeThatDisappeared = hypsBefore.filter((hyp) => !hypsBeforeMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
-  const hypsAfterThatAppeared = hypsAfter.filter((hyp) => !hypsAfterMatched.some((matchedHyp) => matchedHyp.id === hyp.id));
+  const hypsBeforeThatDisappeared = hypsBefore.filter(
+    (hyp) => !hypsBeforeMatched.some((matchedHyp) => matchedHyp.id === hyp.id)
+  );
+  const hypsAfterThatAppeared = hypsAfter.filter(
+    (hyp) => !hypsAfterMatched.some((matchedHyp) => matchedHyp.id === hyp.id)
+  );
 
   // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
-  if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length === 0) {
+  if (
+    hypsBeforeThatDisappeared.length === 0 &&
+    hypsAfterThatAppeared.length === 0
+  ) {
     // done :-)
   }
   // - if 0 hypotheses disappeared, and X hypotheses appeared, draw { null → id } arrows [many nulls!]
-  else if (hypsBeforeThatDisappeared.length === 0 && hypsAfterThatAppeared.length > 0) {
+  else if (
+    hypsBeforeThatDisappeared.length === 0 &&
+    hypsAfterThatAppeared.length > 0
+  ) {
     hypsAfterThatAppeared.forEach((hypAfter) => {
       prettyHypNodes.push({
         text: hypAfter.type,
         name: hypAfter.username,
-        id  : hypAfter.id,
-        isProof: hypAfter.isProof
+        id: hypAfter.id,
+        isProof: hypAfter.isProof,
       });
     });
     if (hypsAfterThatAppeared.length > 0) {
       prettyHypArrows.push({
         fromId: null,
-        toIds : hypsAfterThatAppeared.map((hypAfter) => hypAfter.id)
+        toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
       });
     }
   }
   // - if X hypotheses disappeared, and 0 hypotheses appeared - don't draw anything
-  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length === 0) {
+  else if (
+    hypsBeforeThatDisappeared.length > 0 &&
+    hypsAfterThatAppeared.length === 0
+  ) {
     // Don't draw anything, this will be indicated by opacities
   }
   // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
-  else if (hypsBeforeThatDisappeared.length > 0 && hypsAfterThatAppeared.length > 0) {
+  else if (
+    hypsBeforeThatDisappeared.length > 0 &&
+    hypsAfterThatAppeared.length > 0
+  ) {
     // The 2nd part of this `else if` doesn't ever happen as far as we're aware -
     // When we actually stumble upon a tactic that does that, we'll see how good our handling of this is.
-    if (hypsBeforeThatDisappeared.length > 1 && hypsAfterThatAppeared.length > 0) {
+    if (
+      hypsBeforeThatDisappeared.length > 1 &&
+      hypsAfterThatAppeared.length > 0
+    ) {
       // TODO: add `if this.env === "development"` and uncomment this.
       // alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
     }
@@ -154,14 +205,14 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
       prettyHypNodes.push({
         text: hypAfter.type,
         name: hypAfter.username,
-        id  : hypAfter.id,
-        isProof: hypAfter.isProof
+        id: hypAfter.id,
+        isProof: hypAfter.isProof,
       });
     });
     if (hypsAfterThatAppeared.length > 0) {
       prettyHypArrows.push({
         fromId: branchingHypBefore.id,
-        toIds : hypsAfterThatAppeared.map((hypAfter) => hypAfter.id)
+        toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
       });
     }
 
@@ -170,36 +221,73 @@ const drawNewHypothesisLayer = (pretty : ConvertedProofTree, hypsBefore : LeanHy
   }
 
   return [prettyHypNodes.reverse(), prettyHypArrows];
-}
+};
 
 // Any box is uniquely associated with a goal id.
-// A particular goal id only ever belongs to some box. 
-const getBoxByGoalId = (pretty : ConvertedProofTree, goalId : string) => {
+// A particular goal id only ever belongs to some box.
+const getBoxByGoalId = (pretty: ConvertedProofTree, goalId: string) => {
   return pretty.boxes.find((w) =>
     w.goalNodes.find((g) => g.id === getDisplayedId(pretty, goalId))
-  )
-}
+  );
+};
 
-export const getDisplayedId = (pretty : ConvertedProofTree, id : string | null) => {
+export const getDisplayedId = (pretty: ConvertedProofTree, id: string | null) => {
   if (id === null) {
-    return null
+    return null;
   }
   const displayedId = Object.keys(pretty.equivalentIds).find((displayedId) =>
     pretty.equivalentIds[displayedId].find((inferiorId) => inferiorId === id)
   );
   return displayedId ? displayedId : id;
-}
+};
 
 // We always wanna talk to the representative of our equivalent goals.
-// Representative goal id is the one that's actually drawn. 
-const addToEquivalentIds = (pretty : ConvertedProofTree, beforeId : string, afterId : string) => {
+// Representative goal id is the one that's actually drawn.
+const addToEquivalentIds = (
+  pretty: ConvertedProofTree,
+  beforeId: string,
+  afterId: string
+) => {
   const existingGoal = pretty.equivalentIds[getDisplayedId(pretty, beforeId)!];
   if (existingGoal) {
     existingGoal.push(afterId);
   } else {
     pretty.equivalentIds[beforeId] = [afterId];
   }
-}
+};
+
+const addToBox = (
+  pretty: ConvertedProofTree,
+  goalBefore: LeanGoal,
+  goal: LeanGoal,
+  box: Box,
+  tacticId: string,
+  prettyHypArrows: Tactic["hypArrows"]
+) => {
+  const hypsBefore = goalBefore.hyps;
+  const hypsAfter = goal.hyps;
+  const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(
+    pretty,
+    hypsBefore,
+    hypsAfter
+  );
+  prettyHypArrows.push(...prettyHypArrowsForAChild);
+
+  if (!box.goalNodes.some((g) => g.text === goal.type)) {
+    box.goalNodes.push({
+      text: goal.type,
+      name: goal.username,
+      id: goal.id,
+    });
+  }
+  if (prettyHypNodes.length > 0) {
+    box.hypLayers.push({
+      tacticId,
+      hypNodes: prettyHypNodes,
+    });
+  }
+  return box;
+};
 
 const handleTacticApp = (
   tactic: LeanTactic,
@@ -208,165 +296,82 @@ const handleTacticApp = (
 ) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
-  const mainGoalBefore = tactic.goalsBefore[0];
+  const goalBefore = tactic.goalsBefore[0];
 
-  let currentBox = getBoxByGoalId(pretty, mainGoalBefore.id);
+  let currentBox = getBoxByGoalId(pretty, goalBefore.id);
 
   if (!currentBox) {
     console.warn("Couldn't find a box to place this tactic into.");
-    console.log({ mainGoalBefore });
+    console.log({ goalBefore });
     return;
   }
 
-  const relevantGoalsAfter = tactic.goalsAfter
-    .filter(
-      (goalAfter) =>
-        !tactic.goalsBefore.find(
-          (goalBefore) => goalBefore.username === goalAfter.username
-        ) || mainGoalBefore.username === goalAfter.username
-    )
-    .sort((a, b) => a.id.localeCompare(b.id));
-
-  // - we solved the goal!
-  if (relevantGoalsAfter.length === 0) {
-    const nextGoal = tactic.goalsAfter[0];
-
-    // `done` has a very unusual behaviour -
-    // if we had some goals prior to it, then it's a "fake success" tactic for all of them
-    if (tactic.tacticString === "done") {
-      tactic.goalsBefore.forEach((goalBefore) => {
-        pretty.tactics.push({
-          id: newTacticId(),
-          text: "done",
-          dependsOnIds: [],
-          goalArrows: [],
-          hypArrows: [],
-          successGoalId: goalBefore.id,
-          haveBoxIds: haveBoxIds,
-        });
-      })
-    } else {
-      pretty.tactics.push({
-        id: newTacticId(),
-        text: tactic.tacticString,
-        dependsOnIds: tactic.tacticDependsOn,
-        goalArrows: [],
-        hypArrows: [],
-        successGoalId: mainGoalBefore.id,
-        haveBoxIds: haveBoxIds,
+  const goalsAfter = tactic.goalsAfter.sort((a, b) => a.id.localeCompare(b.id));
+  // 1. Draw goal nodes and arrows
+  const prettyGoalArrows = [];
+  if (goalsAfter.length === 1 && goalsAfter[0].type === goalBefore.type) {
+    // Sometimes the goal id changes but the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
+    // Future tactics will be referencing that id! So we mark it as equivalent to other goal ids.
+    // In cases when goalsAfter.length > 1 we still want arrows. For example it was `cases h` where `h: q \or r`.
+    addToEquivalentIds(pretty, goalBefore.id, tactic.goalsAfter[0].id);
+  } else {
+    for (const goal of goalsAfter) {
+      prettyGoalArrows.push({
+        fromId: goalBefore.id,
+        toId: goal.id,
       });
     }
   }
-  // - we updated the goal!
-  else if (relevantGoalsAfter.length === 1) {
-    const updatedGoal = relevantGoalsAfter[0];
 
-    // 1. Draw goal nodes and arrows
-    let prettyGoalArrows: Tactic["goalArrows"] = [];
-    // In general, we would want to do this:
-    // `if (mainGoalBefore.type !== updatedGoal.type) {`
-    // However sometimes the goal id changes; and the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
-    // In such cases, we still want to put this goalNode into our box - to enable future tactics to find this box by goal id.
-    // Also: future tactics might well be referencing that id! So we, of course, need to mark it as equivalent to other goal ids.
-    if (mainGoalBefore.type === updatedGoal.type) {
-      addToEquivalentIds(pretty, mainGoalBefore.id, updatedGoal.id);
-    } else {
-      currentBox.goalNodes.push({
-        text: updatedGoal.type,
-        name: updatedGoal.username,
-        id: updatedGoal.id,
-      });
-      prettyGoalArrows = [
-        {
-          fromId: mainGoalBefore.id,
-          toId: updatedGoal.id,
-        },
-      ];
-    }
-
-    // 2. Draw hypothesis nodes and arrows
-    const hypsBefore = mainGoalBefore.hyps;
-    const hypsAfter = updatedGoal.hyps;
-    let [prettyHypNodes, prettyHypArrows] = drawNewHypothesisLayer(
-      pretty,
-      hypsBefore,
-      hypsAfter
-    );
-
-    const tacticId : string = newTacticId();
-
-    if (prettyHypNodes.length > 0) {
-      currentBox.hypLayers.push({
-        tacticId: tacticId,
-        hypNodes: prettyHypNodes
-      });
-    }
-
-    pretty.tactics.push({
-      id: tacticId,
-      text: tactic.tacticString,
-      dependsOnIds: tactic.tacticDependsOn,
-      goalArrows: prettyGoalArrows,
-      hypArrows: prettyHypArrows,
-      haveBoxIds: haveBoxIds,
-    });
-  }
-  // - we forked the goal!
-  else if (relevantGoalsAfter.length > 1) {
-    // 1. Draw goal nodes and arrows
-    const prettyGoalArrows = relevantGoalsAfter.map((goal) => ({
-      fromId: mainGoalBefore.id,
-      toId: goal.id,
-    }));
-
-    const prettyHypArrows: Tactic["hypArrows"] = [];
-    const tacticId = newTacticId();
+  const prettyHypArrows: Tactic["hypArrows"] = [];
+  const tacticId = newTacticId();
+  if (goalsAfter.length !== 1) {
     // We are creating new child boxes
-    const childBoxes = relevantGoalsAfter.map((goal) => {
-      const hypsBefore = mainGoalBefore.hyps;
-      const hypsAfter = goal.hyps;
-      const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(
+    const childBoxes = goalsAfter.map((goal) =>
+      addToBox(
         pretty,
-        hypsBefore,
-        hypsAfter
-      );
-      prettyHypArrows.push(...prettyHypArrowsForAChild);
-
-      return {
-        id: newBoxId(),
-        parentId: currentBox!.id,
-        goalNodes: [
-          {
-            text: goal.type,
-            name: goal.username,
-            id: goal.id,
-          },
-        ],
-        hypLayers: prettyHypNodes.length > 0 ? [{ tacticId, hypNodes: prettyHypNodes }] : [],
-      };
-    });
+        goalBefore,
+        goal,
+        {
+          id: newBoxId(),
+          parentId: currentBox!.id,
+          goalNodes: [],
+          hypLayers: [],
+          hypTables: [],
+        },
+        tacticId,
+        prettyHypArrows
+      )
+    );
     pretty.boxes.push(...childBoxes);
-
-    pretty.tactics.push({
-      id: tacticId,
-      text: tactic.tacticString,
-      dependsOnIds: tactic.tacticDependsOn,
-      goalArrows: prettyGoalArrows,
-      hypArrows: prettyHypArrows,
-      haveBoxIds: haveBoxIds,
-    });
+  } else {
+    const goal = goalsAfter[0];
+    addToBox(pretty, goalBefore, goal, currentBox, tacticId, prettyHypArrows);
   }
+
+  pretty.tactics.push({
+    id: tacticId,
+    text: tactic.tacticString,
+    dependsOnIds: tactic.tacticDependsOn,
+    goalArrows: prettyGoalArrows,
+    hypArrows: prettyHypArrows,
+    successGoalId: goalsAfter.length === 0 ? goalBefore.id : undefined,
+    haveBoxIds: haveBoxIds,
+  });
 };
 
-const drawInitialGoal = (leanProofTree: LeanProofTree, pretty: ConvertedProofTree) => {
+const drawInitialGoal = (
+  leanProofTree: LeanProofTree,
+  pretty: ConvertedProofTree
+) => {
   const tacticId = newTacticId();
 
-  const initialGoal : LeanGoal = getInitialGoal(leanProofTree)!;
+  const initialGoal: LeanGoal = getInitialGoal(leanProofTree)!;
   const hypNodes = initialGoal.hyps.map((hyp: LeanHypothesis) => ({
     text: hyp.type,
     name: hyp.username,
     id: hyp.id,
-    isProof: hyp.isProof
+    isProof: hyp.isProof,
   }));
   const initialBox = {
     id: newBoxId(),
@@ -378,7 +383,10 @@ const drawInitialGoal = (leanProofTree: LeanProofTree, pretty: ConvertedProofTre
         id: initialGoal.id,
       },
     ],
-    hypLayers: hypNodes.length > 0 ? [{ tacticId: tacticId, hypNodes: hypNodes.reverse() }] : [],
+    hypLayers:
+      hypNodes.length > 0
+        ? [{ tacticId: tacticId, hypNodes: hypNodes.reverse() }]
+        : [],
   };
 
   pretty.boxes.push(initialBox);
@@ -388,7 +396,7 @@ const drawInitialGoal = (leanProofTree: LeanProofTree, pretty: ConvertedProofTre
     dependsOnIds: [],
     goalArrows: [],
     hypArrows: [{ fromId: null, toIds: hypNodes.map((hypNode) => hypNode.id) }],
-    haveBoxIds: []
+    haveBoxIds: [],
   });
 };
 
@@ -407,7 +415,28 @@ const getInitialGoal = (subSteps: LeanProofTree): LeanGoal | undefined => {
 const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
   subSteps.forEach((subStep) => {
     if ("tacticApp" in subStep) {
-      handleTacticApp(subStep.tacticApp.t, pretty);
+      const boxes = subStep.tacticApp.t.spawnedGoals.map((goal) => ({
+        id: newBoxId(),
+        // Parent box is such that has our goalId as a hypothesis.
+        // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
+        parentId: "haveBox",
+        goalNodes: [
+          {
+            text: goal.type,
+            name: goal.username,
+            id: goal.id,
+          },
+        ],
+        // `have`s don't introduce any new hypotheses
+        hypLayers: [],
+      }));
+
+      handleTacticApp(
+        subStep.tacticApp.t,
+        pretty,
+        boxes.map((w) => w.id)
+      );
+      pretty.boxes.push(...boxes);
     } else if ("haveDecl" in subStep) {
       // TODO: Remove when new lean version reporting is set up.
       const initialGoals =
