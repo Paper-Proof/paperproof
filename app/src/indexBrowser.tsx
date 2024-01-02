@@ -150,9 +150,9 @@ function Main() {
 
   const canWriteTactic = converted && converted.highlights &&
     !converted.proofTree.tactics.find((tactic) =>
-    tactic.successGoalId === converted.highlights!.goalId ||
-    tactic.goalArrows.find((goalArrow) => goalArrow.fromId === converted.highlights!.goalId)
-  );
+      tactic.successGoalId === converted.highlights!.goalId ||
+      tactic.goalArrows.find((goalArrow) => goalArrow.fromId === converted.highlights!.goalId)
+    );
 
   return <>
     {
