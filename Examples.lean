@@ -11,6 +11,17 @@ import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
 
+example : 4 = 4 := by
+  have p : 3 = 3 := rfl
+  simp
+
+example (h : x = 3) (b : y = 3) : x = y := by
+  rwa [b]
+
+example : 3 = 3 := by
+  have ⟨ p, q ⟩ : (3 = 3) ∧ (4 = 4) := ⟨ by rfl, by rfl ⟩
+  rfl
+
 theorem simple_ex (n m : ℕ)
   (h1 : ∀ {a b : Nat}, a + b = b + a)
   (h2 : ∀ {a b : Nat}, a = b + b):
@@ -270,6 +281,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   cases' b with hQ hR
   left
   exact And.intro a hQ
+  sorry
+  sorry
 
 
 
