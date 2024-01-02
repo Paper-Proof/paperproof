@@ -41,8 +41,8 @@ inductive ProofStep :=
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := match step with
-  | .tacticApp t => t.goalsAfter
-  | .haveDecl t initialGoals _ => t.goalsAfter ++ initialGoals
+  | .tacticApp t => t.goalsAfter ++ t.spawnedGoals
+  | .haveDecl t initialGoals _ => t.goalsAfter ++ t.spawnedGoals ++ initialGoals
 
 def stepGoalsBefore (step : ProofStep) : List GoalInfo := match step with
   | .tacticApp t => t.goalsBefore
