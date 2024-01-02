@@ -41,7 +41,7 @@ inductive ProofStep :=
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := match step with
   | .tacticApp t => t.goalsAfter
-  | .haveDecl t _ _ => t.goalsAfter
+  | .haveDecl t initialGoals _ => t.goalsAfter ++ initialGoals
 
 def stepGoalsBefore (step : ProofStep) : List GoalInfo := match step with
   | .tacticApp t => t.goalsBefore
@@ -164,6 +164,8 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
         goalsAfter,
         tacticDependsOn
       }
+      -- It's like tacticDependsOn but unnamed mvars instead of hyps.
+      let orphanedGoals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
 
       -- It's a tactic combinator
       match tInfo.stx with
@@ -173,12 +175,10 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
           return {steps := [.tacticApp tacticApp],
                   allGoals}
 
-        let goals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
         -- Important for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-        let sortedGoals := goals.toArray.insertionSort (·.id < ·.id)
-        -- TODO: have ⟨ p, q ⟩ : (3 = 3) ∧ (4 = 4) := ⟨ by rfl, by rfl ⟩ isn't supported yet
-        return {steps := [.haveDecl tacticApp sortedGoals.toList steps],
-                allGoals := HashSet.empty.insertMany (goalsBefore ++ goalsAfter)}
+        let sortedGoals := orphanedGoals.toArray.insertionSort (·.id < ·.id)
+        return {steps := [.haveDecl tacticApp sortedGoals.toList []] ++ steps,
+                allGoals}
       | `(tactic| rw [$_,*] $(_)?)
       | `(tactic| rewrite [$_,*] $(_)?) =>
         let prettify (tStr : String) :=
@@ -194,8 +194,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
         -- Don't add anything new if we already handled it in subtree.
         if steps.map stepGoalsBefore |>.elem goalsBefore then
           return {steps, allGoals}
-        let orphanedGoals := goalsBefore.foldl HashSet.erase (noInEdgeGoals allGoals steps)
-        return {steps := .tacticApp {tacticApp with goalsAfter := orphanedGoals.toList} :: steps,
+        return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals.toList} :: steps,
                 allGoals}
     else
       return { steps, allGoals := allSubGoals}
