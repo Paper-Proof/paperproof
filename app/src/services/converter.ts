@@ -435,6 +435,21 @@ const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
   );
 };
 
+// Account for steps which were generated due to backtracking. Only take the last from each goal.
+// Assume that steps are returned in order of backtracking.
+// example (p q : Prop) (hq : q) : p ∨ q := by
+//   first | apply Or.inl; assumption | apply Or.inr; assumption
+const filterBacktrackingSteps = (steps: LeanTactic[]): LeanTactic[] => {
+  const result: LeanTactic[] = [];
+  const fromGoals = steps.map((step) => step.goalsBefore[0].id);
+  for (let i = 0; i < steps.length; i++) {
+    if (!fromGoals.slice(i + 1).includes(fromGoals[i])) {
+      result.push(steps[i]);
+    }
+  }
+  return result;
+};
+
 const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
   boxId = 1;
   tacticId = 1;
@@ -449,6 +464,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
   // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
   // Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
   leanProofTree.forEach(removeUniverseHypsFromTactic);
+  leanProofTree = filterBacktrackingSteps(leanProofTree);
 
   // First of all, draw the INITIAL hypotheses and goal.
   drawInitialGoal(leanProofTree, convertedProofTree);
