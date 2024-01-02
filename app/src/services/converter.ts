@@ -406,11 +406,7 @@ const getInitialGoal = (steps: LeanProofTree): LeanGoal | undefined => {
   return steps[0].goalsBefore[0];
 };
 
-const recursive = (steps: LeanProofTree, pretty: ConvertedProofTree) => {
-  steps.forEach((step) => {
-    handleTacticApp(step, pretty);
-  });
-};
+const recursive = (steps: LeanProofTree, pretty: ConvertedProofTree) => {};
 
 const postprocess = (pretty: ConvertedProofTree) => {
   pretty.tactics.forEach((tactic) => {
@@ -445,35 +441,33 @@ const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
   );
 };
 
-const preprocess = (steps: LeanProofTree) => {
-  // Remove all ".universe" hypotheses.
-  // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
-  // Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
-  steps.forEach(removeUniverseHypsFromTactic);
-};
-
-const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
+const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
   boxId = 1;
   tacticId = 1;
 
-  const convertedProofTree : ConvertedProofTree = {
+  const convertedProofTree: ConvertedProofTree = {
     boxes: [],
     tactics: [],
     equivalentIds: {},
-  }
+  };
 
-  preprocess(leanProofTree);
+  // Remove all ".universe" hypotheses.
+  // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
+  // Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
+  leanProofTree.forEach(removeUniverseHypsFromTactic);
 
   // First of all, draw the INITIAL hypotheses and goal.
   drawInitialGoal(leanProofTree, convertedProofTree);
   // Then, draw all the other tactics and hypotheses and goals.
-  recursive(leanProofTree, convertedProofTree);
+  leanProofTree.forEach((step) => {
+    handleTacticApp(step, convertedProofTree);
+  });
 
   postprocess(convertedProofTree);
 
   console.log({ leanProofTree, convertedProofTree });
 
   return convertedProofTree;
-}
+};
 
 export default converter;
