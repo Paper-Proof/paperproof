@@ -88,3 +88,7 @@ inductive Random where
 theorem casesRandom (h: Random) : SomeGoal := by
   cases' h with a b c
   sorry; sorry; sorry
+
+theorem dojo4_uncombined (p q r : Prop) (hp : p)
+  : (p ∨ q ∨ r) ∧ (q ∨ p ∨ r) ∧ (q ∨ r ∨ p) := by
+  repeat (first | apply And.intro | apply Or.inl; assumption | apply Or.inr | assumption)
