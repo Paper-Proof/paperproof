@@ -65,7 +65,10 @@ body{
 
 /*______________________ PROOF-TREE: colors ______________________*/
 /* This would be really easy to achieve with opacities, however various nodes goalUsernames must *cover* tactic borders to make them look good, which means they must be solid-color. */
-.box{ background: rgba(132, 147, 171, 0.1); }
+.box{
+  --color: color-mix(in srgb, rgba(132, 147, 171), white calc(90% - var(--level) * 7%));
+  background: var(--color);
+}
 .box > .goal-username{
   background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
 }
@@ -174,29 +177,28 @@ body{
 }
 .hypothesis{
   background: #a4dabc;
-  border: 2px solid rgb(124 211 158);
+  border: 2px solid rgb(152 214 179);
   &.-faded{
-    background: rgba(98 202 139 / 13%);
-    border: 2px solid #c1e1d7;
+    background: color-mix(in srgb, var(--color), #a4dabc 30%);
+    border-color: color-mix(in srgb, var(--color), rgb(152 214 179) 30%);
   }
   &.data{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
     &.-faded{
-      background: rgba(250 214 94 / 13%);
-      border-color: #f1ead3;
+      background: color-mix(in srgb, var(--color), #f9e9b5 30%);
+      border-color: color-mix(in srgb, var(--color), rgb(239, 227, 152) 30%);
     }
   }
   & .name{ color: #c69c51; }
 }
-
 .goal{
   background: rgb(249, 195, 195);
-  border: 2px solid #f6b9b9;
+  border: 2px solid rgb(246, 185, 185);
   color: #5a5656;
   &.-faded{
-    background: #ede2e4;
-    border: 2px solid #efd9dd;
+    background: color-mix(in srgb, var(--color), rgb(249, 195, 195) 30%);
+    border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
   }
 }
 /* that's pretty interesting */
