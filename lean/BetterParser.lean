@@ -162,25 +162,17 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
         tacticString,
         goalsBefore,
         goalsAfter,
-        tacticDependsOn
+        tacticDependsOn,
       }
       -- It's like tacticDependsOn but unnamed mvars instead of hyps.
+      -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
       let orphanedGoals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
+        |>.toArray.insertionSort (·.id < ·.id) |>.toList
 
       -- It's a tactic combinator
       match tInfo.stx with
-      | `(tactic| have $_:haveDecl) =>
-        -- Something like `have p : a = a := rfl`
-        if steps.isEmpty then
-          return {steps := [.tacticApp tacticApp],
-                  allGoals}
-
-        -- Important for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-        let sortedGoals := orphanedGoals.toArray.insertionSort (·.id < ·.id)
-        return {steps := [.haveDecl tacticApp sortedGoals.toList []] ++ steps,
-                allGoals}
-      | `(tactic| rw [$_,*] $(_)?)
-      | `(tactic| rewrite [$_,*] $(_)?) =>
+     | `(tactic| rw [$_,*] $(_)?)
+     | `(tactic| rewrite [$_,*] $(_)?) =>
         let prettify (tStr : String) :=
           let res := tStr.trim.dropRightWhile (· == ',')
           -- rw puts final rfl on the "]" token
@@ -190,11 +182,14 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
                   | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
                   | x => x,
                 allGoals}
+      | `(tactic| have $_:haveDecl) =>
+        return {steps := .haveDecl tacticApp orphanedGoals [] :: steps,
+                allGoals}
       | _ =>
         -- Don't add anything new if we already handled it in subtree.
         if steps.map stepGoalsBefore |>.elem goalsBefore then
           return {steps, allGoals}
-        return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals.toList} :: steps,
+        return {steps := .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals} :: steps,
                 allGoals}
     else
       return { steps, allGoals := allSubGoals}
