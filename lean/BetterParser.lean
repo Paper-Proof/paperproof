@@ -125,6 +125,20 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
 
+def prettifySteps (stx : Syntax) (steps : List ProofStep) : Id (List ProofStep) := Id.run do
+  match stx with
+  | `(tactic| rw [$_,*] $(_)?)
+  | `(tactic| rewrite [$_,*] $(_)?) =>
+    let prettify (tStr : String) :=
+      let res := tStr.trim.dropRightWhile (· == ',')
+      -- rw puts final rfl on the "]" token
+      if res == "]" then "rfl" else res
+    return steps.map fun a =>
+      match a with
+      | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
+      | x => x
+  | _ => return steps
+
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
   | some (ctx : ContextInfo), .node i cs => do
@@ -170,18 +184,9 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
         |>.toArray.insertionSort (·.id < ·.id) |>.toList
 
       -- It's a tactic combinator
+      let steps := prettifySteps tInfo.stx steps
+
       match tInfo.stx with
-     | `(tactic| rw [$_,*] $(_)?)
-     | `(tactic| rewrite [$_,*] $(_)?) =>
-        let prettify (tStr : String) :=
-          let res := tStr.trim.dropRightWhile (· == ',')
-          -- rw puts final rfl on the "]" token
-          if res == "]" then "rfl" else res
-        return {steps := steps.map fun a =>
-                  match a with
-                  | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
-                  | x => x,
-                allGoals}
       | `(tactic| have $_:haveDecl) =>
         return {steps := .haveDecl tacticApp orphanedGoals [] :: steps,
                 allGoals}
