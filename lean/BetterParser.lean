@@ -30,6 +30,7 @@ structure TacticApplication where
   goalsBefore : List GoalInfo
   goalsAfter : List GoalInfo
   tacticDependsOn : List String
+  spawnedGoals : List GoalInfo
   deriving Inhabited, ToJson, FromJson
 
 inductive ProofStep :=
@@ -172,17 +173,18 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       let tacticDependsOn ←
         ctx.runMetaM mainGoalDecl.lctx
           (findHypsUsedByTactic mainGoalId mainGoalDecl tInfo.mctxAfter)
-      let tacticApp: TacticApplication := {
-        tacticString,
-        goalsBefore,
-        goalsAfter,
-        tacticDependsOn,
-      }
       -- It's like tacticDependsOn but unnamed mvars instead of hyps.
       -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
       let orphanedGoals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
         |>.toArray.insertionSort (·.id < ·.id) |>.toList
 
+      let tacticApp: TacticApplication := {
+        tacticString,
+        goalsBefore,
+        goalsAfter,
+        tacticDependsOn,
+        spawnedGoals := orphanedGoals
+      }
       -- It's a tactic combinator
       let steps := prettifySteps tInfo.stx steps
 
@@ -193,7 +195,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       let newStep :=
         match tInfo.stx with
         | `(tactic| have $_:haveDecl) =>.haveDecl tacticApp orphanedGoals []
-        | _ => .tacticApp {tacticApp with goalsAfter := goalsAfter ++ orphanedGoals}
+        | _ => .tacticApp tacticApp
 
       return { steps := newStep :: steps, allGoals }
     else

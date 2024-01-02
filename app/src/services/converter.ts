@@ -256,37 +256,16 @@ const addToEquivalentIds = (
   }
 };
 
-const addToBox = (
-  pretty: ConvertedProofTree,
-  goalBefore: LeanGoal,
-  goal: LeanGoal,
-  box: Box,
-  tacticId: string,
-  prettyHypArrows: Tactic["hypArrows"]
-) => {
-  const hypsBefore = goalBefore.hyps;
-  const hypsAfter = goal.hyps;
-  const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(
-    pretty,
-    hypsBefore,
-    hypsAfter
-  );
-  prettyHypArrows.push(...prettyHypArrowsForAChild);
-
-  if (!box.goalNodes.some((g) => g.text === goal.type)) {
-    box.goalNodes.push({
-      text: goal.type,
-      name: goal.username,
-      id: goal.id,
-    });
-  }
-  if (prettyHypNodes.length > 0) {
-    box.hypLayers.push({
-      tacticId,
-      hypNodes: prettyHypNodes,
-    });
-  }
-  return box;
+const createNewBox = (pretty: ConvertedProofTree, parentId: string): Box => {
+  const newBox = {
+    id: newBoxId(),
+    parentId: parentId,
+    goalNodes: [],
+    hypLayers: [],
+    hypTables: [],
+  };
+  pretty.boxes.push(newBox);
+  return newBox;
 };
 
 const handleTacticApp = (
@@ -298,7 +277,7 @@ const handleTacticApp = (
   // Is it fair to assume? So far seems good.
   const goalBefore = tactic.goalsBefore[0];
 
-  let currentBox = getBoxByGoalId(pretty, goalBefore.id);
+  const currentBox = getBoxByGoalId(pretty, goalBefore.id);
 
   if (!currentBox) {
     console.warn("Couldn't find a box to place this tactic into.");
@@ -314,7 +293,21 @@ const handleTacticApp = (
     // Future tactics will be referencing that id! So we mark it as equivalent to other goal ids.
     // In cases when goalsAfter.length > 1 we still want arrows. For example it was `cases h` where `h: q \or r`.
     addToEquivalentIds(pretty, goalBefore.id, tactic.goalsAfter[0].id);
+    const boxes = tactic.spawnedGoals.map((goal) => {
+      // Parent box is such that has our goalId as a hypothesis.
+      // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
+      const newBox = createNewBox(pretty, "haveBox");
+      newBox.goalNodes.push({
+        text: goal.type,
+        name: goal.username,
+        id: goal.id,
+      });
+      return newBox;
+    });
+    haveBoxIds = boxes.map((w) => w.id);
   } else {
+    // Put spawnedGoals into tactic.
+    goalsAfter.push(...tactic.spawnedGoals);
     for (const goal of goalsAfter) {
       prettyGoalArrows.push({
         fromId: goalBefore.id,
@@ -323,30 +316,34 @@ const handleTacticApp = (
     }
   }
 
+  // 2. Draw boxes and hypotheses (if no bifurcation reuse the current box)
   const prettyHypArrows: Tactic["hypArrows"] = [];
   const tacticId = newTacticId();
-  if (goalsAfter.length !== 1) {
-    // We are creating new child boxes
-    const childBoxes = goalsAfter.map((goal) =>
-      addToBox(
-        pretty,
-        goalBefore,
-        goal,
-        {
-          id: newBoxId(),
-          parentId: currentBox!.id,
-          goalNodes: [],
-          hypLayers: [],
-          hypTables: [],
-        },
-        tacticId,
-        prettyHypArrows
-      )
+  for (const goal of goalsAfter) {
+    const [prettyHypNodes, prettyHypArrowsForAChild] = drawNewHypothesisLayer(
+      pretty,
+      goalBefore.hyps,
+      goal.hyps
     );
-    pretty.boxes.push(...childBoxes);
-  } else {
-    const goal = goalsAfter[0];
-    addToBox(pretty, goalBefore, goal, currentBox, tacticId, prettyHypArrows);
+    prettyHypArrows.push(...prettyHypArrowsForAChild);
+    console.log({ prettyHypNodes, goalBefore, goalsAfter });
+
+    const box =
+      goalsAfter.length > 1 ? createNewBox(pretty, currentBox.id) : currentBox;
+    if (!box.goalNodes.some((g) => g.text === goal.type)) {
+      box.goalNodes.push({
+        text: goal.type,
+        name: goal.username,
+        id: goal.id,
+      });
+    }
+    if (prettyHypNodes.length > 0) {
+      box.hypLayers.push({
+        tacticId,
+        hypNodes: prettyHypNodes,
+      });
+    }
+    // console.log("Pushed", box);
   }
 
   pretty.tactics.push({
@@ -415,58 +412,9 @@ const getInitialGoal = (subSteps: LeanProofTree): LeanGoal | undefined => {
 const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
   subSteps.forEach((subStep) => {
     if ("tacticApp" in subStep) {
-      const boxes = subStep.tacticApp.t.spawnedGoals.map((goal) => ({
-        id: newBoxId(),
-        // Parent box is such that has our goalId as a hypothesis.
-        // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
-        parentId: "haveBox",
-        goalNodes: [
-          {
-            text: goal.type,
-            name: goal.username,
-            id: goal.id,
-          },
-        ],
-        // `have`s don't introduce any new hypotheses
-        hypLayers: [],
-      }));
-
-      handleTacticApp(
-        subStep.tacticApp.t,
-        pretty,
-        boxes.map((w) => w.id)
-      );
-      pretty.boxes.push(...boxes);
+      handleTacticApp(subStep.tacticApp.t, pretty);
     } else if ("haveDecl" in subStep) {
-      // TODO: Remove when new lean version reporting is set up.
-      const initialGoals =
-        "initialGoals" in subStep.haveDecl
-          ? subStep.haveDecl.initialGoals
-          : [getInitialGoal(subStep.haveDecl.subSteps)!];
-      const boxes = initialGoals.map((goal) => ({
-        id: newBoxId(),
-        // Parent box is such that has our goalId as a hypothesis.
-        // `have`'s fvarid won't equal `have's` mvarid however - so the only way to match them would be by the username. many `have`s may have the same username though, so let's just store out parentId.
-        parentId: "haveBox",
-        goalNodes: [
-          {
-            text: goal.type,
-            name: goal.username,
-            id: goal.id,
-          },
-        ],
-        // `have`s don't introduce any new hypotheses
-        hypLayers: [],
-      }));
-
-      handleTacticApp(
-        subStep.haveDecl.t,
-        pretty,
-        boxes.map((w) => w.id)
-      );
-      pretty.boxes.push(...boxes);
-
-      recursive(subStep.haveDecl.subSteps, pretty);
+      handleTacticApp(subStep.haveDecl.t, pretty);
     }
   });
 };

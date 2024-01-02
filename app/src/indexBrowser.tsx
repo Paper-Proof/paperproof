@@ -81,6 +81,7 @@ function Main() {
     const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
     convertedProofTree.boxes.forEach((box) => {
       box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
+      console.log("HypTables", box.hypLayers, box.hypTables)
     });
     const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
     const currentStatement = getStatement(proofResponse.proofTree);
