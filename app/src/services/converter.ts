@@ -402,22 +402,13 @@ const drawInitialGoal = (
 // TODO: Refactor it since this function relies on obsolete assumptions:
 // - There is only one initial goal (can be multiple `have <p, q> := <by rfl, by rfl>`)
 // - Order of tactics in steps reflects the order of the proof.
-const getInitialGoal = (subSteps: LeanProofTree): LeanGoal | undefined => {
-  const firstStep = subSteps[0];
-  if ("tacticApp" in firstStep) {
-    return firstStep.tacticApp.t.goalsBefore[0];
-  } else if ("haveDecl" in firstStep) {
-    return firstStep.haveDecl.t.goalsBefore[0];
-  }
+const getInitialGoal = (steps: LeanProofTree): LeanGoal | undefined => {
+  return steps[0].goalsBefore[0];
 };
 
-const recursive = (subSteps: LeanProofTree, pretty: ConvertedProofTree) => {
-  subSteps.forEach((subStep) => {
-    if ("tacticApp" in subStep) {
-      handleTacticApp(subStep.tacticApp.t, pretty);
-    } else if ("haveDecl" in subStep) {
-      handleTacticApp(subStep.haveDecl.t, pretty);
-    }
+const recursive = (steps: LeanProofTree, pretty: ConvertedProofTree) => {
+  steps.forEach((step) => {
+    handleTacticApp(step, pretty);
   });
 };
 
@@ -425,17 +416,17 @@ const postprocess = (pretty: ConvertedProofTree) => {
   pretty.tactics.forEach((tactic) => {
     tactic.goalArrows = tactic.goalArrows.map((goalArrow) => ({
       fromId: getDisplayedId(pretty, goalArrow.fromId)!,
-      toId  : getDisplayedId(pretty, goalArrow.toId)!
+      toId: getDisplayedId(pretty, goalArrow.toId)!,
     }));
 
     tactic.hypArrows = tactic.hypArrows.map((hypArrow, index) => ({
       shardId: index.toString(),
       fromId: getDisplayedId(pretty, hypArrow.fromId),
-      toIds : hypArrow.toIds.map((toId) => getDisplayedId(pretty, toId)!)
+      toIds: hypArrow.toIds.map((toId) => getDisplayedId(pretty, toId)!),
     }));
 
-    tactic.dependsOnIds = tactic.dependsOnIds.map((id) =>
-      getDisplayedId(pretty, id)!
+    tactic.dependsOnIds = tactic.dependsOnIds.map(
+      (id) => getDisplayedId(pretty, id)!
     );
 
     if (tactic.successGoalId) {
@@ -443,8 +434,8 @@ const postprocess = (pretty: ConvertedProofTree) => {
     }
   });
 
-  return pretty
-}
+  return pretty;
+};
 
 const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
   [...tactic.goalsAfter, ...tactic.goalsBefore, ...tactic.spawnedGoals].forEach(
@@ -452,21 +443,14 @@ const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
       goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"));
     }
   );
-}
+};
 
-const preprocess = (subSteps: LeanProofTree) => {
+const preprocess = (steps: LeanProofTree) => {
   // Remove all ".universe" hypotheses.
-  // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof. 
+  // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
   // Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
-  subSteps.forEach((subStep) => {
-    if ("tacticApp" in subStep) {
-      removeUniverseHypsFromTactic(subStep.tacticApp.t);
-    } else if ("haveDecl" in subStep) {
-      removeUniverseHypsFromTactic(subStep.haveDecl.t);
-      preprocess(subStep.haveDecl.subSteps);
-    }
-  });
-}
+  steps.forEach(removeUniverseHypsFromTactic);
+};
 
 const converter = (leanProofTree: LeanProofTree) : ConvertedProofTree => {
   boxId = 1;

@@ -25,7 +25,7 @@ instance : BEq GoalInfo where
 instance : Hashable GoalInfo where
   hash g := hash g.id
 
-structure TacticApplication where
+structure ProofStep where
   tacticString : String
   goalsBefore : List GoalInfo
   goalsAfter : List GoalInfo
@@ -33,20 +33,9 @@ structure TacticApplication where
   spawnedGoals : List GoalInfo
   deriving Inhabited, ToJson, FromJson
 
-inductive ProofStep :=
-  | tacticApp (t : TacticApplication)
-  | haveDecl (t: TacticApplication)
-    (initialGoals: List GoalInfo)
-    (subSteps : List ProofStep)
-  deriving Inhabited, ToJson, FromJson
+def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
 
-def stepGoalsAfter (step : ProofStep) : List GoalInfo := match step with
-  | .tacticApp t => t.goalsAfter ++ t.spawnedGoals
-  | .haveDecl t initialGoals _ => t.goalsAfter ++ t.spawnedGoals ++ initialGoals
-
-def stepGoalsBefore (step : ProofStep) : List GoalInfo := match step with
-  | .tacticApp t => t.goalsBefore
-  | .haveDecl t _ _ => t.goalsBefore
+def stepGoalsBefore (step : ProofStep) : List GoalInfo := step.goalsBefore
 
 def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
@@ -134,10 +123,7 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : Id (List ProofStep) 
       let res := tStr.trim.dropRightWhile (· == ',')
       -- rw puts final rfl on the "]" token
       if res == "]" then "rfl" else res
-    return steps.map fun a =>
-      match a with
-      | .tacticApp a => .tacticApp { a with tacticString := s!"rw [{prettify a.tacticString}]" }
-      | x => x
+    return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
   | _ => return steps
 
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
@@ -178,7 +164,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       let orphanedGoals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
         |>.toArray.insertionSort (·.id < ·.id) |>.toList
 
-      let tacticApp: TacticApplication := {
+      let tacticApp: ProofStep := {
         tacticString,
         goalsBefore,
         goalsAfter,
@@ -192,12 +178,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       if steps.map stepGoalsBefore |>.elem goalsBefore then
         return {steps, allGoals}
 
-      let newStep :=
-        match tInfo.stx with
-        | `(tactic| have $_:haveDecl) =>.haveDecl tacticApp orphanedGoals []
-        | _ => .tacticApp tacticApp
-
-      return { steps := newStep :: steps, allGoals }
+      return { steps := tacticApp :: steps, allGoals }
     else
       return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"

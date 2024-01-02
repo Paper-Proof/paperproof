@@ -21,23 +21,4 @@ export type LeanTactic = {
   spawnedGoals: LeanGoal[];
 };
 
-export type LeanTacticApp = {
-  tacticApp: {
-    t: LeanTactic;
-  }
-};
-
-export type LeanHaveDecl = {
-  haveDecl: {
-    t: LeanTactic;
-    subSteps: LeanProofTree;
-  } & (
-    | { version: undefined; initialGoal: string }
-    | {
-        version: 2;
-        initialGoals: LeanGoal[];
-      }
-  );
-};
-
-export type LeanProofTree = (LeanTacticApp | LeanHaveDecl)[];
+export type LeanProofTree = LeanTactic[];
