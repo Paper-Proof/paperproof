@@ -268,11 +268,7 @@ const createNewBox = (pretty: ConvertedProofTree, parentId: string): Box => {
   return newBox;
 };
 
-const handleTacticApp = (
-  tactic: LeanTactic,
-  pretty: ConvertedProofTree,
-  haveBoxIds: string[] = []
-) => {
+const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
   // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
   // Is it fair to assume? So far seems good.
   const goalBefore = tactic.goalsBefore[0];
@@ -290,6 +286,7 @@ const handleTacticApp = (
   );
   // 1. Draw goal nodes and arrows
   const prettyGoalArrows = [];
+  let haveBoxIds: string[] = [];
   if (goalsAfter.length === 1 && goalsAfter[0].type === goalBefore.type) {
     // Sometimes the goal id changes but the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
     // Future tactics will be referencing that id! So we mark it as equivalent to other goal ids.
@@ -405,8 +402,6 @@ const drawInitialGoal = (
 const getInitialGoal = (steps: LeanProofTree): LeanGoal | undefined => {
   return steps[0].goalsBefore[0];
 };
-
-const recursive = (steps: LeanProofTree, pretty: ConvertedProofTree) => {};
 
 const postprocess = (pretty: ConvertedProofTree) => {
   pretty.tactics.forEach((tactic) => {
