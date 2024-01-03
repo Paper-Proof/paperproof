@@ -16,7 +16,7 @@ export type LeanGoal = {
 export type LeanTactic = {
   tacticString: string;
   tacticDependsOn: string[];
-  goalsBefore: LeanGoal[];
+  goalBefore: LeanGoal;
   goalsAfter: LeanGoal[];
   spawnedGoals: LeanGoal[];
 };

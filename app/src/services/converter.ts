@@ -269,9 +269,7 @@ const createNewBox = (pretty: ConvertedProofTree, parentId: string): Box => {
 };
 
 const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
-  // We assume `tactic.goalsBefore[0]` is always the goal the tactic worked on!
-  // Is it fair to assume? So far seems good.
-  const goalBefore = tactic.goalsBefore[0];
+  const goalBefore = tactic.goalBefore;
 
   const currentBox = getBoxByGoalId(pretty, goalBefore.id);
 
@@ -399,7 +397,7 @@ const drawInitialGoal = (
 // - There is only one initial goal (can be multiple `have <p, q> := <by rfl, by rfl>`)
 // - Order of tactics in steps reflects the order of the proof.
 const getInitialGoal = (steps: LeanProofTree): LeanGoal | undefined => {
-  return steps[0].goalsBefore[0];
+  return steps[0].goalBefore;
 };
 
 const postprocess = (pretty: ConvertedProofTree) => {
@@ -428,7 +426,7 @@ const postprocess = (pretty: ConvertedProofTree) => {
 };
 
 const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
-  [...tactic.goalsAfter, ...tactic.goalsBefore, ...tactic.spawnedGoals].forEach(
+  [...tactic.goalsAfter, tactic.goalBefore, ...tactic.spawnedGoals].forEach(
     (goal) => {
       goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"));
     }
@@ -441,7 +439,7 @@ const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
 //   first | apply Or.inl; assumption | apply Or.inr; assumption
 const filterBacktrackingSteps = (steps: LeanTactic[]): LeanTactic[] => {
   const result: LeanTactic[] = [];
-  const fromGoals = steps.map((step) => step.goalsBefore[0].id);
+  const fromGoals = steps.map((step) => step.goalBefore.id);
   for (let i = 0; i < steps.length; i++) {
     if (!fromGoals.slice(i + 1).includes(fromGoals[i])) {
       result.push(steps[i]);

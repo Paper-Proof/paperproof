@@ -28,15 +28,13 @@ instance : Hashable GoalInfo where
 
 structure ProofStep where
   tacticString : String
-  goalsBefore : List GoalInfo
+  goalBefore : GoalInfo
   goalsAfter : List GoalInfo
   tacticDependsOn : List String
   spawnedGoals : List GoalInfo
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
-
-def stepGoalsBefore (step : ProofStep) : List GoalInfo := step.goalsBefore
 
 def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
@@ -176,13 +174,13 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
             (findHypsUsedByTactic goalBefore.id mainGoalDecl tInfo.mctxAfter)
         let tacticApp: ProofStep := {
           tacticString,
-          goalsBefore := [goalBefore],
+          goalBefore,
           goalsAfter,
           tacticDependsOn,
           spawnedGoals := orphanedGoals
         }
         -- Leave only steps which are not handled in the subtree.
-        if steps.map stepGoalsBefore |>.elem tacticApp.goalsBefore then
+        if steps.map (·.goalBefore) |>.elem goalBefore then
           return none
         else
           return some tacticApp
