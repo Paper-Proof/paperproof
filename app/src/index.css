@@ -146,8 +146,16 @@ body{
   overflow-y: scroll;
   word-break: break-word;
 }
+/* We need this to make sure <goal>s and <hyp>s stay on top of <tactic>s */
+.goal, .hypothesis{
+  position: relative;
+}
 .tactic{
+  margin-top: -2px; margin-bottom: -2px;
+  padding-top: 7px; padding-bottom: 7px;
+
   color: #72787c;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   &.-success{
     /* center text */
     display: flex;
@@ -200,17 +208,6 @@ body{
     background: color-mix(in srgb, var(--color), rgb(249, 195, 195) 30%);
     border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
   }
-}
-/* that's pretty interesting */
-.goal, .hypothesis{
-  position: relative;
-}
-.tactic{
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-  margin-top: -2px;
-  margin-bottom: -2px;
-  padding-top: 7px;
-  padding-bottom: 7px;
 }
 
 /*______________________ PROOF-TREE: widths ______________________*/
