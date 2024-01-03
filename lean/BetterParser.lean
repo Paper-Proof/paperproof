@@ -105,7 +105,7 @@ structure Result where
   steps : List ProofStep
   allGoals : HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (GoalInfo × List GoalInfo)) := do
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -122,11 +122,14 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (Go
   goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
   goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
   -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
-  let mut result : List (GoalInfo × List GoalInfo) := []
+  let mut result : List (List String × GoalInfo × List GoalInfo) := []
   for goalBefore in goalsBefore do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore.id then
       let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore.id tInfo.mctxAfter)
-      result := (goalBefore, goalsAfter.filter fun g => assignedMVars.contains g.id) :: result
+      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
+          (findHypsUsedByTactic goalBefore.id goalDecl tInfo.mctxAfter)
+
+      result := (tacticDependsOn, goalBefore, goalsAfter.filter fun g => assignedMVars.contains g.id) :: result
   return result
 
 def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
@@ -158,32 +161,26 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
 
       let steps := prettifySteps tInfo.stx steps
 
-      let goalPairs ← getGoalsChange ctx tInfo
-      let currentGoals := goalPairs.map (fun ⟨ g₁, gs ⟩ => g₁ :: gs)  |>.join
+      let proofTreeEdges ← getGoalsChange ctx tInfo
+      let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
       let allGoals := allSubGoals.insertMany $ currentGoals
       -- It's like tacticDependsOn but unnamed mvars instead of hyps.
       -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
       let orphanedGoals := currentGoals.foldl HashSet.erase (noInEdgeGoals allGoals steps)
         |>.toArray.insertionSort (·.id.name.toString < ·.id.name.toString) |>.toList
 
-      let newSteps : List ProofStep ← goalPairs.filterMapM fun ⟨ goalBefore, goalsAfter ⟩ => do
-        let some mainGoalDecl := tInfo.mctxBefore.findDecl? goalBefore.id
-          | return none
-        let tacticDependsOn ←
-          ctx.runMetaM mainGoalDecl.lctx
-            (findHypsUsedByTactic goalBefore.id mainGoalDecl tInfo.mctxAfter)
-        let tacticApp: ProofStep := {
-          tacticString,
-          goalBefore,
-          goalsAfter,
-          tacticDependsOn,
-          spawnedGoals := orphanedGoals
-        }
-        -- Leave only steps which are not handled in the subtree.
+      let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
+       -- Leave only steps which are not handled in the subtree.
         if steps.map (·.goalBefore) |>.elem goalBefore then
-          return none
+          none
         else
-          return some tacticApp
+          some {
+            tacticString,
+            goalBefore,
+            goalsAfter,
+            tacticDependsOn,
+            spawnedGoals := orphanedGoals
+          }
 
       return { steps := newSteps ++ steps, allGoals }
     else
