@@ -49,10 +49,9 @@ Deploying our `main` branch consists of 3 steps - deploying to paperproof.xyz, p
 
 #### Deploying /app
 
-To deploy [paperproof.xyz](paperproof.xyz) contents:
-
-1. Go to https://github.com/Paper-Proof/paperproof/actions/workflows/deploy-do.yml
-2. Run the "Deploy to Digital Ocean" workflow
+main branch will be automatically deployed to [paperproof.xyz](paperproof.xyz) via
+vercel script. It runs `yarn install`, `yarn build` and then expects output in
+`dist` folder.
 
 #### Deploying /extension
 
