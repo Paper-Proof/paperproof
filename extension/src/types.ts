@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 export interface ProofState {
   goal: any;
   proofTree: any;
+  version?: number;
 }
 
 export interface ProofError {

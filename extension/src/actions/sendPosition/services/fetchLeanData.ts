@@ -8,12 +8,11 @@ const fetchLeanData = async (log: vscode.OutputChannel, client: any, tdp: TextDo
   const proofTreeResponse = await vscodeRequest(log, "getSnapshotData", client, uri, tdp, { pos: tdp.position });
   const goalsResponse = await vscodeRequest(log, "Lean.Widget.getInteractiveGoals", client, uri, tdp, tdp);
 
-  const body: ProofState = {
+  return {
     goal: (goalsResponse && goalsResponse.goals[0]) || null,
     proofTree: proofTreeResponse.steps,
+    version: proofTreeResponse.version ?? undefined,
   };
-
-  return body;
 };
 
 export default fetchLeanData;

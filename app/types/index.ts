@@ -1,9 +1,29 @@
-import { LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree } from './LeanProofTree';
-import { LeanInteractiveHyp, LeanInteractiveGoal } from './LeanInteractiveGoal';
-import { GoalNode, HypNode, Box, Tactic, ConvertedProofTree, TabledHyp, TabledTactic, TabledCell, Table, DataRow } from './ConvertedProofTree';
+import {
+  LeanHypothesis,
+  LeanGoal,
+  LeanTactic,
+  LeanProofTree,
+} from "./LeanProofTree";
+import { LeanInteractiveHyp, LeanInteractiveGoal } from "./LeanInteractiveGoal";
+import {
+  GoalNode,
+  HypNode,
+  Box,
+  Tactic,
+  ConvertedProofTree,
+  TabledHyp,
+  TabledTactic,
+  TabledCell,
+  Table,
+  DataRow,
+} from "./ConvertedProofTree";
 
 // SERVER REQUEST/RESPONSE
 export interface ValidProofResponse {
+  // Version of the Lean RPC response. `undefined` is version 1. We use to issue
+  // user messages to update lean library or refresh vscode to avoid maintaining
+  // backwards compatibility between lean/app versions.
+  version?: number;
   proofTree: LeanProofTree;
   goal: LeanInteractiveGoal | null;
 }
@@ -32,14 +52,23 @@ interface Arrow {
 }
 
 export {
-  LeanHypothesis, LeanGoal, LeanTactic, LeanTacticApp, LeanHaveDecl, LeanProofTree,
-
-  LeanInteractiveHyp, LeanInteractiveGoal,
-
-  GoalNode, HypNode, Box, Tactic, ConvertedProofTree,
-
+  LeanHypothesis,
+  LeanGoal,
+  LeanTactic,
+  LeanProofTree,
+  LeanInteractiveHyp,
+  LeanInteractiveGoal,
+  GoalNode,
+  HypNode,
+  Box,
+  Tactic,
+  ConvertedProofTree,
   Highlights,
-  TabledHyp, TabledTactic, TabledCell, Table, DataRow,
-  Point, Arrow
+  TabledHyp,
+  TabledTactic,
+  TabledCell,
+  Table,
+  DataRow,
+  Point,
+  Arrow,
 };
-

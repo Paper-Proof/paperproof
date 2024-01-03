@@ -10,6 +10,7 @@ structure InputParams where
 
 structure OutputParams where
   steps : List ProofStep
+  version : Nat
   deriving Inhabited, FromJson, ToJson
 
 @[server_rpc_method]
@@ -22,5 +23,6 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
     if (parsedTree.steps.length == 0) then
       throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
     return {
-      steps := parsedTree.steps
+      steps := parsedTree.steps,
+      version := 2
     }
