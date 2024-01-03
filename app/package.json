@@ -5,7 +5,8 @@
   "scripts": {
     "server": "node server.cjs",
     "watchBrowser": "node esbuild.config.js",
-    "dev": "yarn server & yarn watchBrowser"
+    "dev": "yarn server & yarn watchBrowser",
+    "build": "mkdir dist" 
   },
   "main": "index.js",
   "author": "Anton Kovsharov, Evgenia Karunus",
