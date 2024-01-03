@@ -11,7 +11,8 @@ const createArrow = (from: string | HTMLElement | null, to: string | HTMLElement
 
   const pointFrom : Point = {
     x: distance('left', fromEl, proofTreeEl)/currentZoom + fromEl.offsetWidth/2,
-    y: distance('top', fromEl, proofTreeEl)/currentZoom + fromEl.offsetHeight
+    // "- 1" is here to make the start of the arrow closer to the hypothesis node (it's prettier like this)
+    y: distance('top', fromEl, proofTreeEl)/currentZoom + fromEl.offsetHeight - 1
   };
 
   const pointTo : Point = {

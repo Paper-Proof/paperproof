@@ -8,14 +8,13 @@ interface PerfectArrowProps {
 
 const PerfectArrow = (props: PerfectArrowProps) => {
   const arrow = getArrow(props.p1.x, props.p1.y, props.p2.x, props.p2.y, {
-    padStart: -10,
-    padEnd: 8,
+    padStart: 0, padEnd: 8,
     stretch: 0,
-  })
+  });
 
-  const [sx, sy, cx, cy, ex, ey, ae, as, ec] = arrow
+  const [sx, sy, cx, cy, ex, ey, ae, as, ec] = arrow;
 
-  const endAngleAsDegrees = ae * (180 / Math.PI)
+  const endAngleAsDegrees = ae * (180 / Math.PI);
 
   return (
     <svg
