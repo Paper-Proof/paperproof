@@ -11,6 +11,18 @@ import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
 
+import Mathlib.Data.Real.Basic
+
+variable (a b c d : ℝ)
+
+example : min a b = min b a := by
+  apply le_antisymm
+  repeat
+    apply le_min
+    apply min_le_right
+    apply min_le_left
+
+
 example : (p = true) → p ∧ p := by
   intro h
   apply And.intro
