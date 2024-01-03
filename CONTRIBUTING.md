@@ -53,6 +53,8 @@ main branch will be automatically deployed to [paperproof.xyz](paperproof.xyz) v
 vercel script. It runs `yarn install`, `yarn build` and then expects output in
 `dist` folder.
 
+dev branch is automatically deployed to paperproof-dev.vercel.app
+
 #### Deploying /extension
 
 To deploy a vscode Paperproof extension:
