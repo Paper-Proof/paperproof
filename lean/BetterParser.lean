@@ -1,5 +1,6 @@
 import Lean
 import Lean.Meta.Basic
+import Lean.Meta.CollectMVars
 open Lean Elab Server
 
 structure Hypothesis where
@@ -60,6 +61,13 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
   -- dbg_trace s!"Used {pretty}"
   return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
+-- This is used to match goalsBefore with goalsAfter to see what was assigned to what
+def findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
+  let some expr := mctxAfter.eAssignment.find? goalId
+    | return []
+  let (_, s) ← (Meta.collectMVars expr).run {}
+  return s.result.toList
+
 def mayBeProof (expr : Expr) : MetaM String := do
   let type : Expr ← Lean.Meta.inferType expr
   if ← Meta.isProof expr then
@@ -116,10 +124,12 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (Go
   goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
   goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
   -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
-  match goalsBefore with
-  | [] => return []
-  | g :: gs => return [⟨ g, goalsAfter ⟩] ++ (gs.map (fun g => ⟨ g, []⟩))
-
+  let mut result : List (GoalInfo × List GoalInfo) := []
+  for goalBefore in goalsBefore do
+    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore.id then
+      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore.id tInfo.mctxAfter)
+      result := (goalBefore, goalsAfter.filter fun g => assignedMVars.contains g.id) :: result
+  return result
 
 def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
   match stx with
@@ -131,21 +141,6 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id
       if res == "]" then "rfl" else res
     return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
   | _ => return steps
-
-def genNewStep (orphanedGoals : List GoalInfo) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticString: String) (goalBefore: GoalInfo) (goalsAfter: List GoalInfo) : IO (Option ProofStep) := do
-  let some mainGoalDecl := tInfo.mctxBefore.findDecl? goalBefore.id
-    | return none
-  let tacticDependsOn ←
-    ctx.runMetaM mainGoalDecl.lctx
-      (findHypsUsedByTactic goalBefore.id mainGoalDecl tInfo.mctxAfter)
-  let tacticApp: ProofStep := {
-    tacticString,
-    goalsBefore := [goalBefore],
-    goalsAfter,
-    tacticDependsOn,
-    spawnedGoals := orphanedGoals
-  }
-  return some tacticApp
 
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
@@ -173,17 +168,25 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       let orphanedGoals := currentGoals.foldl HashSet.erase (noInEdgeGoals allGoals steps)
         |>.toArray.insertionSort (·.id.name.toString < ·.id.name.toString) |>.toList
 
-      let mut newSteps : List ProofStep ← goalPairs.filterMapM
-        fun ⟨ g₁, gs ⟩ => genNewStep orphanedGoals ctx tInfo tacticString g₁ gs
+      let newSteps : List ProofStep ← goalPairs.filterMapM fun ⟨ goalBefore, goalsAfter ⟩ => do
+        let some mainGoalDecl := tInfo.mctxBefore.findDecl? goalBefore.id
+          | return none
+        let tacticDependsOn ←
+          ctx.runMetaM mainGoalDecl.lctx
+            (findHypsUsedByTactic goalBefore.id mainGoalDecl tInfo.mctxAfter)
+        let tacticApp: ProofStep := {
+          tacticString,
+          goalsBefore := [goalBefore],
+          goalsAfter,
+          tacticDependsOn,
+          spawnedGoals := orphanedGoals
+        }
+        -- Leave only steps which are not handled in the subtree.
+        if steps.map stepGoalsBefore |>.elem tacticApp.goalsBefore then
+          return none
+        else
+          return some tacticApp
 
-      -- Tactic doesn't change any goals, we shouldn't add it as a proof step.
-      -- For example a tactic like `done` which ensures there are no unsolved goals,
-      -- or `focus` which only leaves one goal, however has no information for the tactic tree
-      -- Note: tactic like `have` changes the goal as it adds something to the context
-
-      -- dbg_trace s!"Goals before {goalsBefore.length} : {goalsBefore.map fun g => g.type}"
-      -- Leave only steps which are not handled in the subtree.
-      newSteps := newSteps.filter fun s => !(steps.map stepGoalsBefore |>.elem s.goalsBefore)
       return { steps := newSteps ++ steps, allGoals }
     else
       return { steps, allGoals := allSubGoals}
