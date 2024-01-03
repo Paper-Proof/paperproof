@@ -134,6 +134,7 @@ const drawNewHypothesisLayer = (
         prettyHypArrows.push({
           fromId: hypBeforeByName.id,
           toIds: [hypAfter.id],
+          shardId: "temporary"
         });
       }
     }
@@ -171,6 +172,7 @@ const drawNewHypothesisLayer = (
       prettyHypArrows.push({
         fromId: null,
         toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
+        shardId: "temporary"
       });
     }
   }
@@ -213,6 +215,7 @@ const drawNewHypothesisLayer = (
       prettyHypArrows.push({
         fromId: branchingHypBefore.id,
         toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
+        shardId: "temporary"
       });
     }
 
@@ -380,6 +383,7 @@ const drawInitialGoal = (
       hypNodes.length > 0
         ? [{ tacticId: tacticId, hypNodes: hypNodes.reverse() }]
         : [],
+    hypTables: [],
   };
 
   pretty.boxes.push(initialBox);
@@ -388,7 +392,7 @@ const drawInitialGoal = (
     text: "init",
     dependsOnIds: [],
     goalArrows: [],
-    hypArrows: [{ fromId: null, toIds: hypNodes.map((hypNode) => hypNode.id) }],
+    hypArrows: [{ fromId: null, toIds: hypNodes.map((hypNode) => hypNode.id), shardId: "temporary" }],
     haveBoxIds: [],
   });
 };
