@@ -20,14 +20,6 @@ body{
     background: white;
   }
 }
-.proof-tree.-compact{
-  & .box-insides{
-    padding: 0;
-  }
-  & .hypothesis, & .goal, & .tactic{
-    padding: 3px 7px;
-  }
-}
 
 /*______________________ BODY: widths for zooming ______________________*/
 body{
@@ -201,21 +193,33 @@ body{
 
 /*______________________ PROOF-TREE: paddings ______________________*/
 
-.tactic{
-  &.-sorried, &.-success, &.-ellipsis{
-    margin-top: 20px;
-  }
-}
-table.hypothesis-table{
-  padding-top: 10px;
-  &:first-child{ padding-top: 0; }
-}
-.box .box-insides{
+/* This is the easiest way to acommodate for our nice negative-margin <tactic>s */
+.box-insides{ padding-top: 2px; }
+.data-hypotheses{ margin-top: -2px; }
+
+.box-insides{
   padding: 10px;
+  padding-top: 12px;
   padding-bottom: 0;
 }
-.box .child-boxes{
-  margin-top: 10px;
+table.hypothesis-table{
+  margin-bottom: 12px;
+}
+table.hypothesis-table + .goals{
+  margin-top: 30px;
+}
+
+.proof-tree.-compact{
+  & .box-insides{
+    padding: 0;
+    padding-top: 2px;
+  }
+  & .hypothesis, & .goal, & .tactic{
+    padding: 3px 7px;
+  }
+  & .tactic{
+    padding-top: 5px; padding-bottom: 5px;
+  }
 }
 
 /*______________________ PROOF-TREE: widths ______________________*/
