@@ -359,7 +359,7 @@ const drawInitialGoal = (
 ) => {
   const tacticId = newTacticId();
 
-  const initialGoal: LeanGoal = getInitialGoal(leanProofTree)!;
+  const initialGoal: LeanGoal = leanProofTree[0].goalBefore;
   const hypNodes = initialGoal.hyps.map((hyp: LeanHypothesis) => ({
     text: hyp.type,
     name: hyp.username,
@@ -391,13 +391,6 @@ const drawInitialGoal = (
     hypArrows: [{ fromId: null, toIds: hypNodes.map((hypNode) => hypNode.id) }],
     haveBoxIds: [],
   });
-};
-
-// TODO: Refactor it since this function relies on obsolete assumptions:
-// - There is only one initial goal (can be multiple `have <p, q> := <by rfl, by rfl>`)
-// - Order of tactics in steps reflects the order of the proof.
-const getInitialGoal = (steps: LeanProofTree): LeanGoal | undefined => {
-  return steps[0].goalBefore;
 };
 
 const postprocess = (pretty: ConvertedProofTree) => {
