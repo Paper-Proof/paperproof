@@ -41,11 +41,16 @@ export interface Table {
   dataRow?: DataRow;
 }
 
+export interface HypLayer {
+  tacticId: string,
+  hypNodes: HypNode[]
+}
+
 export interface Box {
   id: string;
   parentId: string | null | "haveBox";
   goalNodes: GoalNode[];
-  hypLayers: { tacticId: string, hypNodes: HypNode[] }[];
+  hypLayers: HypLayer[];
   hypTables: Table[];
 }
 

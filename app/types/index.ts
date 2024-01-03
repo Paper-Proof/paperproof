@@ -16,6 +16,7 @@ import {
   TabledCell,
   Table,
   DataRow,
+  HypLayer
 } from "./ConvertedProofTree";
 
 // SERVER REQUEST/RESPONSE
@@ -71,4 +72,5 @@ export {
   DataRow,
   Point,
   Arrow,
+  HypLayer
 };
