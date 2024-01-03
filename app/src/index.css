@@ -92,13 +92,8 @@ body{
   font-size: 12px;
   border-radius: 2px;
   flex-grow: 1;
-  & .box-insides{
-    padding: 10px;
-    padding-bottom: 0;
-  }
 
   & .child-boxes{
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -106,11 +101,7 @@ body{
   }
 
   & table.hypothesis-table{
-    padding-top: 10px;
     border-spacing: 0;
-    &:first-child {
-      padding-top: 0;
-    }
 
     & .data-hypotheses{
       display: flex;
@@ -176,9 +167,7 @@ body{
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   &.-sorried, &.-success, &.-ellipsis{
-    margin-top: 20px;
-
-    /* increase padding by 1px */
+    /* increase padding by 1px, looks better this way */
     padding-top: 8px;
     padding-bottom: 8px;
   }
@@ -208,6 +197,25 @@ body{
     background: color-mix(in srgb, var(--color), rgb(249, 195, 195) 30%);
     border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
   }
+}
+
+/*______________________ PROOF-TREE: paddings ______________________*/
+
+.tactic{
+  &.-sorried, &.-success, &.-ellipsis{
+    margin-top: 20px;
+  }
+}
+table.hypothesis-table{
+  padding-top: 10px;
+  &:first-child{ padding-top: 0; }
+}
+.box .box-insides{
+  padding: 10px;
+  padding-bottom: 0;
+}
+.box .child-boxes{
+  margin-top: 10px;
 }
 
 /*______________________ PROOF-TREE: widths ______________________*/
