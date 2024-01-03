@@ -16,7 +16,7 @@ structure GoalInfo where
   type : String
   hyps : List Hypothesis
   -- unique identifier for the goal, mvarId
-  id : String
+  id : MVarId
   deriving Inhabited, ToJson, FromJson
 
 instance : BEq GoalInfo where
@@ -93,13 +93,13 @@ def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContex
         id := hypDecl.fvarId.name.toString,
         isProof := isProof
       } : Hypothesis) ::acc)
-    return some ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id.name.toString ⟩
+    return some ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
 
 structure Result where
   steps : List ProofStep
   allGoals : HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List GoalInfo × List GoalInfo) := do
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -110,12 +110,18 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List Goa
   -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
   -- it's known to be `3 ≤ 5`
   let printCtx := {ctx with mctx := tInfo.mctxAfter}
-  let goalsBefore ← getGoals printCtx goalMVars tInfo.mctxBefore
-  let goalsAfter ← getGoals printCtx goalMVars tInfo.mctxAfter
+  let mut goalsBefore ← getGoals printCtx goalMVars tInfo.mctxBefore
+  let mut goalsAfter ← getGoals printCtx goalMVars tInfo.mctxAfter
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
-  return ⟨ goalsBefore.filter (!commonGoals.contains ·), goalsAfter.filter (!commonGoals.contains ·) ⟩
+  goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
+  goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
+  -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
+  match goalsBefore with
+  | [] => return []
+  | g :: gs => return [⟨ g, goalsAfter ⟩] ++ (gs.map (fun g => ⟨ g, []⟩))
 
-def prettifySteps (stx : Syntax) (steps : List ProofStep) : Id (List ProofStep) := Id.run do
+
+def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
   match stx with
   | `(tactic| rw [$_,*] $(_)?)
   | `(tactic| rewrite [$_,*] $(_)?) =>
@@ -125,6 +131,21 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : Id (List ProofStep) 
       if res == "]" then "rfl" else res
     return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
   | _ => return steps
+
+def genNewStep (orphanedGoals : List GoalInfo) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticString: String) (goalBefore: GoalInfo) (goalsAfter: List GoalInfo) : IO (Option ProofStep) := do
+  let some mainGoalDecl := tInfo.mctxBefore.findDecl? goalBefore.id
+    | return none
+  let tacticDependsOn ←
+    ctx.runMetaM mainGoalDecl.lctx
+      (findHypsUsedByTactic goalBefore.id mainGoalDecl tInfo.mctxAfter)
+  let tacticApp: ProofStep := {
+    tacticString,
+    goalsBefore := [goalBefore],
+    goalsAfter,
+    tacticDependsOn,
+    spawnedGoals := orphanedGoals
+  }
+  return some tacticApp
 
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
@@ -142,43 +163,28 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
              (·.toString |>.splitOn "\n" |>.head!.trim)
         | return {steps, allGoals := allSubGoals}
 
-      let (goalsBefore, goalsAfter) ← getGoalsChange ctx tInfo
-      let allGoals := allSubGoals.insertMany $ goalsBefore ++ goalsAfter
+      let steps := prettifySteps tInfo.stx steps
+
+      let goalPairs ← getGoalsChange ctx tInfo
+      let currentGoals := goalPairs.map (fun ⟨ g₁, gs ⟩ => g₁ :: gs)  |>.join
+      let allGoals := allSubGoals.insertMany $ currentGoals
+      -- It's like tacticDependsOn but unnamed mvars instead of hyps.
+      -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
+      let orphanedGoals := currentGoals.foldl HashSet.erase (noInEdgeGoals allGoals steps)
+        |>.toArray.insertionSort (·.id.name.toString < ·.id.name.toString) |>.toList
+
+      let mut newSteps : List ProofStep ← goalPairs.filterMapM
+        fun ⟨ g₁, gs ⟩ => genNewStep orphanedGoals ctx tInfo tacticString g₁ gs
+
       -- Tactic doesn't change any goals, we shouldn't add it as a proof step.
       -- For example a tactic like `done` which ensures there are no unsolved goals,
       -- or `focus` which only leaves one goal, however has no information for the tactic tree
       -- Note: tactic like `have` changes the goal as it adds something to the context
-      if goalsBefore.isEmpty then
-        return {steps, allGoals}
 
-      let some mainGoalId := tInfo.goalsBefore.head?
-        | return {steps, allGoals}
-      let some mainGoalDecl := tInfo.mctxBefore.findDecl? mainGoalId
-        | return {steps, allGoals}
-
-      let tacticDependsOn ←
-        ctx.runMetaM mainGoalDecl.lctx
-          (findHypsUsedByTactic mainGoalId mainGoalDecl tInfo.mctxAfter)
-      -- It's like tacticDependsOn but unnamed mvars instead of hyps.
-      -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-      let orphanedGoals := (goalsBefore ++ goalsAfter).foldl HashSet.erase (noInEdgeGoals allGoals steps)
-        |>.toArray.insertionSort (·.id < ·.id) |>.toList
-
-      let tacticApp: ProofStep := {
-        tacticString,
-        goalsBefore,
-        goalsAfter,
-        tacticDependsOn,
-        spawnedGoals := orphanedGoals
-      }
-      -- It's a tactic combinator
-      let steps := prettifySteps tInfo.stx steps
-
-      -- Don't add anything new if we already handled it in subtree (still prettify steps as per above).
-      if steps.map stepGoalsBefore |>.elem goalsBefore then
-        return {steps, allGoals}
-
-      return { steps := tacticApp :: steps, allGoals }
+      -- dbg_trace s!"Goals before {goalsBefore.length} : {goalsBefore.map fun g => g.type}"
+      -- Leave only steps which are not handled in the subtree.
+      newSteps := newSteps.filter fun s => !(steps.map stepGoalsBefore |>.elem s.goalsBefore)
+      return { steps := newSteps ++ steps, allGoals }
     else
       return { steps, allGoals := allSubGoals}
   | none, .node .. => panic! "unexpected context-free info tree node"

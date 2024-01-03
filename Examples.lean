@@ -11,6 +11,38 @@ import Mathlib.Algebra.GCDMonoid.Multiset
 import Lean
 import Paperproof
 
+example : (p = true) → p ∧ p := by
+  intro h
+  apply And.intro
+  all_goals {
+    rw [h] at *
+  }
+
+-- InfoTree - goalsBefore with goalsAfter
+-- focus [1, 2] -> [1]
+-- done [] -> []
+-- multi [1, 2] -> [3, 4]
+
+-- We need to look mctxBefore, mctxAfter and see what was assigned
+
+-- Not assigned in mctxBefore
+-- $mvar1, $mvar2
+--
+-- but assigned in mctxAfter
+-- mvar1 = f1 $mvar3
+-- mvar2 = f4 $mvar4 $mvar5
+
+-- [1, 2] -> [3,4]
+
+-- 1 -> [3]
+-- 2 -> [4, 5]
+
+
+-- localDecl
+-- h1 (uniq.2) -- rewrite [h] at h1
+-- h1 (uniq.3) = funcrw h uniq.2
+
+
 example : p ∨ q → q ∨ p := by
   intro h
   cases h with
