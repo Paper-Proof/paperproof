@@ -9,8 +9,8 @@ interface Props {
 }
 
 const HypothesesComponent = (props: Props) => {
-  return props.hypTables.map((table, index) =>
-    <Table key={index} proofTree={props.proofTree} dataRow={table.dataRow} highlights={props.highlights} tabledCells={[...table.tabledHyps, ...table.tabledTactics]}/>
+  return props.hypTables.map((hypTable, index) =>
+    <Table key={index} proofTree={props.proofTree} highlights={props.highlights} hypTable={hypTable}/>
   )
 }
 
