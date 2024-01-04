@@ -282,9 +282,7 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     return;
   }
 
-  const goalsAfter = [...tactic.goalsAfter].sort((a, b) =>
-    a.id.localeCompare(b.id)
-  );
+  const goalsAfter = [...tactic.goalsAfter];
   // 1. Draw goal nodes and arrows
   const prettyGoalArrows = [];
   let haveBoxIds: string[] = [];
