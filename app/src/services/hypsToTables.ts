@@ -1,4 +1,4 @@
-import { ConvertedProofTree, Tactic, TabledHyp, Box, HypNode, Table, DataRow, HypLayer } from "types";
+import { ConvertedProofTree, Tactic, TabledHyp, Box, HypNode, Table, DataRow, HypLayer, TabledTactic } from "types";
 
 const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeId: string) : string[] => {
   for (const hypLayer of hypLayers) {
@@ -53,7 +53,7 @@ const getTabledHypFromTables = (tables : Table[], hypId: string | null) : Tabled
   return tabledHyps.find((tabledHyp) => tabledHyp.hypNode.id === hypId);
 }
 
-const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypLayer: HypLayer) => {
+const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayer: HypLayer) => {
   const initialDataHyps : HypNode[] = [];
   const initialNormalHyps : HypNode[] = [];
   hypLayer.hypNodes.forEach((hypNode : HypNode) => {
@@ -78,16 +78,33 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
 
     // Start a new table if this is the "init" tactic!
     if (tactic.text === "init") {
-      const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayers, hypLayer);
+      const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayer);
       thisLayerHypNodes = initialNormalHyps;
-      const dataRow : DataRow | undefined = initialDataHyps.length > 0 ?
-        {
-          hypNodes: initialDataHyps,
-          width: getChildrenWidths(proofTree, hypLayers, initialNormalHyps.map((h) => h.id))
-        } :
-        undefined;
-      tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, dataRow });
-      currentTable = tables[tables.length - 1];
+      if (initialDataHyps.length === 0 && initialNormalHyps.length === 0) {
+        // do nothing!
+        return;
+      } else if (initialDataHyps.length > 0 && initialNormalHyps.length === 0) {
+        const dataRow : DataRow = { hypNodes: initialDataHyps, width: 1 };
+        const initTactic : TabledTactic = {
+          type: "tactic",
+          tactic,
+          columnFrom: 0,
+          columnTo: 1,
+          row: 0,
+          arrowFrom: null,
+          shardId: "0"
+        };
+        tables.push({ tabledHyps: [], tabledTactics: [initTactic], currentRow: 0, dataRow });
+        currentTable = tables[tables.length - 1];
+      } else if (initialDataHyps.length === 0 && initialNormalHyps.length > 0) {
+        tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0 });
+        currentTable = tables[tables.length - 1];
+      } else if (initialDataHyps.length > 0 && initialNormalHyps.length > 0) {
+        const width = getChildrenWidths(proofTree, hypLayers, initialNormalHyps.map((h) => h.id));
+        const dataRow : DataRow = { hypNodes: initialDataHyps, width };
+        tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, dataRow });
+        currentTable = tables[tables.length - 1];
+      }
     }
     // Start a new table if none of the hypotheses inherit from each other!
     else if (!doAnyLayersBelowHaveParentsAbove(hypLayers, hypLayerIndex, proofTree)) {
