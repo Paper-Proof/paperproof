@@ -129,9 +129,11 @@ body{
   overflow-y: scroll;
   word-break: break-word;
 }
-/* We need this to make sure <goal>s and <hyp>s stay on top of <tactic>s */
 .goal, .hypothesis{
+  /* We need this to make sure <goal>s and <hyp>s stay on top of <tactic>s */
   position: relative;
+  /* We need this to make sure <goal>s and <hyp>s stay on top of arrows */
+  z-index: 10;
 }
 .tactic{
   margin-top: -2px; margin-bottom: -2px;
