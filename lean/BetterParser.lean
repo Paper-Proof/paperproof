@@ -143,6 +143,15 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id
     return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
   | _ => return steps
 
+-- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
+-- That's not completely right because it doesn't compare prefixes but
+-- it's much shorter to write than correct version and serves the purpose.
+def nameNumLt (n1 n2 : Name) : Bool :=
+  match n1, n2 with
+  | .num _ n₁, .num _ n₂ => n₁ < n₂
+  | .num _ _,  _ => true
+  | _, _ => false
+
 partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
   match context, infoTree with
   | some (ctx : ContextInfo), .node i cs => do
@@ -167,7 +176,7 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       -- It's like tacticDependsOn but unnamed mvars instead of hyps.
       -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
       let orphanedGoals := currentGoals.foldl HashSet.erase (noInEdgeGoals allGoals steps)
-        |>.toArray.insertionSort (·.id.name.toString < ·.id.name.toString) |>.toList
+        |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
       let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
        -- Leave only steps which are not handled in the subtree.
