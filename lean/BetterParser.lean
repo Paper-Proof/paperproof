@@ -168,11 +168,6 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
              (·.toString |>.splitOn "\n" |>.head!.trim)
         | return {steps, allGoals := allSubGoals}
 
-      if tacticString.startsWith "cases" then
-        let res ← infoTree.format ctx
-        dbg_trace "-------------"
-        dbg_trace f!"{res}"
-
       let steps := prettifySteps tInfo.stx steps
 
       let proofTreeEdges ← getGoalsChange ctx tInfo
