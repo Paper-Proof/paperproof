@@ -144,6 +144,8 @@ body{
     /* center text */
     display: flex;
     justify-content: center;
+    align-items: center;
+    text-align: center;
     gap: 7px;
 
     background: rgb(0 213 255 / 12%);
