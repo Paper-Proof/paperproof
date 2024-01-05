@@ -50,10 +50,10 @@
     "configuration": {
       "title": "Paperproof",
       "properties": {
-        "paperproof.serverUrl": {
+        "paperproof.environment": {
           "type": "string",
-          "default": "https://paperproof.xyz",
-          "description": "The URL of the paperproof server"
+          "default": "production",
+          "enum": ["production", "development"]
         }
       }
     },

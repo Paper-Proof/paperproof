@@ -33,7 +33,6 @@ export type ProofResponse = ValidProofResponse | { error: any };
 
 export interface PaperProofWindow extends Window {
   initialInfo: ProofResponse | null;
-  isBrightTheme: boolean;
 }
 
 // These are our /new types

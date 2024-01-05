@@ -1,12 +1,19 @@
 import * as vscode from 'vscode';
 import { ProofStateOrError, Shared } from "../../../types";
 
-function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, serverUrl: string, initialInfo: ProofStateOrError, isBrightTheme: boolean) {
-  // [For paperproof:offline]
-  // const pathJs = vscode.Uri.joinPath(shared.context.extensionUri, 'dist', 'indexBrowser.js');
-  // const webviewPathJs = webviewPanel.webview.asWebviewUri(pathJs);
-  // const pathCss = vscode.Uri.joinPath(shared.context.extensionUri, 'dist', 'indexBrowser.css');
-  // const webviewPathCss = webviewPanel.webview.asWebviewUri(pathCss);
+function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, initialInfo: ProofStateOrError) {
+  let js = "";
+  let css = "";
+  const environment = vscode.workspace.getConfiguration("paperproof").get("environment");
+  if (environment === "production") {
+    const pathJs = vscode.Uri.joinPath(shared.context.extensionUri, 'dist', 'indexBrowser.js');
+    js = webviewPanel.webview.asWebviewUri(pathJs).toString();
+    const pathCss = vscode.Uri.joinPath(shared.context.extensionUri, 'dist', 'indexBrowser.css');
+    css = webviewPanel.webview.asWebviewUri(pathCss).toString();
+  } else if (environment === "development") {
+    js = "http://localhost:80/indexBrowser.js";
+    css = "http://localhost:80/indexBrowser.css";
+  }
 
   return `
   <!DOCTYPE html>
@@ -14,16 +21,15 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, se
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-      <link href="${serverUrl}/indexBrowser.css" rel="stylesheet">
+      <link href="${css}" rel="stylesheet">
       <title>Paperproof</title>
     </head>
     <body>
       <script>
         window.initialInfo = ${JSON.stringify(initialInfo)};
-        window.isBrightTheme = ${isBrightTheme};
       </script>
       <div id="root"></div>
-      <script src="${serverUrl}/indexBrowser.js"></script>
+      <script src="${js}"></script>
     </body>
   </html>`;
 }

@@ -1,60 +1,64 @@
-## Development
+# Development
 
-1. Install the extension from `/extension` folder
+1. Install the extension, fully close and open vscode.
 
-    ```console
-    cd extension; code --install-extension paperproof.vsix
+    ```shell
+    cd extension
+    code --uninstall-extension paperproof.paperproof || true
+    code --install-extension paperproof.vsix
     ```
 
-2. Run the dev server
+2. Go to your vscode settings, and change your `Paperproof: Environment` setting to `"Development"`.
+
+    <img width="582" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/6d56f704-1b65-4ee7-91c0-08396206cc7d">
+
+3. Start watching your changes.
 
     ```shell
     cd app
-    yarn install
-    yarn dev
+    yarn server
+    yarn watch
     ```
 
-3. Go to your vscode settings, and change your `Paperproof: Server Url` setting to `http://localhost:80`. Close & reopen vscode.
-
-    <img width="478" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/13539e57-2a66-4067-9193-b5e324984d2f">
-    <img width="478" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fb775762-4e3f-468b-94ef-5abbd1cd2593">
-
-4. Go to `/Examples.lean`, and open the Paperpoof panel by running **Cmd+Shift+P** `> Paperproof: Toggle`, or just by clicking on a piece of a crumpled paper:
+That's it! You can now go to `/Examples.lean`, and open the Paperpoof panel by clicking on a piece of a crumpled paper:
 
     <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
-### Reload 
+You can now change any piece of code within the `/app` folder, and the changes will be built automatically. To see those changes in the webview, you will need to run **Cmd+Shift+P "Developer: Reload Webviews"**.  
+If you change something it `/extension`, or in `/lean`, seeing the updates is more involved, and that's described in the next section.
 
-#### Reloading /app
 
-If you change something in the `/app` folder, wait for yarn to compile it, and run **Cmd+Shift+P** `> Developer: Reload Webviews`.
 
-#### Reloading /extension
+# Reload 
+
+## Reloading `/app`
+
+If you change something in the `/app` folder, wait for `yarn watch` to compile it, and run **Cmd+Shift+P** `> Developer: Reload Webviews`.
+
+## Reloading `/extension`
 
 If you change something in the `/extension` folder, run
 
 ```shell
-vsce package --out paperproof.vsix; code --uninstall-extension paperproof.paperproof; code --install-extension paperproof.vsix
+cd extension
+vsce package --out paperproof.vsix
+code --uninstall-extension paperproof.paperproof || true
+code --install-extension paperproof.vsix
 ```
-and restart VSCode (literally - quit it fully, and restart it).
 
-#### Reloading /lean
+and restart vscode (literally - quit it fully, and open it again).
+
+## Reloading `/lean`
 
 If you change something in the `/lean` folder, then go to the file where you're checking your code, usually it's `Examples.lean`, and run **Cmd+Shift+P** `> Lean 4: Refresh File Dependencies`.
 
 
-### Publishing
 
-Deploying our `main` branch consists of 3 steps - deploying to paperproof.xyz, publishing a new vscode extension, and publishing a new Paperproof Lean library.
+# Publishing
 
-#### Deploying /app
+Deploying our `main` branch consists of 2 steps - publishing a new vscode extension, and publishing a new Paperproof Lean library.
 
-To deploy [paperproof.xyz](paperproof.xyz) contents:
-
-1. Go to https://github.com/Paper-Proof/paperproof/actions/workflows/deploy-do.yml
-2. Run the "Deploy to Digital Ocean" workflow
-
-#### Deploying /extension
+## Deploying `/extension`
 
 To deploy a vscode Paperproof extension:
 
@@ -75,11 +79,13 @@ vsce publish patch
 This will autoincrement the `/extension/package.json` version, and publish the extension on https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof.
 Possible increment options are `major`, `minor`, and `patch`.
 
-#### Deploying /lean
+## Deploying `/lean`
 
 To publish a new Paperproof Lean library, we just push to [github.com/Paper-Proof/paperproof](github.com/Paper-Proof/paperproof) `main` branch, the changes will be picked up automatically.
 
-### Code structure
+
+
+# Code structure
 
 - `lean/` - defines the custom Lean server method which parses the InfoTree into appropriate format for visualization.
 - `app/` - contains a simple server and the browser app which renders

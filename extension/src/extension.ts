@@ -3,8 +3,6 @@ import toggleWebviewPanel from "./actions/toggleWebviewPanel";
 import sendPosition from "./actions/sendPosition";
 import { Shared } from "./types";
 
-const DEFAULT_SERVER_URL = "https://paperproof.xyz";
-
 export function activate(context: vscode.ExtensionContext) {
   const shared : Shared = {
     context,
@@ -15,9 +13,13 @@ export function activate(context: vscode.ExtensionContext) {
     log: vscode.window.createOutputChannel("paperproof")
   };
 
-  // Settings
-  const config = vscode.workspace.getConfiguration("paperproof");
-  const SERVER_URL = config.get("serverUrl", DEFAULT_SERVER_URL);
+  vscode.workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration("paperproof.environment")) {
+      // This makes the asset urls reload automatically, without any participation from the developer
+      if (shared.webviewPanel) { shared.webviewPanel.dispose(); }
+      toggleWebviewPanel(shared);
+    }
+  });
 
   // Sending types to the server on cursor changes.
   // We use a `cancellationToken` to make sure only the last request gets through.
@@ -35,8 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("paperproof.toggle", () => {
-      const isBrightTheme = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Light;
-      toggleWebviewPanel(shared, SERVER_URL, isBrightTheme);
+      toggleWebviewPanel(shared);
     })
   );
 }
