@@ -96,9 +96,8 @@ body{
     border-spacing: 0;
 
     & .data-hypotheses{
-      display: flex;
-      flex-wrap: wrap;
       column-gap: 2px;
+      row-gap: 2px;
     }
 
     & td{
@@ -229,7 +228,19 @@ table.hypothesis-table + .goals{
 .box{
   width: max-content;
 }
+#box-1 > .box-insides > .hypothesis-table:first-child{
+  /* width: 100%; */
+}
 .hypothesis-table{
+  & div.data-hypotheses{
+    width: fit-content;
+    min-width: 100%;
+    display: flex;
+    flex-wrap: wrap-reverse;
+  }
+  & div.data-hypotheses .hypothesis{
+    min-width: 0;
+  }
   & .hypothesis{
     width: fit-content;
     max-width: 200px;
