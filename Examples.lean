@@ -13,9 +13,7 @@ import Paperproof
 
 import Mathlib.Data.Real.Basic
 
-variable (a b c d : ℝ)
-
-example : min a b = min b a := by
+example (a b : ℝ) : min a b = min b a := by
   apply le_antisymm
   repeat
     apply le_min
