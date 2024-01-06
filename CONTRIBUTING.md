@@ -20,9 +20,10 @@
     yarn watch
     ```
 
-That's it! You can now go to `/Examples.lean`, and open the Paperpoof panel by clicking on a piece of a crumpled paper:
+That's it! You can check that everything works by going to `/Examples.lean`, and opening the Paperpoof panel by clicking on a piece of a crumpled paper:
 
-    <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
+  <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
+
 
 You can now change any piece of code within the `/app` folder, and the changes will be built automatically. To see those changes in the webview, you will need to run **Cmd+Shift+P "Developer: Reload Webviews"**.  
 If you change something it `/extension`, or in `/lean`, seeing the updates is more involved, and that's described in the next section.
