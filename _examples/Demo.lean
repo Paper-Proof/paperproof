@@ -1,20 +1,12 @@
 import Mathlib.Data.Set.Basic
-import Mathlib.Tactic.GCongr
-import Mathlib.Tactic.Linarith
-import Mathlib.Data.Fintype.BigOperators
-import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.BigOperators.Fin
-import Mathlib.Data.Fintype.Fin
-import Mathlib.Data.List.FinRange
-import Mathlib.Logic.Equiv.Fin
-import Lean
-import Mathlib.Tactic.Explode
+import Mathlib.Tactic.GCongr
 import Paperproof
-open Lean Meta
 
 -- 1. What happens when you type stuff
 theorem commutativityOfIntersections (s t : Set Nat)
 : s ∩ t = t ∩ s := by
+  sorry
   -- ext x
   -- apply Iff.intro
 
@@ -25,16 +17,6 @@ theorem commutativityOfIntersections (s t : Set Nat)
   -- intro h2
   -- rw [Set.mem_inter_iff, and_comm] at h2
   -- exact h2
-  ext x
-
-  apply Iff.intro
-  intro h1
-  -- rw [Set.mem_inter_iff, and_comm] at h1
-  -- exact h1
-
-  -- intro h2
-  -- rw [Set.mem_inter_iff, and_comm]
-  -- assumption
 
 -- 2. What hypothesis did `simp`/`assumption`/etc. tactic use???
 theorem simple_ex (n m : ℕ)
@@ -64,31 +46,8 @@ theorem finFunctionFinEquiv_single11 {m n : ℕ} [NeZero m] (i : Fin n) (j : Fin
   rintro x hx
   rw [Pi.single_eq_of_ne hx, Fin.val_zero', zero_mul]
 
--- 6. Any `cases`/`induction` has a uniform interface
-namespace OurInductives
-variable (SomeGoal: Prop)
-
-inductive Prod (α : Type u) (β : Type v)
-  | mk : α → β → Prod α β
-theorem prod (hi: Prod Nat Nat) : SomeGoal := by
-  cases' hi with a b
-  sorry
-
-inductive Sum (α : Type u) (β : Type v) where
-  | inl : α → Sum α β
-  | inr : β → Sum α β
-theorem sum (hi: Sum Nat Nat) : SomeGoal := by
-  cases' hi with a b
-  sorry; sorry
-
-inductive Random where
-  | hi: ℕ → String → Random
-  | hello: (2 + 2 = 4) → Random
-  | wow: Random
-theorem casesRandom (h: Random) : SomeGoal := by
-  cases' h with a b c
-  sorry; sorry; sorry
-
-theorem dojo4_uncombined (p q r : Prop) (hp : p)
+-- 6. We can see exactly what path was taken by tactic combinators
+theorem combs (p q r : Prop) (hp : p)
   : (p ∨ q ∨ r) ∧ (q ∨ p ∨ r) ∧ (q ∨ r ∨ p) := by
   repeat (first | apply And.intro | apply Or.inl; assumption | apply Or.inr | assumption)
+  done
