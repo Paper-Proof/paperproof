@@ -301,6 +301,10 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 ## Installation
 
+**NOTE:  
+These instructions are for installing the alpha version of Paperproof.  
+Paperproof v1.0, which we are showing in Lean Together, will be published January 15, 2024.**
+
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
 2. In your `lakefile.lean`, write:
