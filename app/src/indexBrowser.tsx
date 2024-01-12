@@ -17,12 +17,17 @@ import HypothesisNode from "./components/ProofTree/components/BoxEl/components/H
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
 
-export const GlobalContext = React.createContext<{ proofTree: ConvertedProofTree; highlights: Highlights; UIVersion: number, refreshUI: () => void; }>({
+export const GlobalContext = React.createContext<{ UIVersion: number, refreshUI: () => void; collapsedBoxIds: string[], setCollapsedBoxIds: (newIds: string[]) => void }>({
+  // Might add later (types would be `proofTree: ConvertedProofTree; highlights: Highlights`).
   // These value are never used because we only render the children once convertedProofTree is already non-null - we're just inserting these values so that typescript doesn't complain in children.
-  proofTree: { boxes: [], tactics: [], equivalentIds: {} },
-  highlights: null,
+  //
+  // proofTree: { boxes: [], tactics: [], equivalentIds: {} },
+  // highlights: null,
+  //
   refreshUI: () => {},
-  UIVersion: 1
+  UIVersion: 1,
+  collapsedBoxIds: [],
+  setCollapsedBoxIds: () => {}
 });
 
 interface Converted {
@@ -36,6 +41,8 @@ function Main() {
 
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
   const [UIVersion, setUIVersion] = useState<number>(1);
+
+  const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -116,6 +123,7 @@ function Main() {
 
   React.useEffect(() => {
     localStorage.removeItem('zoomedBoxId');
+    setCollapsedBoxIds([]);
   }, [converted?.statement])
 
   const refreshUI = () => {
@@ -168,7 +176,7 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ proofTree: converted.proofTree, highlights: converted.highlights, UIVersion, refreshUI }}>
+      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds }}>
         {
           canWriteTactic &&
           displayHyps.length > 0 &&

@@ -37,9 +37,9 @@ const BoxEl = (props: MyProps) => {
     mouseX: number;
     mouseY: number;
   } | null>(null);
-  const [collapsed, setCollapsed] = React.useState<boolean>(false);
 
-  const { refreshUI } = useContext(GlobalContext);
+  const { refreshUI, collapsedBoxIds, setCollapsedBoxIds } = useContext(GlobalContext);
+  const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -64,7 +64,11 @@ const BoxEl = (props: MyProps) => {
 
   const handleCollapse = (event: React.MouseEvent) => {
     event.stopPropagation();
-    setCollapsed(!collapsed);
+    if (isCollapsed) {
+      setCollapsedBoxIds(collapsedBoxIds.filter((id) => id !== props.box.id));
+    } else {
+      setCollapsedBoxIds([...collapsedBoxIds, props.box.id]);
+    }
     setContextMenu(null);
     refreshUI();
   };
@@ -111,14 +115,14 @@ const BoxEl = (props: MyProps) => {
           : undefined
       }
     >
-      <MenuItem onClick={handleCollapse}>{collapsed ? "Expand" : "Collapse"}</MenuItem>
+      <MenuItem onClick={handleCollapse}>{isCollapsed ? "Expand" : "Collapse"}</MenuItem>
       <MenuItem onClick={(event) => handleZoom(event, "in")}>Zoom In</MenuItem>
       <MenuItem onClick={(event) => handleZoom(event, "out")}>Zoom Out</MenuItem>
       <MenuItem onClick={handleCompactMode}>Compact mode</MenuItem>
       <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
 
-    {!collapsed &&
+    {!isCollapsed &&
       <div className="box-insides">
         <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
 
