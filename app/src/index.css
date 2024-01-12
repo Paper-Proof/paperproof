@@ -127,15 +127,14 @@ body{
   /* overflow-y: auto; */
   word-break: break-word;
 }
-.goal, .hypothesis{
-  /* We need this to make sure <goal>s and <hyp>s stay on top of <tactic>s */
-  position: relative;
-  /* We need this to make sure <goal>s and <hyp>s stay on top of arrows */
-  z-index: 1;
-}
-.goal{
-  z-index: 0 !important;
-}
+
+/* We need this to make sure <goal>s and <hyp>s stay on top of <tactic>s */
+.goal, .hypothesis{ position: relative; }
+/* We need this to make sure <hyp>s stay on top of <tactic>s and arrows */
+.hypothesis{ z-index: 1; }
+/* We need this to make sure <hyp>s stay on top of <tactic>s, but below arrows */
+.goal{ z-index: 0; }
+
 .tactic{
   margin-top: -2px; margin-bottom: -2px;
   padding-top: 7px; padding-bottom: 7px;
