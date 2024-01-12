@@ -124,7 +124,7 @@ body{
   /* exactly 3 lines */
   line-height: 1.3em;
   /* max-height: calc(1.3em * 3 + 12px); */
-  overflow-y: scroll;
+  /* overflow-y: auto; */
   word-break: break-word;
 }
 .goal, .hypothesis{
