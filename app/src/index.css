@@ -235,24 +235,30 @@ table.hypothesis-table + .goals{
 }
 .hypothesis-table{
   & div.data-hypotheses{
-    width: fit-content;
-    min-width: 100%;
+    width: 200px;
     display: flex;
     flex-wrap: wrap-reverse;
   }
   & div.data-hypotheses .hypothesis{
     min-width: 0;
   }
+}
+.hypothesis-table{
   & .hypothesis{
     width: fit-content;
     max-width: 200px;
-    /* Used to be: nothing, now: */
     min-width: 100%;
   }
   & .tactic{
-    /* Used to be: width: min-content;, now: */
-    width: fit-content;
+    /* tactics will have self-respect */
+    /* width: 100%;
+    min-width: min-content; */
+
+    /* tactics will just follow hyp widths */
+    width: min-content;
+    max-width: 100%;
     min-width: 100%;
+    word-break: break-all;
   }
 }
 .goals{
