@@ -283,14 +283,19 @@ table.hypothesis-table + .goals{
 }
 
 /*______________________ MUI: error toast colors ______________________*/
-.MuiSnackbar-root .MuiSnackbarContent-root {
+.MuiSnackbar-root .MuiSnackbarContent-root{
   background-color: white;
   color: #434343;
 }
 
-.MuiMenuItem-root {
+.MuiMenuItem-root{
   font-size: 14px !important;
   min-height: 0 !important;
+  padding-right: 0;
+}
+
+.MuiSwitch-root{
+  margin-left: 7px;
 }
 
 /*______________________ DEVELOPMENT ______________________*/

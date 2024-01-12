@@ -10,6 +10,7 @@ import TacticNode from "../../../TacticNode";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { GlobalContext } from "src/indexBrowser";
+import { Switch } from "@mui/material";
 
 interface MyProps {
   box: Box;
@@ -38,7 +39,7 @@ const BoxEl = (props: MyProps) => {
     mouseY: number;
   } | null>(null);
 
-  const { refreshUI, collapsedBoxIds, setCollapsedBoxIds } = useContext(GlobalContext);
+  const { refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode } = useContext(GlobalContext);
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
 
   const handleContextMenu = (event: React.MouseEvent) => {
@@ -89,11 +90,8 @@ const BoxEl = (props: MyProps) => {
 
   const handleCompactMode = (event: React.MouseEvent) => {
     event.stopPropagation();
-    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
-    if (!proofTreeEl) return;
-    proofTreeEl.classList.toggle('-compact');
+    setIsCompactMode(!isCompactMode);
     refreshUI();
-    setContextMenu(null);
   };
 
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
@@ -115,10 +113,16 @@ const BoxEl = (props: MyProps) => {
           : undefined
       }
     >
-      <MenuItem onClick={handleCollapse}>{isCollapsed ? "Expand" : "Collapse"}</MenuItem>
+      {
+        props.box.id !== "1" &&
+        <MenuItem onClick={handleCollapse}>{isCollapsed ? "Expand box" : "Collapse box"}</MenuItem>
+      }
       <MenuItem onClick={(event) => handleZoom(event, "in")}>Zoom In</MenuItem>
       <MenuItem onClick={(event) => handleZoom(event, "out")}>Zoom Out</MenuItem>
-      <MenuItem onClick={handleCompactMode}>Compact mode</MenuItem>
+      <MenuItem onClick={handleCompactMode}>
+        Compact mode
+        <Switch checked={isCompactMode} size="small"/>
+      </MenuItem>
       <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
 

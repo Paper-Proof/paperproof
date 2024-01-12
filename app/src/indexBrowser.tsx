@@ -16,8 +16,16 @@ import HypothesisNode from "./components/ProofTree/components/BoxEl/components/H
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
+interface GlobalContextType {
+  UIVersion: number;
+  refreshUI: () => void;
+  collapsedBoxIds: string[];
+  setCollapsedBoxIds: (newIds: string[]) => void;
+  isCompactMode: boolean;
+  setIsCompactMode: (newMode: boolean) => void;
+}
 
-export const GlobalContext = React.createContext<{ UIVersion: number, refreshUI: () => void; collapsedBoxIds: string[], setCollapsedBoxIds: (newIds: string[]) => void }>({
+export const GlobalContext = React.createContext<GlobalContextType>({
   // Might add later (types would be `proofTree: ConvertedProofTree; highlights: Highlights`).
   // These value are never used because we only render the children once convertedProofTree is already non-null - we're just inserting these values so that typescript doesn't complain in children.
   //
@@ -27,7 +35,9 @@ export const GlobalContext = React.createContext<{ UIVersion: number, refreshUI:
   refreshUI: () => {},
   UIVersion: 1,
   collapsedBoxIds: [],
-  setCollapsedBoxIds: () => {}
+  setCollapsedBoxIds: () => {},
+  isCompactMode: false,
+  setIsCompactMode: () => {}
 });
 
 interface Converted {
@@ -43,6 +53,7 @@ function Main() {
   const [UIVersion, setUIVersion] = useState<number>(1);
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
+  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -176,7 +187,7 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds }}>
+      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode }}>
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
@@ -186,7 +197,7 @@ function Main() {
             )}
           </div>
         }
-        <div className="proof-tree">
+        <div className={`proof-tree ${isCompactMode ? '-compact' : ''}`}>
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
