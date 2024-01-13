@@ -29,8 +29,12 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tact
 // "a._@.Mathlib.Init.Algebra.Order._hyg.1764" => "a"
 // (https://github.com/leanprover/lean4/blob/d37bbf4292c72798afdff8bf5488df09193fde58/src/Init/Prelude.lean#L4132)
 // Note: I was doing this in the parser with `.eraseMacroScopes`, but we depend in hygienic goal usernames, might be dangerous - so I moved it here.
-const prettifyGoalUsername = (username : string) => {
-  return username.split('._@')[0];
+const prettifyGoalUsername = (username : string, boxId : string) => {
+  if (boxId === "1") {
+    return "theorem"
+  } else {
+    return username.split('._@')[0];
+  }
 }
 
 const BoxEl = (props: MyProps) => {
@@ -207,7 +211,7 @@ const BoxEl = (props: MyProps) => {
       </div>
     }
     <div className="goal-username">
-      {prettifyGoalUsername(props.box.goalNodes[0].name)}
+      {prettifyGoalUsername(props.box.goalNodes[0].name, props.box.id)}
     </div>
   </section>
 }

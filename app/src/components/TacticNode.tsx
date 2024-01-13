@@ -26,6 +26,7 @@ const TacticNode = (props: TacticNodeProps) => {
   const isSorried = props.tactic.text === "sorry" || props.tactic.text === "done";
   const isSuccess = props.tactic.successGoalId && !isSorried
 
+  const text = props.tactic.text //=== "init" ? "hypotheses" : props.tactic.text;
   return (
     <div 
       className={`tactic -hint ${props.className || ''} ${isSuccess ? '-success' : ''} ${isSorried ? '-sorried' : ''}`} 
@@ -36,7 +37,7 @@ const TacticNode = (props: TacticNodeProps) => {
       ref={thisEl}
     >
       <Hint>{props.tactic}</Hint>
-      {isSuccess ? <><span>🎉</span> <span>{props.tactic.text}</span> <span>🎉</span></> : props.tactic.text}
+      {isSuccess ? <><span>🎉</span> <span>{text}</span> <span>🎉</span></> : text}
       {perfectArrows.map((arrow, index) =>
         <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
       )}
