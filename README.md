@@ -5,7 +5,7 @@ A new proof interface for Lean 4.
 </h2>
 
 <div align="center">
-  <img width="900" alt="Paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a5792103-6de4-4e98-aa7a-4bcf51aabd47">
+  <img width="900" alt="Paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/989cc1d3-941b-49fb-b9e0-1529409d946c">
 </div>
 
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
