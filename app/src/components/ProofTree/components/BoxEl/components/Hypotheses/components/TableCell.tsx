@@ -42,6 +42,7 @@ interface TableCellProps {
   tabledCells: TabledCell[];
   highlights: Highlights;
   proofTree: ConvertedProofTree;
+  shouldTacticsHaveSelfRespect: boolean;
 }
 const TableCell = (props: TableCellProps) => {
   const tabledCellsOnThisRow = props.tabledCells.filter((tabledHyp) => tabledHyp.row === props.rowIndex);
@@ -53,7 +54,7 @@ const TableCell = (props: TableCellProps) => {
     return <td/>;
   } else if (cell.columnFrom === props.columnIndex) {
     const colSpan = cell.columnTo - cell.columnFrom;
-    return <td colSpan={colSpan}>
+    return <td colSpan={colSpan} className={props.shouldTacticsHaveSelfRespect ? "-add-self-respect-to-tactics" : ""}>
       {'hypNode' in cell ?
         <HypothesisNode hypNode={cell.hypNode} highlights={props.highlights}/> :
         <Tactic cell={cell} colSpan={colSpan} proofTree={props.proofTree}/>

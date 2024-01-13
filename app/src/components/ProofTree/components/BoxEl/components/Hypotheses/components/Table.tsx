@@ -46,6 +46,7 @@ const Table = (props: TableProps) => {
                 key={columnIndex}
                 proofTree={props.proofTree}
                 columnIndex={columnIndex}
+                shouldTacticsHaveSelfRespect={columns.length === 1 && rows.length === 2}
                 rowIndex={rowIndex}
                 tabledCells={tabledCells}
                 highlights={props.highlights}

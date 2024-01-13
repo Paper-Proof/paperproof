@@ -248,17 +248,18 @@ section.data{
     min-width: 100%;
   }
 }
-/* tactics will have self-respect */
+/* tactics will just follow hyp widths */
 .proof-tree.-compact-tactics .hypothesis-table .tactic{
   width: min-content;
   max-width: 100%;
   min-width: 100%;
   word-break: break-all;
 }
- /* tactics will just follow hyp widths */
-.proof-tree.-wide-tactics .hypothesis-table .tactic{
-  width: 100%;
-  min-width: min-content;
+/* tactics will have self-respect */
+.proof-tree.-wide-tactics .hypothesis-table .tactic,
+.proof-tree .hypothesis-table td.-add-self-respect-to-tactics .tactic{
+  width: 100% ;
+  min-width: min-content ;
 }
 
 .goals{
