@@ -10,7 +10,7 @@ A new proof interface for Lean 4.
 
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
-You can see Paperproof in action on [youtube](https://www.youtube.com/watch?v=m6MuiHQmULY).  
+You can see Paperproof in action on [youtube](https://youtu.be/xiIQ0toSpxQ).  
 Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
 
 In the following tables, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof; and how Paperproof renders real proofs from well-known repos.
