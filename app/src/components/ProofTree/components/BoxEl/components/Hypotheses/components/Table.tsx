@@ -1,7 +1,8 @@
 import React from "react";
-import { ConvertedProofTree, DataRow, Highlights, TabledCell, Table } from "types";
+import { ConvertedProofTree, Highlights, Table } from "types";
 import TableCell from "./TableCell";
 import HypothesisNode from "./HypothesisNode";
+import TacticNode from "src/components/TacticNode";
 
 interface TableProps {
   highlights: Highlights;
@@ -9,7 +10,6 @@ interface TableProps {
   hypTable: Table;
 }
 const Table = (props: TableProps) => {
-  const dataRow = props.hypTable.dataRow;
   const tabledCells = [...props.hypTable.tabledHyps, ...props.hypTable.tabledTactics];
 
   // Example input: tabledCells = [{row: 1}, {row: 2}, {row: 3}, {row: 4}, {row: 5}]
@@ -22,21 +22,23 @@ const Table = (props: TableProps) => {
   const maxColumn = Math.max(...tabledCells.map(hyp => hyp.columnTo));
   const columns = Array.from({ length: maxColumn }, (_, i) => i);
 
-  return (
+  return <>
+    {
+      props.hypTable.dataRow &&
+      <section className="data">
+        <div className="data-hypotheses">
+          {props.hypTable.dataRow.hypNodes.map((hypNode, index) =>
+            <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
+          )}
+        </div>
+        {
+          tabledCells.length === 0 &&
+          <TacticNode tactic={props.proofTree.tactics.find((tactic) => tactic.text === "init")!} shardId="0"/>
+        }
+      </section>
+    }
     <table className="hypothesis-table">
       <tbody>
-        {
-          dataRow &&
-          <tr key="dataRow">
-            <td colSpan={dataRow.width}>
-              <div className="data-hypotheses">
-                {dataRow.hypNodes.map((hypNode, index) =>
-                  <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
-                )}
-              </div>
-            </td>
-          </tr>
-        }
         {rows.map((rowIndex) => (
           <tr key={rowIndex}>
             {columns.map((columnIndex) =>
@@ -53,7 +55,7 @@ const Table = (props: TableProps) => {
         ))}
       </tbody>
     </table>
-  );
+  </>;
 };
 
 export default Table;

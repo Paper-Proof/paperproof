@@ -95,11 +95,6 @@ body{
   & table.hypothesis-table{
     border-spacing: 0;
 
-    & .data-hypotheses{
-      column-gap: 2px;
-      row-gap: 2px;
-    }
-
     & td{
       padding: 0;
       padding-right: 2px;
@@ -232,17 +227,17 @@ table.hypothesis-table + .goals{
 .box{
   width: max-content;
 }
-#box-1 > .box-insides > .hypothesis-table:first-child{
-  /* width: 100%; */
-}
-.hypothesis-table{
+
+section.data{
+  width: 0;
+  min-width: 100%;
   & div.data-hypotheses{
-    width: 200px;
+    width: 100%;
     display: flex;
     flex-wrap: wrap-reverse;
-  }
-  & div.data-hypotheses .hypothesis{
-    min-width: 0;
+
+    column-gap: 2px;
+    row-gap: 2px;
   }
 }
 
