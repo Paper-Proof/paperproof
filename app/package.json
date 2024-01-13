@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "server": "node server.cjs",
-    "watch": "node esbuild.config.js",
-    "build": "mkdir dist; echo 'This build command is not used in paperproof, please remove me after Anton removes vercel' > dist/index.js"
+    "watch": "node esbuild.config.js"
   },
   "main": "index.js",
   "author": "Anton Kovsharov, Evgenia Karunus",
