@@ -272,6 +272,9 @@ section.data{
     min-width: 100%;
   }
 }
+#box-1 > .box-insides > .goals{
+  min-width: 200px;
+}
 
 /*______________________ PROOF-TREE: fixed hypotheses ______________________*/
 
