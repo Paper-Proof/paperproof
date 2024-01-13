@@ -123,7 +123,6 @@ const BoxEl = (props: MyProps) => {
         Compact mode
         <Switch checked={isCompactMode} size="small"/>
       </MenuItem>
-      <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
 
     {!isCollapsed &&
@@ -143,7 +142,7 @@ const BoxEl = (props: MyProps) => {
           <div className="goals" key={goalNode.id}>
             {
               getGoalTactic(props.proofTree, goalNode.id) ?
-                <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)}/> :
+                <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)!}/> :
                 <div className="tactic -ellipsis">...</div>
             }
             <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
