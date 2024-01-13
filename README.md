@@ -5,12 +5,16 @@ A new proof interface for Lean 4.
 </h2>
 
 <div align="center">
-  <img width="900" alt="Paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/989cc1d3-941b-49fb-b9e0-1529409d946c">
+  <img width="900" alt="Paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/75b98ac2-51e0-4894-b725-1d80c790c4ff">
 </div>
 
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
-You can see Paperproof in action on [youtube](https://www.youtube.com/watch?v=m6MuiHQmULY).  
+We created a few videos about Paperproof:
+- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ).   
+- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).  
+- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).  
+
 Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
 
 In the following tables, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof; and how Paperproof renders real proofs from well-known repos.
@@ -449,23 +453,6 @@ Below, you will see a table with the main features of Paperproof.
     <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/5408a108-f754-45d7-b4ad-819e4930bc5e">
   </td>
   </tr>
-
-  <tr>
-  <td colspan="2" align="center">
-    To copy text of a particular tactic/hypothesis/goal, right-click on that node. 
-  </td>
-  </tr>
-
-  <tr>
-  <td>
-  </td>
-  <td>
-    <img width="241" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/dbf84af0-32cb-424f-bbf8-ddde5c83b287">
-  </td>
-  </tr>
-
-
-
   </tbody>
   </table>
 </details>
