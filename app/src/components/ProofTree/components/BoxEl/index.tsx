@@ -39,7 +39,7 @@ const BoxEl = (props: MyProps) => {
     mouseY: number;
   } | null>(null);
 
-  const { refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, setIsCompactTactics, isCompactTactics } = useContext(GlobalContext);
+  const { refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, setIsCompactTactics, isCompactTactics, setIsReadonlyMode, isReadonlyMode } = useContext(GlobalContext);
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
 
   const handleContextMenu = (event: React.MouseEvent) => {
@@ -117,6 +117,12 @@ const BoxEl = (props: MyProps) => {
     refreshUI();
   };
 
+  const handleReadonlyMode = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setIsReadonlyMode(!isReadonlyMode);
+    refreshUI();
+  };
+
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -162,6 +168,13 @@ const BoxEl = (props: MyProps) => {
       <MenuItem onClick={handleCompactTactics}>
         <div className="text">Compact tactics</div>
         <Switch checked={isCompactTactics} size="small"/>
+      </MenuItem>
+
+      <Divider/>
+
+      <MenuItem onClick={handleReadonlyMode}>
+        <div className="text">Readonly mode</div>
+        <Switch checked={isReadonlyMode} size="small"/>
       </MenuItem>
     </Menu>
 

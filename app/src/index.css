@@ -171,17 +171,9 @@ body{
 .hypothesis{
   background: #a4dabc;
   border: 2px solid rgb(152 214 179);
-  &.-faded{
-    background: color-mix(in srgb, var(--color), #a4dabc 30%);
-    border-color: color-mix(in srgb, var(--color), rgb(152 214 179) 30%);
-  }
   &.data{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
-    &.-faded{
-      background: color-mix(in srgb, var(--color), #f9e9b5 30%);
-      border-color: color-mix(in srgb, var(--color), rgb(239, 227, 152) 30%);
-    }
   }
   & .name{ color: #c69c51; }
 }
@@ -189,7 +181,17 @@ body{
   background: rgb(249, 195, 195);
   border: 2px solid rgb(246, 185, 185);
   color: #5a5656;
-  &.-faded{
+}
+.proof-tree:not(.-readonly-mode){
+  .hypothesis.-faded{
+    background: color-mix(in srgb, var(--color), #a4dabc 30%);
+    border-color: color-mix(in srgb, var(--color), rgb(152 214 179) 30%);
+  }
+  .hypothesis.data.-faded{
+    background: color-mix(in srgb, var(--color), #f9e9b5 30%);
+    border-color: color-mix(in srgb, var(--color), rgb(239, 227, 152) 30%);
+  }
+  .goal.-faded{
     background: color-mix(in srgb, var(--color), rgb(249, 195, 195) 30%);
     border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
   }
