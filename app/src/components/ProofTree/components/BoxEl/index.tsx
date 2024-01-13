@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
 import Hypotheses from "./components/Hypotheses";
@@ -10,7 +10,7 @@ import TacticNode from "../../../TacticNode";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { GlobalContext } from "src/indexBrowser";
-import { Switch } from "@mui/material";
+import { Divider, ListItemIcon, ListItemText, Switch } from "@mui/material";
 
 interface MyProps {
   box: Box;
@@ -88,6 +88,23 @@ const BoxEl = (props: MyProps) => {
     }, 200);
   }
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      console.log(event);
+      if (event.altKey && event.key === "≠") {
+        handleZoom(event as any, "in");
+      } else if (event.altKey && event.key === "–") {
+        handleZoom(event as any, "out");
+      }
+    };
+
+    addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const handleCompactMode = (event: React.MouseEvent) => {
     event.stopPropagation();
     setIsCompactMode(!isCompactMode);
@@ -115,12 +132,24 @@ const BoxEl = (props: MyProps) => {
     >
       {
         props.box.id !== "1" &&
-        <MenuItem onClick={handleCollapse}>{isCollapsed ? "Expand box" : "Collapse box"}</MenuItem>
+        <MenuItem onClick={handleCollapse}>
+          {isCollapsed ? "Expand box" : "Collapse box"}
+        </MenuItem>
       }
-      <MenuItem onClick={(event) => handleZoom(event, "in")}>Zoom In</MenuItem>
-      <MenuItem onClick={(event) => handleZoom(event, "out")}>Zoom Out</MenuItem>
+      { props.box.id !== "1" && <Divider/> }
+
+      <MenuItem onClick={(event) => handleZoom(event, "in")}>
+        <div className="text">Zoom in</div>
+        <div className="shortcut">⎇ +</div>
+      </MenuItem>
+
+      <MenuItem onClick={(event) => handleZoom(event, "out")}>
+        <div className="text">Zoom out</div>
+        <div className="shortcut">⎇ -</div>
+      </MenuItem>
+
       <MenuItem onClick={handleCompactMode}>
-        Compact mode
+        <div className="text">Compact mode</div>
         <Switch checked={isCompactMode} size="small"/>
       </MenuItem>
     </Menu>
