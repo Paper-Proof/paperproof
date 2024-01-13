@@ -213,7 +213,7 @@ table.hypothesis-table + .goals{
   margin-top: 30px;
 }
 
-.proof-tree.-compact{
+.proof-tree.-compact-mode{
   & .box-insides{
     padding: 0;
     padding-top: 2px;
@@ -243,24 +243,27 @@ table.hypothesis-table + .goals{
     min-width: 0;
   }
 }
+
 .hypothesis-table{
   & .hypothesis{
     width: fit-content;
     max-width: 200px;
     min-width: 100%;
   }
-  & .tactic{
-    /* tactics will have self-respect */
-    /* width: 100%;
-    min-width: min-content; */
-
-    /* tactics will just follow hyp widths */
-    width: min-content;
-    max-width: 100%;
-    min-width: 100%;
-    word-break: break-all;
-  }
 }
+/* tactics will have self-respect */
+.proof-tree.-compact-tactics .hypothesis-table .tactic{
+  width: min-content;
+  max-width: 100%;
+  min-width: 100%;
+  word-break: break-all;
+}
+ /* tactics will just follow hyp widths */
+.proof-tree.-wide-tactics .hypothesis-table .tactic{
+  width: 100%;
+  min-width: min-content;
+}
+
 .goals{
   & .goal{
     max-width: 200px;

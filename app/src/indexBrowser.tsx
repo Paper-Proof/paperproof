@@ -20,9 +20,11 @@ interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
   collapsedBoxIds: string[];
-  setCollapsedBoxIds: (newIds: string[]) => void;
+  setCollapsedBoxIds: (x: string[]) => void;
   isCompactMode: boolean;
-  setIsCompactMode: (newMode: boolean) => void;
+  setIsCompactMode: (x: boolean) => void;
+  isCompactTactics: boolean;
+  setIsCompactTactics: (x: boolean) => void;
 }
 
 export const GlobalContext = React.createContext<GlobalContextType>({
@@ -37,7 +39,9 @@ export const GlobalContext = React.createContext<GlobalContextType>({
   collapsedBoxIds: [],
   setCollapsedBoxIds: () => {},
   isCompactMode: false,
-  setIsCompactMode: () => {}
+  setIsCompactMode: () => {},
+  isCompactTactics: true,
+  setIsCompactTactics: () => {}
 });
 
 interface Converted {
@@ -54,6 +58,7 @@ function Main() {
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
+  const [isCompactTactics, setIsCompactTactics] = useState<boolean>(true);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -187,7 +192,7 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode }}>
+      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, isCompactTactics, setIsCompactTactics }}>
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
@@ -197,7 +202,7 @@ function Main() {
             )}
           </div>
         }
-        <div className={`proof-tree ${isCompactMode ? '-compact' : ''}`}>
+        <div className={`proof-tree ${isCompactMode ? '-compact-mode' : ''} ${isCompactTactics ? '-compact-tactics' : '-wide-tactics'}`}>
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
