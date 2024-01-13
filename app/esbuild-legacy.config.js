@@ -3,7 +3,7 @@ import esbuild from "esbuild";
 await esbuild.build({
   entryPoints: ["src/indexBrowser.tsx"],
   bundle: true,
-  outfile: "../extension/dist/indexBrowser.js",
+  outfile: "dist/indexBrowser.js",
   sourcemap: true,
   platform: "browser",
   loader: {

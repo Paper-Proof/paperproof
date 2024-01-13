@@ -5,7 +5,7 @@
   "scripts": {
     "server": "node server.cjs",
     "watch": "node esbuild.config.js",
-    "build": "node esbuild-build.config.js"
+    "legacy": "node esbuild-legacy.config.js"
   },
   "main": "index.js",
   "author": "Anton Kovsharov, Evgenia Karunus",
