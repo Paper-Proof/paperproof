@@ -17,7 +17,7 @@ We created a few videos about Paperproof:
 
 Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
 
-And here you can read how Paperproof build proof trees: [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/)
+And here you can read how Paperproof analyzes Lean's InfoTree to build the trees you see in the user interface: [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
 
 In the following tables, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof; and how Paperproof renders real proofs from well-known repos.
 
