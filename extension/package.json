@@ -63,9 +63,10 @@
     "icon": "./images/icon.png"
   },
   "scripts": {
-    "vscode:prepublish": "yarn run package",
+    "vscode:prepublish": "yarn run build-app && yarn run package",
     "compile": "webpack",
     "watch": "webpack --watch",
+    "build-app": "node esbuild.prod.config.mjs",
     "package": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
@@ -91,6 +92,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.26.0",
+    "esbuild": "^0.19.11",
     "node-fetch": "^3.3.1",
     "vscode-languageserver-protocol": "^3.17.3"
   },

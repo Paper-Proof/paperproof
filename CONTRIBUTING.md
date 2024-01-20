@@ -69,8 +69,6 @@ You will need the Personal Access Token for the paperproof organisation to do th
 2. Build and publish
 
 ```shell
-yarn --cwd app run prod
-cd extension
 vsce publish patch
 ```
 

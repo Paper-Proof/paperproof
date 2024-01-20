@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "server": "node server.cjs",
-    "watch": "node esbuild.watch.config.js",
-    "prod": "node esbuild.prod.config.js"
+    "watch": "node esbuild.watch.config.js"
   },
   "main": "index.js",
   "author": "Anton Kovsharov, Evgenia Karunus",
