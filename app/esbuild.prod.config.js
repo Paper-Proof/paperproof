@@ -13,4 +13,8 @@ await esbuild.build({
   plugins: [],
   logLevel: "info",
   logLimit: 0,
+  define: {
+    "process.env.NODE_ENV": '"production"',
+  },
+  minify: true,
 });
