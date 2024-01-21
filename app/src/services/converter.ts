@@ -134,7 +134,7 @@ const drawNewHypothesisLayer = (
         prettyHypArrows.push({
           fromId: hypBeforeByName.id,
           toIds: [hypAfter.id],
-          shardId: "temporary"
+          shardId: "temporary",
         });
       }
     }
@@ -172,7 +172,7 @@ const drawNewHypothesisLayer = (
       prettyHypArrows.push({
         fromId: null,
         toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
-        shardId: "temporary"
+        shardId: "temporary",
       });
     }
   }
@@ -215,7 +215,7 @@ const drawNewHypothesisLayer = (
       prettyHypArrows.push({
         fromId: branchingHypBefore.id,
         toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
-        shardId: "temporary"
+        shardId: "temporary",
       });
     }
 
@@ -223,7 +223,7 @@ const drawNewHypothesisLayer = (
     // Which we don't display, this will just be shown by hypothesis opacities
   }
 
-  return [prettyHypNodes.reverse(), prettyHypArrows];
+  return [prettyHypNodes, prettyHypArrows];
 };
 
 // Any box is uniquely associated with a goal id.
@@ -234,7 +234,10 @@ const getBoxByGoalId = (pretty: ConvertedProofTree, goalId: string) => {
   );
 };
 
-export const getDisplayedId = (pretty: ConvertedProofTree, id: string | null) => {
+export const getDisplayedId = (
+  pretty: ConvertedProofTree,
+  id: string | null
+) => {
   if (id === null) {
     return null;
   }
@@ -378,9 +381,7 @@ const drawInitialGoal = (
       },
     ],
     hypLayers:
-      hypNodes.length > 0
-        ? [{ tacticId: tacticId, hypNodes: hypNodes.reverse() }]
-        : [],
+      hypNodes.length > 0 ? [{ tacticId: tacticId, hypNodes: hypNodes }] : [],
     hypTables: [],
   };
 
@@ -390,7 +391,13 @@ const drawInitialGoal = (
     text: "init",
     dependsOnIds: [],
     goalArrows: [],
-    hypArrows: [{ fromId: null, toIds: hypNodes.map((hypNode) => hypNode.id), shardId: "temporary" }],
+    hypArrows: [
+      {
+        fromId: null,
+        toIds: hypNodes.map((hypNode) => hypNode.id),
+        shardId: "temporary",
+      },
+    ],
     haveBoxIds: [],
   });
 };
