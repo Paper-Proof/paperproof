@@ -86,7 +86,7 @@ def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContex
     -- to get tombstones in name ✝ for unreachable hypothesis
     let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
     let ppContext := printCtx.toPPContext lctx
-    let hyps ← lctx.foldlM (init := []) (fun acc hypDecl => do
+    let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
       if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
         return acc
       let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
@@ -98,7 +98,7 @@ def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContex
         value := value.map (·.fmt.pretty),
         id := hypDecl.fvarId.name.toString,
         isProof := isProof
-      } : Hypothesis) ::acc)
+      } : Hypothesis) :: acc)
     return some ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
 
 structure Result where
