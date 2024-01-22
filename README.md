@@ -328,7 +328,7 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 5. **You're done!**
 
-    Now, click on the paperproof icon (after you installed the Paperpoof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.  
+    Now, click on the paperproof icon (after you installed the Paperproof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.  
 
     <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
@@ -457,7 +457,7 @@ Below, you will see a table with the main features of Paperproof.
 
 ## Updating
 
-To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperpoof Lean library from this github repo, and build it.
+To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperproof Lean library from this github repo, and build it.
 
 Vscode extensions are automatically updated, however you can check for new updates with  
 **`cmd+shift+p` => "Extensions: Show Extension Updates"**.  
