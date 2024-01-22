@@ -20,7 +20,7 @@
    yarn watch
    ```
 
-That's it! You can check that everything works by going to `/Examples.lean`, and opening the Paperpoof panel by clicking on a piece of a crumpled paper:
+That's it! You can check that everything works by going to `/Examples.lean`, and opening the Paperproof panel by clicking on a piece of a crumpled paper:
 
   <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
