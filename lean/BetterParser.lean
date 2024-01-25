@@ -152,12 +152,10 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | .num _ _,  _ => true
   | _, _ => false
 
-partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : RequestM Result :=
-  match context, infoTree with
-  | some (ctx : ContextInfo), .node i cs => do
+partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : RequestM Result := do
+    let res := res.filterMap id
     let some ctx := i.updateContext? ctx
       | panic! "unexpected context node"
-    let res ← cs.toList.mapM (BetterParser ctx)
     let steps := res.map (fun r => r.steps) |>.join
     let allSubGoals := HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
@@ -194,6 +192,5 @@ partial def BetterParser (context: Option ContextInfo) (infoTree : InfoTree) : R
       return { steps := newSteps ++ steps, allGoals }
     else
       return { steps, allGoals := allSubGoals}
-  | none, .node .. => panic! "unexpected context-free info tree node"
-  | _, .context ctx t => BetterParser ctx t
-  | _, .hole .. => pure {steps := [], allGoals := .empty}
+
+partial def BetterParser (i : InfoTree) := i.visitM (postNode := postNode)

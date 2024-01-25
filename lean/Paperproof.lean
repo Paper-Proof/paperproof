@@ -18,11 +18,14 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
   withWaitFindSnapAtPos params.pos fun snap => do
     checkIfUserIsStillTyping snap params.pos
 
-    let parsedTree ← BetterParser none snap.infoTree
-    -- This happens when we hover over something other than a theorem
-    if (parsedTree.steps.length == 0) then
-      throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
-    return {
-      steps := parsedTree.steps,
-      version := 2
-    }
+    let parsedTree? ← BetterParser snap.infoTree
+    match parsedTree? with
+    | none => throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
+    | some parsedTree => do
+      -- This happens when we hover over something other than a theorem
+      if (parsedTree.steps.length == 0) then
+        throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
+      return {
+        steps := parsedTree.steps,
+        version := 2
+      }
