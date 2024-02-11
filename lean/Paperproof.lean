@@ -18,7 +18,7 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
   withWaitFindSnapAtPos params.pos fun snap => do
     checkIfUserIsStillTyping snap params.pos
 
-    let parsedTree? ← BetterParser snap.infoTree
+    let parsedTree? ← timeit "parseTree" $ BetterParser snap.infoTree
     match parsedTree? with
     | none => throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
     | some parsedTree => do

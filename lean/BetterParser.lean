@@ -76,7 +76,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
     return "data"
 
 -- Returns GoalInfo about unassigned goals from the provided list of goals
-def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : RequestM (List GoalInfo) := do
+def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO (List GoalInfo) := do
   goals.filterMapM fun id => do
     let some decl := mctx.findDecl? id
       | return none
@@ -105,7 +105,7 @@ structure Result where
   steps : List ProofStep
   allGoals : HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (List String × GoalInfo × List GoalInfo)) := do
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -152,7 +152,7 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | .num _ _,  _ => true
   | _, _ => false
 
-partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : RequestM Result := do
+partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : IO Result := do
     let res := res.filterMap id
     let some ctx := i.updateContext? ctx
       | panic! "unexpected context node"
