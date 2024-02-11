@@ -75,31 +75,36 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
--- Returns GoalInfo about unassigned goals from the provided list of goals
-def getGoals (printCtx: ContextInfo) (goals : List MVarId) (mctx : MetavarContext) : IO (List GoalInfo) := do
+def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : IO GoalInfo := do
+  let some decl := printCtx.mctx.findDecl? id
+    | panic! "printGoalInfo: goal not found in the mctx"
+  -- to get tombstones in name ✝ for unreachable hypothesis
+  let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
+  let ppContext := printCtx.toPPContext lctx
+  let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
+    if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
+      return acc
+    let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
+    let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
+    let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
+    return ({
+      username := hypDecl.userName.toString,
+      type := type.fmt.pretty,
+      value := value.map (·.fmt.pretty),
+      id := hypDecl.fvarId.name.toString,
+      isProof := isProof
+    } : Hypothesis) :: acc)
+  return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
+
+-- Returns unassigned goals from the provided list of goals
+def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : IO (List MVarId) := do
   goals.filterMapM fun id => do
-    let some decl := mctx.findDecl? id
-      | return none
+    if let none := mctx.findDecl? id then
+      return none
     if mctx.eAssignment.contains id ||
        mctx.dAssignment.contains id then
       return none
-    -- to get tombstones in name ✝ for unreachable hypothesis
-    let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
-    let ppContext := printCtx.toPPContext lctx
-    let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
-      if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
-        return acc
-      let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
-      let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-      let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
-      return ({
-        username := hypDecl.userName.toString,
-        type := type.fmt.pretty,
-        value := value.map (·.fmt.pretty),
-        id := hypDecl.fvarId.name.toString,
-        isProof := isProof
-      } : Hypothesis) :: acc)
-    return some ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
+    return some id
 
 structure Result where
   steps : List ProofStep
@@ -116,20 +121,24 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List Str
   -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
   -- it's known to be `3 ≤ 5`
   let printCtx := {ctx with mctx := tInfo.mctxAfter}
-  let mut goalsBefore ← getGoals printCtx goalMVars tInfo.mctxBefore
-  let mut goalsAfter ← getGoals printCtx goalMVars tInfo.mctxAfter
+  let mut goalsBefore ← getUnassignedGoals goalMVars tInfo.mctxBefore
+  let mut goalsAfter ← getUnassignedGoals goalMVars tInfo.mctxAfter
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
   goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
   -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
   let mut result : List (List String × GoalInfo × List GoalInfo) := []
   for goalBefore in goalsBefore do
-    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore.id then
-      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore.id tInfo.mctxAfter)
+    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
+      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
       let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
-          (findHypsUsedByTactic goalBefore.id goalDecl tInfo.mctxAfter)
+          (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
-      result := (tacticDependsOn, goalBefore, goalsAfter.filter fun g => assignedMVars.contains g.id) :: result
+      result := (
+        tacticDependsOn,
+        ← printGoalInfo printCtx goalBefore,
+        ← goalsAfter.filter assignedMVars.contains |>.mapM (printGoalInfo printCtx)
+      ) :: result
   return result
 
 def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
