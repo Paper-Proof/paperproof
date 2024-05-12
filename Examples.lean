@@ -2,9 +2,9 @@ import Mathlib.Data.Nat.Prime
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.List.Chain
 import Mathlib.Tactic.GCongr
-import Mathlib.Tactic.LibrarySearch
+-- import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
-import Std.Data.Int.Basic
+-- import Std.Data.Int.Basic
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Finset.Fold
 import Mathlib.Algebra.GCDMonoid.Multiset
@@ -275,6 +275,7 @@ example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
 
   rintro ⟨xs, xt⟩
   exact ⟨xt, xs⟩
+
 
 
 
