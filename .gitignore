@@ -5,6 +5,8 @@
 .vscode
 .DS_Store
 
+**/.lake
+
 .buildt
 
 lean/lakefile.olean
