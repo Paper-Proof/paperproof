@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package «examples» {
+package «Paperproof» {
   -- add package configuration options here
 }
 
