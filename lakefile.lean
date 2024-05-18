@@ -1,11 +1,15 @@
 import Lake
 open Lake DSL
 
-package «Paperproof» {
+-- TODO: this is an «examples» repo - the real «paperproof» library is in /lean subfolder.
+-- We're only naming it "paperproof" here to accommodate to lean reservoir, see https://github.com/Paper-Proof/paperproof/pull/42.
+-- Note that we're naming it lowercase paperproof to avoid circular dependency error.
+-- In general, this should still be called «example», let's see how to deal with it when https://reservoir.lean-lang.org is more mature.
+package «paperproof» {
   -- add package configuration options here
 }
 
-lean_lib «Examples» {
+lean_lib «paperproof» {
   -- add library configuration options here
 }
 
