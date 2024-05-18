@@ -12,7 +12,7 @@ const getLeanClient = async (shared: Shared, editor: vscode.TextEditor) => {
   }
 
   const clientProvider = leanExtension.exports.clientProvider;
-  const [_, client] = await clientProvider.ensureClient(editor.document.uri, undefined);
+  const client = clientProvider.getActiveClient();
   if (!client) {
     throw new Error("leanClientNotFound");
   }
