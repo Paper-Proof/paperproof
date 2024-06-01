@@ -309,11 +309,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
-2. **[TEMPORARY STEP]** Downgrade "Lean4" vscode extension to version `0.0.144`
+2. **[TEMPORARY STEP]** Downgrade "lean4" vscode extension to version `0.0.144`
 
    <img width="450" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a89c8649-bcb9-47e4-ae45-891addf4f2cb">
 
-   *Explanation: Paperproof depends on `vscode-lean4` extension in order to avoid loading your computer with excessive Lean server instances; however `vscode-lean4` api regularly updates in a way that introduces breaking changes, resulting in a blank screen in Paperproof. Hopefully their api stabilizes soon and we can remove this step, but at the moment - please downgrade `vscode-lean4`, and turn off automatic extension updates for `vscode-lean4`.*
+   *Explanation: Paperproof depends on `lean4` extension in order to avoid loading your computer with excessive Lean server instances; however `lean4` api regularly updates in a way that introduces breaking changes, resulting in a blank screen in Paperproof. Hopefully their api stabilizes soon and we can remove this step, but at the moment - please downgrade `lean4`, and turn off automatic extension updates for `lean4`.*
 
 4. In your `lakefile.lean`, write:
     ```lean
