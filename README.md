@@ -309,24 +309,30 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
-2. In your `lakefile.lean`, write:
+2. **[TEMPORARY STEP]** Downgrade "Lean4" vscode extension to version `0.0.144`
+
+   <img width="450" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a89c8649-bcb9-47e4-ae45-891addf4f2cb">
+
+   *Explanation: Paperproof depends on `vscode-lean4` extension in order to avoid loading your computer with excessive Lean server instances; however `vscode-lean4` api regularly updates in a way that introduces breaking changes, resulting in a blank screen in Paperproof. Hopefully their api stabilizes soon and we can remove this step, but at the moment - please downgrade `vscode-lean4`, and turn off automatic extension updates for `vscode-lean4`.*
+
+4. In your `lakefile.lean`, write:
     ```lean
     require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
     ```
 
-3. Then, in your terminal, run:
+5. Then, in your terminal, run:
     ```shell
     lake update Paperproof
     ```
 
     *Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`.*
 
-4. In a Lean file with your theorems, write:
+6. In a Lean file with your theorems, write:
     ```lean
     import Paperproof
     ```
 
-5. **You're done!**
+7. **You're done!**
 
     Now, click on the paperproof icon (after you installed the Paperproof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.  
 
