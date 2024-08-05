@@ -1,16 +1,14 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 
-import { ConvertedProofTree, Box, HypNode, Highlights, Tactic } from "types";
+import { ConvertedProofTree, Box, Highlights, Tactic } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
 import zoomToBox from '../../services/zoomToBox';
 import TacticNode from "../../../TacticNode";
 
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import { GlobalContext } from "src/indexBrowser";
-import { Divider, ListItemIcon, ListItemText, Switch } from "@mui/material";
+import ContextMenu from "./components/ContextMenu";
 
 interface MyProps {
   box: Box;
@@ -43,102 +41,19 @@ const BoxEl = (props: MyProps) => {
     mouseY: number;
   } | null>(null);
 
-  const {
-    refreshUI,
-    collapsedBoxIds,    setCollapsedBoxIds,
-    isCompactMode,      setIsCompactMode,
-    isCompactTactics,   setIsCompactTactics,
-    isReadonlyMode,     setIsReadonlyMode,
-    isCompactGoalNames, setIsCompactGoalNames
-  } = useContext(GlobalContext);
-
-  const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
-
+  // Copypasted from mui docs
+  // (see https://mui.com/material-ui/react-menu/#context-menu code example)
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-          }
-        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-          // Other native context menus might behave different.
-          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-          null,
-    );
-  };
-
-  const handleClose = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setContextMenu(null);
-  };
-
-  const handleCollapse = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    if (isCollapsed) {
-      setCollapsedBoxIds(collapsedBoxIds.filter((id) => id !== props.box.id));
-    } else {
-      setCollapsedBoxIds([...collapsedBoxIds, props.box.id]);
-    }
-    setContextMenu(null);
-    refreshUI();
-  };
-
-  const handleZoom = (event: React.MouseEvent, type: "in" | "out") => {
-    event.stopPropagation();
-
-    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
-    if (!proofTreeEl) return;
-    const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
-    proofTreeEl.style.transition = 'transform 0.2s';
-    const increment = type === "in" ? 0.1 : -0.1;
-    proofTreeEl.style.transform = `scale(${initialScale + increment})`;
-    setTimeout(() => {
-      proofTreeEl.style.transition = '';
-    }, 200);
-  }
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      console.log(event);
-      if (event.altKey && event.key === "≠") {
-        handleZoom(event as any, "in");
-      } else if (event.altKey && event.key === "–") {
-        handleZoom(event as any, "out");
+      contextMenu === null ?
+      {
+        mouseX: event.clientX + 2,
+        mouseY: event.clientY - 6,
       }
-    };
-
-    addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  const handleCompactMode = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsCompactMode(!isCompactMode);
-    refreshUI();
-  };
-
-  const handleCompactGoalNames = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsCompactGoalNames(!isCompactGoalNames);
-    refreshUI();
-  };
-
-  const handleCompactTactics = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsCompactTactics(!isCompactTactics);
-    refreshUI();
-  };
-
-  const handleReadonlyMode = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsReadonlyMode(!isReadonlyMode);
-    refreshUI();
+      : null,
+    );
   };
 
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
@@ -149,57 +64,12 @@ const BoxEl = (props: MyProps) => {
     zoomToBox(props.box.id);
   }
 
+  const { collapsedBoxIds } = useContext(GlobalContext);
+
+  const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
+
   return <section className="box" id={`box-${props.box.id}`} onClick={onClick} onContextMenu={handleContextMenu}>
-    <Menu
-      open={contextMenu !== null}
-      onClose={handleClose}
-      anchorReference="anchorPosition"
-      anchorPosition={
-        contextMenu !== null
-          ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-          : undefined
-      }
-    >
-      {
-        props.box.id !== "1" &&
-        <MenuItem onClick={handleCollapse}>
-          {isCollapsed ? "Expand box" : "Collapse box"}
-        </MenuItem>
-      }
-      { props.box.id !== "1" && <Divider/> }
-
-      <MenuItem onClick={(event) => handleZoom(event, "in")}>
-        <div className="text">Zoom in</div>
-        <div className="shortcut">⎇ +</div>
-      </MenuItem>
-
-      <MenuItem onClick={(event) => handleZoom(event, "out")}>
-        <div className="text">Zoom out</div>
-        <div className="shortcut">⎇ -</div>
-      </MenuItem>
-
-      <MenuItem onClick={handleCompactMode}>
-        <div className="text">Compact mode</div>
-        <Switch checked={isCompactMode} size="small"/>
-      </MenuItem>
-
-      <MenuItem onClick={handleCompactTactics}>
-        <div className="text">Compact tactics</div>
-        <Switch checked={isCompactTactics} size="small"/>
-      </MenuItem>
-
-      <MenuItem onClick={handleCompactGoalNames}>
-        <div className="text">Compact goal names</div>
-        <Switch checked={isCompactGoalNames} size="small"/>
-      </MenuItem>
-
-      <Divider/>
-
-      <MenuItem onClick={handleReadonlyMode}>
-        <div className="text">Readonly mode</div>
-        <Switch checked={isReadonlyMode} size="small"/>
-      </MenuItem>
-    </Menu>
+    <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
 
     {!isCollapsed &&
       <div className="box-insides">
