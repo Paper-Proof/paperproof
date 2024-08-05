@@ -9,11 +9,12 @@ import TacticNode from "../../../TacticNode";
 
 import { GlobalContext } from "src/indexBrowser";
 import ContextMenu from "./components/ContextMenu";
+import prettifyGoalUsername from "./utils/prettifyGoalUsername";
 
 interface MyProps {
   box: Box;
   proofTree: ConvertedProofTree;
-  highlights: Highlights
+  highlights: Highlights;
 }
 
 const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tactic | undefined => {
@@ -22,17 +23,6 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tact
   const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
 
   return goalTactic || successTactic;
-}
-
-// "a._@.Mathlib.Init.Algebra.Order._hyg.1764" => "a"
-// (https://github.com/leanprover/lean4/blob/d37bbf4292c72798afdff8bf5488df09193fde58/src/Init/Prelude.lean#L4132)
-// Note: I was doing this in the parser with `.eraseMacroScopes`, but we depend in hygienic goal usernames, might be dangerous - so I moved it here.
-const prettifyGoalUsername = (username : string, boxId : string) => {
-  if (boxId === "1") {
-    return "theorem"
-  } else {
-    return username.split('._@')[0];
-  }
 }
 
 const BoxEl = (props: MyProps) => {
