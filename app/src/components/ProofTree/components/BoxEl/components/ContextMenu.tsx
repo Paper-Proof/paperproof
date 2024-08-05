@@ -1,9 +1,10 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Switch } from "@mui/material";
 import { GlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType } from "types";
+import zoomManually from "src/components/ProofTree/services/zoomManually";
 
 interface Props {
   box: Box;
@@ -65,33 +66,8 @@ const ContextMenu = (props: Props) => {
 
   const handleZoom = (event: React.MouseEvent, type: "in" | "out") => {
     event.stopPropagation();
-
-    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
-    if (!proofTreeEl) return;
-    const initialScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
-    proofTreeEl.style.transition = 'transform 0.2s';
-    const increment = type === "in" ? 0.1 : -0.1;
-    proofTreeEl.style.transform = `scale(${initialScale + increment})`;
-    setTimeout(() => {
-      proofTreeEl.style.transition = '';
-    }, 200);
+    zoomManually(type);
   };
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey && event.key === "≠") {
-        handleZoom(event as any, "in");
-      } else if (event.altKey && event.key === "–") {
-        handleZoom(event as any, "out");
-      }
-    };
-
-    addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
 
   return (
     <Menu

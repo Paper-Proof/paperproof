@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, LeanInteractiveGoal, HypNode } from "types";
+import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, HypNode } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
@@ -13,6 +13,7 @@ import Snackbar from '@mui/material/Snackbar';
 import zoomOnNavigation from "./components/ProofTree/services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
 import HypothesisNode from "./components/ProofTree/components/BoxEl/components/Hypotheses/components/HypothesisNode";
+import zoomManually from "./components/ProofTree/services/zoomManually";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
@@ -49,7 +50,7 @@ export const GlobalContext = React.createContext<GlobalContextType>({
   isReadonlyMode: false,
   setIsReadonlyMode: () => {},
   isCompactGoalNames: false,
-  setIsCompactGoalNames: () => {}
+  setIsCompactGoalNames: () => {},
 });
 
 interface Converted {
@@ -184,6 +185,23 @@ function Main() {
 
     return () => { observer.disconnect() };
   }, [converted]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey && event.key === "≠") {
+        event.stopPropagation();
+        zoomManually("in");
+      } else if (event.altKey && event.key === "–") {
+        zoomManually("out");
+      }
+    };
+
+    addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   let displayHyps : HypNode[] = []; 
   if (converted && converted.highlights) {
