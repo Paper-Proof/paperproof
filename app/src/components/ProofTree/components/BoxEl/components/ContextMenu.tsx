@@ -3,12 +3,12 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Switch } from "@mui/material";
 import { GlobalContext } from "src/indexBrowser";
-import { Box } from "types";
+import { Box, ContextMenuType } from "types";
 
 interface Props {
   box: Box;
-  contextMenu: { mouseX: number; mouseY: number } | null;
-  setContextMenu: React.Dispatch<React.SetStateAction<{ mouseX: number; mouseY: number } | null>>;
+  contextMenu: ContextMenuType;
+  setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuType>>;
 }
 
 const ContextMenu = (props: Props) => {
