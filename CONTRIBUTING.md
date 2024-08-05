@@ -16,6 +16,7 @@
 
    ```shell
    cd app
+   yarn install
    yarn server
    yarn watch
    ```
