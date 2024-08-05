@@ -10,3 +10,5 @@
 .buildt
 
 lean/lakefile.olean
+
+app/.yarn/
