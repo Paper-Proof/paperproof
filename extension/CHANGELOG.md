@@ -1,9 +1,5 @@
-# Change Log
+### Changelog
 
-All notable changes to the "tactictree" extension will be documented in this file.
+We keep out CHANGELOG in GitHub Releases.  
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+To find it, go to [github.com/Paper-Proof/paperproof/releases](https://github.com/Paper-Proof/paperproof/releases).
