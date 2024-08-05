@@ -43,7 +43,15 @@ const BoxEl = (props: MyProps) => {
     mouseY: number;
   } | null>(null);
 
-  const { refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, setIsCompactTactics, isCompactTactics, setIsReadonlyMode, isReadonlyMode } = useContext(GlobalContext);
+  const {
+    refreshUI,
+    collapsedBoxIds,    setCollapsedBoxIds,
+    isCompactMode,      setIsCompactMode,
+    isCompactTactics,   setIsCompactTactics,
+    isReadonlyMode,     setIsReadonlyMode,
+    isCompactGoalNames, setIsCompactGoalNames
+  } = useContext(GlobalContext);
+
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
 
   const handleContextMenu = (event: React.MouseEvent) => {
@@ -115,6 +123,12 @@ const BoxEl = (props: MyProps) => {
     refreshUI();
   };
 
+  const handleCompactGoalNames = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setIsCompactGoalNames(!isCompactGoalNames);
+    refreshUI();
+  };
+
   const handleCompactTactics = (event: React.MouseEvent) => {
     event.stopPropagation();
     setIsCompactTactics(!isCompactTactics);
@@ -172,6 +186,11 @@ const BoxEl = (props: MyProps) => {
       <MenuItem onClick={handleCompactTactics}>
         <div className="text">Compact tactics</div>
         <Switch checked={isCompactTactics} size="small"/>
+      </MenuItem>
+
+      <MenuItem onClick={handleCompactGoalNames}>
+        <div className="text">Compact goal names</div>
+        <Switch checked={isCompactGoalNames} size="small"/>
       </MenuItem>
 
       <Divider/>

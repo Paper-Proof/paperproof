@@ -191,6 +191,11 @@ body{
     border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
   }
 }
+.proof-tree.-compact-goal-names{
+  .goal-username:not(#box-1 > div.goal-username){
+    display: none;
+  }
+}
 
 /*______________________ PROOF-TREE: paddings ______________________*/
 

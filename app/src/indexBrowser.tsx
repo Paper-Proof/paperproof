@@ -27,6 +27,8 @@ interface GlobalContextType {
   setIsCompactTactics: (x: boolean) => void;
   isReadonlyMode: boolean;
   setIsReadonlyMode: (x: boolean) => void;
+  isCompactGoalNames: boolean;
+  setIsCompactGoalNames: (x: boolean) => void;
 }
 
 export const GlobalContext = React.createContext<GlobalContextType>({
@@ -45,7 +47,9 @@ export const GlobalContext = React.createContext<GlobalContextType>({
   isCompactTactics: true,
   setIsCompactTactics: () => {},
   isReadonlyMode: false,
-  setIsReadonlyMode: () => {}
+  setIsReadonlyMode: () => {},
+  isCompactGoalNames: false,
+  setIsCompactGoalNames: () => {}
 });
 
 interface Converted {
@@ -64,6 +68,7 @@ function Main() {
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isCompactTactics, setIsCompactTactics] = useState<boolean>(true);
   const [isReadonlyMode, setIsReadonlyMode] = useState<boolean>(false);
+  const [isCompactGoalNames, setIsCompactGoalNames] = useState<boolean>(false);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -197,7 +202,7 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, isCompactTactics, setIsCompactTactics, isReadonlyMode, setIsReadonlyMode }}>
+      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, isCompactTactics, setIsCompactTactics, isReadonlyMode, setIsReadonlyMode, isCompactGoalNames, setIsCompactGoalNames }}>
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
@@ -207,7 +212,13 @@ function Main() {
             )}
           </div>
         }
-        <div className={`proof-tree ${isCompactMode ? '-compact-mode' : ''} ${isCompactTactics ? '-compact-tactics' : '-wide-tactics'} ${isReadonlyMode ? '-readonly-mode' : ''}`}>
+        <div className={`
+          proof-tree
+          ${isReadonlyMode ? '-readonly-mode' : ''}
+          ${isCompactMode ? '-compact-mode' : ''}
+          ${isCompactTactics ? '-compact-tactics' : '-wide-tactics'}
+          ${isCompactGoalNames ? '-compact-goal-names' : ''}
+        `}>
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
