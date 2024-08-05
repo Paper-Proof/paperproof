@@ -18,6 +18,7 @@ import {
   DataRow,
   HypLayer
 } from "./ConvertedProofTree";
+import { ContextMenuType } from "./Mui";
 
 // SERVER REQUEST/RESPONSE
 export interface ValidProofResponse {
@@ -71,5 +72,6 @@ export {
   DataRow,
   Point,
   Arrow,
-  HypLayer
+  HypLayer,
+  ContextMenuType
 };

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 
-import { ConvertedProofTree, Box, Highlights, Tactic } from "types";
+import { ConvertedProofTree, Box, Highlights, Tactic, ContextMenuType } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
@@ -10,6 +10,7 @@ import TacticNode from "../../../TacticNode";
 import { GlobalContext } from "src/indexBrowser";
 import ContextMenu from "./components/ContextMenu";
 import prettifyGoalUsername from "./utils/prettifyGoalUsername";
+import onContextMenu from "./utils/onContextMenu";
 
 interface MyProps {
   box: Box;
@@ -26,25 +27,7 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tact
 }
 
 const BoxEl = (props: MyProps) => {
-  const [contextMenu, setContextMenu] = React.useState<{
-    mouseX: number;
-    mouseY: number;
-  } | null>(null);
-
-  // Copypasted from mui docs
-  // (see https://mui.com/material-ui/react-menu/#context-menu code example)
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setContextMenu(
-      contextMenu === null ?
-      {
-        mouseX: event.clientX + 2,
-        mouseY: event.clientY - 6,
-      }
-      : null,
-    );
-  };
+  const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
 
   const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
@@ -58,7 +41,7 @@ const BoxEl = (props: MyProps) => {
 
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
 
-  return <section className="box" id={`box-${props.box.id}`} onClick={onClick} onContextMenu={handleContextMenu}>
+  return <section className="box" id={`box-${props.box.id}`} onClick={onClick} onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}>
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
 
     {!isCollapsed &&
