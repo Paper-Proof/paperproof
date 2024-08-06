@@ -20,6 +20,7 @@ const ContextMenu = (props: Props) => {
     isCompactTactics,   setIsCompactTactics,
     isReadonlyMode,     setIsReadonlyMode,
     isCompactGoalNames, setIsCompactGoalNames,
+    isGreenHypotheses,  setIsGreenHypotheses
   } = useGlobalContext();
 
   const handleCompactMode = (event: React.MouseEvent) => {
@@ -69,6 +70,12 @@ const ContextMenu = (props: Props) => {
     zoomManually(type);
   };
 
+  const handleGreenHypotheses = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setIsGreenHypotheses(!isGreenHypotheses);
+    refreshUI();
+  };
+
   return (
     <Menu
       open={props.contextMenu !== null}
@@ -111,6 +118,11 @@ const ContextMenu = (props: Props) => {
       <MenuItem onClick={handleCompactGoalNames}>
         <div className="text">Compact goal names</div>
         <Switch checked={isCompactGoalNames} size="small"/>
+      </MenuItem>
+
+      <MenuItem onClick={handleGreenHypotheses}>
+        <div className="text">Green Hypotheses</div>
+        <Switch checked={isGreenHypotheses} size="small"/>
       </MenuItem>
 
       <Divider/>

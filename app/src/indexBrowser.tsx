@@ -31,6 +31,8 @@ interface GlobalContextType {
   setIsReadonlyMode: (x: boolean) => void;
   isCompactGoalNames: boolean;
   setIsCompactGoalNames: (x: boolean) => void;
+  isGreenHypotheses: boolean;
+  setIsGreenHypotheses: (x: boolean) => void;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -61,6 +63,7 @@ function Main() {
   const [isCompactTactics, setIsCompactTactics] = useState<boolean>(true);
   const [isReadonlyMode, setIsReadonlyMode] = useState<boolean>(false);
   const [isCompactGoalNames, setIsCompactGoalNames] = useState<boolean>(false);
+  const [isGreenHypotheses, setIsGreenHypotheses] = useState<boolean>(false);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -211,7 +214,7 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, isCompactTactics, setIsCompactTactics, isReadonlyMode, setIsReadonlyMode, isCompactGoalNames, setIsCompactGoalNames }}>
+      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, isCompactTactics, setIsCompactTactics, isReadonlyMode, setIsReadonlyMode, isCompactGoalNames, setIsCompactGoalNames, isGreenHypotheses, setIsGreenHypotheses }}>
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
@@ -227,6 +230,7 @@ function Main() {
           ${isCompactMode ? '-compact-mode' : ''}
           ${isCompactTactics ? '-compact-tactics' : '-wide-tactics'}
           ${isCompactGoalNames ? '-compact-goal-names' : ''}
+          ${isGreenHypotheses ? '-is-green-hypotheses' : '-is-yellow-data-hypotheses'}
         `}>
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>

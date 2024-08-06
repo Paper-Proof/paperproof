@@ -166,11 +166,13 @@ body{
 .hypothesis{
   background: #a4dabc;
   border: 2px solid rgb(152 214 179);
-  &.data{
+  .name{ color: #c69c51; }
+}
+.-is-yellow-data-hypotheses{
+  .hypothesis.data{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
   }
-  .name{ color: #c69c51; }
 }
 .goal{
   background: rgb(249, 195, 195);
@@ -182,7 +184,7 @@ body{
     background: color-mix(in srgb, var(--color), #a4dabc 30%);
     border-color: color-mix(in srgb, var(--color), rgb(152 214 179) 30%);
   }
-  .hypothesis.data.-faded{
+  &.-is-yellow-data-hypotheses .hypothesis.data.-faded{
     background: color-mix(in srgb, var(--color), #f9e9b5 30%);
     border-color: color-mix(in srgb, var(--color), rgb(239, 227, 152) 30%);
   }
