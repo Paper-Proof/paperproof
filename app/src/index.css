@@ -15,7 +15,7 @@ body{
     background-color: var(--vscode-editor-background);
   }
 
-  & .proof-tree{
+  .proof-tree{
     border-radius: 3px;
     background: white;
   }
@@ -25,7 +25,7 @@ body{
 body{
   padding: 70vh 70vw;
   width: fit-content;
-  & .proof-tree{
+  .proof-tree{
     width: max-content;
     transform-origin: 0% 0% 0px;
   }
@@ -46,7 +46,7 @@ body{
   fill: #a0ceb0;
 }
 .tactic{
-  & .perfect-arrow{
+  .perfect-arrow{
     display: none;
   }
   &:hover .perfect-arrow,
@@ -85,27 +85,27 @@ body{
   border-radius: 2px;
   flex-grow: 1;
 
-  & .child-boxes{
+  .child-boxes{
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: 10px;
   }
 
-  & table.hypothesis-table{
+  table.hypothesis-table{
     border-spacing: 0;
 
-    & td{
+    td{
       padding: 0;
       padding-right: 2px;
       vertical-align: top;
     }
-    & td:last-child {
+    td:last-child {
       padding-right: 0;
     }
   }
 
-  & .goal-username{
+  .goal-username{
     width: 100%;
     text-align: center;
     color: #9c9797;
@@ -170,7 +170,7 @@ body{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
   }
-  & .name{ color: #c69c51; }
+  .name{ color: #c69c51; }
 }
 .goal{
   background: rgb(249, 195, 195);
@@ -216,14 +216,14 @@ table.hypothesis-table + .goals{
 }
 
 .proof-tree.-compact-mode{
-  & .box-insides{
+  .box-insides{
     padding: 0;
     padding-top: 2px;
   }
-  & .hypothesis, & .goal, & .tactic{
+  .hypothesis, .goal, .tactic{
     padding: 3px 7px;
   }
-  & .tactic{
+  .tactic{
     padding-top: 5px; padding-bottom: 5px;
   }
 }
@@ -236,7 +236,7 @@ table.hypothesis-table + .goals{
 section.data{
   width: 0;
   min-width: 100%;
-  & div.data-hypotheses{
+  div.data-hypotheses{
     width: 100%;
     display: flex;
     flex-wrap: wrap-reverse;
@@ -247,7 +247,7 @@ section.data{
 }
 
 .hypothesis-table{
-  & .hypothesis{
+  .hypothesis{
     width: fit-content;
     max-width: 200px;
     min-width: 100%;
@@ -268,11 +268,11 @@ section.data{
 }
 
 .goals{
-  & .goal{
+  .goal{
     max-width: 200px;
     min-width: 100%;
   }
-  & .tactic{
+  .tactic{
     max-width: 200px;
     min-width: 100%;
   }
@@ -303,7 +303,7 @@ section.data{
   padding-right: 12px !important;
   justify-content: space-between !important;
 
-  & .shortcut{
+  .shortcut{
     color: grey;
     width: 38px;
     background: #f3f5f7;
