@@ -49,8 +49,24 @@ export interface HypLayer {
 export interface Box {
   id: string;
   parentId: string | null | "haveBox";
+  /**
+   * **Raw information about what hypotheses and goals are in this box.**  
+   * 
+   * [inserted in `converter.ts`].  
+   */
   goalNodes: GoalNode[];
+  /**
+   * **Raw information about what hypotheses and goals are in this box.**  
+   * 
+   * [inserted in `converter.ts`].  
+   */
   hypLayers: HypLayer[];
+  /**
+   * **Derived prop (from `hypLayers` and `goalNodes`).**  
+   * Tells us exactly where hypotheses should be located in the UI to make it pretty.  
+   *
+   * [inserted in `hypsToTables.ts`].  
+   */
   hypTables: Table[];
 }
 
