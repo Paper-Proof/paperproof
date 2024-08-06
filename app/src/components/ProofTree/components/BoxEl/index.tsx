@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 
 import { ConvertedProofTree, Box, Highlights, Tactic, ContextMenuType } from "types";
 import Hypotheses from "./components/Hypotheses";
@@ -7,7 +7,7 @@ import Hint from "./components/Hint";
 import zoomToBox from '../../services/zoomToBox';
 import TacticNode from "../../../TacticNode";
 
-import { GlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/indexBrowser";
 import ContextMenu from "./components/ContextMenu";
 import prettifyGoalUsername from "./utils/prettifyGoalUsername";
 import onContextMenu from "./utils/onContextMenu";
@@ -37,7 +37,7 @@ const BoxEl = (props: MyProps) => {
     zoomToBox(props.box.id);
   }
 
-  const { collapsedBoxIds } = useContext(GlobalContext);
+  const { collapsedBoxIds } = useGlobalContext();
 
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
 

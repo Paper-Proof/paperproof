@@ -17,6 +17,7 @@ import zoomManually from "./components/ProofTree/services/zoomManually";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;
+
 interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
@@ -32,26 +33,16 @@ interface GlobalContextType {
   setIsCompactGoalNames: (x: boolean) => void;
 }
 
-export const GlobalContext = React.createContext<GlobalContextType>({
-  // Might add later (types would be `proofTree: ConvertedProofTree; highlights: Highlights`).
-  // These value are never used because we only render the children once convertedProofTree is already non-null - we're just inserting these values so that typescript doesn't complain in children.
-  //
-  // proofTree: { boxes: [], tactics: [], equivalentIds: {} },
-  // highlights: null,
-  //
-  refreshUI: () => {},
-  UIVersion: 1,
-  collapsedBoxIds: [],
-  setCollapsedBoxIds: () => {},
-  isCompactMode: false,
-  setIsCompactMode: () => {},
-  isCompactTactics: true,
-  setIsCompactTactics: () => {},
-  isReadonlyMode: false,
-  setIsReadonlyMode: () => {},
-  isCompactGoalNames: false,
-  setIsCompactGoalNames: () => {},
-});
+const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
+
+// This allows us to use `undefined` for the default GlobalContext value
+// (see https://stackoverflow.com/a/69735347/3192470)
+export const useGlobalContext = () => {
+  const globalContext = React.useContext(GlobalContext);
+  if (!globalContext)
+      throw new Error('No <GlobalContext.Provider/> found when calling useGlobalContext.');
+  return globalContext;
+};
 
 interface Converted {
   proofTree: ConvertedProofTree;

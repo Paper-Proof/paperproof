@@ -1,8 +1,8 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import { Arrow, Tactic } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
-import { GlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
 
 interface TacticNodeProps {
@@ -11,10 +11,10 @@ interface TacticNodeProps {
   shardId?: string
 }
 const TacticNode = (props: TacticNodeProps) => {
-  const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
+  const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
   const thisEl = React.useRef<HTMLInputElement>(null);
 
-  const global = useContext(GlobalContext);
+  const global = useGlobalContext();
 
   React.useLayoutEffect(() => {
     const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds

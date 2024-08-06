@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Switch } from "@mui/material";
-import { GlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType } from "types";
 import zoomManually from "src/components/ProofTree/services/zoomManually";
 
@@ -20,7 +20,7 @@ const ContextMenu = (props: Props) => {
     isCompactTactics,   setIsCompactTactics,
     isReadonlyMode,     setIsReadonlyMode,
     isCompactGoalNames, setIsCompactGoalNames,
-  } = useContext(GlobalContext);
+  } = useGlobalContext();
 
   const handleCompactMode = (event: React.MouseEvent) => {
     event.stopPropagation();
