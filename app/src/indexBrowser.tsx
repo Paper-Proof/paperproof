@@ -27,7 +27,7 @@ interface GlobalContextType {
     isCompactMode: boolean;
     isCompactTactics: boolean;
     isReadonlyMode: boolean;
-    isCompactGoalNames: boolean;
+    isHiddenGoalNames: boolean;
     isGreenHypotheses: boolean;
   };
   setSettings: React.Dispatch<React.SetStateAction<GlobalContextType['settings']>>;
@@ -62,7 +62,7 @@ function Main() {
     isCompactMode: false,
     isCompactTactics: false,
     // clarity
-    isCompactGoalNames: true,
+    isHiddenGoalNames: true,
     isGreenHypotheses: true,
     // other
     isReadonlyMode: false,
@@ -229,11 +229,11 @@ function Main() {
         }
         <div className={`
           proof-tree
-          ${settings.isReadonlyMode ? '-readonly-mode' : ''}
-          ${settings.isCompactMode ? '-compact-mode' : ''}
-          ${settings.isCompactTactics ? '-compact-tactics' : '-wide-tactics'}
-          ${settings.isCompactGoalNames ? '-compact-goal-names' : ''}
-          ${settings.isGreenHypotheses ? '-is-green-hypotheses' : '-is-yellow-data-hypotheses'}
+          ${settings.isReadonlyMode    ? '-isReadonlyModeON'    : ''}
+          ${settings.isCompactMode     ? '-isCompactModeON'     : ''}
+          ${settings.isCompactTactics  ? '-isCompactTacticsON'  : '-isCompactTacticsOFF'}
+          ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
+          ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
         `}>
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>

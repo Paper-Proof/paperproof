@@ -91,9 +91,9 @@ const ContextMenu = (props: Props) => {
 
       <Divider/>
 
-      <MenuItem onClick={handleSettingToggle("isCompactGoalNames")}>
+      <MenuItem onClick={handleSettingToggle("isHiddenGoalNames")}>
         <div className="text">Hide goal names</div>
-        <Switch checked={settings.isCompactGoalNames} size="small"/>
+        <Switch checked={settings.isHiddenGoalNames} size="small"/>
       </MenuItem>
 
       <MenuItem onClick={handleSettingToggle("isGreenHypotheses")}>

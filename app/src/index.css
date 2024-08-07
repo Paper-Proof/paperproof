@@ -170,7 +170,7 @@ body{
   border: 2px solid rgb(152 214 179);
   .name{ color: #c69c51; }
 }
-.-is-yellow-data-hypotheses{
+.-isGreenHypothesesOFF{
   .hypothesis.data{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
@@ -181,12 +181,12 @@ body{
   border: 2px solid rgb(246, 185, 185);
   color: #5a5656;
 }
-.proof-tree:not(.-readonly-mode){
+.proof-tree:not(.-isReadonlyModeON){
   .hypothesis.-faded{
     background: color-mix(in srgb, var(--color), #a4dabc 30%);
     border-color: color-mix(in srgb, var(--color), rgb(152 214 179) 30%);
   }
-  &.-is-yellow-data-hypotheses .hypothesis.data.-faded{
+  &.-isGreenHypothesesOFF .hypothesis.data.-faded{
     background: color-mix(in srgb, var(--color), #f9e9b5 30%);
     border-color: color-mix(in srgb, var(--color), rgb(239, 227, 152) 30%);
   }
@@ -195,7 +195,7 @@ body{
     border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
   }
 }
-.proof-tree.-compact-goal-names{
+.proof-tree.-isHiddenGoalNamesON{
   .goal-username{
     display: none;
   }
@@ -219,7 +219,7 @@ table.hypothesis-table + .goals{
   margin-top: 30px;
 }
 
-.proof-tree.-compact-mode{
+.proof-tree.-isCompactModeON{
   .box-insides{
     padding: 0;
     padding-top: 2px;
@@ -293,14 +293,14 @@ header{
   }
 }
 /* tactics will just follow hyp widths */
-.proof-tree.-compact-tactics .hypothesis-table .tactic{
+.proof-tree.-isCompactTacticsON .hypothesis-table .tactic{
   width: min-content;
   max-width: 100%;
   min-width: 100%;
   word-break: break-all;
 }
 /* tactics will have self-respect */
-.proof-tree.-wide-tactics .hypothesis-table .tactic,
+.proof-tree.-isCompactTacticsOFF .hypothesis-table .tactic,
 .proof-tree .hypothesis-table td.-add-self-respect-to-tactics .tactic{
   width: 100% ;
   min-width: min-content ;
