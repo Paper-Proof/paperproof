@@ -77,6 +77,8 @@ const ContextMenu = (props: Props) => {
         <div className="shortcut">⎇ -</div>
       </MenuItem>
 
+      <Divider/>
+
       <MenuItem onClick={handleSettingToggle("isCompactMode")}>
         <div className="text">Compact mode</div>
         <Switch checked={settings.isCompactMode} size="small"/>
@@ -87,13 +89,15 @@ const ContextMenu = (props: Props) => {
         <Switch checked={settings.isCompactTactics} size="small"/>
       </MenuItem>
 
+      <Divider/>
+
       <MenuItem onClick={handleSettingToggle("isCompactGoalNames")}>
-        <div className="text">Compact goal names</div>
+        <div className="text">Hide goal names</div>
         <Switch checked={settings.isCompactGoalNames} size="small"/>
       </MenuItem>
 
       <MenuItem onClick={handleSettingToggle("isGreenHypotheses")}>
-        <div className="text">Green Hypotheses</div>
+        <div className="text">Always green hypotheses</div>
         <Switch checked={settings.isGreenHypotheses} size="small"/>
       </MenuItem>
 
