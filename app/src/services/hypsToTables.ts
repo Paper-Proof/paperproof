@@ -53,14 +53,19 @@ const getTabledHypFromTables = (tables : Table[], hypId: string | null) : Tabled
   return tabledHyps.find((tabledHyp) => tabledHyp.hypNode.id === hypId);
 }
 
-const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypLayer: HypLayer) => {
+const isHypChildless = (proofTree: ConvertedProofTree, hypNodeId: string) : boolean => {
+  const hasChildren = proofTree.tactics.some((tactic) =>
+    tactic.hypArrows.some((hypArrow) => hypArrow.fromId === hypNodeId)
+  )
+  return !hasChildren
+}
+
+const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayer: HypLayer) => {
   const initialDataHyps : HypNode[] = [];
   const initialNormalHyps : HypNode[] = [];
   hypLayer.hypNodes.forEach((hypNode : HypNode) => {
-    if (hypNode.isProof === "data") {
-      const anyChildrenEver = proofTree.tactics.find((tactic) => tactic.hypArrows.find((hypArrow) => hypArrow.fromId === hypNode.id));
-      if (anyChildrenEver) { initialNormalHyps.push(hypNode); }
-      else { initialDataHyps.push(hypNode); }
+    if (hypNode.isProof === "data" && isHypChildless(proofTree, hypNode.id)) {
+      initialDataHyps.push(hypNode);
     } else {
       initialNormalHyps.push(hypNode);
     }
@@ -68,7 +73,7 @@ const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayers
   return [initialDataHyps, initialNormalHyps];
 }
 
-const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) => {
+const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) : Table[] => {
   const tables : Table[] = [];
   let currentTable : Table = tables[tables.length - 1];
 
@@ -78,7 +83,7 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
 
     // Start a new table if this is the "init" tactic!
     if (tactic.text === "init") {
-      const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayers, hypLayer);
+      const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayer);
       thisLayerHypNodes = initialNormalHyps;
       const dataRow : DataRow | undefined = initialDataHyps.length > 0 ?
         {
