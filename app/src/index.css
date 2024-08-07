@@ -106,7 +106,7 @@ body{
       padding-right: 0;
     }
   }
-
+  
   .goal-username{
     width: 100%;
     text-align: center;
@@ -196,7 +196,7 @@ body{
   }
 }
 .proof-tree.-compact-goal-names{
-  .goal-username:not(#box-1 > div.goal-username):not(.header  div.goal-username){
+  .goal-username{
     display: none;
   }
 }
@@ -237,12 +237,20 @@ table.hypothesis-table + .goals{
 .box{
   width: max-content;
 }
-#box-1 > .goal-username, .header > .goal-username{
+header, footer{
+  .title{
     text-transform: uppercase;
     font-size: 10px;
-    padding: 4px 0;
+    padding: 4px 10px;
+
+    background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
+
+    width: 100%;
+    text-align: center;
+    color: #9c9797;
+  }
 }
-section.header{
+header{
   padding-left: 10px;
   padding-right: 10px;
   border-top-left-radius: 3px;
@@ -267,7 +275,7 @@ section.header{
 
   width: 0;
   min-width: 100%;
-  div.data-hypotheses{
+  div.row-1{
     width: 100%;
     display: flex;
     flex-wrap: wrap-reverse;

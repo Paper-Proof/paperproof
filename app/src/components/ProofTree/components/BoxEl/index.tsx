@@ -44,10 +44,20 @@ const BoxEl = (props: MyProps) => {
   const tableWithHeader = props.box.hypTables.find((hypTable) => hypTable.header)
   const header = tableWithHeader && tableWithHeader.header
 
-  return <section className="box" id={`box-${props.box.id}`} onClick={onClick} onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}>
+  const isRootBox = props.box.id === "1"
+
+  return <section
+    className="box"
+    id={`box-${props.box.id}`}
+    onClick={onClick}
+    onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
+  >
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
 
-    <Header header={header} highlights={props.highlights}/>
+    {
+      isRootBox &&
+      <Header header={header} highlights={props.highlights}/>
+    }
 
     {!isCollapsed &&
       <div className="box-insides">
@@ -77,9 +87,16 @@ const BoxEl = (props: MyProps) => {
         )}
       </div>
     }
-    <div className="goal-username">
-      {prettifyGoalUsername(props.box.goalNodes[0].name, props.box.id)}
-    </div>
+
+    {
+      isRootBox ?
+      <footer>
+        <div className="title">goal</div>
+      </footer> :
+      <div className="goal-username">
+        {prettifyGoalUsername(props.box.goalNodes[0].name)}
+      </div>
+    }
   </section>
 }
 

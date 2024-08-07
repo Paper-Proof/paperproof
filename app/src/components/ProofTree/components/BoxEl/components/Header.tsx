@@ -13,17 +13,17 @@ const HeaderEl = (props: HeaderProps) => {
     return null
   }
 
-  return <section className={`header ${props.header.isRow2 ? '-with-normal-hyps' : ''}`}>
-    <div className="goal-username">hypotheses</div>
+  return <header className={`${props.header.isRow2 ? '-with-normal-hyps' : ''}`}>
+    <div className="title">hypotheses</div>
     {
       props.header.row1 &&
-      <div className="data-hypotheses">
+      <div className="row-1">
         {props.header.row1.map((hypNode, index) =>
           <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
         )}
       </div>
     }
-  </section>
+  </header>
 };
 
 export default HeaderEl
