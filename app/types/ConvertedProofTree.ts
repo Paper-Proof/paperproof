@@ -32,7 +32,6 @@ export interface TabledTactic {
 export type TabledCell = TabledHyp | TabledTactic;
 export interface DataRow {
   hypNodes: HypNode[];
-  width: number;
 }
 export interface Table {
   tabledHyps: TabledHyp[];

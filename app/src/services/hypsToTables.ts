@@ -86,10 +86,7 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
       const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayer);
       thisLayerHypNodes = initialNormalHyps;
       const dataRow : DataRow | undefined = initialDataHyps.length > 0 ?
-        {
-          hypNodes: initialDataHyps,
-          width: getChildrenWidths(proofTree, hypLayers, initialNormalHyps.map((h) => h.id))
-        } :
+        { hypNodes: initialDataHyps } :
         undefined;
       tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, dataRow });
       currentTable = tables[tables.length - 1];
