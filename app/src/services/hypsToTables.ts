@@ -151,8 +151,6 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
     currentTable.currentRow += 2;
   });
 
-  console.log(tables);
-
   return tables;
 }
 

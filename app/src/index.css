@@ -60,6 +60,8 @@ body{
 .box{
   --color: color-mix(in srgb, rgba(132, 147, 171), white calc(90% - var(--level) * 7%));
   background: var(--color);
+  /* This is necessary because otherwise the border-right will get swallowed up a bit (becomes too thin) in some tactic nodes */
+  .tactic{ background-color: var(--color); }
 }
 .box > .goal-username{
   background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
