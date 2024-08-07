@@ -58,11 +58,14 @@ function Main() {
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [settings, setSettings] = useState({
+    // compactness
     isCompactMode: false,
-    isCompactTactics: true,
+    isCompactTactics: false,
+    // clarity
+    isCompactGoalNames: true,
+    isGreenHypotheses: true,
+    // other
     isReadonlyMode: false,
-    isCompactGoalNames: false,
-    isGreenHypotheses: false,
   });
 
   // We do need separate state vars for prettier animations
