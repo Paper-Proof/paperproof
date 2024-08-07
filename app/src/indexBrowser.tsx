@@ -23,16 +23,14 @@ interface GlobalContextType {
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
-  isCompactMode: boolean;
-  setIsCompactMode: (x: boolean) => void;
-  isCompactTactics: boolean;
-  setIsCompactTactics: (x: boolean) => void;
-  isReadonlyMode: boolean;
-  setIsReadonlyMode: (x: boolean) => void;
-  isCompactGoalNames: boolean;
-  setIsCompactGoalNames: (x: boolean) => void;
-  isGreenHypotheses: boolean;
-  setIsGreenHypotheses: (x: boolean) => void;
+  settings: {
+    isCompactMode: boolean;
+    isCompactTactics: boolean;
+    isReadonlyMode: boolean;
+    isCompactGoalNames: boolean;
+    isGreenHypotheses: boolean;
+  };
+  setSettings: React.Dispatch<React.SetStateAction<GlobalContextType['settings']>>;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -59,11 +57,13 @@ function Main() {
   const [UIVersion, setUIVersion] = useState<number>(1);
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
-  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
-  const [isCompactTactics, setIsCompactTactics] = useState<boolean>(true);
-  const [isReadonlyMode, setIsReadonlyMode] = useState<boolean>(false);
-  const [isCompactGoalNames, setIsCompactGoalNames] = useState<boolean>(false);
-  const [isGreenHypotheses, setIsGreenHypotheses] = useState<boolean>(false);
+  const [settings, setSettings] = useState({
+    isCompactMode: false,
+    isCompactTactics: true,
+    isReadonlyMode: false,
+    isCompactGoalNames: false,
+    isGreenHypotheses: false,
+  });
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -214,7 +214,7 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, isCompactMode, setIsCompactMode, isCompactTactics, setIsCompactTactics, isReadonlyMode, setIsReadonlyMode, isCompactGoalNames, setIsCompactGoalNames, isGreenHypotheses, setIsGreenHypotheses }}>
+      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, settings, setSettings }}>
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
@@ -226,11 +226,11 @@ function Main() {
         }
         <div className={`
           proof-tree
-          ${isReadonlyMode ? '-readonly-mode' : ''}
-          ${isCompactMode ? '-compact-mode' : ''}
-          ${isCompactTactics ? '-compact-tactics' : '-wide-tactics'}
-          ${isCompactGoalNames ? '-compact-goal-names' : ''}
-          ${isGreenHypotheses ? '-is-green-hypotheses' : '-is-yellow-data-hypotheses'}
+          ${settings.isReadonlyMode ? '-readonly-mode' : ''}
+          ${settings.isCompactMode ? '-compact-mode' : ''}
+          ${settings.isCompactTactics ? '-compact-tactics' : '-wide-tactics'}
+          ${settings.isCompactGoalNames ? '-compact-goal-names' : ''}
+          ${settings.isGreenHypotheses ? '-is-green-hypotheses' : '-is-yellow-data-hypotheses'}
         `}>
           <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
           {perfectArrows.map((arrow, index) =>

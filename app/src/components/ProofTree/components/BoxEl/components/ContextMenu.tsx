@@ -15,35 +15,13 @@ interface Props {
 const ContextMenu = (props: Props) => {
   const {
     refreshUI,
-    collapsedBoxIds,    setCollapsedBoxIds,
-    isCompactMode,      setIsCompactMode,
-    isCompactTactics,   setIsCompactTactics,
-    isReadonlyMode,     setIsReadonlyMode,
-    isCompactGoalNames, setIsCompactGoalNames,
-    isGreenHypotheses,  setIsGreenHypotheses
+    collapsedBoxIds, setCollapsedBoxIds,
+    settings,        setSettings
   } = useGlobalContext();
 
-  const handleCompactMode = (event: React.MouseEvent) => {
+  const handleSettingToggle = (settingKey: keyof typeof settings) => (event: React.MouseEvent) => {
     event.stopPropagation();
-    setIsCompactMode(!isCompactMode);
-    refreshUI();
-  };
-
-  const handleCompactGoalNames = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsCompactGoalNames(!isCompactGoalNames);
-    refreshUI();
-  };
-
-  const handleCompactTactics = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsCompactTactics(!isCompactTactics);
-    refreshUI();
-  };
-
-  const handleReadonlyMode = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsReadonlyMode(!isReadonlyMode);
+    setSettings({ ...settings, [settingKey]: !settings[settingKey] });
     refreshUI();
   };
 
@@ -68,12 +46,6 @@ const ContextMenu = (props: Props) => {
   const handleZoom = (event: React.MouseEvent, type: "in" | "out") => {
     event.stopPropagation();
     zoomManually(type);
-  };
-
-  const handleGreenHypotheses = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsGreenHypotheses(!isGreenHypotheses);
-    refreshUI();
   };
 
   return (
@@ -105,31 +77,31 @@ const ContextMenu = (props: Props) => {
         <div className="shortcut">⎇ -</div>
       </MenuItem>
 
-      <MenuItem onClick={handleCompactMode}>
+      <MenuItem onClick={handleSettingToggle("isCompactMode")}>
         <div className="text">Compact mode</div>
-        <Switch checked={isCompactMode} size="small"/>
+        <Switch checked={settings.isCompactMode} size="small"/>
       </MenuItem>
 
-      <MenuItem onClick={handleCompactTactics}>
+      <MenuItem onClick={handleSettingToggle("isCompactTactics")}>
         <div className="text">Compact tactics</div>
-        <Switch checked={isCompactTactics} size="small"/>
+        <Switch checked={settings.isCompactTactics} size="small"/>
       </MenuItem>
 
-      <MenuItem onClick={handleCompactGoalNames}>
+      <MenuItem onClick={handleSettingToggle("isCompactGoalNames")}>
         <div className="text">Compact goal names</div>
-        <Switch checked={isCompactGoalNames} size="small"/>
+        <Switch checked={settings.isCompactGoalNames} size="small"/>
       </MenuItem>
 
-      <MenuItem onClick={handleGreenHypotheses}>
+      <MenuItem onClick={handleSettingToggle("isGreenHypotheses")}>
         <div className="text">Green Hypotheses</div>
-        <Switch checked={isGreenHypotheses} size="small"/>
+        <Switch checked={settings.isGreenHypotheses} size="small"/>
       </MenuItem>
 
       <Divider/>
 
-      <MenuItem onClick={handleReadonlyMode}>
+      <MenuItem onClick={handleSettingToggle("isReadonlyMode")}>
         <div className="text">Readonly mode</div>
-        <Switch checked={isReadonlyMode} size="small"/>
+        <Switch checked={settings.isReadonlyMode} size="small"/>
       </MenuItem>
     </Menu>
   )
