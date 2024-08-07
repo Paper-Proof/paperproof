@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, Highlights, Tactic, ContextMenuType } from "types";
+import { ConvertedProofTree, Box, Highlights, Tactic, ContextMenuType, Table } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
@@ -11,6 +11,7 @@ import { useGlobalContext } from "src/indexBrowser";
 import ContextMenu from "./components/ContextMenu";
 import prettifyGoalUsername from "./utils/prettifyGoalUsername";
 import onContextMenu from "./utils/onContextMenu";
+import Header from "./components/Header";
 
 interface MyProps {
   box: Box;
@@ -38,11 +39,15 @@ const BoxEl = (props: MyProps) => {
   }
 
   const { collapsedBoxIds } = useGlobalContext();
-
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
+  
+  const tableWithHeader = props.box.hypTables.find((hypTable) => hypTable.header)
+  const header = tableWithHeader && tableWithHeader.header
 
   return <section className="box" id={`box-${props.box.id}`} onClick={onClick} onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}>
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
+
+    <Header header={header} highlights={props.highlights}/>
 
     {!isCollapsed &&
       <div className="box-insides">

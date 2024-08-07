@@ -10,6 +10,7 @@ interface Props {
 
 const HypothesesComponent = (props: Props) => {
   return props.hypTables.map((hypTable, index) =>
+    (hypTable.tabledHyps.length > 0 || hypTable.tabledTactics.length > 0) &&
     <Table key={index} proofTree={props.proofTree} highlights={props.highlights} hypTable={hypTable}/>
   )
 }

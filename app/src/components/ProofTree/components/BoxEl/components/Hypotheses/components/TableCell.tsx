@@ -16,6 +16,8 @@ interface TacticProps {
 const Tactic = (props: TacticProps) => {
   const tactic = props.cell.tactic;
 
+  if (tactic.text === "init") return null
+
   return (
     <>
       {

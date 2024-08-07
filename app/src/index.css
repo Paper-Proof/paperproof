@@ -194,7 +194,7 @@ body{
   }
 }
 .proof-tree.-compact-goal-names{
-  .goal-username:not(#box-1 > div.goal-username){
+  .goal-username:not(#box-1 > div.goal-username):not(.header  div.goal-username){
     display: none;
   }
 }
@@ -203,7 +203,7 @@ body{
 
 /* This is the easiest way to acommodate for our nice negative-margin <tactic>s */
 .box-insides{ padding-top: 2px; }
-.data-hypotheses{ margin-top: -2px; }
+/* .data-hypotheses{ margin-top: -2px; } */
 
 .box-insides{
   padding: 10px;
@@ -226,7 +226,8 @@ table.hypothesis-table + .goals{
     padding: 3px 7px;
   }
   .tactic{
-    padding-top: 5px; padding-bottom: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
 }
 
@@ -234,8 +235,34 @@ table.hypothesis-table + .goals{
 .box{
   width: max-content;
 }
+#box-1 > .goal-username, .header > .goal-username{
+    text-transform: uppercase;
+    font-size: 10px;
+    padding: 4px 0;
+}
+section.header{
+  padding-left: 10px;
+  padding-right: 10px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
 
-section.data{
+  background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
+
+  &.-with-normal-hyps{
+    position: relative;
+    margin-bottom: -10px;
+    &:after {
+      content: "";
+      display: block;
+      height: 32px;
+      background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
+      position: absolute;
+      top: 100%;
+      width: 100%;
+      left: 0;
+    }
+  }
+
   width: 0;
   min-width: 100%;
   div.data-hypotheses{

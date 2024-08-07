@@ -3,7 +3,7 @@
 // Note: I was doing this in the parser with `.eraseMacroScopes`, but we depend on hygienic goal usernames, might be dangerous - so I moved it here.
 const prettifyGoalUsername = (username : string, boxId : string) => {
   if (boxId === "1") {
-    return "theorem"
+    return "goal"
   } else {
     return username.split('._@')[0];
   }

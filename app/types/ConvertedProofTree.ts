@@ -30,14 +30,15 @@ export interface TabledTactic {
   shardId: string;
 }
 export type TabledCell = TabledHyp | TabledTactic;
-export interface DataRow {
-  hypNodes: HypNode[];
+export interface Header {
+  row1: HypNode[];
+  isRow2: boolean;
 }
 export interface Table {
   tabledHyps: TabledHyp[];
   tabledTactics: TabledTactic[];
   currentRow: number;
-  dataRow?: DataRow;
+  header?: Header;
 }
 
 export interface HypLayer {

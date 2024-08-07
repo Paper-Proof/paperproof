@@ -1,4 +1,5 @@
 import { ConvertedProofTree, Tactic, TabledHyp, Box, HypNode, Table, DataRow, HypLayer } from "types";
+import { Header } from "types/ConvertedProofTree";
 
 const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeId: string) : string[] => {
   for (const hypLayer of hypLayers) {
@@ -85,10 +86,11 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
     if (tactic.text === "init") {
       const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayer);
       thisLayerHypNodes = initialNormalHyps;
-      const dataRow : DataRow | undefined = initialDataHyps.length > 0 ?
-        { hypNodes: initialDataHyps } :
-        undefined;
-      tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, dataRow });
+      const header : Header = {
+        row1: initialDataHyps,
+        isRow2: initialNormalHyps.length > 0
+      }
+      tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, header });
       currentTable = tables[tables.length - 1];
     }
     // Start a new table if none of the hypotheses inherit from each other!
@@ -148,6 +150,8 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
     });
     currentTable.currentRow += 2;
   });
+
+  console.log(tables);
 
   return tables;
 }
