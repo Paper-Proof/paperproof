@@ -23,6 +23,8 @@ const HeaderEl = (props: HeaderProps) => {
         )}
       </div>
     }
+    {/* We pull up hyp nodes from below to fit into this { position: absolute; } div */}
+    <div className="row-2"/>
   </header>
 };
 

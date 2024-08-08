@@ -221,7 +221,8 @@ table.hypothesis-table + .goals{
 
 .proof-tree.-isCompactModeON{
   .box-insides{
-    padding: 0;
+    padding-left: 0px;
+    padding-right: 0px;
     padding-top: 2px;
   }
   .hypothesis, .goal, .tactic{
@@ -231,50 +232,62 @@ table.hypothesis-table + .goals{
     padding-top: 5px;
     padding-bottom: 5px;
   }
+  header{
+    padding-left: 0;
+    padding-right: 0;
+    /* margin-bottom: 12px; */
+  }
+  header + .box-insides {
+    margin-top: 12px;
+  }
 }
+
+/* This might be our "symmetrical mode" */
+/* .proof-tree.-isSymmetricalModeON{
+  .box-insides{
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+} */
 
 /*______________________ PROOF-TREE: widths ______________________*/
 .box{
   width: max-content;
 }
+
 header, footer{
+  background: rgb(230, 233, 238);
   .title{
     text-transform: uppercase;
     font-size: 10px;
     padding: 4px 10px;
 
-    background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
-
     width: 100%;
     text-align: center;
-    color: #9c9797;
+    color: rgb(156, 151, 151);
   }
 }
 header{
+  /* TODO: this should be exactly the same as box padding */
   padding-left: 10px;
   padding-right: 10px;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
-
-  background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
+  width: 0;
+  min-width: 100%;
 
   &.-with-normal-hyps{
     position: relative;
     margin-bottom: -10px;
-    &:after {
-      content: "";
-      display: block;
+    div.row-2 {
       height: 32px;
-      background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
       position: absolute;
-      top: 100%;
+      top: 100%; left: 0;
       width: 100%;
-      left: 0;
+      background: rgb(230, 233, 238);
     }
   }
 
-  width: 0;
-  min-width: 100%;
   div.row-1{
     width: 100%;
     display: flex;
