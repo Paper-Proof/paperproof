@@ -84,7 +84,7 @@ body{
 /*______________________ PROOF-TREE: prettiness ______________________*/
 .box{
   font-size: 12px;
-  border-radius: 2px;
+  border-radius: 3px;
   flex-grow: 1;
 
   .child-boxes{
@@ -296,6 +296,10 @@ header{
     column-gap: 2px;
     row-gap: 2px;
   }
+}
+footer{
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 
 .hypothesis-table{
