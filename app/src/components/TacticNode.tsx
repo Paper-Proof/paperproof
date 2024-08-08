@@ -4,6 +4,7 @@ import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
 import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
+import prettifyTacticText from "src/services/prettifyTacticText";
 
 interface TacticNodeProps {
   tactic: Tactic;
@@ -26,7 +27,7 @@ const TacticNode = (props: TacticNodeProps) => {
   const isSorried = props.tactic.text === "sorry" || props.tactic.text === "done";
   const isSuccess = props.tactic.successGoalId && !isSorried
 
-  const text = props.tactic.text //=== "init" ? "hypotheses" : props.tactic.text;
+  const text = prettifyTacticText(props.tactic.text)
   return (
     <div 
       className={`tactic -hint ${props.className || ''} ${isSuccess ? '-success' : ''} ${isSorried ? '-sorried' : ''}`} 
