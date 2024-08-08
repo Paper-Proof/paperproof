@@ -91,7 +91,7 @@ const BoxEl = (props: MyProps) => {
     {
       isRootBox ?
       <footer>
-        <div className="title">goal</div>
+        <div className="title">theorem</div>
       </footer> :
       <div className="goal-username">
         {prettifyGoalUsername(props.box.goalNodes[0].name)}
