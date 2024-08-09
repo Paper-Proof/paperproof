@@ -6,7 +6,7 @@ body{
   background: white;
   color: #3a505a;
   font-weight: 500;
-  /* hides scrollbars - we can still scroll, but we don't want to show scrollbars */
+  /* Hides scrollbars - we can still scroll, but we don't want to show scrollbars */
   &::-webkit-scrollbar { 
     display: none;
   }
@@ -18,6 +18,13 @@ body{
   .proof-tree{
     border-radius: 3px;
     background: white;
+  }
+  /*
+    Same font-family as InfoView's.
+    Most importantly, makes symbols such as "∀ x ∈ A ∩ B, x ∈ A" render nicely.
+  */
+  .hypothesis, .goal{
+    font-family: var(--vscode-editor-font-family);
   }
 }
 
