@@ -2,6 +2,9 @@
 body *{
   box-sizing: border-box;
 }
+.hypothesis span.name{
+  color: #d0005b;
+}
 body{
   background: white;
   color: #3a505a;
