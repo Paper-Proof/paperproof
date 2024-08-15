@@ -13,6 +13,7 @@ let ctx = await esbuild.context({
   plugins: [],
   logLevel: "info",
   logLimit: 0,
+  external: ['stream', 'zlib', 'url', 'http', 'events', 'crypto', 'tls', 'https', 'net', 'buffer', 'os', 'path', 'fs'],
 });
 
 await ctx.watch();
