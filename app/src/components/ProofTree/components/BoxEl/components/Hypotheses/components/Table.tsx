@@ -1,10 +1,8 @@
 import React from "react";
-import { ConvertedProofTree, Highlights, Table } from "types";
+import { Table } from "types";
 import TableCell from "./TableCell";
 
 interface TableProps {
-  highlights: Highlights;
-  proofTree: ConvertedProofTree;
   hypTable: Table;
 }
 const Table = (props: TableProps) => {
@@ -28,12 +26,10 @@ const Table = (props: TableProps) => {
             {columns.map((columnIndex) =>
               <TableCell
                 key={columnIndex}
-                proofTree={props.proofTree}
                 columnIndex={columnIndex}
                 shouldTacticsHaveSelfRespect={columns.length === 1 && rows.length === 2}
                 rowIndex={rowIndex}
                 tabledCells={tabledCells}
-                highlights={props.highlights}
               />
             )}
           </tr>

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, Highlights, Tactic, ContextMenuType, Table } from "types";
+import { ConvertedProofTree, Box, Tactic, ContextMenuType } from "types";
 import Hypotheses from "./components/Hypotheses";
 import Hint from "./components/Hint";
 
@@ -15,8 +15,6 @@ import Header from "./components/Header";
 
 interface MyProps {
   box: Box;
-  proofTree: ConvertedProofTree;
-  highlights: Highlights;
 }
 
 const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tactic | undefined => {
@@ -29,8 +27,9 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tact
 
 const BoxEl = (props: MyProps) => {
   const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
+  const { proofTree } = useGlobalContext();
 
-  const childrenBoxes = props.proofTree.boxes.filter((box) => box.parentId === props.box.id);
+  const childrenBoxes = proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -38,7 +37,7 @@ const BoxEl = (props: MyProps) => {
     zoomToBox(props.box.id);
   }
 
-  const { collapsedBoxIds } = useGlobalContext();
+  const { collapsedBoxIds, highlights } = useGlobalContext();
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
   
   const tableWithHeader = props.box.hypTables.find((hypTable) => hypTable.header)
@@ -56,18 +55,18 @@ const BoxEl = (props: MyProps) => {
 
     {
       isRootBox &&
-      <Header header={header} highlights={props.highlights}/>
+      <Header header={header}/>
     }
 
     {!isCollapsed &&
       <div className="box-insides">
-        <Hypotheses proofTree={props.proofTree} hypTables={props.box.hypTables} highlights={props.highlights}/>
+        <Hypotheses hypTables={props.box.hypTables}/>
 
         {
           childrenBoxes.length > 0 &&
           <div className="child-boxes">
             {childrenBoxes.map((childBox) =>
-              <BoxEl key={childBox.id} box={childBox} proofTree={props.proofTree} highlights={props.highlights}/>
+              <BoxEl key={childBox.id} box={childBox}/>
             )}
           </div>
         }
@@ -75,11 +74,11 @@ const BoxEl = (props: MyProps) => {
         {props.box.goalNodes.slice().reverse().map((goalNode) =>
           <div className="goals" key={goalNode.id}>
             {
-              getGoalTactic(props.proofTree, goalNode.id) ?
-                <TacticNode tactic={getGoalTactic(props.proofTree, goalNode.id)!}/> :
+              getGoalTactic(proofTree, goalNode.id) ?
+                <TacticNode tactic={getGoalTactic(proofTree, goalNode.id)!}/> :
                 <div className="tactic -ellipsis">...</div>
             }
-            <div className={`goal -hint ${!props.highlights || props.highlights.goalId === goalNode.id ? "" : "-faded"}`}>
+            <div className={`goal -hint ${!highlights || highlights.goalId === goalNode.id ? "" : "-faded"}`}>
               <Hint>{goalNode}</Hint>
               {goalNode.text}
             </div>

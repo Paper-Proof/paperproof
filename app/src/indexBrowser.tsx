@@ -31,6 +31,8 @@ interface GlobalContextType {
     isGreenHypotheses: boolean;
   };
   setSettings: React.Dispatch<React.SetStateAction<GlobalContextType['settings']>>;
+  proofTree: ConvertedProofTree;
+  highlights: Highlights;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -217,13 +219,21 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, settings, setSettings }}>
+      <GlobalContext.Provider
+        value={{
+          UIVersion, refreshUI,
+          collapsedBoxIds, setCollapsedBoxIds,
+          settings, setSettings,
+          proofTree: converted.proofTree,
+          highlights: converted.highlights
+        }}
+      >
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
           <div className="in-scope-hypotheses">
             {displayHyps.map((hypNode) =>
-              <HypothesisNode key={hypNode.id} hypNode={hypNode} highlights={converted.highlights} withId={false}/>
+              <HypothesisNode key={hypNode.id} hypNode={hypNode} withId={false}/>
             )}
           </div>
         }
@@ -235,7 +245,7 @@ function Main() {
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
         `}>
-          <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
+          <ProofTree/>
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
           )}

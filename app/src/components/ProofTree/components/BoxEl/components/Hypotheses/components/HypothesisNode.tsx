@@ -1,11 +1,11 @@
 import React from "react";
 import Hint from "../../Hint";
-import { Highlights, HypNode, TabledHyp } from "types";
+import { HypNode } from "types";
 import leanSearch from "src/services/leanSearch";
+import { useGlobalContext } from "src/indexBrowser";
 
 export interface HypothesisProps {
   hypNode: HypNode;
-  highlights: Highlights;
   withId?: boolean
 }
 
@@ -20,6 +20,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   const [isNewHypothesisShown, setIsNewHypothesisShown] = React.useState(false);
   const [newHypothesis, setNewHypothesis] = React.useState("");
   const [suggestedTheorems, setSuggestedTheorems] = React.useState<string[]>([]);
+  const { highlights } = useGlobalContext();
 
   const searchTheorems = async () => {
     const suggested = await leanSearch(newHypothesis)
@@ -29,7 +30,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   return <div className="wow">
     <div
       id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
-      className={`hypothesis -hint ${!props.highlights || props.highlights.hypIds.includes(props.hypNode.id) ? "" : "-faded"} ${props.hypNode.isProof}`}
+      className={`hypothesis -hint ${!highlights || highlights.hypIds.includes(props.hypNode.id) ? "" : "-faded"} ${props.hypNode.isProof}`}
       onClick={(event) => { event.stopPropagation() }}
       onDoubleClick={(event) => {
         event.preventDefault();

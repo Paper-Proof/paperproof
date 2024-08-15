@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { ConvertedProofTree, Highlights } from "types";
+import React from "react";
 import BoxEl from "./components/BoxEl";
+import { useGlobalContext } from "src/indexBrowser";
 
-interface PropsNew {
-  proofTree: ConvertedProofTree;
-  highlights: Highlights
-}
-
-const ProofTree = (props: PropsNew) => {
-  const rootBox = props.proofTree.boxes.find((box) => box.parentId === null);
+const ProofTree = () => {
+  const { proofTree } = useGlobalContext();
+  const rootBox = proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null;
 
-  return <BoxEl box={rootBox} proofTree={props.proofTree} highlights={props.highlights}/>;
+  return <BoxEl box={rootBox}/>;
 }
 
 export default ProofTree;

@@ -1,11 +1,9 @@
 import React from "react";
-import { Highlights } from "types";
 import { Header } from "types/ConvertedProofTree";
 import HypothesisNode from "./Hypotheses/components/HypothesisNode";
 
 export interface HeaderProps {
   header: Header | undefined;
-  highlights: Highlights;
 }
 
 const HeaderEl = (props: HeaderProps) => {
@@ -19,7 +17,7 @@ const HeaderEl = (props: HeaderProps) => {
       props.header.row1 &&
       <div className="row-1">
         {props.header.row1.map((hypNode, index) =>
-          <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
+          <HypothesisNode key={index} hypNode={hypNode}/>
         )}
       </div>
     }

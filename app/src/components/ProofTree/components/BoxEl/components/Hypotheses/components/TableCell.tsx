@@ -1,8 +1,9 @@
 import React from "react";
-import { ConvertedProofTree, Highlights, TabledCell, TabledTactic } from "types";
+import { TabledCell, TabledTactic } from "types";
 import BoxEl from "src/components/ProofTree/components/BoxEl";
 import HypothesisNode from "./HypothesisNode";
 import TacticNode from "src/components/TacticNode";
+import { useGlobalContext } from "src/indexBrowser";
 
 function isBetween(num: number, range: [number, number]): boolean {
   return num >= Math.min(...range) && num <= Math.max(...range);
@@ -11,9 +12,9 @@ function isBetween(num: number, range: [number, number]): boolean {
 interface TacticProps {
   cell: TabledTactic;
   colSpan: number;
-  proofTree: ConvertedProofTree;
 }
 const Tactic = (props: TacticProps) => {
+  const { proofTree } = useGlobalContext();
   const tactic = props.cell.tactic;
 
   if (tactic.text === "init") return null
@@ -26,9 +27,8 @@ const Tactic = (props: TacticProps) => {
           {tactic.haveBoxIds.map((haveBoxId) => (
             <BoxEl
               key={haveBoxId}
-              box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!}
-              proofTree={props.proofTree}
-              highlights={null}
+              box={proofTree.boxes.find((box) => box.id === haveBoxId)!}
+              // highlights={null}
             />
           ))}
         </div>
@@ -42,8 +42,6 @@ interface TableCellProps {
   rowIndex: number;
   columnIndex: number;
   tabledCells: TabledCell[];
-  highlights: Highlights;
-  proofTree: ConvertedProofTree;
   shouldTacticsHaveSelfRespect: boolean;
 }
 const TableCell = (props: TableCellProps) => {
@@ -58,8 +56,8 @@ const TableCell = (props: TableCellProps) => {
     const colSpan = cell.columnTo - cell.columnFrom;
     return <td colSpan={colSpan} className={props.shouldTacticsHaveSelfRespect ? "-add-self-respect-to-tactics" : ""}>
       {'hypNode' in cell ?
-        <HypothesisNode hypNode={cell.hypNode} highlights={props.highlights}/> :
-        <Tactic cell={cell} colSpan={colSpan} proofTree={props.proofTree}/>
+        <HypothesisNode hypNode={cell.hypNode}/> :
+        <Tactic cell={cell} colSpan={colSpan}/>
       }
     </td>;
   } else {
