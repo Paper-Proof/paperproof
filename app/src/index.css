@@ -1,3 +1,44 @@
+
+.wow {
+  position: relative;
+}
+.search{
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  .suggested-theorems{
+    background: white;
+    padding: 10px;
+    .theorem{
+      padding-top: 5px;
+    }
+  }
+}
+
+
+
+
+
+.hypothesis{
+  input{
+    border: none;
+    background: transparent;
+    outline: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /*______________________ BODY: prettiness ______________________*/
 body *{
   box-sizing: border-box;
