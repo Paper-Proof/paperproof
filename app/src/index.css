@@ -18,10 +18,13 @@
   background: white;
   padding: 10px;
 
-  .hypothesis{
+  .hypothesis, .goal{
     margin-bottom: 10px;
     input{
       color: inherit;
+      border: none;
+      background: transparent;
+      outline: none;
       &::placeholder {
         color: inherit;
         opacity: 0.6;
@@ -50,19 +53,6 @@
 .-is-searched{
   border: 2px solid green !important;
 }
-
-
-
-
-
-.hypothesis{
-  input{
-    border: none;
-    background: transparent;
-    outline: none;
-  }
-}
-
 
 
 

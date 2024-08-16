@@ -83,7 +83,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
             placeholder="New hypothesis"
           />
         </div>
-        <div>Please click on theorems you want to use</div>
+        <div>Please click on hypotheses you want to use</div>
         <button type="button" onClick={searchTheorems}>
           search
         </button>
