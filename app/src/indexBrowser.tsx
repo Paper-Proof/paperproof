@@ -23,6 +23,8 @@ interface GlobalContextType {
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
+  searchedHypIds: string[];
+  setSearchedHypIds: (x: string[]) => void;
   settings: {
     isCompactMode: boolean;
     isCompactTactics: boolean;
@@ -59,6 +61,7 @@ function Main() {
   const [UIVersion, setUIVersion] = useState<number>(1);
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
+  const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
   const [settings, setSettings] = useState({
     // compactness
     isCompactMode: false,
@@ -223,9 +226,11 @@ function Main() {
         value={{
           UIVersion, refreshUI,
           collapsedBoxIds, setCollapsedBoxIds,
-          settings, setSettings,
+          searchedHypIds,  setSearchedHypIds,
+          settings,        setSettings,
+
           proofTree: converted.proofTree,
-          highlights: converted.highlights
+          highlights: converted.highlights,
         }}
       >
         {
