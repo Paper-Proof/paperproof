@@ -1,9 +1,7 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.List.Chain
-import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
-import Std.Data.Int.Basic
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Finset.Fold
 import Mathlib.Algebra.GCDMonoid.Multiset
@@ -87,7 +85,7 @@ theorem page66_evenOdd_TOP {even : ℕ → Prop} {odd : ℕ → Prop} (h1: ∀n,
 
   have h := Classical.em (even x)
   cases' h with hi hello
- 
+
   left
   exact hi
 
@@ -109,10 +107,6 @@ theorem page66_evenOdd_BOTTOM {even : ℕ → Prop} {odd : ℕ → Prop} (h1: �
   right
   exact h1 x hello
 
-
-
-  
-
 lemma th1 (M N : Prop) (h: M → N) (m: M) : N := h m
 lemma th2 (M N : Prop) (h: M ∧ N) : M := h.left
 lemma th3 (M N : Prop) (h: M ∧ N) : N := h.right
@@ -128,7 +122,6 @@ theorem bottomUp {A B C : Prop} : (A → (B → C)) → (A ∧ B → C) := by
 
   apply th3 A B
   exact ab
-
 
 theorem topDown {A B C : Prop} : (A → (B → C)) → (A ∧ B → C) := by
   intros abc ab

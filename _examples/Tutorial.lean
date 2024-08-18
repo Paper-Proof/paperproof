@@ -35,8 +35,7 @@ theorem simple_ex (n m : ℕ)
 example {m n : ℤ} (h1 : m + 3 ≤ 2 * n - 1) (h2 : n ≤ 5) : m + 3 ≤ 9 := by
   calc
     m + 3 ≤ 2 * n - 1 := by gcongr
-    _     ≤ 2 * 5 - 1 := by gcongr
-    _     = 9         := by norm_num
+    _     ≤ 2 * 5 - 1 := by gcongr; norm_num
 
 -- 5. rewrites are nicely nested under each other
 example (a b c d e f : ℕ) (h : b = e) (h₂ : e = d): (a = b) → (b = c) → (e = f) → True := by
