@@ -354,9 +354,6 @@ footer{
   .tactic{
     max-width: 200px;
     min-width: 100%;
-    /* This is for interaction of <header/> + .tactic */
-    z-index: 1;
-    position: relative;
   }
 }
 #box-1 > .box-insides > .goals{
