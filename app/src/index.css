@@ -175,7 +175,7 @@ body{
 .hypothesis{
   background: #a4dabc;
   border: 2px solid rgb(152 214 179);
-  .name{ color: #c69c51; }
+  .name{ color: #d0005b; }
 }
 .-isGreenHypothesesOFF{
   .hypothesis.data{
