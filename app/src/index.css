@@ -227,25 +227,9 @@ table.hypothesis-table + .goals{
 }
 
 .proof-tree.-isCompactModeON{
-  .box-insides{
+  header, .box-insides{
     padding-left: 0px;
     padding-right: 0px;
-    padding-top: 2px;
-  }
-  .hypothesis, .goal, .tactic{
-    padding: 3px 7px;
-  }
-  .tactic{
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-  header{
-    padding-left: 0;
-    padding-right: 0;
-    /* margin-bottom: 12px; */
-  }
-  header + .box-insides {
-    margin-top: 12px;
   }
 }
 
