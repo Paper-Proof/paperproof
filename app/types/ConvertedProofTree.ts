@@ -32,7 +32,7 @@ export interface TabledTactic {
 export type TabledCell = TabledHyp | TabledTactic;
 export interface Header {
   row1: HypNode[];
-  isRow2: boolean;
+  row2Status: 'absent' | 'presentWithTabledChildren' | 'presentWithoutTabledChildren'
 }
 export interface Table {
   tabledHyps: TabledHyp[];

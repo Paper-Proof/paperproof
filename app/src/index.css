@@ -274,8 +274,8 @@ header, footer{
     color: rgb(156, 151, 151);
   }
 }
+/* All of this header logic is just to make the paddings look pretty */
 header{
-  /* TODO: this should be exactly the same as box padding */
   padding-left: 10px;
   padding-right: 10px;
   border-top-left-radius: 3px;
@@ -283,15 +283,31 @@ header{
   width: 0;
   min-width: 100%;
 
-  &.-with-normal-hyps{
+  &.-row2Status-presentWithTabledChildren, &.-row2Status-presentWithoutTabledChildren{
     position: relative;
-    margin-bottom: -10px;
-    div.row-2 {
-      height: 32px;
+    div.row-1{
+      padding-bottom: 2px;
+    }
+    div.row-2{
+      height: 35px;
       position: absolute;
       top: 100%; left: 0;
       width: 100%;
       background: rgb(230, 233, 238);
+    }
+  }
+  &.-row2Status-presentWithoutTabledChildren{
+    margin-bottom: -12px;
+  }
+  &.-row2Status-presentWithTabledChildren{
+    margin-bottom: -12px;
+    div.row-2{
+      height: 30px;
+    }
+  }
+  &.-row2Status-absent{
+    div.row-1{
+      padding-bottom: 5px;
     }
   }
 

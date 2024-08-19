@@ -61,17 +61,47 @@ const isHypChildless = (proofTree: ConvertedProofTree, hypNodeId: string) : bool
   return !hasChildren
 }
 
-const partitionIntoDataAndNormalHyps = (proofTree: ConvertedProofTree, hypLayer: HypLayer) => {
-  const initialDataHyps : HypNode[] = [];
-  const initialNormalHyps : HypNode[] = [];
-  hypLayer.hypNodes.forEach((hypNode : HypNode) => {
+const doesHypHaveTabledChildren = (proofTree: ConvertedProofTree, hypNodeId: string) : boolean => {
+  const thisBoxHypIds = proofTree.boxes.find((box) => box.id === '1')!.hypLayers.flatMap((hl) => hl.hypNodes).map((h) => h.id)
+  for (const tactic of proofTree.tactics) {
+    const relevantArrows = tactic.hypArrows.filter((a) => a.fromId === hypNodeId)
+    for (const hypArrow of relevantArrows) {
+      for (const toId of hypArrow.toIds) {
+        if (thisBoxHypIds.includes(toId)) {
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+const createHeader = (proofTree: ConvertedProofTree, initLayer: HypLayer): [Header, HypNode[]] => {
+  const row1Hyps : HypNode[] = [];
+  const row2Hyps : HypNode[] = [];
+
+  initLayer.hypNodes.forEach((hypNode : HypNode) => {
     if (hypNode.isProof === "data" && isHypChildless(proofTree, hypNode.id)) {
-      initialDataHyps.push(hypNode);
+      row1Hyps.push(hypNode);
     } else {
-      initialNormalHyps.push(hypNode);
+      row2Hyps.push(hypNode);
     }
   });
-  return [initialDataHyps, initialNormalHyps];
+
+  // row2Status makes the <header/> paddings pretty, that's all it does
+  let row2Status : Header['row2Status'];
+  if (row2Hyps.length === 0) {
+    row2Status = 'absent';
+  } else if (row2Hyps.some((hypNode) => doesHypHaveTabledChildren(proofTree, hypNode.id))) {
+    row2Status = 'presentWithTabledChildren';
+  } else {
+    row2Status = 'presentWithoutTabledChildren';
+  }
+  const header : Header = {
+    row1: row1Hyps,
+    row2Status
+  }
+  return [header, row2Hyps]
 }
 
 const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) : Table[] => {
@@ -84,12 +114,8 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
 
     // Start a new table if this is the "init" tactic!
     if (tactic.text === "init") {
-      const [initialDataHyps, initialNormalHyps] = partitionIntoDataAndNormalHyps(proofTree, hypLayer);
-      thisLayerHypNodes = initialNormalHyps;
-      const header : Header = {
-        row1: initialDataHyps,
-        isRow2: initialNormalHyps.length > 0
-      }
+      const [header, row2Hyps] = createHeader(proofTree, hypLayer)
+      thisLayerHypNodes = row2Hyps;
       tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, header });
       currentTable = tables[tables.length - 1];
     }

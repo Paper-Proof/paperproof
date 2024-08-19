@@ -9,14 +9,14 @@ export interface HeaderProps {
 }
 
 const HeaderEl = (props: HeaderProps) => {
-  if (!props.header || (props.header.row1.length === 0 && !props.header.isRow2)) {
+  if (!props.header || (props.header.row1.length === 0 && props.header.row2Status === 'absent')) {
     return null
   }
 
-  return <header className={`${props.header.isRow2 ? '-with-normal-hyps' : ''}`}>
+  return <header className={`-row2Status-${props.header.row2Status}`}>
     <div className="title">hypotheses</div>
     {
-      props.header.row1 &&
+      props.header.row1.length > 0 &&
       <div className="row-1">
         {props.header.row1.map((hypNode, index) =>
           <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
