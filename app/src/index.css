@@ -267,29 +267,37 @@ header{
   width: 0;
   min-width: 100%;
 
-  &.-row2Status-presentWithTabledChildren, &.-row2Status-presentWithoutTabledChildren{
+  --hypNodeHeight: 30px;
+  --bigPaddingBottom: 5px;
+  &.-hoistAndPaddingBottomSmall, &.-hoistAndPaddingBottomBig{
     position: relative;
     div.row-1{
       padding-bottom: 2px;
     }
     div.row-2{
-      height: 35px;
+      height: calc(var(--hypNodeHeight) + var(--bigPaddingBottom));
       position: absolute;
       top: 100%; left: 0;
       width: 100%;
       background: rgb(230, 233, 238);
     }
   }
-  &.-row2Status-presentWithoutTabledChildren{
-    margin-bottom: -12px;
-  }
-  &.-row2Status-presentWithTabledChildren{
-    margin-bottom: -12px;
-    div.row-2{
-      height: 30px;
+  &.-hoistAndPaddingBottomSmall, &.-hoistAndPaddingBottomBig{
+    &+.box-insides{
+      padding-top: 0;
     }
   }
-  &.-row2Status-absent{
+  &.-hoistAndPaddingBottomBig +.box-insides{
+    .hypothesis-table:first-child tr:nth-child(3) td{
+      padding-top: 20px;
+    }
+  }
+  &.-hoistAndPaddingBottomSmall{
+    div.row-2{
+      height: var(--hypNodeHeight);
+    }
+  }
+  &.-row2Absent{
     div.row-1{
       padding-bottom: 5px;
     }

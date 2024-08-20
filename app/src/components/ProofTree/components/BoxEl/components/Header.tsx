@@ -1,24 +1,32 @@
 import React from "react";
-import { Highlights } from "types";
-import { Header } from "types/ConvertedProofTree";
+import { Highlights, HypNode } from "types";
 import HypothesisNode from "./Hypotheses/components/HypothesisNode";
+import { HeaderInfo } from "..";
 
 export interface HeaderProps {
-  header: Header | undefined;
+  row1Hyps?: HypNode[];
   highlights: Highlights;
+  headerInfo: HeaderInfo
 }
 
 const HeaderEl = (props: HeaderProps) => {
-  if (!props.header || (props.header.row1.length === 0 && props.header.row2Status === 'absent')) {
+  const hi = props.headerInfo
+  if (((!props.row1Hyps || props.row1Hyps.length === 0) && hi.ifHoistUp === false)) {
     return null
   }
 
-  return <header className={`-row2Status-${props.header.row2Status}`}>
+  return <header className={
+    `
+    ${!hi.ifHoistUp ? '-row2Absent' : ''}
+    ${(hi.ifHoistUp && hi.paddingBottomType === 'big') ? '-hoistAndPaddingBottomBig' : ''}
+    ${(hi.ifHoistUp && hi.paddingBottomType === 'small') ? '-hoistAndPaddingBottomSmall' : ''}
+    `
+  }>
     <div className="title">hypotheses</div>
     {
-      props.header.row1.length > 0 &&
+      props.row1Hyps && props.row1Hyps.length > 0 &&
       <div className="row-1">
-        {props.header.row1.map((hypNode, index) =>
+        {props.row1Hyps.map((hypNode, index) =>
           <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
         )}
       </div>

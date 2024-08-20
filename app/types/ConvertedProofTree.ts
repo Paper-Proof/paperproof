@@ -30,15 +30,11 @@ export interface TabledTactic {
   shardId: string;
 }
 export type TabledCell = TabledHyp | TabledTactic;
-export interface Header {
-  row1: HypNode[];
-  row2Status: 'absent' | 'presentWithTabledChildren' | 'presentWithoutTabledChildren'
-}
 export interface Table {
   tabledHyps: TabledHyp[];
   tabledTactics: TabledTactic[];
   currentRow: number;
-  header?: Header;
+  row1Hyps?: HypNode[];
 }
 
 export interface HypLayer {

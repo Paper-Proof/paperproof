@@ -27,6 +27,31 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tact
   return goalTactic || successTactic;
 }
 
+interface HeaderYes {
+  ifHoistUp: true;
+  paddingBottomType: "small" | "big";
+}
+interface HeaderNo {
+  ifHoistUp: false
+}
+export type HeaderInfo = HeaderYes | HeaderNo
+
+const getHeader = (box: Box): HeaderInfo => {
+  const isRootBox = box.id === "1"
+  if (!isRootBox) return { ifHoistUp: false }
+  const firstTable = box.hypTables[0]
+  if (!firstTable) return { ifHoistUp: false }
+  const initShard = firstTable.tabledTactics.find((tt) => tt.tactic.text === 'init')
+  if (!initShard) return { ifHoistUp: false }
+
+  const ifDirectChild = firstTable.tabledTactics.some((tt) => tt.row === 2 && tt.columnFrom < initShard.columnTo)
+
+  return {
+    ifHoistUp: true,
+    paddingBottomType: ifDirectChild ? "small" : "big"
+  }
+}
+
 const BoxEl = (props: MyProps) => {
   const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
 
@@ -41,10 +66,11 @@ const BoxEl = (props: MyProps) => {
   const { collapsedBoxIds } = useGlobalContext();
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
   
-  const tableWithHeader = props.box.hypTables.find((hypTable) => hypTable.header)
-  const header = tableWithHeader && tableWithHeader.header
+  const tableWithHeader = props.box.hypTables.find((hypTable) => hypTable.row1Hyps)
 
   const isRootBox = props.box.id === "1"
+
+  const headerInfo = getHeader(props.box)
 
   return <section
     className="box"
@@ -56,7 +82,7 @@ const BoxEl = (props: MyProps) => {
 
     {
       isRootBox &&
-      <Header header={header} highlights={props.highlights}/>
+      <Header row1Hyps={tableWithHeader?.row1Hyps} headerInfo={headerInfo} highlights={props.highlights}/>
     }
 
     {!isCollapsed &&
