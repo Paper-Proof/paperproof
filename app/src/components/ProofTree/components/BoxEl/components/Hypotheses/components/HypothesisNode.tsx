@@ -3,6 +3,7 @@ import Hint from "../../Hint";
 import { HypNode } from "types";
 import leanSearch from "src/services/leanSearch";
 import { useGlobalContext } from "src/indexBrowser";
+import prettifyHypothesisUsername from "src/services/prettifyHypothesisUsername";
 
 export interface HypothesisProps {
   hypNode: HypNode;
@@ -12,12 +13,7 @@ export interface HypothesisProps {
 const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   const { searchedHypIds, setSearchedHypIds, proofTree } = useGlobalContext();
 
-  // Example input: hypNode.name = "h._@.Examples._hyg.1162"
-  // Example output: name = "h✝"
-  const name = props.hypNode.name &&
-    props.hypNode.name.includes(".")
-    ? `${props.hypNode.name.split(".")[0]}✝`
-    : props.hypNode.name;
+  const name = prettifyHypothesisUsername(props.hypNode.name)
 
   const [isNewHypothesisShown, setIsNewHypothesisShown] = React.useState(false);
   const [newHypothesis, setNewHypothesis] = React.useState("");
