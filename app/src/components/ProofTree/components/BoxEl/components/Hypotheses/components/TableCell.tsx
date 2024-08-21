@@ -1,5 +1,5 @@
 import React from "react";
-import { ConvertedProofTree, Highlights, TabledCell } from "types";
+import { TabledCell } from "types";
 import HypothesisNode from "./HypothesisNode";
 import TacticNodeForHypothesis from "./TacticNodeForHypothesis";
 
@@ -11,8 +11,6 @@ interface TableCellProps {
   rowIndex: number;
   columnIndex: number;
   tabledCells: TabledCell[];
-  highlights: Highlights;
-  proofTree: ConvertedProofTree;
   shouldTacticHaveSelfRespect: boolean;
 }
 const TableCell = (props: TableCellProps) => {
@@ -27,8 +25,8 @@ const TableCell = (props: TableCellProps) => {
     const colSpan = cell.columnTo - cell.columnFrom;
     return <td colSpan={colSpan}>
       {'hypNode' in cell ?
-        <HypothesisNode hypNode={cell.hypNode} highlights={props.highlights}/> :
-        <TacticNodeForHypothesis cell={cell} colSpan={colSpan} proofTree={props.proofTree} shouldTacticHaveSelfRespect={props.shouldTacticHaveSelfRespect}/>
+        <HypothesisNode hypNode={cell.hypNode}/> :
+        <TacticNodeForHypothesis cell={cell} colSpan={colSpan} shouldTacticHaveSelfRespect={props.shouldTacticHaveSelfRespect}/>
       }
     </td>;
   } else {

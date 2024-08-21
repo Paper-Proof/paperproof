@@ -1,16 +1,17 @@
 import React from "react";
-import { ConvertedProofTree, TabledTactic } from "types";
+import { TabledTactic } from "types";
 import BoxEl from "../../..";
 import TacticNode from "src/components/TacticNode";
+import { useGlobalContext } from "src/indexBrowser";
 
 interface TacticNodeForHypothesis {
   cell: TabledTactic;
   colSpan: number;
-  proofTree: ConvertedProofTree;
   shouldTacticHaveSelfRespect: boolean
 }
 const TacticNodeForHypothesis = (props: TacticNodeForHypothesis) => {
   const tactic = props.cell.tactic;
+  const { proofTree } = useGlobalContext();
 
   if (tactic.text === "init") return null
 
@@ -22,9 +23,7 @@ const TacticNodeForHypothesis = (props: TacticNodeForHypothesis) => {
           {tactic.haveBoxIds.map((haveBoxId) => (
             <BoxEl
               key={haveBoxId}
-              box={props.proofTree.boxes.find((box) => box.id === haveBoxId)!}
-              proofTree={props.proofTree}
-              highlights={null}
+              box={proofTree.boxes.find((box) => box.id === haveBoxId)!}
             />
           ))}
         </div>

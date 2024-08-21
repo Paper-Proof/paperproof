@@ -23,6 +23,8 @@ interface GlobalContextType {
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
+  searchedHypIds: string[];
+  setSearchedHypIds: (x: string[]) => void;
   settings: {
     isCompactMode: boolean;
     isCompactTactics: boolean;
@@ -31,6 +33,8 @@ interface GlobalContextType {
     isGreenHypotheses: boolean;
   };
   setSettings: React.Dispatch<React.SetStateAction<GlobalContextType['settings']>>;
+  proofTree: ConvertedProofTree;
+  highlights: Highlights;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -57,6 +61,7 @@ function Main() {
   const [UIVersion, setUIVersion] = useState<number>(1);
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
+  const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
   const [settings, setSettings] = useState({
     // compactness
     isCompactMode: false,
@@ -217,13 +222,23 @@ function Main() {
   return <>
     {
       converted &&
-      <GlobalContext.Provider value={{ UIVersion, refreshUI, collapsedBoxIds, setCollapsedBoxIds, settings, setSettings }}>
+      <GlobalContext.Provider
+        value={{
+          UIVersion, refreshUI,
+          collapsedBoxIds, setCollapsedBoxIds,
+          searchedHypIds,  setSearchedHypIds,
+          settings,        setSettings,
+
+          proofTree: converted.proofTree,
+          highlights: converted.highlights,
+        }}
+      >
         {
           canWriteTactic &&
           displayHyps.length > 0 &&
           <div className="in-scope-hypotheses">
             {displayHyps.map((hypNode) =>
-              <HypothesisNode key={hypNode.id} hypNode={hypNode} highlights={converted.highlights} withId={false}/>
+              <HypothesisNode key={hypNode.id} hypNode={hypNode} withId={false}/>
             )}
           </div>
         }
@@ -235,7 +250,7 @@ function Main() {
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
         `}>
-          <ProofTree proofTree={converted.proofTree} highlights={converted.highlights}/>
+          <ProofTree/>
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
           )}

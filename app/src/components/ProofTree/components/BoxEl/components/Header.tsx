@@ -1,11 +1,10 @@
 import React from "react";
-import { Highlights, HypNode } from "types";
+import { HypNode } from "types";
 import HypothesisNode from "./Hypotheses/components/HypothesisNode";
 import { HeaderInfo } from "..";
 
 export interface HeaderProps {
   row1Hyps?: HypNode[];
-  highlights: Highlights;
   headerInfo: HeaderInfo
 }
 
@@ -43,7 +42,7 @@ const HeaderEl = (props: HeaderProps) => {
       props.row1Hyps && props.row1Hyps.length > 0 &&
       <div className="row-1">
         {props.row1Hyps.map((hypNode, index) =>
-          <HypothesisNode key={index} hypNode={hypNode} highlights={props.highlights}/>
+          <HypothesisNode key={index} hypNode={hypNode}/>
         )}
       </div>
     }
