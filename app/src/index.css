@@ -332,15 +332,15 @@ footer{
   }
 }
 /* tactics will just follow hyp widths */
-.proof-tree.-isCompactTacticsON .hypothesis-table .tactic{
+.proof-tree.-isCompactTacticsON .tactic.-hypothesis-tactic{
   width: min-content;
   max-width: 100%;
   min-width: 100%;
   word-break: break-all;
 }
 /* tactics will have self-respect */
-.proof-tree.-isCompactTacticsOFF .hypothesis-table .tactic,
-.proof-tree .hypothesis-table td.-add-self-respect-to-tactics .tactic{
+.proof-tree.-isCompactTacticsOFF .tactic.-hypothesis-tactic,
+.proof-tree.-isCompactTacticsON .tactic.-hypothesis-tactic.-with-self-respect{
   width: 100% ;
   min-width: min-content ;
 }

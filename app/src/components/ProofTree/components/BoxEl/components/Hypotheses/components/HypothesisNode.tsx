@@ -1,6 +1,6 @@
 import React from "react";
 import Hint from "../../Hint";
-import { Highlights, HypNode, TabledHyp } from "types";
+import { Highlights, HypNode } from "types";
 
 export interface HypothesisProps {
   hypNode: HypNode;
