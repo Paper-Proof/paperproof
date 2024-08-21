@@ -3,13 +3,13 @@ import React from "react";
 import { ConvertedProofTree, Box, Tactic, ContextMenuType } from "types";
 import Hypotheses from "./components/Hypotheses";
 
-import zoomToBox from '../../services/zoomToBox';
-import TacticNode from "../../../TacticNode";
+import zoomToBox from 'src/services/zoomToBox';
+import TacticNode from "src/components/TacticNode";
 
 import { useGlobalContext } from "src/indexBrowser";
 import ContextMenu from "./components/ContextMenu";
-import prettifyGoalUsername from "./services/prettifyGoalUsername";
-import onContextMenu from "./services/onContextMenu";
+import prettifyGoalUsername from "src/services/prettifyGoalUsername";
+import onContextMenu from "src/services/onContextMenu";
 import Header from "./components/Header";
 import GoalNode from "./components/GoalNode";
 

@@ -4,16 +4,16 @@ import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow,
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
-import getHighlights from "./components/ProofTree/services/getHighlights";
+import getHighlights from "./services/getHighlights";
 import hypsToTables from "./services/hypsToTables";
 import createHypArrows from './services/createHypArrows';
 import PerfectArrow from "./components/PerfectArrow";
 
 import Snackbar from '@mui/material/Snackbar';
-import zoomOnNavigation from "./components/ProofTree/services/zoomOnNavigation";
+import zoomOnNavigation from "./services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
 import HypothesisNode from "./components/ProofTree/components/BoxEl/components/Hypotheses/components/HypothesisNode";
-import zoomManually from "./components/ProofTree/services/zoomManually";
+import zoomManually from "./services/zoomManually";
 
 // Allowing certain properties on window
 declare const window: PaperProofWindow;

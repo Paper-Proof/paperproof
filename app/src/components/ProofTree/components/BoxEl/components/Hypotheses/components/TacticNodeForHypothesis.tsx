@@ -1,6 +1,6 @@
 import React from "react";
 import { TabledTactic } from "types";
-import BoxEl from "../../..";
+import BoxEl from "src/components/ProofTree/components/BoxEl";
 import TacticNode from "src/components/TacticNode";
 import { useGlobalContext } from "src/indexBrowser";
 

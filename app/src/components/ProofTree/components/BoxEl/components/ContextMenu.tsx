@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { Divider, Switch } from "@mui/material";
 import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType } from "types";
-import zoomManually from "src/components/ProofTree/services/zoomManually";
+import zoomManually from "src/services/zoomManually";
 
 interface Props {
   box: Box;
