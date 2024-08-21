@@ -8,8 +8,8 @@ import TacticNode from "../../../TacticNode";
 
 import { useGlobalContext } from "src/indexBrowser";
 import ContextMenu from "./components/ContextMenu";
-import prettifyGoalUsername from "./utils/prettifyGoalUsername";
-import onContextMenu from "./utils/onContextMenu";
+import prettifyGoalUsername from "./services/prettifyGoalUsername";
+import onContextMenu from "./services/onContextMenu";
 import Header from "./components/Header";
 import GoalNode from "./components/GoalNode";
 
