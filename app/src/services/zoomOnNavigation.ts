@@ -4,8 +4,13 @@ import zoomToBox from './zoomToBox';
 
 const getParentBoxId = (boxes: Box[], childId: string): string | null => {
   const childWindow = boxes.find((w) => w.id === childId);
-  const parentId = childWindow!.parentId;
-  return parentId;
+  if (childWindow) {
+    return childWindow.parentId;
+  } else {
+    // Shouldn't ever happen, but I saw it happen in practice.
+    // Shall be investigated, but just returning `null` to avoid errors for now.
+    return null;
+  }
 }
 
 const findLcm = (boxes: Box[], windowIdA: string, windowIdB: string): string => {
@@ -19,7 +24,6 @@ const findLcm = (boxes: Box[], windowIdA: string, windowIdB: string): string => 
 
   let idB: string | null = windowIdB;
   while (true) {
-    // Shouldn't ever happen, it's only here to calm typescript
     if (idB === null) { return windowIdB; }
     // We found our lowest shared parent!
     if (parentsOfA.includes(idB)) {
