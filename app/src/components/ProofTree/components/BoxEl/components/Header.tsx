@@ -9,6 +9,22 @@ export interface HeaderProps {
   headerInfo: HeaderInfo
 }
 
+// TODO
+// This should be refactored using `anchor-size()` css property
+// (https://developer.mozilla.org/en-US/docs/Web/CSS/anchor-size),
+// but only when vscode switched from chrome 124 to chrome 125.
+// Right now the header lacks height when the hypotheses are lengthy, e.g. here:
+//
+//   theorem simple_ex (n m : ℕ)
+//     (h1 : ∀ {a b : Nat}, a + b = b + a)
+//     (h2 : ∀ {a b : Nat}, a = b + b):
+//       n + m = m + n := by
+//     simp [h1, h2]
+//
+// To be clear - anchor will be the <td/> with `h1` hypothesis inside,
+// and we'll be setting .row-2's { height: '' } based on that element's height.
+//
+// Or, better, we'll remove .row-2, and start coloring the fake <div> inside of the .hypothesis-table, that will take up the natural height, *and* .proof-tree's width.
 const HeaderEl = (props: HeaderProps) => {
   const hi = props.headerInfo
   if (((!props.row1Hyps || props.row1Hyps.length === 0) && hi.ifHoistUp === false)) {

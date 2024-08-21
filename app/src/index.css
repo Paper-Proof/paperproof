@@ -281,12 +281,19 @@ header{
       width: 100%;
       background: rgb(230, 233, 238);
     }
-  }
-  &.-hoistAndPaddingBottomSmall, &.-hoistAndPaddingBottomBig{
     &+.box-insides{
       padding-top: 0;
+      /*
+      This makes sure header hypotheses not exceed 30px in height [in most cases!]
+      TODO remove this when vscode switches to Chrome 125, and we can switch to anchor tags,
+      see a related TODO in <Header/>
+      */
+      .hypothesis-table:first-child tr:nth-child(2) div.hypothesis {
+        max-width: 300px !important;
+      }
     }
   }
+
   &.-hoistAndPaddingBottomBig +.box-insides{
     .hypothesis-table:first-child tr:nth-child(3) td{
       padding-top: 20px;
