@@ -11,6 +11,7 @@ A new proof interface for Lean 4.
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Paper-Proof/paperproof)
+
 You will need to wait ~3-4 minutes for the codespace to be ready.
 
 We created a few videos about Paperproof:
