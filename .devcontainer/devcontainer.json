@@ -9,7 +9,7 @@
 
   "customizations": {
     "vscode": {
-      "extensions": ["leanprover.lean4"]
+      "extensions": ["leanprover.lean4@0.0.144", "paperproof.paperproof"]
     }
   }
 }
