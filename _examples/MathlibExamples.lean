@@ -1,7 +1,6 @@
 import Mathlib.Algebra.BigOperators.Multiset.Lemmas
-import Mathlib.Algebra.Group.Pi
-import Mathlib.Algebra.GroupPower.Lemmas
-import Mathlib.Algebra.Hom.Equiv.Basic
+import Mathlib.Algebra.Group.Pi.Basic
+import Mathlib.Algebra.GroupPower.Basic
 import Mathlib.Algebra.Ring.Opposite
 import Mathlib.Data.Finset.Powerset
 import Mathlib.Data.Finset.Sigma
