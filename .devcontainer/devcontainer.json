@@ -7,9 +7,16 @@
 
   "onCreateCommand": "lake exe cache get!",
 
+  "postAttachCommand": {
+    "command": "lean4.restartServer"
+  },
+
   "customizations": {
     "vscode": {
       "extensions": ["leanprover.lean4@0.0.144", "paperproof.paperproof"]
+    },
+    "codespaces": {
+      "openFiles": ["_examples/ForVideos.lean"]
     }
   }
 }
