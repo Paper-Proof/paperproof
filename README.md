@@ -10,10 +10,13 @@ A new proof interface for Lean 4.
 
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Paper-Proof/paperproof/tree/devcontainer)
+
 We created a few videos about Paperproof:
-- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ).   
-- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).  
-- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).  
+
+- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ).
+- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).
+- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).
 
 Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
 
@@ -36,16 +39,17 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td colspan="2" align="center">
 
-  **apply**
+**apply**
+
   </td>
   </tr>
   <tr>
   <td>
 
-  ```lean
-  theorem apply (a b: ℝ) : a = b := by
-    apply le_antisymm
-  ```
+```lean
+theorem apply (a b: ℝ) : a = b := by
+  apply le_antisymm
+```
 
   </td>
   <td>
@@ -53,18 +57,18 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
   <tr><td colspan="2" align="center">
 
-  **have**
+**have**
+
   </td></tr>
   <td>
 
-  ```lean
-  theorem have (a b: ℝ)
-  (h1: a ≤ b) (h2: b ≤ a) : True := by
-    have hi := le_antisymm h1 h2
-  ```
+```lean
+theorem have (a b: ℝ)
+(h1: a ≤ b) (h2: b ≤ a) : True := by
+  have hi := le_antisymm h1 h2
+```
 
   </td>
   <td>
@@ -72,60 +76,59 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
   <tr><td colspan="2" align="center">
 
-  **intro**
+**intro**
+
   </td></tr>
   <tr>
   <td>
 
-  ```lean
-  theorem intro
-  : ∀ (N: ℕ), ∃ M, N + N = M := by
-    intro n
-  ```
+```lean
+theorem intro
+: ∀ (N: ℕ), ∃ M, N + N = M := by
+  intro n
+```
 
   </td>
   <td>
     <img width="275" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e1d862cf-0bd8-4705-9ed2-66c282f5a73d">
   </td>
-  </tr> 
-
+  </tr>
 
   <tr><td colspan="2" align="center">
 
-  **rw**
+**rw**
+
   </td></tr>
   <tr>
   <td>
 
-  ```lean
-  theorem rw (a b: ℕ)
-  (h1: a = b) : (10 * a = 666) := by
-    rw [h1]
-  ```
+```lean
+theorem rw (a b: ℕ)
+(h1: a = b) : (10 * a = 666) := by
+  rw [h1]
+```
 
   </td>
   <td>
     <img width="268" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cf57167c-b4ba-485b-8da2-e60af9f6b3ba">
   </td>
-  </tr> 
-
-
+  </tr>
 
   <tr><td colspan="2" align="center">
 
-  **by_contra**
+**by_contra**
+
   </td></tr>
   <tr>
   <td>
 
-  ```lean
-  theorem by_contra (m: ℕ)
-  : 2 ≤ m := by
-    by_contra h
-  ```
+```lean
+theorem by_contra (m: ℕ)
+: 2 ≤ m := by
+  by_contra h
+```
 
   </td>
   <td>
@@ -133,19 +136,19 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
   <tr><td colspan="2" align="center">
 
-  **use**
+**use**
+
   </td></tr>
   <tr>
   <td>
 
-  ```lean
-  theorem use
-  : ∃ x: ℕ, x = 5 := by
-    use 42
-  ```
+```lean
+theorem use
+: ∃ x: ℕ, x = 5 := by
+  use 42
+```
 
   </td>
   <td>
@@ -153,20 +156,19 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
-
   <tr><td colspan="2" align="center">
 
-  **induction**
+**induction**
+
   </td></tr>
   <tr>
   <td>
 
-  ```lean
-  theorem induction (n: ℕ)
-  : Nat.mul 0 n = 0 := by
-    induction' n with k ih
-  ```
+```lean
+theorem induction (n: ℕ)
+: Nat.mul 0 n = 0 := by
+  induction' n with k ih
+```
 
   </td>
   <td>
@@ -174,19 +176,19 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
   <tr><td colspan="2" align="center">
 
-  **cases**
+**cases**
+
   </td></tr>
   <tr>
   <td>
 
-  ```lean
-  theorem casesN (n: ℕ)
-  : Nat.mul 0 n = 0 := by
-    cases' n with m
-  ```
+```lean
+theorem casesN (n: ℕ)
+: Nat.mul 0 n = 0 := by
+  cases' n with m
+```
 
   </td>
   <td>
@@ -197,11 +199,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-  ```lean
-  theorem casesAnd (A B C: Prop)
-  (h: A ∧ B) : C := by
-    cases' h with a b
-  ```
+```lean
+theorem casesAnd (A B C: Prop)
+(h: A ∧ B) : C := by
+  cases' h with a b
+```
 
   </td>
   <td>
@@ -212,11 +214,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-  ```lean
-  theorem casesOr (A B C: Prop)
-  (h: A ∨ B) : C := by
-    cases' h with a b
-  ```
+```lean
+theorem casesOr (A B C: Prop)
+(h: A ∨ B) : C := by
+  cases' h with a b
+```
 
   </td>
   <td>
@@ -227,15 +229,15 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td>
 
-  ```lean
-  inductive Random where
-    | hi: ℕ → String → Random
-    | hello: (2 + 2 = 4) → Random 
-    | wow: Random
-  theorem casesRandom (C: Prop)
-  (h: Random) : C := by
-    cases' h with a b c
-  ```
+```lean
+inductive Random where
+  | hi: ℕ → String → Random
+  | hello: (2 + 2 = 4) → Random
+  | wow: Random
+theorem casesRandom (C: Prop)
+(h: Random) : C := by
+  cases' h with a b c
+```
 
   </td>
   <td>
@@ -260,7 +262,8 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   <tr>
   <td align="center">
 
-  **Mathematics in Lean (Jeremy Avigad, Patrick Massot)** <br/>([mathematics_in_lean/MIL/C05_Elementary_Number_Theory/solutions/Solutions_S03_Infinitely_Many_Primes.lean:155](https://github.com/leanprover-community/mathematics_in_lean/blob/4bc81ddea0a62c3bbd33cbfc4b4b501d2d0dfb03/MIL/C05_Elementary_Number_Theory/solutions/Solutions_S03_Infinitely_Many_Primes.lean#L155))
+**Mathematics in Lean (Jeremy Avigad, Patrick Massot)** <br/>([mathematics_in_lean/MIL/C05_Elementary_Number_Theory/solutions/Solutions_S03_Infinitely_Many_Primes.lean:155](https://github.com/leanprover-community/mathematics_in_lean/blob/4bc81ddea0a62c3bbd33cbfc4b4b501d2d0dfb03/MIL/C05_Elementary_Number_Theory/solutions/Solutions_S03_Infinitely_Many_Primes.lean#L155))
+
   </td>
   </tr>
   <tr>
@@ -269,13 +272,11 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
-
-
   <tr>
   <td align="center">
 
-  **Mathlib** <br/>([mathlib4/Mathlib/Algebra/Field/Power.lean:30](https://github.com/leanprover-community/mathlib4/blob/9893bbd22fdca4005b93c8dbff16c1d2de21bc1a/Mathlib/Algebra/Field/Power.lean#L30))
+**Mathlib** <br/>([mathlib4/Mathlib/Algebra/Field/Power.lean:30](https://github.com/leanprover-community/mathlib4/blob/9893bbd22fdca4005b93c8dbff16c1d2de21bc1a/Mathlib/Algebra/Field/Power.lean#L30))
+
   </td>
   </tr>
   <tr>
@@ -284,13 +285,12 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </td>
   </tr>
 
-
-
   <tr>
   <td align="center">
 
-  **Hitchhiker's Guide to Logical Verification** <br/> **(Anne Baanen, Alexander Bentkamp, Jasmin Blanchette, Johannes Hölzl, Jannis Limperg)** <br/>
-  ([logical_verification_2023/blob/main/lean/LoVe/LoVe05_FunctionalProgramming_Demo.lean:316](https://github.com/blanchette/logical_verification_2023/blob/f709e20d2cd515d4ede3e7d2db30103d4f58aaca/lean/LoVe/LoVe05_FunctionalProgramming_Demo.lean#L316))
+**Hitchhiker's Guide to Logical Verification** <br/> **(Anne Baanen, Alexander Bentkamp, Jasmin Blanchette, Johannes Hölzl, Jannis Limperg)** <br/>
+([logical_verification_2023/blob/main/lean/LoVe/LoVe05_FunctionalProgramming_Demo.lean:316](https://github.com/blanchette/logical_verification_2023/blob/f709e20d2cd515d4ede3e7d2db30103d4f58aaca/lean/LoVe/LoVe05_FunctionalProgramming_Demo.lean#L316))
+
   </td>
   </tr>
   <tr>
@@ -303,8 +303,6 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
   </table>
 </details>
 
-
-
 ## Installation
 
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
@@ -313,32 +311,35 @@ In the following tables, you can see what tactics such as `apply`, `rw`, or `cas
 
    <img width="450" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a89c8649-bcb9-47e4-ae45-891addf4f2cb">
 
-   *Explanation: Paperproof depends on `lean4` extension in order to avoid loading your computer with excessive Lean server instances; however `lean4` api regularly updates in a way that introduces breaking changes, resulting in a blank screen in Paperproof. Hopefully their api stabilizes soon and we can remove this step, but at the moment - please downgrade `lean4`, and turn off automatic extension updates for `lean4`.*
+   _Explanation: Paperproof depends on `lean4` extension in order to avoid loading your computer with excessive Lean server instances; however `lean4` api regularly updates in a way that introduces breaking changes, resulting in a blank screen in Paperproof. Hopefully their api stabilizes soon and we can remove this step, but at the moment - please downgrade `lean4`, and turn off automatic extension updates for `lean4`._
 
-4. In your `lakefile.lean`, write:
-    ```lean
-    require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
-    ```
+3. In your `lakefile.lean`, write:
 
-5. Then, in your terminal, run:
-    ```shell
-    lake update Paperproof
-    ```
+   ```lean
+   require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
+   ```
 
-    *Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`.*
+4. Then, in your terminal, run:
 
-6. In a Lean file with your theorems, write:
-    ```lean
-    import Paperproof
-    ```
+   ```shell
+   lake update Paperproof
+   ```
 
-7. **You're done!**
+   _Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`._
 
-    Now, click on the paperproof icon (after you installed the Paperproof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.  
+5. In a Lean file with your theorems, write:
 
-    <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
+   ```lean
+   import Paperproof
+   ```
 
-    You can click on any theorem now (well, only tactic-based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
+6. **You're done!**
+
+   Now, click on the paperproof icon (after you installed the Paperproof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.
+
+   <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
+
+   You can click on any theorem now (well, only tactic-based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
 
 ## Tutorial
 
@@ -382,12 +383,9 @@ Below, you will see a table with the main features of Paperproof.
   </td>
   </tr>
 
-
-
-
   <tr>
   <td colspan="2" align="center">
-  A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.  
+  A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.
 
   </td>
   </tr>
@@ -397,15 +395,11 @@ Below, you will see a table with the main features of Paperproof.
     
   <img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
 
-
   </td>
   <td>
     <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/066bb876-e7d6-4980-a725-8fe82666b5e1">
   </td>
   </tr>
-
-
-
 
   <tr>
   <td colspan="2" align="center">
@@ -422,9 +416,6 @@ Below, you will see a table with the main features of Paperproof.
   </td>
   </tr>
 
-
-
-
   <tr>
   <td colspan="2" align="center">
   Opaque nodes represent a focused goal, and currently available hypotheses.<br/>  
@@ -440,9 +431,6 @@ Below, you will see a table with the main features of Paperproof.
 
   </td>
   </tr>
-
-
-
 
   <tr>
   <td colspan="2" align="center">
@@ -466,14 +454,13 @@ Below, you will see a table with the main features of Paperproof.
 To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperproof Lean library from this github repo, and build it.
 
 Vscode extensions are automatically updated, however you can check for new updates with  
-**`cmd+shift+p` => "Extensions: Show Extension Updates"**.  
+**`cmd+shift+p` => "Extensions: Show Extension Updates"**.
 
 Paperproof is a package that's usually only used during development, so you might want to remove it from your `lakefile.lean` when you're pushing to production. In order to do that, just remove the Paperproof require from `lakefile.lean`, and run `lake update Paperproof`. This will clean up `lake-manifest.json` and `lake-packages` for you.
 
 ## Development
 
 You're welcome to contribute to Paperproof, see the instructions in [CONTRIBUTING.md](https://github.com/Paper-Proof/paperproof/blob/main/CONTRIBUTING.md).
-
 
 <div align="center">
 <img width="60px" src="https://github.com/Paper-Proof/paperproof/assets/7578559/58f24cf2-4336-4376-8738-6463e3802ba0">
