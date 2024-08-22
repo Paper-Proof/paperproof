@@ -17,4 +17,5 @@ await esbuild.build({
     "process.env.NODE_ENV": '"production"',
   },
   minify: true,
+  external: ['stream', 'zlib', 'url', 'http', 'events', 'crypto', 'tls', 'https', 'net', 'buffer', 'os', 'path', 'fs'],
 });
