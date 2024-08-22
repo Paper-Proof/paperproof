@@ -11,8 +11,25 @@ const getLeanClient = async (shared: Shared, editor: vscode.TextEditor) => {
     throw new Error("leanExtensionNotFound");
   }
 
-  const clientProvider = leanExtension.exports.clientProvider;
-  const client = clientProvider.getActiveClient();
+  let client;
+  try {
+    const clientProvider = leanExtension.exports.clientProvider;
+    client = clientProvider.getActiveClient();
+  } catch (error) {
+    const version = leanExtension.packageJSON.version;
+    shared.log.appendLine(`Lean extension version: ${version}`);
+    const errorMessage = `
+      Please press
+      <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">CMD+SHIFT+P</span>
+      , type <span style="color: #4791b8;">"Extensions: Install Specific Version of Extension..."</span>, and change your <b>lean4 vscode extension</b> to one of these versions: <b>v0.0.144</b>.<br/>
+      Your <b>lean4 vscode extension</b> version is currently: <b>v${version}</b>.
+      <br/><br/>
+
+      <i style="color: #9d9d9e;">Explanation: Paperproof depends on lean4 extension in order to avoid loading your computer with excessive Lean server instances; however lean4 api regularly updates in a way that introduces breaking changes, resulting in a blank screen in Paperproof. Hopefully their api stabilizes soon and we can remove this step, but at the moment - please downgrade the lean4 extension, and turn off automatic extension updates for lean4.</i>
+    `;
+    throw new Error(`wrongLeanExtensionVersion: ${errorMessage}`);
+  }
+
   if (!client) {
     throw new Error("leanClientNotFound");
   }

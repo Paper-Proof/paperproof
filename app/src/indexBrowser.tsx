@@ -83,6 +83,10 @@ function Main() {
     if ("error" in proofResponse) {
       if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
         // This is a normal situation, just return.
+      } else if (proofResponse.error.startsWith('wrongLeanExtensionVersion')) {
+        const errorMessage = proofResponse.error.split('wrongLeanExtensionVersion: ')[1];
+        setSnackbarMessage(errorMessage);
+        setSnackbarOpen(true);
       } else if (proofResponse.error === 'leanNotYetRunning') {
         setSnackbarMessage("Waiting for Lean");
         setSnackbarOpen(true);
@@ -260,7 +264,7 @@ function Main() {
     <Snackbar
       open={snackbarOpen}
       autoHideDuration={null}
-      message={snackbarMessage}
+      message={snackbarMessage && <div dangerouslySetInnerHTML={{ __html: snackbarMessage }}/>}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     />
   </>
