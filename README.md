@@ -55,7 +55,7 @@ theorem apply (a b: ℝ) : a = b := by
 
   </td>
   <td>
-    <img width="222" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/bd4f02d1-a1d4-47b2-8c4f-44059a79c543">
+    <img width="222" alt="image" src="https://github.com/user-attachments/assets/eb183244-22e8-4219-9566-54edf4a590ce">
   </td>
   </tr>
 
@@ -74,7 +74,7 @@ theorem have (a b: ℝ)
 
   </td>
   <td>
-    <img width="378" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/4f28df15-f5ea-4a9c-982f-5d81945beb41">
+    <img width="378" alt="image" src="https://github.com/user-attachments/assets/162205b8-4c43-4c8e-967d-cd942197c6c5">
   </td>
   </tr>
 
@@ -94,7 +94,7 @@ theorem intro
 
   </td>
   <td>
-    <img width="275" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e1d862cf-0bd8-4705-9ed2-66c282f5a73d">
+    <img width="275" alt="image" src="https://github.com/user-attachments/assets/9b465827-6f49-4be6-a7fe-7126165c9b2b">
   </td>
   </tr>
 
@@ -114,7 +114,7 @@ theorem rw (a b: ℕ)
 
   </td>
   <td>
-    <img width="268" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cf57167c-b4ba-485b-8da2-e60af9f6b3ba">
+    <img width="268" alt="image" src="https://github.com/user-attachments/assets/f12799fe-4bbc-48a1-9441-859d814b7512">
   </td>
   </tr>
 
@@ -134,7 +134,7 @@ theorem by_contra (m: ℕ)
 
   </td>
   <td>
-    <img width="152" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2b5fc5bf-783b-4b31-9135-9c24bf3a9d28">
+    <img width="152" alt="image" src="https://github.com/user-attachments/assets/0274d202-b64c-4bb0-959a-565713ba0140">
   </td>
   </tr>
 
@@ -154,7 +154,7 @@ theorem use
 
   </td>
   <td>
-    <img width="148" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e69ffe96-5bfa-4370-9c4c-bfbb2382e75d">
+    <img width="148" alt="image" src="https://github.com/user-attachments/assets/eecfec7b-9610-4fee-a9dc-51a6a95dd5f9">
   </td>
   </tr>
 
@@ -174,7 +174,7 @@ theorem induction (n: ℕ)
 
   </td>
   <td>
-    <img width="564" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/45365de6-b5a2-4643-8e8e-82d1bd80f966">
+    <img width="564" alt="image" src="https://github.com/user-attachments/assets/0f2c746c-9940-4444-8f30-27185a4eb2bc">
   </td>
   </tr>
 
@@ -194,7 +194,7 @@ theorem casesN (n: ℕ)
 
   </td>
   <td>
-    <img width="552" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/b88c9f0c-6ecd-4a78-828f-de84c433a429">
+    <img width="552" alt="image" src="https://github.com/user-attachments/assets/15ca7899-a77c-479a-90b9-1fd4159bb0b5">
   </td>
   </tr>
   <tr></tr>
@@ -209,7 +209,7 @@ theorem casesAnd (A B C: Prop)
 
   </td>
   <td>
-    <img width="485" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/ec146278-c298-43a3-b793-91b00cf7082c">
+    <img width="306" alt="image" src="https://github.com/user-attachments/assets/077eae28-c1fc-4eb7-b9db-6e37e615e178">
   </td>
   </tr>
   <tr></tr>
@@ -224,7 +224,7 @@ theorem casesOr (A B C: Prop)
 
   </td>
   <td>
-    <img width="431" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/d4e11a5f-32a5-463d-ad32-f874c098633b">
+    <img width="306" alt="image" src="https://github.com/user-attachments/assets/da0592e5-9db0-4548-b475-a0ae7945cd98">
   </td>
   </tr>
   <tr></tr>
@@ -243,7 +243,7 @@ theorem casesRandom (C: Prop)
 
   </td>
   <td>
-    <img width="546" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cc95c055-4172-4c84-ac62-2f3515fe2383">
+    <img width="410px" alt="image" src="https://github.com/user-attachments/assets/ba2d3dd0-06c7-42ae-b409-67f343ee97b2">
   </td>
   </tr>
 
