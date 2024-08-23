@@ -47,6 +47,8 @@ code --install-extension paperproof.vsix
 
 and restart vscode (literally - quit it fully, and open it again).
 
+*ATTENTION: if paperproof webview doesn't respond to `.postMessage(...)` calls, AND you have the OUTPUT pane open - close it, and it should start working. It's just some weird vscode glitch.*
+
 ## Reloading `/lean`
 
 If you change something in the `/lean` folder, then go to the file where you're checking your code, usually it's `Examples.lean`, and run **Cmd+Shift+P** `> Lean 4: Refresh File Dependencies`.
