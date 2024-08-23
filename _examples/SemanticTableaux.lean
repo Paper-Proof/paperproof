@@ -22,7 +22,7 @@ theorem simpleNotAnd (X: Prop) (Y: Prop) (h: ¬(X ∧ Y)) : False := by
   cases' h with h1 h2
 
 theorem simpleNotThen (X: Prop) (Y: Prop) (h: ¬(X → Y)) : False := by
-  rw [not_imp] at h
+  rw [Classical.not_imp] at h
   cases' h with h1 h2
 
 theorem simpleForall {α : Type} (φ : α → Prop) (a : α) (h: ∀ x, φ x) : False := by
@@ -47,7 +47,7 @@ theorem deMorgan (p : Prop) (q : Prop) : ¬(p ∨ q) → (¬p ∧ ¬q) := by
   by_contra h1
 
   -- Creating 2. and 3.
-  rw [not_imp] at h1
+  rw [Classical.not_imp] at h1
   cases' h1 with h2 h3
 
   -- Creating 4. and 5.
@@ -70,7 +70,7 @@ theorem manyGoals (p : Prop) (q : Prop) : ((p ∨ q) ∧ (q → p)) → p := by
   by_contra h1
 
   -- Creating 2. and 3.
-  rw [not_imp] at h1
+  rw [Classical.not_imp] at h1
   cases' h1 with h2 h3
 
   -- Creating 4. and 5.
@@ -98,7 +98,7 @@ theorem firstOrderLogic {α : Type} (P Q : α → Prop)
   by_contra h1
 
   -- Creating 2. and 3.
-  rw [not_imp] at h1
+  rw [Classical.not_imp] at h1
   cases' h1 with h2 h3
 
   -- Creating 4.
