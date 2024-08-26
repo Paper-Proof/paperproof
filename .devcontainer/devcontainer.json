@@ -1,5 +1,5 @@
 {
-  "name": "Paperproof dev container",
+  "name": "Paperproof",
 
   "build": {
     "dockerfile": "Dockerfile"
@@ -9,10 +9,10 @@
 
   "customizations": {
     "vscode": {
-      "extensions": ["leanprover.lean4@0.0.144", "paperproof.paperproof"]
+      "extensions": ["leanprover.lean4@0.0.176", "paperproof.paperproof"]
     },
     "codespaces": {
-      "openFiles": ["_examples/ForVideos.lean"]
+      "openFiles": ["_examples/demos/ForVideos.lean"]
     }
   }
 }
