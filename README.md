@@ -269,8 +269,8 @@ theorem casesRandom (C: Prop)
   </td>
   </tr>
   <tr>
-  <td align="center">  
-    <img width="1358" alt="Mathematics in Lean - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/765bc84e-4d4c-417f-877e-48bc9a0abe1c">
+  <td align="center">
+    <img width="1136" alt="Mathematics in Lean - Paperproof" src="https://github.com/user-attachments/assets/432dd171-faf8-42c1-a4c2-4d5f62672ff1">
   </td>
   </tr>
 
@@ -283,7 +283,7 @@ theorem casesRandom (C: Prop)
   </tr>
   <tr>
   <td align="center">  
-    <img width="1278" alt="Mathlib - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2103c78e-be6d-46e6-b25d-86cbfb1a5fad">
+    <img width="1042" alt="Mathlib - Paperproof" src="https://github.com/user-attachments/assets/05a69569-3370-4f4e-b50b-aef7a41d50f5">
   </td>
   </tr>
 
@@ -297,7 +297,7 @@ theorem casesRandom (C: Prop)
   </tr>
   <tr>
   <td align="center">
-    <img width="1385" alt="Hitchhiker's Guide to Logical Verification - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/568e70e0-992e-4a65-a306-6c0693750fe8">
+    <img width="1207" alt="Hitchhiker's Guide to Logical Verification - Paperproof" src="https://github.com/user-attachments/assets/4b04b1a9-ddf9-4994-b9ca-a24611a3eb93">
   </td>
   </tr>
 
