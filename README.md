@@ -8,11 +8,21 @@ A new proof interface for Lean 4.
   <img width="900" alt="Paperproof vscode" src="https://github.com/user-attachments/assets/08c4438a-c940-4dc4-92e8-cd82be4af32a">
 </div>
 
+<div align="center">
+  <b>Try Paperproof online</b><br/>
+
+  <a href="https://codespaces.new/Paper-Proof/paperproof">
+    <img width="200" src="https://github.com/codespaces/badge.svg"/>
+  </a>
+    
+</div>
+<br/>
+
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Paper-Proof/paperproof)
 
-You will need to wait ~3-4 minutes for the codespace to be ready.
+
+---
 
 We created a few videos about Paperproof:
 
@@ -20,9 +30,10 @@ We created a few videos about Paperproof:
 - our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).
 - a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).
 
-Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
+And a few blog posts:
 
-And here you can read how Paperproof analyzes Lean's InfoTree to build the trees you see in the user interface: [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
+- Paperproof in context of other proof trees: [Evgenia's post link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
+- Technical blog post about how Paperproof analyzes Lean's `InfoTree` to build the trees you see in the user interface: [Anton's post link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
 
 In the following tables, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof; and how Paperproof renders real proofs from well-known repos.
 
