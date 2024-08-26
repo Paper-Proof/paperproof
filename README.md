@@ -24,17 +24,6 @@ Paperproof will inspect how the hypotheses and goals were changing throughout th
 
 ---
 
-We created a few videos about Paperproof:
-
-- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ).
-- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).
-- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).
-
-And a few blog posts:
-
-- Paperproof in context of other proof trees: [Evgenia's post link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
-- Technical blog post about how Paperproof analyzes Lean's `InfoTree` to build the trees you see in the user interface: [Anton's post link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
-
 In the following tables, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof; and how Paperproof renders real proofs from well-known repos.
 
 <details>
@@ -456,6 +445,20 @@ Vscode extensions are automatically updated, however you can check for new updat
 **`cmd+shift+p` => "Extensions: Show Extension Updates"**.
 
 Paperproof is a package that's usually only used during development, so you might want to remove it from your `lakefile.lean` when you're pushing to production. In order to do that, just remove the Paperproof require from `lakefile.lean`, and run `lake update Paperproof`. This will clean up `lake-manifest.json` and `lake-packages` for you.
+
+## About Paperproof
+
+
+We created a few videos about Paperproof:
+
+- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ).
+- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).
+- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).
+
+And a few blog posts:
+
+- Paperproof in context of other proof trees: [Evgenia's post link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
+- Technical blog post about how Paperproof analyzes Lean's `InfoTree` to build the trees you see in the user interface: [Anton's post link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
 
 ## Development
 
