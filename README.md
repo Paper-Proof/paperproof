@@ -366,40 +366,41 @@ Below, you will see a table with the main features of Paperproof.
 
   <tr>
   <td colspan="2" align="center">
-  Hypotheses are displayed as green nodes, goals are displayed as red nodes, tactics are displayed as transparent nodes with dashed borders. 
+  <b>Hypotheses are displayed as green nodes, <br/>goals are displayed as red nodes,<br/>tactics are displayed as transparent nodes with dashed borders.</b> 
   </td>
   </tr>
 
   <tr>
-  <td>
+  <td align="center">
     <img width="204" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/afc8000f-ad15-4ed4-b1fa-6740745895c6">
   </td>
-  <td>
-    <img width="447" alt="image" src="https://github.com/user-attachments/assets/28605079-847b-4353-a6bf-3f668829ff97">
+  <td align="center">
+    <img width="360" alt="image" src="https://github.com/user-attachments/assets/28605079-847b-4353-a6bf-3f668829ff97">
   </td>
   </tr>
 
   <tr>
   <td colspan="2" align="center">
-  A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.
+  <b>A proof should be read "towards the middle".</b><br/>
+  So, hypotheses should be read from top to bottom; and goals should be read bottom up.
 
   </td>
   </tr>
 
   <tr>
-  <td>    
-  <img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
+  <td align="center">    
+    <img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
 
   </td>
-  <td>
-    <img width="366" alt="image" src="https://github.com/user-attachments/assets/449def47-ce8c-4ed0-835e-02f16d0676b0">
+  <td align="center">
+    <img width="366" alt="image" src="https://github.com/user-attachments/assets/2899b1fd-063b-4612-8f54-ecb972ab70cd">
   </td>
   </tr>
 
   
   <tr>
   <td colspan="2" align="center">
-  To zoom in on a particular dark box, you can click on it.<br/>
+  <b>To zoom in on a particular dark box, you can click on it.</b><br/>
   <i>Hint: these boxes represent variable scopes. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider these boxes a visual hint that will eventually become second nature.</i>
   </td>
   </tr>
@@ -407,7 +408,7 @@ Below, you will see a table with the main features of Paperproof.
   <tr>
   <td>
   </td>
-  <td>
+  <td align="center">
     <img width="332" alt="Screenshot 2024-08-26 at 13 58 30" src="https://github.com/user-attachments/assets/02deceff-f482-4897-af5c-4f7223b8bafb">
   </td>
   </tr>
@@ -417,16 +418,18 @@ Below, you will see a table with the main features of Paperproof.
 
   <tr>
   <td colspan="2" align="center">
-  Nodes becomes transparent when they are not in scope.<br/>
+  <b>Nodes becomes transparent when they are not in scope.</b><br/>
   So, an opaque red node represents a currently focused goal, and opaque green nodes represent currently available hypotheses.<br/>  
   </td>
   </tr>
 
   <tr>
-  <td>
+  <td align="center">
+    <img width="151" alt="image" src="https://github.com/user-attachments/assets/d4b2e7cb-b3bd-4e03-b005-7af3b8e9ed70">
+
   </td>
-  <td>
-    <img width="446" alt="image" src="https://github.com/user-attachments/assets/cf8ccdf1-29d3-4648-91ee-a6c9889289c2">
+  <td align="center">
+    <img width="360" alt="image" src="https://github.com/user-attachments/assets/cf8ccdf1-29d3-4648-91ee-a6c9889289c2">
   </td>
   </tr>
 
