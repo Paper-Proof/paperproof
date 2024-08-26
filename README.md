@@ -372,10 +372,10 @@ Below, you will see a table with the main features of Paperproof.
 
   <tr>
   <td>
-  <img width="204" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/afc8000f-ad15-4ed4-b1fa-6740745895c6">
+    <img width="204" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/afc8000f-ad15-4ed4-b1fa-6740745895c6">
   </td>
   <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/287cf8e6-beeb-42a5-be5f-46eda9e956bd">
+    <img width="447" alt="image" src="https://github.com/user-attachments/assets/28605079-847b-4353-a6bf-3f668829ff97">
   </td>
   </tr>
 
@@ -387,19 +387,38 @@ Below, you will see a table with the main features of Paperproof.
   </tr>
 
   <tr>
-  <td>
-    
+  <td>    
   <img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
 
   </td>
   <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/066bb876-e7d6-4980-a725-8fe82666b5e1">
+    <img width="366" alt="image" src="https://github.com/user-attachments/assets/449def47-ce8c-4ed0-835e-02f16d0676b0">
   </td>
   </tr>
+
+  
+  <tr>
+  <td colspan="2" align="center">
+  To zoom in on a particular dark box, you can click on it.<br/>
+  <i>Hint: these boxes represent variable scopes. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider these boxes a visual hint that will eventually become second nature.</i>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  </td>
+  <td>
+    <img width="332" alt="Screenshot 2024-08-26 at 13 58 30" src="https://github.com/user-attachments/assets/02deceff-f482-4897-af5c-4f7223b8bafb">
+  </td>
+  </tr>
+
+
+  
 
   <tr>
   <td colspan="2" align="center">
-  If you dragged tactic/goal/hypothesis nodes around, you would see arrows; however we stack these nodes on top of each other and collapse these arrows into invisible "0-length" arrows for cleaner UI.
+  Nodes becomes transparent when they are not in scope.<br/>
+  So, an opaque red node represents a currently focused goal, and opaque green nodes represent currently available hypotheses.<br/>  
   </td>
   </tr>
 
@@ -407,40 +426,10 @@ Below, you will see a table with the main features of Paperproof.
   <td>
   </td>
   <td>
-  <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a5a45209-8822-463c-b942-b395578089e9">
-
+    <img width="446" alt="image" src="https://github.com/user-attachments/assets/cf8ccdf1-29d3-4648-91ee-a6c9889289c2">
   </td>
   </tr>
 
-  <tr>
-  <td colspan="2" align="center">
-  Opaque nodes represent a focused goal, and currently available hypotheses.<br/>  
-  In general - slightly darker backgrounds denote variable scopes - you can only use hypotheses that are in or outside of your scope box, you can never dive into another box. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider backgrounds a visual hint that will eventually become second nature.
-  </td>
-  </tr>
-
-  <tr>
-  <td>
-  </td>
-  <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/01251e80-6c43-40d2-9439-1f967d978586">
-
-  </td>
-  </tr>
-
-  <tr>
-  <td colspan="2" align="center">
-  To zoom in on a particular dark box, you can click on it.
-  </td>
-  </tr>
-
-  <tr>
-  <td>
-  </td>
-  <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/5408a108-f754-45d7-b4ad-819e4930bc5e">
-  </td>
-  </tr>
   </tbody>
   </table>
 </details>
