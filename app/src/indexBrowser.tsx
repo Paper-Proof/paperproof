@@ -105,9 +105,16 @@ function Main() {
     const leanRpcVersion = proofResponse.version ?? 1;
     const desiredLeanRpcVersion = 2;
     if (leanRpcVersion !== desiredLeanRpcVersion) {
-      setSnackbarMessage(`Incompatible versions of vscode extension and Lean library detected.
-        Please run "lake update Paperproof" to update the libary.
-        Reload vscode window to update the extension.`);
+      setSnackbarMessage(`
+        Your <b>Paperproof vscode extension</b> has version ${desiredLeanRpcVersion}, and <br/>
+        your <b>Paperproof Lean library</b> has version ${leanRpcVersion}.<br/><br/>
+        For Paperproof to work well, these versions must match.
+        <br/>
+        Please run <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">lake update Paperproof</span> to uprade the <b>Paperproof Lean library</b>.
+        <br/><br/>
+
+        <i style="color: #9d9d9e;">Explanation: these versions are independent from the paperproof vscode extension version numbers. We update these versions rather rarely, only when we update the response from our lean library in a manner incompatible with the way our vscode extension handles it.</i>
+      `)
       setSnackbarOpen(true);
       return;
     } 
