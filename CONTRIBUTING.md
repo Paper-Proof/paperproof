@@ -40,7 +40,7 @@ If you change something in the `/extension` folder, run
 
 ```shell
 cd extension
-vsce package --out paperproof.vsix
+vsce package --out paperproof.vsix --no-yarn
 code --uninstall-extension paperproof.paperproof || true
 code --install-extension paperproof.vsix
 ```
@@ -72,7 +72,7 @@ You will need the Personal Access Token for the paperproof organisation to do th
 2. Build and publish
 
 ```shell
-vsce publish patch
+vsce publish patch --no-yarn
 ```
 
 This will autoincrement the `/extension/package.json` version, and publish the extension on https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof.
