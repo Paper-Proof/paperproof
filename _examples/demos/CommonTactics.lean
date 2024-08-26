@@ -15,6 +15,12 @@ theorem intro : ∀ (N : ℕ), ∃ M, N + N = M := by
 theorem rw (a b : ℕ) (h1: a = b) : (10 * a = 666) := by
   rw [h1]
 
+theorem by_contra_ (m : ℕ) : 2 ≤ m := by
+  by_contra h
+
+theorem use : ∃ x : Nat, x = 5 := by
+  use 42
+
 theorem induction (n : ℕ) : Nat.mul 0 n = 0 := by
   induction' n with k ih
 
@@ -26,13 +32,7 @@ theorem casesOr (A B C : Prop) (h : A ∨ B) : C := by
   cases' h with a b
 inductive Random where
   | hi : ℕ → String → Random
-  | hello : (2 + 2 = 4) → Random 
+  | hello : (2 + 2 = 4) → Random
   | wow : Random
 theorem casesRandom (C: Prop) (h : Random) : C := by
   cases' h with a b c
-
-theorem by_contra_ (m : ℕ) : 2 ≤ m := by
-  by_contra h
-
-theorem use : ∃ x : Nat, x = 5 := by
-  use 42
