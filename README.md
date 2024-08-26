@@ -54,7 +54,7 @@ theorem apply (a b: ℝ) : a = b := by
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="232" alt="image" src="https://github.com/user-attachments/assets/eb183244-22e8-4219-9566-54edf4a590ce">
   </td>
   </tr>
@@ -73,7 +73,7 @@ theorem have (a b: ℝ)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="232" alt="image" src="https://github.com/user-attachments/assets/162205b8-4c43-4c8e-967d-cd942197c6c5">
   </td>
   </tr>
@@ -93,7 +93,7 @@ theorem intro
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="232" alt="image" src="https://github.com/user-attachments/assets/9b465827-6f49-4be6-a7fe-7126165c9b2b">
   </td>
   </tr>
@@ -113,7 +113,7 @@ theorem rw (a b: ℕ)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="232" alt="image" src="https://github.com/user-attachments/assets/f12799fe-4bbc-48a1-9441-859d814b7512">
   </td>
   </tr>
@@ -133,7 +133,7 @@ theorem by_contra (m: ℕ)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="232" alt="image" src="https://github.com/user-attachments/assets/0274d202-b64c-4bb0-959a-565713ba0140">
   </td>
   </tr>
@@ -153,7 +153,7 @@ theorem use
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="232" alt="image" src="https://github.com/user-attachments/assets/eecfec7b-9610-4fee-a9dc-51a6a95dd5f9">
   </td>
   </tr>
@@ -173,7 +173,7 @@ theorem induction (n: ℕ)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="408" alt="image" src="https://github.com/user-attachments/assets/0f2c746c-9940-4444-8f30-27185a4eb2bc">
   </td>
   </tr>
@@ -193,7 +193,7 @@ theorem casesN (n: ℕ)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="385" alt="image" src="https://github.com/user-attachments/assets/15ca7899-a77c-479a-90b9-1fd4159bb0b5">
   </td>
   </tr>
@@ -208,7 +208,7 @@ theorem casesAnd (A B C: Prop)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="217" alt="image" src="https://github.com/user-attachments/assets/077eae28-c1fc-4eb7-b9db-6e37e615e178">
   </td>
   </tr>
@@ -223,7 +223,7 @@ theorem casesOr (A B C: Prop)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="306" alt="image" src="https://github.com/user-attachments/assets/da0592e5-9db0-4548-b475-a0ae7945cd98">
   </td>
   </tr>
@@ -242,7 +242,7 @@ theorem casesRandom (C: Prop)
 ```
 
   </td>
-  <td>
+  <td align="center">
     <img width="410px" alt="image" src="https://github.com/user-attachments/assets/ba2d3dd0-06c7-42ae-b409-67f343ee97b2">
   </td>
   </tr>
