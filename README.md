@@ -5,14 +5,24 @@ A new proof interface for Lean 4.
 </h2>
 
 <div align="center">
-  <img width="900" alt="Paperproof vscode" src="https://github.com/Paper-Proof/paperproof/assets/7578559/75b98ac2-51e0-4894-b725-1d80c790c4ff">
+  <img width="900" alt="Paperproof vscode" src="https://github.com/user-attachments/assets/08c4438a-c940-4dc4-92e8-cd82be4af32a">
 </div>
+
+<div align="center">
+  <b>Try Paperproof online</b><br/>
+
+  <a href="https://codespaces.new/Paper-Proof/paperproof">
+    <img width="200" src="https://github.com/codespaces/badge.svg"/>
+  </a>
+    
+</div>
+<br/>
 
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Paper-Proof/paperproof)
 
-You will need to wait ~3-4 minutes for the codespace to be ready.
+
+---
 
 We created a few videos about Paperproof:
 
@@ -20,9 +30,10 @@ We created a few videos about Paperproof:
 - our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).
 - a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).
 
-Here you can read about Paperproof in context of other proof trees: [lakesare.brick.do/lean-coq-isabel-and-their-proof-trees](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
+And a few blog posts:
 
-And here you can read how Paperproof analyzes Lean's InfoTree to build the trees you see in the user interface: [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
+- Paperproof in context of other proof trees: [Evgenia's post link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
+- Technical blog post about how Paperproof analyzes Lean's `InfoTree` to build the trees you see in the user interface: [Anton's post link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
 
 In the following tables, you can see what tactics such as `apply`, `rw`, or `cases` look like in Paperproof; and how Paperproof renders real proofs from well-known repos.
 
@@ -54,8 +65,8 @@ theorem apply (a b: ℝ) : a = b := by
 ```
 
   </td>
-  <td>
-    <img width="222" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/bd4f02d1-a1d4-47b2-8c4f-44059a79c543">
+  <td align="center">
+    <img width="232" alt="image" src="https://github.com/user-attachments/assets/eb183244-22e8-4219-9566-54edf4a590ce">
   </td>
   </tr>
 
@@ -73,8 +84,8 @@ theorem have (a b: ℝ)
 ```
 
   </td>
-  <td>
-    <img width="378" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/4f28df15-f5ea-4a9c-982f-5d81945beb41">
+  <td align="center">
+    <img width="232" alt="image" src="https://github.com/user-attachments/assets/162205b8-4c43-4c8e-967d-cd942197c6c5">
   </td>
   </tr>
 
@@ -93,8 +104,8 @@ theorem intro
 ```
 
   </td>
-  <td>
-    <img width="275" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e1d862cf-0bd8-4705-9ed2-66c282f5a73d">
+  <td align="center">
+    <img width="232" alt="image" src="https://github.com/user-attachments/assets/9b465827-6f49-4be6-a7fe-7126165c9b2b">
   </td>
   </tr>
 
@@ -113,8 +124,8 @@ theorem rw (a b: ℕ)
 ```
 
   </td>
-  <td>
-    <img width="268" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cf57167c-b4ba-485b-8da2-e60af9f6b3ba">
+  <td align="center">
+    <img width="232" alt="image" src="https://github.com/user-attachments/assets/f12799fe-4bbc-48a1-9441-859d814b7512">
   </td>
   </tr>
 
@@ -133,8 +144,8 @@ theorem by_contra (m: ℕ)
 ```
 
   </td>
-  <td>
-    <img width="152" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2b5fc5bf-783b-4b31-9135-9c24bf3a9d28">
+  <td align="center">
+    <img width="232" alt="image" src="https://github.com/user-attachments/assets/0274d202-b64c-4bb0-959a-565713ba0140">
   </td>
   </tr>
 
@@ -153,8 +164,8 @@ theorem use
 ```
 
   </td>
-  <td>
-    <img width="148" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/e69ffe96-5bfa-4370-9c4c-bfbb2382e75d">
+  <td align="center">
+    <img width="232" alt="image" src="https://github.com/user-attachments/assets/eecfec7b-9610-4fee-a9dc-51a6a95dd5f9">
   </td>
   </tr>
 
@@ -173,8 +184,8 @@ theorem induction (n: ℕ)
 ```
 
   </td>
-  <td>
-    <img width="564" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/45365de6-b5a2-4643-8e8e-82d1bd80f966">
+  <td align="center">
+    <img width="408" alt="image" src="https://github.com/user-attachments/assets/0f2c746c-9940-4444-8f30-27185a4eb2bc">
   </td>
   </tr>
 
@@ -193,8 +204,8 @@ theorem casesN (n: ℕ)
 ```
 
   </td>
-  <td>
-    <img width="552" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/b88c9f0c-6ecd-4a78-828f-de84c433a429">
+  <td align="center">
+    <img width="385" alt="image" src="https://github.com/user-attachments/assets/15ca7899-a77c-479a-90b9-1fd4159bb0b5">
   </td>
   </tr>
   <tr></tr>
@@ -208,8 +219,8 @@ theorem casesAnd (A B C: Prop)
 ```
 
   </td>
-  <td>
-    <img width="485" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/ec146278-c298-43a3-b793-91b00cf7082c">
+  <td align="center">
+    <img width="217" alt="image" src="https://github.com/user-attachments/assets/077eae28-c1fc-4eb7-b9db-6e37e615e178">
   </td>
   </tr>
   <tr></tr>
@@ -223,8 +234,8 @@ theorem casesOr (A B C: Prop)
 ```
 
   </td>
-  <td>
-    <img width="431" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/d4e11a5f-32a5-463d-ad32-f874c098633b">
+  <td align="center">
+    <img width="306" alt="image" src="https://github.com/user-attachments/assets/da0592e5-9db0-4548-b475-a0ae7945cd98">
   </td>
   </tr>
   <tr></tr>
@@ -242,8 +253,8 @@ theorem casesRandom (C: Prop)
 ```
 
   </td>
-  <td>
-    <img width="546" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/cc95c055-4172-4c84-ac62-2f3515fe2383">
+  <td align="center">
+    <img width="410px" alt="image" src="https://github.com/user-attachments/assets/ba2d3dd0-06c7-42ae-b409-67f343ee97b2">
   </td>
   </tr>
 
@@ -269,8 +280,8 @@ theorem casesRandom (C: Prop)
   </td>
   </tr>
   <tr>
-  <td align="center">  
-    <img width="1358" alt="Mathematics in Lean - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/765bc84e-4d4c-417f-877e-48bc9a0abe1c">
+  <td align="center">
+    <img width="1136" alt="Mathematics in Lean - Paperproof" src="https://github.com/user-attachments/assets/432dd171-faf8-42c1-a4c2-4d5f62672ff1">
   </td>
   </tr>
 
@@ -283,7 +294,7 @@ theorem casesRandom (C: Prop)
   </tr>
   <tr>
   <td align="center">  
-    <img width="1278" alt="Mathlib - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2103c78e-be6d-46e6-b25d-86cbfb1a5fad">
+    <img width="1042" alt="Mathlib - Paperproof" src="https://github.com/user-attachments/assets/05a69569-3370-4f4e-b50b-aef7a41d50f5">
   </td>
   </tr>
 
@@ -297,7 +308,7 @@ theorem casesRandom (C: Prop)
   </tr>
   <tr>
   <td align="center">
-    <img width="1385" alt="Hitchhiker's Guide to Logical Verification - Paperproof" src="https://github.com/Paper-Proof/paperproof/assets/7578559/568e70e0-992e-4a65-a306-6c0693750fe8">
+    <img width="1207" alt="Hitchhiker's Guide to Logical Verification - Paperproof" src="https://github.com/user-attachments/assets/4b04b1a9-ddf9-4994-b9ca-a24611a3eb93">
   </td>
   </tr>
 
@@ -366,81 +377,73 @@ Below, you will see a table with the main features of Paperproof.
 
   <tr>
   <td colspan="2" align="center">
-  Hypotheses are displayed as green nodes, goals are displayed as red nodes, tactics are displayed as transparent nodes with dashed borders. 
+  <b>Hypotheses are displayed as green nodes, <br/>goals are displayed as red nodes,<br/>tactics are displayed as transparent nodes with dashed borders.</b> 
   </td>
   </tr>
 
   <tr>
-  <td>
-  <img width="204" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/afc8000f-ad15-4ed4-b1fa-6740745895c6">
+  <td align="center">
+    <img width="204" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/afc8000f-ad15-4ed4-b1fa-6740745895c6">
   </td>
-  <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/287cf8e6-beeb-42a5-be5f-46eda9e956bd">
-  </td>
-  </tr>
-
-  <tr>
-  <td colspan="2" align="center">
-  A proof should be read "towards the middle" - so, hypotheses should be read from top to bottom; and goals should be read bottom up.
-
-  </td>
-  </tr>
-
-  <tr>
-  <td>
-    
-  <img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
-
-  </td>
-  <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/066bb876-e7d6-4980-a725-8fe82666b5e1">
+  <td align="center">
+    <img width="360" alt="image" src="https://github.com/user-attachments/assets/28605079-847b-4353-a6bf-3f668829ff97">
   </td>
   </tr>
 
   <tr>
   <td colspan="2" align="center">
-  If you dragged tactic/goal/hypothesis nodes around, you would see arrows; however we stack these nodes on top of each other and collapse these arrows into invisible "0-length" arrows for cleaner UI.
+  <b>A proof should be read "towards the middle".</b><br/>
+  So, hypotheses should be read from top to bottom; and goals should be read bottom up.
+
+  </td>
+  </tr>
+
+  <tr>
+  <td align="center">    
+    <img width="308" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/2bd007e9-6fb3-4f32-a17d-d010af53a798">
+
+  </td>
+  <td align="center">
+    <img width="366" alt="image" src="https://github.com/user-attachments/assets/2899b1fd-063b-4612-8f54-ecb972ab70cd">
+  </td>
+  </tr>
+
+  
+  <tr>
+  <td colspan="2" align="center">
+  <b>To zoom in on a particular dark box, you can click on it.</b><br/>
+  <i>Hint: these boxes represent variable scopes. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider these boxes a visual hint that will eventually become second nature.</i>
   </td>
   </tr>
 
   <tr>
   <td>
   </td>
-  <td>
-  <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/a5a45209-8822-463c-b942-b395578089e9">
-
+  <td align="center">
+    <img width="332" alt="Screenshot 2024-08-26 at 13 58 30" src="https://github.com/user-attachments/assets/02deceff-f482-4897-af5c-4f7223b8bafb">
   </td>
   </tr>
+
+
+  
 
   <tr>
   <td colspan="2" align="center">
-  Opaque nodes represent a focused goal, and currently available hypotheses.<br/>  
-  In general - slightly darker backgrounds denote variable scopes - you can only use hypotheses that are in or outside of your scope box, you can never dive into another box. Don't overthink this however, we'll always highlight the available hypotheses as you're writing the proof, consider backgrounds a visual hint that will eventually become second nature.
+  <b>Nodes becomes transparent when they are not in scope.</b><br/>
+  So, an opaque red node represents a currently focused goal, and opaque green nodes represent currently available hypotheses.<br/>  
   </td>
   </tr>
 
   <tr>
-  <td>
-  </td>
-  <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/01251e80-6c43-40d2-9439-1f967d978586">
+  <td align="center">
+    <img width="151" alt="image" src="https://github.com/user-attachments/assets/d4b2e7cb-b3bd-4e03-b005-7af3b8e9ed70">
 
+  </td>
+  <td align="center">
+    <img width="360" alt="image" src="https://github.com/user-attachments/assets/cf8ccdf1-29d3-4648-91ee-a6c9889289c2">
   </td>
   </tr>
 
-  <tr>
-  <td colspan="2" align="center">
-  To zoom in on a particular dark box, you can click on it.
-  </td>
-  </tr>
-
-  <tr>
-  <td>
-  </td>
-  <td>
-    <img width="350" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/5408a108-f754-45d7-b4ad-819e4930bc5e">
-  </td>
-  </tr>
   </tbody>
   </table>
 </details>
