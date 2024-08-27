@@ -70,5 +70,5 @@
    "inputRev": "master",
    "inherited": false,
    "configFile": "lakefile.lean"}],
- "name": "examples",
+ "name": "Paperproof",
  "lakeDir": ".lake"}
