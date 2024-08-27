@@ -80,7 +80,7 @@ const ContextMenu = (props: Props) => {
       <Divider/>
 
       <MenuItem onClick={handleSettingToggle("isCompactMode")}>
-        <div className="text">Compact mode</div>
+        <div className="text">Compact horizontally</div>
         <Switch checked={settings.isCompactMode} size="small"/>
       </MenuItem>
 
