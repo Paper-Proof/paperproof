@@ -230,9 +230,11 @@ table.hypothesis-table + .goals{
 }
 
 .proof-tree.-isCompactModeON{
-  header, .box-insides{
-    padding-left: 0px;
-    padding-right: 0px;
+  #box-1 .child-boxes {
+    header, .box-insides{
+      padding-left: 0px;
+      padding-right: 0px;
+    }
   }
 }
 
