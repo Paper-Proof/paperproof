@@ -5,43 +5,31 @@ import Paperproof
 import Mathlib.Data.Real.Basic
 import Mathlib.Analysis.Calculus.Deriv.Basic
 import Mathlib.Tactic.Cases
-
+import Mathlib.Algebra.Order.Field.Basic
 -- This is a proof of "Figure 1: Spivak’s corollary and proof"
 
-theorem fake_mean_value_theorem
-  (f : ℝ → ℝ) (i1 i2 : ℝ) (h : i1 < i2) :
-  ∃ c ∈ Set.Icc i1 i2,
-    deriv f c = (f i2 - f i1) / (i2 - i1) := by
+theorem fake_mean_value_theorem {i1 i2 : ℝ} (f : ℝ → ℝ) (h : i1 < i2) : ∃ c ∈ Set.Icc i1 i2, deriv f c = (f i2 - f i1) / (i2 - i1) := by
   sorry
 
-theorem corollary_increasing_function (f : ℝ → ℝ) (i1 i2 : ℝ) (h : i1 < i2) :
+theorem interval_child { a b c i1 i2 : ℝ } (aInI: a ∈ Set.Icc i1 i2) (bInI: b ∈ Set.Icc i1 i2) (cInAB: c ∈ Set.Icc a b) : c ∈ Set.Icc i1 i2 := by
+  let abInI := Set.Icc_subset_Icc aInI.1 bInI.2
+  exact Set.mem_of_mem_of_subset cInAB abInI
+
+theorem posTop {n m : ℝ} (dPos: n > 0) (divPos: m / n > 0) : m > 0 := by
+  exact (div_pos_iff_of_pos_right dPos).mp divPos
+
+
+
+theorem corollary_increasing_function (f : ℝ → ℝ) (i1 i2 : ℝ) :
   (∀ x ∈ Set.Icc i1 i2, (deriv f x) > 0) →
   (∀ x ∈ Set.Icc i1 i2, ∀ y ∈ Set.Icc i1 i2, x < y → f x < f y) := by
   intros fact a aIn b bIn ab
 
-  let meanValueTheorem := fake_mean_value_theorem f a b ab
+  let meanValueTheorem := fake_mean_value_theorem f ab
   rcases meanValueTheorem with ⟨c, ⟨ cIn, derivEquals ⟩ ⟩
 
-  have cIn_i1_i2 : c ∈ Set.Icc i1 i2 := by
-    apply Set.mem_of_mem_of_subset cIn
-    exact Set.Icc_subset_Icc aIn.1 bIn.2
+  have derivPos := fact c (interval_child aIn bIn cIn)
 
-  have deriv_pos := fact c cIn_i1_i2
+  rw [derivEquals] at derivPos
 
-
-  rw [derivEquals] at deriv_pos
-
-  have ba_pos : 0 < b - a
-    := sub_pos.mpr ab
-
-  have sss := (div_pos_iff (a := f b - f a) (b := b - a)).mp deriv_pos
-
-  cases' sss with cool great
-  cases' cool with what how
-  exact sub_pos.mp what
-
-  cases' great with what how
-  let nnn := lt_asymm ba_pos
-  let fls := nnn how
-  exfalso
-  exact fls
+  exact lt_add_neg_iff_lt.mp (posTop (sub_pos.mpr ab) derivPos)
