@@ -6,7 +6,17 @@ import Mathlib.Data.Real.Basic
 import Mathlib.Analysis.Calculus.Deriv.Basic
 import Mathlib.Tactic.Cases
 import Mathlib.Algebra.Order.Field.Basic
--- This is a proof of "Figure 1: Spivak’s corollary and proof"
+
+/-
+This is a proof from "Figure 1: Spivak’s corollary and proof"
+from "How to write a 21st century Proof" by Leslie Lamport
+(https://lamport.azurewebsites.net/pubs/proof.pdf).
+
+Generally, we want to compare Paperpoof vs structured proofs,
+but I didn't get to it yet.
+
+For now, this shows how to convert natural language proofs into Paperproof notation.
+-/
 
 theorem fake_mean_value_theorem {i1 i2 : ℝ} (f : ℝ → ℝ) (h : i1 < i2) : ∃ c ∈ Set.Icc i1 i2, deriv f c = (f i2 - f i1) / (i2 - i1) := by
   sorry
@@ -18,8 +28,6 @@ theorem interval_child { a b c i1 i2 : ℝ } (aInI: a ∈ Set.Icc i1 i2) (bInI: 
 theorem posTop {n m : ℝ} (dPos: n > 0) (divPos: m / n > 0) : m > 0 := by
   exact (div_pos_iff_of_pos_right dPos).mp divPos
 
-
-
 theorem corollary_increasing_function (f : ℝ → ℝ) (i1 i2 : ℝ) :
   (∀ x ∈ Set.Icc i1 i2, (deriv f x) > 0) →
   (∀ x ∈ Set.Icc i1 i2, ∀ y ∈ Set.Icc i1 i2, x < y → f x < f y) := by
@@ -30,6 +38,8 @@ theorem corollary_increasing_function (f : ℝ → ℝ) (i1 i2 : ℝ) :
 
   have derivPos := fact c (interval_child aIn bIn cIn)
 
-  rw [derivEquals] at derivPos
+  have quotientPos : (f b - f a) / (b - a) > 0 := by
+    rw [derivEquals] at derivPos
+    exact derivPos
 
-  exact lt_add_neg_iff_lt.mp (posTop (sub_pos.mpr ab) derivPos)
+  exact lt_add_neg_iff_lt.mp (posTop (sub_pos.mpr ab) quotientPos)
