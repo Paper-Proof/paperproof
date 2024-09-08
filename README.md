@@ -448,17 +448,24 @@ Paperproof is a package that's usually only used during development, so you migh
 
 ## About Paperproof
 
+**Theoretical:**
 
-We created a few videos about Paperproof:
+- Paperproof ♥️ Semantic Tableaux: [link](https://lakesare.brick.do/paperproof-love-semantic-tableaux-G6rR2BxL5Eyl)
+- Paperproof ♥️ Natural Deduction: [link](https://lakesare.brick.do/paperproof-love-natural-deduction-3Mve6W8NgYRJ)
+- Paperproof ⚔️ Lean's _#explode_: [link](https://paperproof.brick.do/paperproof-lean-s-explode-Bab05XYMp21q)
+- Lean ⚔️ Coq ⚔️ Metamath ⚔️ Isabel proof trees: [link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV)
 
-- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ).
-- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM).
-- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc).
+**Practical:**
 
-And a few blog posts:
+- How to add my Lean repo to Github Codespaces: [link](https://lakesare.brick.do/how-to-add-my-lean-repo-to-github-codespaces-A13P6g7aYwgg)
+- Can Paperproof render proof terms: [link](https://paperproof.brick.do/can-paperproof-render-proof-terms-qm1NZZkazb21)
+- How to parse the _InfoTree_: [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree)
 
-- Paperproof in context of other proof trees: [Evgenia's post link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV).
-- Technical blog post about how Paperproof analyzes Lean's `InfoTree` to build the trees you see in the user interface: [Anton's post link](https://antonkov.github.io/posts/How-to-build-a-proof-tree/).
+**Videos:**
+
+- a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ)
+- our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM)
+- a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc)
 
 ## Development
 
