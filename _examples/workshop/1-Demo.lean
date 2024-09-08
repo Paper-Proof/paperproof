@@ -4,7 +4,7 @@ import Paperproof
 theorem commutativityOfIntersections
 (s t : Set Nat) : s ∩ t = t ∩ s := by
   ext x
-  apply Iff.intro
+  constructor
 
   intro h1
   rw [Set.mem_inter_iff, and_comm] at h1
