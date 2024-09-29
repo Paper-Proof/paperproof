@@ -337,6 +337,11 @@ theorem casesRandom (C: Prop)
 
    You can click on any theorem now (well, only tactic-based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
 
+> [!TIP]
+> If you get a build error when you try to build the paperproof package, please copypaste the error message and create the corresponding issue in Paperproof.
+> Lean updates its metaprogramming api frequently - we try to go along with it, and it's helpful when incompatibilities are discovered on time.   
+> The quickfix for any Paperproof build error is to use the Lean version mentioned in [Paperproof's lean-toolchain](https://github.com/Paper-Proof/paperproof/blob/main/lean-toolchain).
+
 ## Tutorial
 
 If you worked with formal proofs before, you might find Paperproof most similar to proof trees/Gentzen trees. The resemblance is not spurious, we can easily mimic Semantic Tableaux and Natural Deduction trees with Paperproof. All of these interfaces show "the history of a proof" - the way hypotheses and nodes were changing throughout the proof.
