@@ -312,24 +312,30 @@ theorem casesRandom (C: Prop)
 2. In your `lakefile.lean`, write:
 
    ```lean
+   -- if you are on a Lean version >= 4.12.0:
    require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
+   -- if you are on a Lean version <= 4.8.0:
+   require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"21e4ec999c23fc6181d6528cbaecb600a2db6851"/"lean"
    ```
 
-3. Then, in your terminal, run:
+   > Note: if you are on a Lean version in-between these two versions, one of these lines work.     
+
+4. Then, in your terminal, run:
 
    ```shell
    lake update Paperproof
    ```
 
-   _Note: if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`._
+   > Note:
+   > if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`.
 
-4. In a Lean file with your theorems, write:
+5. In a Lean file with your theorems, write:
 
    ```lean
    import Paperproof
    ```
 
-5. **You're done!**
+6. **You're done!**
 
    Now, click on the paperproof icon (after you installed the Paperproof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.
 
