@@ -36,9 +36,9 @@ structure ProofStep where
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
 
-def noInEdgeGoals (allGoals : HashSet GoalInfo) (steps : List ProofStep) : HashSet GoalInfo :=
+def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : Std.HashSet GoalInfo :=
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
-  (steps.bind stepGoalsAfter).foldl HashSet.erase allGoals
+  (steps.bind stepGoalsAfter).foldl Std.HashSet.erase allGoals
 
 /-
   Instead of doing parsing of what user wrote (it wouldn't work for linarith etc),
@@ -51,7 +51,7 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
     | return []
 
   -- Need to instantiate it to get all fvars
-  let fullExpr ← instantiateExprMVars expr |>.run
+  let fullExpr ← instantiateExprMVars expr
   let fvarIds := (collectFVars {} fullExpr).fvarIds
   let fvars := fvarIds.filterMap goalDecl.lctx.find?
   let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
@@ -108,7 +108,7 @@ def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : IO (List 
 
 structure Result where
   steps : List ProofStep
-  allGoals : HashSet GoalInfo
+  allGoals : Std.HashSet GoalInfo
 
 def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
@@ -166,7 +166,7 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
     let some ctx := i.updateContext? ctx
       | panic! "unexpected context node"
     let steps := res.map (fun r => r.steps) |>.join
-    let allSubGoals := HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
+    let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
       -- shortcut if it's not a tactic user wrote
       -- \n trim to avoid empty lines/comments until next tactic,
@@ -182,7 +182,7 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
       let allGoals := allSubGoals.insertMany $ currentGoals
       -- It's like tacticDependsOn but unnamed mvars instead of hyps.
       -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-      let orphanedGoals := currentGoals.foldl HashSet.erase (noInEdgeGoals allGoals steps)
+      let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
         |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
       let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
