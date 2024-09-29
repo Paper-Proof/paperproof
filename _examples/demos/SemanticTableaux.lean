@@ -1,43 +1,53 @@
-import Mathlib.Data.Nat.Prime
+import Mathlib.Data.Nat.Prime.Basic
 import Paperproof
 
 --------- SEMANTIC TABLEAUX: basic building blocks ---------
 
 theorem simpleAnd (X: Prop) (Y: Prop) (h: X ∧ Y) : False := by
   cases' h with h1 h2
+  all_goals sorry
 
 theorem simpleOr (X: Prop) (Y: Prop) (h: X ∨ Y) : False := by
   cases' h with h1 h2
+  all_goals sorry
 
 theorem simpleThen (X: Prop) (Y: Prop) (h: X → Y) : False := by
   rw [imp_iff_not_or] at h
   cases' h with h1 h2
+  all_goals sorry
 
 theorem simpleNotOr (X: Prop) (Y: Prop) (h: ¬(X ∨ Y)) : False := by
   rw [not_or] at h
   cases' h with h1 h2
+  sorry
 
 theorem simpleNotAnd (X: Prop) (Y: Prop) (h: ¬(X ∧ Y)) : False := by
   rw [not_and_or] at h
   cases' h with h1 h2
+  all_goals sorry
 
 theorem simpleNotThen (X: Prop) (Y: Prop) (h: ¬(X → Y)) : False := by
   rw [Classical.not_imp] at h
   cases' h with h1 h2
+  sorry
 
 theorem simpleForall {α : Type} (φ : α → Prop) (a : α) (h: ∀ x, φ x) : False := by
   let h1 := h a
+  sorry
 
 theorem simpleExists {α : Type} (φ : α → Prop) (h: ∃ x, φ x) : False := by
   cases' h with a h1
+  sorry
 
 theorem simpleNotExists {α : Type} (φ : α → Prop) (a : α) (h: ¬ ∃ x, φ x) : False := by
   rw [not_exists] at h
   let h1 := h a
+  sorry
 
 theorem simpleNotForall {α : Type} (φ : α → Prop) (h: ¬ ∀ x, φ x) : False := by
   rw [not_forall] at h
   cases' h with a h1
+  sorry
 
 --------- SEMANTIC TABLEAUX: full-fledged theorems ---------
 

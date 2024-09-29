@@ -1,17 +1,13 @@
-import Mathlib.Data.Nat.Prime
-import Mathlib.Data.Nat.Parity
+import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.List.Chain
 import Mathlib.Tactic.GCongr
--- import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
--- import Std.Data.Int.Basic
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Finset.Fold
 import Mathlib.Algebra.GCDMonoid.Multiset
+import Mathlib.Data.Real.Basic
 import Lean
 import Paperproof
-
-import Mathlib.Data.Real.Basic
 
 example (a b : ℝ) : min a b = min b a := by
   apply le_antisymm
@@ -27,25 +23,6 @@ example : (p = true) → p ∧ p := by
   all_goals {
     rw [h] at *
   }
-
--- InfoTree - goalsBefore with goalsAfter
--- focus [1, 2] -> [1]
--- done [] -> []
--- multi [1, 2] -> [3, 4]
-
--- We need to look mctxBefore, mctxAfter and see what was assigned
-
--- Not assigned in mctxBefore
--- $mvar1, $mvar2
---
--- but assigned in mctxAfter
--- mvar1 = f1 $mvar3
--- mvar2 = f4 $mvar4 $mvar5
-
--- [1, 2] -> [3,4]
-
--- 1 -> [3]
--- 2 -> [4, 5]
 
 
 -- localDecl
@@ -265,8 +242,7 @@ example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
   left
   exact hi p
   right
-
-
+  sorry
 
 example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
   ext x
@@ -275,6 +251,8 @@ example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
 
   rintro ⟨xs, xt⟩
   exact ⟨xt, xs⟩
+
+  sorry
 
 
 
@@ -500,17 +478,7 @@ theorem dojo4_uncombined (p q r : Prop) (hp : p)
 example (p q : Prop) (hq : q) : p ∨ q := by
   first | apply Or.inl; assumption | apply Or.inr; assumption
 
-
--- before
--- pqr: Prop
--- ⊢ p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r
-
--- after
--- pqr: Prop
--- ⊢ p ∧ (q ∨ r) → p ∧ q ∨ p ∧ r
--- pqr: Prop
--- ⊢ p ∧ q ∨ p ∧ r → p ∧ (q ∨ r)
-
 example (p q r: Prop) : p ∧ (q ∨ r) ↔ p ∧ q ∨ p ∧ r := by
   refine' ⟨_, fun h => _⟩
+  sorry
   sorry

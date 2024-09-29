@@ -59,6 +59,7 @@ elab "tactic_2" : tactic => do
 theorem gradual (p q : Prop) : p ∧ q ↔ q ∧ p := by
   tactic_1
   tactic_2
+  sorry
 
 
 variable (p q : Prop)
