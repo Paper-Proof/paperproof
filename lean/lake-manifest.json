@@ -1,1 +1,5 @@
-{"version": 5, "packagesDir": "lake-packages", "packages": []}
+{"version": "1.1.0",
+ "packagesDir": ".lake/packages",
+ "packages": [],
+ "name": "Paperproof",
+ "lakeDir": ".lake"}
