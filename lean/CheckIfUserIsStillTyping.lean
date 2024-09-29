@@ -25,7 +25,7 @@ def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Positio
     if isSyntaxError then
       throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
 
-    for (msg : Message) in snap.msgLog.msgs do
+    for (msg : Message) in MessageLog.toList snap.msgLog do
       let messageHappened := text.leanPosToLspPos msg.pos
       if messageHappened.line >= snapBegins.line then
         -- Happens in these cases:
