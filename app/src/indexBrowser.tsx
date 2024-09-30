@@ -170,34 +170,36 @@ function Main() {
     setUIVersion((UIVersion) => UIVersion + 1);
   }
 
-  React.useLayoutEffect(() => {
-    if (!converted || !converted.highlights) {
-      return;
-    }
+  // Evgenia: I commented this out, because it doesn't actually work very well - and it even tends to prevent me from seeing the proof tree.
+  //
+  // React.useLayoutEffect(() => {
+  //   if (!converted || !converted.highlights) {
+  //     return;
+  //   }
 
-    const highlightedHypEls = converted.highlights.hypIds
-      .map((hypId) => document.getElementById(`hypothesis-${hypId}`))
-      .filter((hypEl) => hypEl) as HTMLElement[];
+  //   const highlightedHypEls = converted.highlights.hypIds
+  //     .map((hypId) => document.getElementById(`hypothesis-${hypId}`))
+  //     .filter((hypEl) => hypEl) as HTMLElement[];
 
-    const observer = new IntersectionObserver((entries) => {
-      setIdsOutsideViewport((outsiderIds) => {
-        let newIdsOutsideViewport = [...outsiderIds];
-        entries.forEach((entry) => {
-          const hypId = entry.target.id.replace('hypothesis-', '');
-          if (outsiderIds.includes(hypId) && entry.isIntersecting) {
-            newIdsOutsideViewport = newIdsOutsideViewport.filter((id) => id !== hypId);
-          } else if (!outsiderIds.includes(hypId) && !entry.isIntersecting) {
-            newIdsOutsideViewport.push(hypId);
-          }
-        });
-        return newIdsOutsideViewport;
-      });
-    }, { threshold: 1.0 });
+  //   const observer = new IntersectionObserver((entries) => {
+  //     setIdsOutsideViewport((outsiderIds) => {
+  //       let newIdsOutsideViewport = [...outsiderIds];
+  //       entries.forEach((entry) => {
+  //         const hypId = entry.target.id.replace('hypothesis-', '');
+  //         if (outsiderIds.includes(hypId) && entry.isIntersecting) {
+  //           newIdsOutsideViewport = newIdsOutsideViewport.filter((id) => id !== hypId);
+  //         } else if (!outsiderIds.includes(hypId) && !entry.isIntersecting) {
+  //           newIdsOutsideViewport.push(hypId);
+  //         }
+  //       });
+  //       return newIdsOutsideViewport;
+  //     });
+  //   }, { threshold: 1.0 });
 
-    highlightedHypEls.forEach((hypEl) => observer.observe(hypEl));
+  //   highlightedHypEls.forEach((hypEl) => observer.observe(hypEl));
 
-    return () => { observer.disconnect() };
-  }, [converted]);
+  //   return () => { observer.disconnect() };
+  // }, [converted]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
