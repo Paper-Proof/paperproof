@@ -318,7 +318,7 @@ theorem casesRandom (C: Prop)
    require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"21e4ec999c23fc6181d6528cbaecb600a2db6851"/"lean"
    ```
 
-   > Note: if you are on a Lean version in-between these two versions, one of these lines work.     
+   > Note: if you are on a Lean version in-between these two versions, one of these lines should work.     
 
 4. Then, in your terminal, run:
 
