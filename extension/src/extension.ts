@@ -24,15 +24,22 @@ export function activate(context: vscode.ExtensionContext) {
   // Sending types to the server on cursor changes.
   // We use a `cancellationToken` to make sure only the last request gets through.
   let cancellationToken: vscode.CancellationTokenSource | null = null;
-  vscode.window.onDidChangeActiveTextEditor((textEditor) => {
+
+  const handle = (textEditor: vscode.TextEditor | undefined) => {
+    // Our parser is expensive - don't run it unless the Papeproof panel is open
+    // (see https://github.com/Paper-Proof/paperproof/issues/51#issuecomment-2408463605)
+    if (!shared.webviewPanel) { return; }
+
     if (cancellationToken) { cancellationToken.cancel(); }
     cancellationToken = new vscode.CancellationTokenSource();
     sendPosition(shared, textEditor, cancellationToken.token);
+  };
+
+  vscode.window.onDidChangeActiveTextEditor((textEditor) => {
+    handle(textEditor);
   });
   vscode.window.onDidChangeTextEditorSelection((event) => {
-    if (cancellationToken) { cancellationToken.cancel(); }
-    cancellationToken = new vscode.CancellationTokenSource();
-    sendPosition(shared, event.textEditor, cancellationToken.token);
+    handle(event.textEditor);
   });
 
   context.subscriptions.push(
