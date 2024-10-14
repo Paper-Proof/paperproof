@@ -58,8 +58,13 @@ const BoxEl = (props: MyProps) => {
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
-    localStorage.setItem('zoomedBoxId', props.box.id);
-    zoomToBox(props.box.id);
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      // If user just wanted to copypaste some text, don't zoom in
+    } else {
+      localStorage.setItem('zoomedBoxId', props.box.id);
+      zoomToBox(props.box.id);
+    }
   }
 
   const { collapsedBoxIds } = useGlobalContext();
@@ -74,7 +79,7 @@ const BoxEl = (props: MyProps) => {
   return <section
     className="box"
     id={`box-${props.box.id}`}
-    onClick={onClick}
+    onMouseUp={onClick}
     onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
   >
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
