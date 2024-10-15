@@ -93,7 +93,10 @@ const BoxEl = (props: MyProps) => {
       <Header row1Hyps={tableWithHeader?.row1Hyps} headerInfo={headerInfo}/>
     }
 
-    {!isCollapsed &&
+    {isCollapsed ?
+      <div className="box-insides">
+        <GoalNode goalNode={props.box.goalNodes[0]}/>
+      </div> :
       <div className="box-insides">
         <Hypotheses hypTables={props.box.hypTables}/>
 
