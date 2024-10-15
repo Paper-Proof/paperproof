@@ -57,14 +57,18 @@ const BoxEl = (props: MyProps) => {
   const childrenBoxes = proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
     const selection = window.getSelection();
-    if (selection && selection.toString().length > 0) {
-      // If user just wanted to copypaste some text, don't zoom in
-    } else {
-      localStorage.setItem('zoomedBoxId', props.box.id);
-      zoomToBox(props.box.id);
-    }
+    // If user just wants to copypaste some text, don't zoom in
+    const isUserIsCopypasting = selection && selection.toString().length > 0;
+    // Is user just wants to open a context menu, don't zoom in
+    const isThisRightClick = event.button === 2;
+    // Is user just wants to close the context menu, don't zoom in
+    const isContextMenuOpen = !!contextMenu
+    if (isUserIsCopypasting || isThisRightClick || isContextMenuOpen) return;
+
+    event.stopPropagation();
+    localStorage.setItem('zoomedBoxId', props.box.id);
+    zoomToBox(props.box.id);
   }
 
   const { collapsedBoxIds } = useGlobalContext();
