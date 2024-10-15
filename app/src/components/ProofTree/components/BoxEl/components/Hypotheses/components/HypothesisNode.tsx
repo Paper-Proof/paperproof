@@ -18,11 +18,23 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
 
   const isSearched = searchedHypIds.find((searchedId) => props.hypNode.id === searchedId)
 
+  const [isHidden, setIsHidden] = React.useState(false);
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.altKey) {
+      e.preventDefault();
+      setIsHidden(true);
+    }
+  };
+
+  if (isHidden) return null;
+
   return(
     <Search hypNode={props.hypNode}>
       <div
         id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
         className={`hypothesis -hint ${!highlights || highlights.hypIds.includes(props.hypNode.id) ? "" : "-faded"} ${props.hypNode.isProof} ${isSearched ? '-is-searched' : ''}`}
+        onClick={handleClick}
       >
         <Hint>{props.hypNode}</Hint>
         {name && <span className="name">{props.hypNode.name}</span>}
