@@ -6,7 +6,10 @@ import fetchLeanData from "./services/fetchLeanData";
 import shouldIgnoreEvent from "./services/shouldIgnoreEvent";
 import getLeanClient from "../../services/getLeanClient";
 
-const getResponseOrError = async (shared: Shared, tdp: TextDocumentPositionParams) => {
+export const getResponseOrError = async (
+  shared: Shared,
+  tdp: TextDocumentPositionParams
+) => {
   try {
     const leanClient = await getLeanClient(shared);
     const body = await fetchLeanData(shared.log, leanClient, tdp);
@@ -20,17 +23,28 @@ const getResponseOrError = async (shared: Shared, tdp: TextDocumentPositionParam
   }
 };
 
-const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefined, token: vscode.CancellationToken) => {
-  if (!editor || shouldIgnoreEvent(editor)) { return; };
+const sendPosition = async (
+  shared: Shared,
+  editor: vscode.TextEditor | undefined,
+  token: vscode.CancellationToken
+) => {
+  if (!editor || shouldIgnoreEvent(editor)) {
+    return;
+  }
 
   let tdp = {
     textDocument: { uri: editor.document.uri.toString() },
-    position: { line: editor.selection.active.line, character: editor.selection.active.character },
+    position: {
+      line: editor.selection.active.line,
+      character: editor.selection.active.character,
+    },
   };
   shared.log.appendLine(`\nText selection: ${JSON.stringify(tdp)}`);
 
   const body = await getResponseOrError(shared, tdp);
-  if (token.isCancellationRequested) { return; }
+  if (token.isCancellationRequested) {
+    return;
+  }
   shared.latestInfo = body;
   await shared.webviewPanel?.webview.postMessage(body);
 };
