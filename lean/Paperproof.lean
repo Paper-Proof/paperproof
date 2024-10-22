@@ -8,8 +8,12 @@ structure InputParams where
   pos : Lsp.Position
   deriving FromJson, ToJson
 
+structure OutputProofStep extends ProofStepBase where
+  lineNumber : Nat
+  deriving Inhabited, ToJson, FromJson
+
 structure OutputParams where
-  steps : List ProofStep
+  steps : List OutputProofStep
   version : Nat
   deriving Inhabited, FromJson, ToJson
 
@@ -19,6 +23,10 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
     checkIfUserIsStillTyping snap params.pos
 
     let parsedTree? ← BetterParser snap.infoTree
+
+    let doc ← readDoc
+    let text := doc.meta.text
+
     match parsedTree? with
     | none => throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
     | some parsedTree => do
@@ -26,6 +34,9 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
       if (parsedTree.steps.length == 0) then
         throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
       return {
-        steps := parsedTree.steps,
+        steps := parsedTree.steps.map fun s => {
+          s with
+          lineNumber := text.utf8PosToLspPos s.pos |>.line
+        },
         version := 2
       }

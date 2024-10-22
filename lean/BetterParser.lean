@@ -26,13 +26,16 @@ instance : BEq GoalInfo where
 instance : Hashable GoalInfo where
   hash g := hash g.id
 
-structure ProofStep where
+structure ProofStepBase where
   tacticString : String
   goalBefore : GoalInfo
   goalsAfter : List GoalInfo
   tacticDependsOn : List String
   spawnedGoals : List GoalInfo
   deriving Inhabited, ToJson, FromJson
+
+structure ProofStep extends ProofStepBase where
+  pos : String.Pos
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
 
@@ -191,6 +194,7 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
           none
         else
           some {
+            pos := tInfo.stx.getPos?.getD 0,
             tacticString,
             goalBefore,
             goalsAfter,
