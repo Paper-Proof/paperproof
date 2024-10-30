@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
         return [];
       }
 
-      return body.proofTree;
+      return body;
     },
   };
   vscode.languages.registerProofTreeProvider(["lean", "lean4"], provider);
