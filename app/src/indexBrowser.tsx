@@ -96,6 +96,9 @@ function Main() {
       } else if (proofResponse.error === 'zeroProofSteps') {
         setSnackbarMessage("Not within theorem");
         setSnackbarOpen(true);
+      } else if (proofResponse.error.startsWith('no snapshot found at')) {
+        setSnackbarMessage(`Not snapshot found. <br/>Is your cursor located after <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">#exit</span>?`);
+        setSnackbarOpen(true);
       } else {
         console.warn("We are not handling some error explicitly?", proofResponse);
       }
@@ -117,7 +120,7 @@ function Main() {
       `)
       setSnackbarOpen(true);
       return;
-    } 
+    }
 
     setSnackbarOpen(false);
 
