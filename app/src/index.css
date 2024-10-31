@@ -300,7 +300,7 @@ header{
   }
 
   &.-hoistAndPaddingBottomBig +.box-insides{
-    .hypothesis-table:first-child tr:nth-child(3) td{
+    > .hypothesis-table:first-child tr:nth-child(3) td{
       padding-top: 20px;
     }
   }
