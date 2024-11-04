@@ -60,7 +60,7 @@
         }
       }
     },
-    "icon": "./images/icon.png"
+    "icon": "./images/paper.png"
   },
   "scripts": {
     "vscode:prepublish": "yarn run build-app && yarn run package",
