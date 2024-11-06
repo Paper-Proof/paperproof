@@ -19,6 +19,22 @@ export function activate(context: vscode.ExtensionContext) {
       if (shared.webviewPanel) { shared.webviewPanel.dispose(); }
       toggleWebviewPanel(shared);
     }
+
+    // Send updated settings to webview
+    if (shared.webviewPanel && event.affectsConfiguration('paperproof')) {
+      const config = vscode.workspace.getConfiguration('paperproof');
+      const settings = {
+        isCompactMode    : config.get('isCompactMode'),
+        isCompactTactics : config.get('isCompactTactics'),
+        isReadonlyMode   : config.get('isReadonlyMode'),
+        isHiddenGoalNames: config.get('isHiddenGoalNames'),
+        isGreenHypotheses: config.get('isGreenHypotheses')
+      };
+      shared.webviewPanel.webview.postMessage({
+        type: 'from_extension:update_settings',
+        data: settings
+      });
+    }
   });
 
   // Sending types to the server on cursor changes.

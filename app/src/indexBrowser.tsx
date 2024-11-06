@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperProofWindow, ConvertedProofTree, Highlights, Arrow, HypNode } from "types";
+import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, HypNode, PaperproofAcquireVsCodeApi, Settings } from "types";
 import "./index.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
@@ -16,7 +16,12 @@ import HypothesisNode from "./components/ProofTree/components/BoxEl/components/H
 import zoomManually from "./services/zoomManually";
 
 // Allowing certain properties on window
-declare const window: PaperProofWindow;
+declare const window: PaperproofWindow;
+
+declare const acquireVsCodeApi: PaperproofAcquireVsCodeApi;
+
+// Get vscode API reference once
+const vscode = acquireVsCodeApi();
 
 interface GlobalContextType {
   UIVersion: number;
@@ -25,14 +30,8 @@ interface GlobalContextType {
   setCollapsedBoxIds: (x: string[]) => void;
   searchedHypIds: string[];
   setSearchedHypIds: (x: string[]) => void;
-  settings: {
-    isCompactMode: boolean;
-    isCompactTactics: boolean;
-    isReadonlyMode: boolean;
-    isHiddenGoalNames: boolean;
-    isGreenHypotheses: boolean;
-  };
-  setSettings: React.Dispatch<React.SetStateAction<GlobalContextType['settings']>>;
+  settings: Settings;
+  setSettings: (x: Settings) => void;
   proofTree: ConvertedProofTree;
   highlights: Highlights;
 }
@@ -62,16 +61,8 @@ function Main() {
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
-  const [settings, setSettings] = useState({
-    // compactness
-    isCompactMode: false,
-    isCompactTactics: false,
-    // clarity
-    isHiddenGoalNames: true,
-    isGreenHypotheses: true,
-    // other
-    isReadonlyMode: false,
-  });
+
+  const [settings, setSettings] = useState(window.initialSettings);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -143,17 +134,33 @@ function Main() {
     setIdsOutsideViewport([]);
   }
 
+  const updateSettings = (newSettings: Settings) => {
+    setSettings(newSettings);
+    vscode.postMessage({
+      type: 'from_webview:update_settings',
+      data: newSettings
+    });
+  };
+
   React.useEffect(() => {
     if (window.initialInfo) {
       const proofResponse : ProofResponse = window.initialInfo;
       updateUI(proofResponse);
     }
 
-    addEventListener("message", (event) => {
-      const proofResponse : ProofResponse = event.data as ProofResponse;
-      updateUI(proofResponse);
-    });
-  }, [])
+    const updateFromVscode = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.type === 'from_extension:update_settings') {
+        setSettings(message.data);
+      } else if (message.type === 'from_extension:sendPosition') {
+        const proofResponse : ProofResponse = message.data;
+        updateUI(proofResponse);
+      }
+    };
+
+    addEventListener('message', updateFromVscode);
+    return () => removeEventListener('message', updateFromVscode);
+  }, []);
 
   React.useLayoutEffect(() => {
     if (!converted) return;
@@ -243,7 +250,7 @@ function Main() {
           UIVersion, refreshUI,
           collapsedBoxIds, setCollapsedBoxIds,
           searchedHypIds,  setSearchedHypIds,
-          settings,        setSettings,
+          settings,        setSettings: updateSettings,
 
           proofTree: converted.proofTree,
           highlights: converted.highlights,

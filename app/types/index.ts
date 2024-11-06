@@ -31,9 +31,27 @@ export interface ValidProofResponse {
 
 export type ProofResponse = ValidProofResponse | { error: any };
 
-export interface PaperProofWindow extends Window {
-  initialInfo: ProofResponse | null;
+export interface Settings {
+  isCompactMode    : boolean;
+  isCompactTactics : boolean;
+  isReadonlyMode   : boolean;
+  isHiddenGoalNames: boolean;
+  isGreenHypotheses: boolean;
 }
+
+export interface PaperproofWindow extends Window {
+  initialInfo: ProofResponse | null;
+  initialSettings: Settings
+}
+
+export type PaperproofAcquireVsCodeApi = () => {
+  postMessage: (message: {
+    type: 'from_webview:update_settings';
+    data: Settings;
+  }) => void;
+  getState: () => unknown;
+  setState: (newState: unknown) => void;
+};
 
 // These are our /new types
 type Highlights = HighlightsBody | null;

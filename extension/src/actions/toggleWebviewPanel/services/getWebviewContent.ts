@@ -15,6 +15,15 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, in
     css = "http://localhost:80/indexBrowser.css";
   }
 
+  const config = vscode.workspace.getConfiguration('paperproof');
+  const initialSettings = {
+    isCompactMode    : config.get('isCompactMode'),
+    isCompactTactics : config.get('isCompactTactics'),
+    isReadonlyMode   : config.get('isReadonlyMode'),
+    isHiddenGoalNames: config.get('isHiddenGoalNames'),
+    isGreenHypotheses: config.get('isGreenHypotheses'),
+  };
+
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -27,6 +36,7 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, in
     <body>
       <script>
         window.initialInfo = ${JSON.stringify(initialInfo)};
+        window.initialSettings = ${JSON.stringify(initialSettings)};
       </script>
       <div id="root"></div>
       <script src="${js}"></script>

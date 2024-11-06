@@ -57,6 +57,31 @@
             "production",
             "development"
           ]
+        },
+        "paperproof.isCompactMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable compact mode for proof display"
+        },
+        "paperproof.isCompactTactics": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable compact tactics display"
+        },
+        "paperproof.isReadonlyMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable read-only mode"
+        },
+        "paperproof.isHiddenGoalNames": {
+          "type": "boolean",
+          "default": true,
+          "description": "Hide goal names"
+        },
+        "paperproof.isGreenHypotheses": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use green color for hypotheses"
         }
       }
     },

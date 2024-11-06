@@ -3,7 +3,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Switch } from "@mui/material";
 import { useGlobalContext } from "src/indexBrowser";
-import { Box, ContextMenuType } from "types";
+import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
 
 interface Props {
@@ -19,7 +19,7 @@ const ContextMenu = (props: Props) => {
     settings,        setSettings
   } = useGlobalContext();
 
-  const handleSettingToggle = (settingKey: keyof typeof settings) => (event: React.MouseEvent) => {
+  const handleSettingToggle = (settingKey: keyof Settings) => (event: React.MouseEvent) => {
     event.stopPropagation();
     setSettings({ ...settings, [settingKey]: !settings[settingKey] });
     refreshUI();
