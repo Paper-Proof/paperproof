@@ -1,4 +1,4 @@
-import { ConvertedProofTree, Tactic, TabledHyp, Box, HypNode, Table, DataRow, HypLayer } from "types";
+import { ConvertedProofTree, Tactic, TabledHyp, Box, HypNode, Table, HypLayer } from "types";
 
 const getDirectChildHypsInThisBox = (proofTree: ConvertedProofTree, hypLayers: Box['hypLayers'], hypNodeId: string) : string[] => {
   for (const hypLayer of hypLayers) {

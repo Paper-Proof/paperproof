@@ -15,7 +15,6 @@ import {
   TabledTactic,
   TabledCell,
   Table,
-  DataRow,
   HypLayer
 } from "./ConvertedProofTree";
 import { ContextMenuType } from "./Mui";
@@ -69,7 +68,6 @@ export {
   TabledTactic,
   TabledCell,
   Table,
-  DataRow,
   Point,
   Arrow,
   HypLayer,
