@@ -29,11 +29,13 @@ const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefine
   };
   shared.log.appendLine(`\nText selection: ${JSON.stringify(tdp)}`);
 
+  shared.webviewPanel?.webview.postMessage({
+    type: 'from_extension:start_loading'
+  });
   const body = await getResponseOrError(shared, tdp);
   if (token.isCancellationRequested) { return; }
   shared.latestInfo = body;
-  if (!shared.webviewPanel) { return; }
-  await shared.webviewPanel.webview.postMessage({
+  await shared.webviewPanel?.webview.postMessage({
     type: 'from_extension:sendPosition',
     data: body
   });

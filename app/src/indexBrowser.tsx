@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
 import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, HypNode, PaperproofAcquireVsCodeApi, Settings } from "types";
 import "./index.css";
+import "./css/coin-loading-icon.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./services/getHighlights";
@@ -55,6 +56,8 @@ interface Converted {
 
 function Main() {
   const [converted, setConverted] = useState<Converted | null>(null);
+
+  const [loadingAfterClick, setLoadingAfterClick] = useState<Boolean>(false);
 
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
   const [UIVersion, setUIVersion] = useState<number>(1);
@@ -153,8 +156,11 @@ function Main() {
       if (message.type === 'from_extension:update_settings') {
         setSettings(message.data);
       } else if (message.type === 'from_extension:sendPosition') {
+        setLoadingAfterClick(false)
         const proofResponse : ProofResponse = message.data;
         updateUI(proofResponse);
+      } else if (message.type === 'from_extension:start_loading') {
+        setLoadingAfterClick(true)
       }
     };
 
@@ -286,6 +292,10 @@ function Main() {
       message={snackbarMessage && <div dangerouslySetInnerHTML={{ __html: snackbarMessage }}/>}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     />
+    {
+      loadingAfterClick &&
+      <div className="coin-loading-icon"><div></div></div>
+    }
   </>
 }
 

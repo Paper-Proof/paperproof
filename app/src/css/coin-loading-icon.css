@@ -1,0 +1,38 @@
+.coin-loading-icon{
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+
+.coin-loading-icon,
+.coin-loading-icon div {
+  box-sizing: border-box;
+}
+.coin-loading-icon {
+  display: inline-block;
+  transform: translateZ(1px);
+}
+.coin-loading-icon > div {
+  display: inline-block;
+  margin: 8px;
+  background: var(--vscode-activityBar-activeBorder);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  animation: coin-loading-icon 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+@keyframes coin-loading-icon {
+  0%, 100% {
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(1800deg);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  100% {
+    transform: rotateY(3600deg);
+  }
+}
