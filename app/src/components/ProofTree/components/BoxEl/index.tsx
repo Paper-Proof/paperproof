@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, Tactic, ContextMenuType } from "types";
+import { ConvertedProofTree, Box, Tactic, ContextMenuType, Highlights } from "types";
 import Hypotheses from "./components/Hypotheses";
 
 import zoomToBox from 'src/services/zoomToBox';
@@ -23,6 +23,19 @@ const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tact
   const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
 
   return goalTactic || successTactic;
+}
+
+const isBoxSorried = (proofTree: ConvertedProofTree, box: Box, highlights: Highlights) : boolean => {
+  const sorryTactic = proofTree.tactics.find((tactic) =>
+    tactic.successGoalId &&
+    box.goalNodes.find((n) => n.id === tactic.successGoalId && n.id !== highlights?.goalId) &&
+    tactic.text === 'sorry'
+  );
+  const childrenBoxSorried = proofTree.boxes
+    .filter((child) => child.parentId === box.id)
+    .find((child) => isBoxSorried(proofTree, child, highlights))
+
+  return !childrenBoxSorried && !!sorryTactic
 }
 
 interface HeaderYes {
@@ -52,7 +65,7 @@ const getHeader = (box: Box): HeaderInfo => {
 
 const BoxEl = (props: MyProps) => {
   const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
-  const { proofTree } = useGlobalContext();
+  const { proofTree, highlights } = useGlobalContext();
 
   const childrenBoxes = proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
@@ -81,7 +94,7 @@ const BoxEl = (props: MyProps) => {
   const headerInfo = getHeader(props.box)
 
   return <section
-    className="box"
+    className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
     onMouseUp={onClick}
     onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
@@ -111,11 +124,7 @@ const BoxEl = (props: MyProps) => {
 
         {props.box.goalNodes.slice().reverse().map((goalNode) =>
           <div className="goals" key={goalNode.id}>
-            {
-              getGoalTactic(proofTree, goalNode.id) ?
-                <TacticNode tactic={getGoalTactic(proofTree, goalNode.id)!}/> :
-                <div className="tactic -ellipsis">...</div>
-            }
+            <TacticNode isActiveGoal={highlights?.goalId === goalNode.id} tactic={getGoalTactic(proofTree, goalNode.id)}/>
             <GoalNode goalNode={goalNode}/>
           </div>
         )}

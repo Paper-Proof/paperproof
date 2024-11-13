@@ -1,3 +1,17 @@
+
+.active-tactic{
+  text-align: center;
+}
+.active-tactic img{
+  width: 40px;
+  margin-bottom: 10px;
+}
+
+.box.-sorried{
+  background: red;
+}
+
+
 /*______________________ BODY: prettiness ______________________*/
 body *{
   box-sizing: border-box;
