@@ -10,6 +10,7 @@
   "author": "Anton Kovsharov, Evgenia Karunus",
   "license": "MIT",
   "devDependencies": {
+    "@types/react": "^19.0.6",
     "@types/react-dom": "^18.2.18",
     "cors": "^2.8.5",
     "esbuild": "^0.19.8",
