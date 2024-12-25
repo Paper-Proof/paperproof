@@ -309,7 +309,17 @@ theorem casesRandom (C: Prop)
 
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
-2. In your `lakefile.lean`, write:
+2. In your `lakefile.toml`, write:
+   
+   ```lean
+   [[require]]
+   name = "Paperproof"
+   git = "https://github.com/Paper-Proof/paperproof.git"
+   subDir = "lean"
+   rev = "main"
+   ```
+
+   OR, if you use `lakefile.lean`, write:
 
    ```lean
    -- if you are on a Lean version >= 4.12.0:
