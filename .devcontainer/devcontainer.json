@@ -5,11 +5,14 @@
     "dockerfile": "Dockerfile"
   },
 
-  "onCreateCommand": "lake exe cache get!; lake build",
+  "onCreateCommand": "lake exe cache get!",
 
   "customizations": {
     "vscode": {
-      "extensions": ["leanprover.lean4@0.0.176", "paperproof.paperproof"]
+      "extensions": ["leanprover.lean4@0.0.176", "paperproof.paperproof"],
+      "settings": {
+        "lean4.automaticallyBuildDependencies": true
+      }
     },
     "codespaces": {
       "openFiles": ["_examples/demos/ForVideos.lean"]
