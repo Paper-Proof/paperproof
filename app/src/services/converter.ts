@@ -427,10 +427,16 @@ const postprocess = (pretty: ConvertedProofTree) => {
   return pretty;
 };
 
-const removeUniverseHypsFromTactic = (tactic: LeanTactic) => {
+// Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
+const removeParticularHypsFromTactic = (tactic: LeanTactic) => {
   [...tactic.goalsAfter, tactic.goalBefore, ...tactic.spawnedGoals].forEach(
     (goal) => {
-      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"));
+      // ___Why remove ".universe" hypotheses?
+      //    This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
+      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe") &&
+      // ___Why remove hypotheses with `✝` in the name?
+      //  This usually means we are not intersted in this hypothesis, it just takes up space. E.g., if we did `rcases h with ⟨_, m⟩`, then we'll get hypotheses `left✝` and `m`.
+      !hyp.username.includes('✝'))
     }
   );
 };
@@ -460,10 +466,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
     equivalentIds: {},
   };
 
-  // Remove all ".universe" hypotheses.
-  // This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
-  // Note: we don't remove corresponding .dependsOn arrows here - in general we treat `.dependsOn` arrows liberally, and determine if some hypNode is present just by seeing if that element exists on frontend.
-  leanProofTree.forEach(removeUniverseHypsFromTactic);
+  leanProofTree.forEach(removeParticularHypsFromTactic);
   leanProofTree = filterBacktrackingSteps(leanProofTree);
 
   // First of all, draw the INITIAL hypotheses and goal.
