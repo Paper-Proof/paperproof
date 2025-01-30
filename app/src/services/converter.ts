@@ -345,9 +345,8 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     );
     prettyHypArrows.push(...prettyHypArrowsForAChild);
 
-    const box =
-      goalsAfter.length > 1 ? createNewBox(pretty, currentBox.id) : currentBox;
-    if (!box.goalNodes.some((g) => g.text === goal.type)) {
+    const box = goalsAfter.length > 1 ? createNewBox(pretty, currentBox.id) : currentBox;
+    if (box.goalNodes[box.goalNodes.length - 1]?.text !== goal.type) {
       box.goalNodes.push({
         text: goal.type,
         name: goal.username,
@@ -360,7 +359,6 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
         hypNodes: prettyHypNodes,
       });
     }
-    // console.log("Pushed", box);
   }
 
   pretty.tactics.push({
