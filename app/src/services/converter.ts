@@ -288,7 +288,9 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
   const goalsAfter = [...tactic.goalsAfter];
   // 1. Draw goal nodes and arrows
   const prettyGoalArrows = [];
+  let byBoxIds: string[] = [];
   let haveBoxIds: string[] = [];
+  // CASE_1: this is likely a `have` tactic, so `spawnedGoals` are `have` boxes
   if (goalsAfter.length === 1 && goalsAfter[0].type === goalBefore.type) {
     // Sometimes the goal id changes but the type doesn't! Example: `let M := Nat.factorial N + 1; let p := Nat.minFac M`.
     // Future tactics will be referencing that id! So we mark it as equivalent to other goal ids.
@@ -305,10 +307,25 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
       });
       return newBox;
     });
-    haveBoxIds = boxes.map((w) => w.id);
+    haveBoxIds = boxes.map((b) => b.id);
   } else {
-    // Put spawnedGoals into tactic.
-    goalsAfter.push(...tactic.spawnedGoals);
+    // CASE_2: this is a tactic that has anonymous `by` calls (e.g. `apply MyTheorem (by positivity)`), so spawned subgoals are `byBox`es
+    if (tactic.goalsAfter.length >= 1 && tactic.spawnedGoals.length >= 1) {
+      const boxes = tactic.spawnedGoals.map((goal) => {
+        const newBox = createNewBox(pretty, "byBox");
+        newBox.goalNodes.push({
+          text: goal.type,
+          name: goal.username,
+          id: goal.id,
+        });
+        return newBox;
+      });
+      byBoxIds = boxes.map((b) => b.id)
+    // CASE_3: `spawnedGoals` are `calc` subgoals
+    } else {
+      goalsAfter.push(...tactic.spawnedGoals.map((goal) => ({ ...goal, isSpawned: true })));
+    }
+
     for (const goal of goalsAfter) {
       prettyGoalArrows.push({
         fromId: goalBefore.id,
@@ -354,6 +371,7 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     hypArrows: prettyHypArrows,
     successGoalId: goalsAfter.length === 0 ? goalBefore.id : undefined,
     haveBoxIds: haveBoxIds,
+    byBoxIds: byBoxIds
   });
 };
 
@@ -399,6 +417,7 @@ const drawInitialGoal = (
       },
     ],
     haveBoxIds: [],
+    byBoxIds: []
   });
 };
 
@@ -472,8 +491,8 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
   // First of all, draw the INITIAL hypotheses and goal.
   drawInitialGoal(leanProofTree, convertedProofTree);
   // Then, draw all the other tactics and hypotheses and goals.
-  leanProofTree.forEach((step) => {
-    handleTacticApp(step, convertedProofTree);
+  leanProofTree.forEach((tactic) => {
+    handleTacticApp(tactic, convertedProofTree);
   });
 
   postprocess(convertedProofTree);

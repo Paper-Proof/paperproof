@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ConvertedProofTree, Box, Tactic, ContextMenuType, Highlights } from "types";
+import { ConvertedProofTree, Box, Tactic, ContextMenuType, Highlights, TypeGoalNode } from "types";
 import Hypotheses from "./components/Hypotheses";
 
 import zoomToBox from 'src/services/zoomToBox';
@@ -93,6 +93,24 @@ const BoxEl = (props: MyProps) => {
 
   const headerInfo = getHeader(props.box)
 
+  const renderByBoxes = (goalNode: TypeGoalNode) => {
+    const goalTactic = getGoalTactic(proofTree, goalNode.id);
+    if (!goalTactic) return null;
+
+    const byBoxes : Box[] = [];
+    goalTactic.byBoxIds.forEach((byBoxId) => {
+      const byBox = proofTree.boxes.find((box) => box.id === byBoxId);
+      if (!byBox) return;
+      const isByboxFocused = byBox.goalNodes.some((goalNode) => highlights?.goalId === goalNode.id);
+      if (isByboxFocused || isBoxSorried(proofTree, byBox, highlights)) {
+        byBoxes.push(byBox);
+      }
+    })
+    if (byBoxes.length > 0) {
+      return byBoxes.map((byBox) => <BoxEl box={byBox}/>)
+    }
+  }
+
   return <section
     className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
@@ -113,7 +131,7 @@ const BoxEl = (props: MyProps) => {
       <div className="box-insides">
         <Hypotheses hypTables={props.box.hypTables}/>
 
-        {
+        { // Subgoals (in their own boxes) when we the goal does fork
           childrenBoxes.length > 0 &&
           <div className="child-boxes">
             {childrenBoxes.map((childBox) =>
@@ -124,6 +142,9 @@ const BoxEl = (props: MyProps) => {
 
         {props.box.goalNodes.slice().reverse().map((goalNode) =>
           <div className="goals" key={goalNode.id}>
+            <div className="byBoxes">
+              {renderByBoxes(goalNode)}
+            </div>
             <TacticNode isActiveGoal={highlights?.goalId === goalNode.id} tactic={getGoalTactic(proofTree, goalNode.id)}/>
             <GoalNode goalNode={goalNode}/>
           </div>

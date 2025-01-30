@@ -1,5 +1,3 @@
-import { LeanInteractiveGoal } from 'types';
-
 export interface GoalNode {
   text: string;
   name: string;
@@ -44,7 +42,7 @@ export interface HypLayer {
 
 export interface Box {
   id: string;
-  parentId: string | null | "haveBox";
+  parentId: string | null | "haveBox" | "byBox";
   /**
    * **Raw information about what hypotheses and goals are in this box.**  
    * 
@@ -78,6 +76,7 @@ export interface Tactic {
   // `have <p, q> := <by rfl, by trivial>`
   // there are 2 `byBox`s.
   haveBoxIds: string[];
+  byBoxIds: string[];
 }
 
 export interface ConvertedProofTree {

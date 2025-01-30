@@ -113,7 +113,7 @@ body{
   border-radius: 3px;
   flex-grow: 1;
 
-  .child-boxes{
+  .child-boxes, .byBoxes{
     display: flex;
     justify-content: space-between;
     align-items: flex-end;

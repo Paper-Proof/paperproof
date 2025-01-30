@@ -76,7 +76,8 @@ export {
   LeanProofTree,
   LeanInteractiveHyp,
   LeanInteractiveGoal,
-  GoalNode,
+  // Uhh temporary. We should think about how to better name components (GoalNode, GoalNodeEl?) VS types (GoalNode, TypeGoalNode?).
+  GoalNode as TypeGoalNode,
   HypNode,
   Box,
   Tactic,

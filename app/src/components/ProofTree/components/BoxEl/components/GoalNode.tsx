@@ -1,9 +1,9 @@
 import React from 'react';
 import Hint from './Hint';
 import { useGlobalContext } from 'src/indexBrowser';
-import { GoalNode } from 'types';
+import { TypeGoalNode } from 'types';
 
-const GoalNodeEl = ({ goalNode }: { goalNode: GoalNode }) => {
+const GoalNodeEl = ({ goalNode }: { goalNode: TypeGoalNode }) => {
   const { highlights } = useGlobalContext();
   return (
     <div className={`goal -hint ${!highlights || highlights.goalId === goalNode.id ? "" : "-faded"}`}>
