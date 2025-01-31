@@ -29,7 +29,7 @@ const isBoxSorried = (proofTree: ConvertedProofTree, box: Box, highlights: Highl
   const sorryTactic = proofTree.tactics.find((tactic) =>
     tactic.successGoalId &&
     box.goalNodes.find((n) => n.id === tactic.successGoalId && n.id !== highlights?.goalId) &&
-    tactic.text === 'sorry'
+    tactic.text.includes('sorry')
   );
   const childrenBoxSorried = proofTree.boxes
     .filter((child) => child.parentId === box.id)
