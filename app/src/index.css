@@ -21,14 +21,16 @@ body *{
 .hypothesis span.name{
   color: #d0005b;
 }
+/*
+  Hides scrollbars - we can still scroll, but we don't want to show scrollbars.
+  Notice we need both of these rules - one for ubuntu, another for osx.
+*/
+html{ scrollbar-width: none; }
+body::-webkit-scrollbar{ display: none; }
 body{
   background: white;
   color: #3a505a;
   font-weight: 500;
-  /* Hides scrollbars - we can still scroll, but we don't want to show scrollbars */
-  &::-webkit-scrollbar { 
-    display: none;
-  }
   /* Make tldraw bg dark for dark vscode themes */
   &.vscode-dark{
     background-color: var(--vscode-editor-background);
