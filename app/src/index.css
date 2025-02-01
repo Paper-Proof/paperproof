@@ -14,6 +14,37 @@ These are experimental.
 }
 */
 
+.tactic.-hypothesis-tactic{
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.5s ease; 
+  &.-highlight{
+    background-color: rgb(255, 146, 250) !important;
+  }
+  &:hover button{
+    background: none;
+    opacity: 0.6;
+    cursor: pointer; /* We do need { cursor: pointer } here too! */
+  }
+  .text{ cursor: default; }
+  button{
+    background: transparent;
+    border: none;
+    color: #6c8a97;
+    
+    padding: 0;
+    padding-left: 10px;
+  }
+  .show-boxes{
+    margin-top: -6px;
+  }
+  .hide-boxes{
+    margin-top: -2px;
+  }
+}
+
+
 /*______________________ BODY: prettiness ______________________*/
 body *{
   box-sizing: border-box;

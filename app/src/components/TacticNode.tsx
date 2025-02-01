@@ -47,13 +47,23 @@ const TacticNode = (props: TacticNodeProps) => {
         `tactic-${props.tactic.id}-${props.shardId}` :
         `tactic-${props.tactic.id}`
       }
+      onClick={props.onClick}
       ref={thisEl}
     >
       <Hint>{props.tactic}</Hint>
-      {isSuccess ? <><span>🎉</span> <span>{text}</span> <span>🎉</span></> : text}
-      {perfectArrows.map((arrow, index) =>
+      {
+        isSuccess ?
+        <div className="text">
+          <span>🎉</span> <span>{text}</span> <span>🎉</span>
+        </div> :
+        <div className="text">
+          {text}
+        </div>
+      }
+      {!props.circleEl && perfectArrows.map((arrow, index) =>
         <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
       )}
+      {props.circleEl}
     </div>
   );
 };
