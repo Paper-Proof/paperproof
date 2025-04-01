@@ -475,6 +475,7 @@ Paperproof is a package that's usually only used during development, so you migh
 - Paperproof ♥️ Natural Deduction: [link](https://lakesare.brick.do/paperproof-love-natural-deduction-3Mve6W8NgYRJ)
 - Paperproof ⚔️ Lean's _#explode_: [link](https://paperproof.brick.do/paperproof-lean-s-explode-Bab05XYMp21q)
 - Lean ⚔️ Coq ⚔️ Metamath ⚔️ Isabel proof trees: [link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV)
+- Paperproof's Architecture: [link](https://paperproof.brick.do/paperproof-s-architecture-P632P44ezDa9)
 
 **Practical:**
 
