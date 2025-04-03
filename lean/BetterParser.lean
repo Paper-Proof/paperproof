@@ -120,24 +120,24 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List Str
   --  4 ≤ 5 := by trivial
   -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
   -- it's known to be `3 ≤ 5`
-  let printCtx := {ctx with mctx := tInfo.mctxAfter}
-  let mut goalsBefore ← getUnassignedGoals goalMVars tInfo.mctxBefore
-  let mut goalsAfter ← getUnassignedGoals goalMVars tInfo.mctxAfter
-  let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
-  goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
-  goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
+  let printCtx := { ctx with mctx := tInfo.mctxAfter }
+  let goalsBefore ← getUnassignedGoals goalMVars tInfo.mctxBefore
+  let goalsAfter ← getUnassignedGoals goalMVars tInfo.mctxAfter
+  let sharedGoals := goalsBefore.filter λ goal => goalsAfter.contains goal
+  let goalsThatDisappeared := goalsBefore.filter (!sharedGoals.contains ·)
+  let goalsThatAppeared    := goalsAfter.filter  (!sharedGoals.contains ·)
   -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
   let mut result : List (List String × GoalInfo × List GoalInfo) := []
-  for goalBefore in goalsBefore do
+  for goalBefore in goalsThatDisappeared do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
       let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
       let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
-          (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+        (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
       result := (
         tacticDependsOn,
         ← printGoalInfo printCtx goalBefore,
-        ← goalsAfter.filter assignedMVars.contains |>.mapM (printGoalInfo printCtx)
+        ← (goalsThatAppeared.filter assignedMVars.contains).mapM (printGoalInfo printCtx)
       ) :: result
   return result
 
