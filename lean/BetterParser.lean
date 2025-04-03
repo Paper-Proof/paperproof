@@ -161,6 +161,28 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | .num _ _,  _ => true
   | _, _ => false
 
+/--
+  InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
+
+  EXAMPLES
+
+  `tInfo.stx`               //=> `(Tactic.tacticSeq1Indented [(Tactic.exact "exact" (Term.proj ab "." (fieldIdx "2")))])`
+  `tInfo.stx.getSubstring?` //=> `(some (exact ab.2 ))`
+
+  `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
+  `tInfo.stx.getSubstring?` //=> `None`
+-/
+def getTacticStringUserActuallyWrote (tInfo : TacticInfo) : Option String :=
+  match tInfo.stx.getSubstring? with
+  | .some substring => substring.toString
+  | .none => none
+
+/--
+  By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
+-/
+def prettifyTacticString (tacticString: String) : String :=
+  (tacticString.splitOn "\n").head!.trim
+
 partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : IO Result := do
     let res := res.filterMap id
     let some ctx := i.updateContext? ctx
@@ -168,12 +190,8 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
     let steps := res.map (fun r => r.steps) |>.join
     let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
     if let .ofTacticInfo tInfo := i then
-      -- shortcut if it's not a tactic user wrote
-      -- \n trim to avoid empty lines/comments until next tactic,
-      -- especially at the end of theorem it will capture comment for the next one
-      let some tacticString := tInfo.stx.getSubstring?.map
-             (·.toString |>.splitOn "\n" |>.head!.trim)
-        | return {steps, allGoals := allSubGoals}
+      let some userWrittenTacticString := getTacticStringUserActuallyWrote tInfo | return { steps, allGoals := allSubGoals }
+      let tacticString := prettifyTacticString userWrittenTacticString
 
       let steps := prettifySteps tInfo.stx steps
 
