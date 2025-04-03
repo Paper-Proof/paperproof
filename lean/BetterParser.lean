@@ -145,12 +145,17 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id
   match stx with
   | `(tactic| rw [$_,*] $(_)?)
   | `(tactic| rewrite [$_,*] $(_)?) =>
-    let prettify (tStr : String) :=
-      let res := tStr.trim.dropRightWhile (· == ',')
-      -- rw puts final rfl on the "]" token
-      if res == "]" then "rfl" else res
-    return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
-  | _ => return steps
+    return steps.map λ step =>
+      let rwPart := if step.tacticString == "]"
+        then "rfl"
+        else step.tacticString.trim.dropRightWhile (· == ',')
+      -- EXAMPLE
+      -- "Set.mem_inter_iff," => "rw [Set.mem_inter_iff]"
+      -- "and_comm"           => "rw [and_comm]"
+      -- "]"                  => "rw [rfl]"
+      { step with tacticString := s!"rw [{rwPart}]" }
+  | _ =>
+    return steps
 
 -- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
 -- That's not completely right because it doesn't compare prefixes but
