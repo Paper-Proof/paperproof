@@ -27,11 +27,11 @@ instance : Hashable GoalInfo where
   hash g := hash g.id
 
 structure ProofStep where
-  tacticString : String
-  goalBefore : GoalInfo
-  goalsAfter : List GoalInfo
+  tacticString    : String
+  goalBefore      : GoalInfo
+  goalsAfter      : List GoalInfo
   tacticDependsOn : List String
-  spawnedGoals : List GoalInfo
+  spawnedGoals    : List GoalInfo
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
@@ -172,7 +172,7 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
   `tInfo.stx.getSubstring?` //=> `None`
 -/
-def getTacticStringUserActuallyWrote (tInfo : TacticInfo) : Option String :=
+def getTacticStringUserWrote (tInfo : TacticInfo) : Option String :=
   match tInfo.stx.getSubstring? with
   | .some substring => substring.toString
   | .none => none
@@ -183,13 +183,17 @@ def getTacticStringUserActuallyWrote (tInfo : TacticInfo) : Option String :=
 def prettifyTacticString (tacticString: String) : String :=
   (tacticString.splitOn "\n").head!.trim
 
-partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : IO Result := do
-  let res := res.filterMap id
-  let some ctx := info.updateContext? ctx | panic! "unexpected context node"
-  let steps := res.map (fun r => r.steps) |>.join
-  let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
-  let .ofTacticInfo tInfo := info                                             | return { steps, allGoals := allSubGoals }
-  let .some userWrittenTacticString := getTacticStringUserActuallyWrote tInfo | return { steps, allGoals := allSubGoals }
+partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : IO Result := do
+  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
+  let results : List Result := results.filterMap id
+  -- 1. Flatten `ProofStep`s
+  let steps : List ProofStep := (results.map (λ result => result.steps)).join
+  -- 2. Flatten `GoalInfo`s
+  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
+
+  let .some ctx := info.updateContext? ctx                            | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info                                     | return { steps, allGoals }
+  let .some userWrittenTacticString := getTacticStringUserWrote tInfo | return { steps, allGoals }
 
   let tacticString := prettifyTacticString userWrittenTacticString
 
@@ -197,7 +201,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
-  let allGoals := allSubGoals.insertMany $ currentGoals
+  let allGoals := allGoals.insertMany currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
