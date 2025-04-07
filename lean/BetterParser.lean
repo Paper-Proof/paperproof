@@ -141,21 +141,34 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List Str
       ) :: result
   return result
 
-def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
-  match stx with
-  | `(tactic| rw [$_,*] $(_)?)
-  | `(tactic| rewrite [$_,*] $(_)?) =>
-    return steps.map λ step =>
+/--
+  Transforms `.tacticString`-s of children nodes if their parent is `rw`.
+
+  @EXAMPLES
+
+  "Set.mem_inter_iff," => "rw [Set.mem_inter_iff]"
+  "and_comm"           => "rw [and_comm]"
+  "]"                  => "rw [rfl]"
+-/
+def prettifySteps (ts : String) (steps : List ProofStep) : List ProofStep :=
+  let prettifyRw (tacticString: String) (steps: List ProofStep) : List ProofStep := steps.map λ step =>
+    if step.tacticString.startsWith tacticString then step
+    else
       let rwPart := if step.tacticString == "]"
         then "rfl"
         else step.tacticString.trim.dropRightWhile (· == ',')
-      -- EXAMPLE
-      -- "Set.mem_inter_iff," => "rw [Set.mem_inter_iff]"
-      -- "and_comm"           => "rw [and_comm]"
-      -- "]"                  => "rw [rfl]"
-      { step with tacticString := s!"rw [{rwPart}]" }
-  | _ =>
-    return steps
+      { step with tacticString := s!"{tacticString} [{rwPart}]" }
+  -- ___Why don't we match by syntax instead?
+  --    Many of these tactics are defined Mathlib (ntw_rw, nth_rewrite, rw_mod_cast), and we'd need to import Mathlib to be able to match them by syntax.
+  --    We don't want Paperproof to depend on Mathlib however.
+  if ts.startsWith "rw "          then prettifyRw "rw"          steps else
+  if ts.startsWith "erw "         then prettifyRw "erw"         steps else
+  if ts.startsWith "rwa "         then prettifyRw "rwa"         steps else
+  if ts.startsWith "rewrite "     then prettifyRw "rewrite"     steps else
+  if ts.startsWith "nth_rw "      then prettifyRw "nth_rw"      steps else
+  if ts.startsWith "nth_rewrite " then prettifyRw "nth_rewrite" steps else
+  if ts.startsWith "rw_mod_cast " then prettifyRw "rw_mod_cast" steps
+  else steps
 
 -- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
 -- That's not completely right because it doesn't compare prefixes but
@@ -169,7 +182,7 @@ def nameNumLt (n1 n2 : Name) : Bool :=
 /--
   InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
 
-  EXAMPLES
+  @EXAMPLES
 
   `tInfo.stx`               //=> `(Tactic.tacticSeq1Indented [(Tactic.exact "exact" (Term.proj ab "." (fieldIdx "2")))])`
   `tInfo.stx.getSubstring?` //=> `(some (exact ab.2 ))`
@@ -202,7 +215,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
 
   let tacticString := prettifyTacticString userWrittenTacticString
 
-  let steps := prettifySteps tInfo.stx steps
+  let steps := prettifySteps userWrittenTacticString steps
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
