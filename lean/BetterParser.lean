@@ -130,9 +130,8 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List Str
   let mut result : List (List String × GoalInfo × List GoalInfo) := []
   for goalBefore in goalsThatDisappeared do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
-      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
-        (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+      let assignedMVars   ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
+      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
       result := (
         tacticDependsOn,
@@ -218,7 +217,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   let steps := prettifySteps userWrittenTacticString steps
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
-  let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
+  let currentGoals := (proofTreeEdges.map (λ ⟨ dependsOn, g₁, gs ⟩ => g₁ :: gs)).join
   let allGoals := allGoals.insertMany currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
@@ -227,7 +226,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
 
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
-    if steps.map (·.goalBefore) |>.elem goalBefore then
+    if (steps.map (·.goalBefore)).contains goalBefore then
       none
     else
       some {
