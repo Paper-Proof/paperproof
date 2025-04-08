@@ -170,6 +170,15 @@ def getTacticStringUserWrote (tInfo : TacticInfo) : Option String :=
 def prettifyTacticString (tacticString: String) : String :=
   (tacticString.splitOn "\n").head!.trim
 
+def getRelevantGoalsAfter (ctx : ContextInfo) (goalBeforeDecl: MetavarDecl) (mctxAfter: MetavarContext) (goalBeforeId: MVarId) (goalsAfter: List MVarId) : IO (List MVarId) := do
+  ContextInfo.runMetaM ctx goalBeforeDecl.lctx do
+    let assignedToThisGoal := match mctxAfter.eAssignment.find? goalBeforeId with
+      | some expr => do return (← Meta.getMVars expr).toList
+      | none      => do return []
+    let wow ← assignedToThisGoal
+    return goalsAfter.filter (λ g => wow.contains g)
+
+
 partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : IO Result := do
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
   let results : List Result := results.filterMap id
@@ -204,12 +213,13 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   -- Typically we only work on one goal, so only one proofStep gets added!
   for goalBefore in goalsThatDisappeared do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-      let assignedMVars   ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
+    
+      let relevantGoalsAfter ← getRelevantGoalsAfter ctx goalDecl tInfo.mctxAfter goalBefore tInfo.goalsAfter
       newSteps := {
         tacticString,
         goalBefore      := ← printGoalInfo printCtx goalBefore,
-        goalsAfter      := ← (tInfo.goalsAfter.filter (λ mvarId => assignedMVars.contains mvarId)).mapM (printGoalInfo printCtx),
-        tacticDependsOn := ← ctx.runMetaM goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+        goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo printCtx),
+        tacticDependsOn := ← ContextInfo.runMetaM ctx goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
         spawnedGoals    := []
       } :: newSteps
 
