@@ -110,36 +110,6 @@ structure Result where
   steps : List ProofStep
   allGoals : Std.HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List String × GoalInfo × List GoalInfo)) := do
-  -- We want to filter out `focus` like tactics which don't do any assignments
-  -- therefore we check all goals on whether they were assigned during the tactic
-  let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
-  -- For printing purposes we always need to use the latest mctx assignments. For example in
-  -- have h := by calc
-  --  3 ≤ 4 := by trivial
-  --  4 ≤ 5 := by trivial
-  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
-  -- it's known to be `3 ≤ 5`
-  let printCtx := { ctx with mctx := tInfo.mctxAfter }
-  let goalsBefore ← getUnassignedGoals goalMVars tInfo.mctxBefore
-  let goalsAfter ← getUnassignedGoals goalMVars tInfo.mctxAfter
-  let sharedGoals := goalsBefore.filter λ goal => goalsAfter.contains goal
-  let goalsThatDisappeared := goalsBefore.filter (!sharedGoals.contains ·)
-  let goalsThatAppeared    := goalsAfter.filter  (!sharedGoals.contains ·)
-  -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
-  let mut result : List (List String × GoalInfo × List GoalInfo) := []
-  for goalBefore in goalsThatDisappeared do
-    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-      let assignedMVars   ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
-      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
-
-      result := (
-        tacticDependsOn,
-        ← printGoalInfo printCtx goalBefore,
-        ← (goalsThatAppeared.filter assignedMVars.contains).mapM (printGoalInfo printCtx)
-      ) :: result
-  return result
-
 /--
   Transforms `.tacticString`-s of children nodes if their parent is `rw`.
 
@@ -216,26 +186,41 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
 
   let steps := prettifySteps userWrittenTacticString steps
 
-  let proofTreeEdges ← getGoalsChange ctx tInfo
-  let currentGoals := (proofTreeEdges.map (λ ⟨ dependsOn, g₁, gs ⟩ => g₁ :: gs)).join
+  -- For printing purposes we always need to use the latest mctx assignments. For example in
+  -- have h := by calc
+  --  3 ≤ 4 := by trivial
+  --  4 ≤ 5 := by trivial
+  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
+  -- it's known to be `3 ≤ 5`
+  let printCtx := { ctx with mctx := tInfo.mctxAfter }
+
+  let goalsThatDisappeared := tInfo.goalsBefore.filter λ goalBefore =>
+    !tInfo.goalsAfter.contains goalBefore &&
+    -- Leave only steps which are not handled in the subtree.
+    !(steps.map (λ step => step.goalBefore.id)).contains goalBefore
+
+  -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
+  let mut newSteps : List ProofStep := []
+  -- Typically we only work on one goal, so only one proofStep gets added!
+  for goalBefore in goalsThatDisappeared do
+    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
+      let assignedMVars   ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
+      newSteps := {
+        tacticString,
+        goalBefore      := ← printGoalInfo printCtx goalBefore,
+        goalsAfter      := ← (tInfo.goalsAfter.filter (λ mvarId => assignedMVars.contains mvarId)).mapM (printGoalInfo printCtx),
+        tacticDependsOn := ← ctx.runMetaM goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+        spawnedGoals    := []
+      } :: newSteps
+
+  let currentGoals := (newSteps.map (λ step => step.goalBefore :: step.goalsAfter)).join
   let allGoals := allGoals.insertMany currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
-
-  let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
-    -- Leave only steps which are not handled in the subtree.
-    if (steps.map (·.goalBefore)).contains goalBefore then
-      none
-    else
-      some {
-        tacticString,
-        goalBefore,
-        goalsAfter,
-        tacticDependsOn,
-        spawnedGoals := orphanedGoals
-      }
+  
+  newSteps := newSteps.map λ s => { s with spawnedGoals := orphanedGoals }
 
   return { steps := newSteps ++ steps, allGoals }
 
