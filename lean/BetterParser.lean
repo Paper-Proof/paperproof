@@ -46,18 +46,19 @@ def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : S
   We have assigned something to our goal in mctxAfter.
   All the fvars used in these assignments are what was actually used instead of what was in syntax.
 -/
-def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
-  let some expr := mctxAfter.eAssignment.find? goalId
-    | return []
+def getTacticDependsOn (ctx : ContextInfo) (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : IO (List String) := do
+  ContextInfo.runMetaM ctx goalDecl.lctx do
+    let some expr := mctxAfter.eAssignment.find? goalId
+      | return []
 
-  -- Need to instantiate it to get all fvars
-  let fullExpr ← instantiateExprMVars expr
-  let fvarIds := (collectFVars {} fullExpr).fvarIds
-  let fvars := fvarIds.filterMap goalDecl.lctx.find?
-  let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
-  -- let pretty := proofFvars.map (fun x => x.userName)
-  -- dbg_trace s!"Used {pretty}"
-  return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
+    -- Need to instantiate it to get all fvars
+    let fullExpr ← instantiateExprMVars expr
+    let fvarIds := (collectFVars {} fullExpr).fvarIds
+    let fvars := fvarIds.filterMap goalDecl.lctx.find?
+    let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
+    -- let pretty := proofFvars.map (fun x => x.userName)
+    -- dbg_trace s!"Used {pretty}"
+    return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- This is used to match goalsBefore with goalsAfter to see what was assigned to what
 def findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
@@ -213,13 +214,13 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   -- Typically we only work on one goal, so only one proofStep gets added!
   for goalBefore in goalsThatDisappeared do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-    
       let relevantGoalsAfter ← getRelevantGoalsAfter ctx goalDecl tInfo.mctxAfter goalBefore tInfo.goalsAfter
+      let tacticDependsOn ← getTacticDependsOn ctx goalBefore goalDecl tInfo.mctxAfter
       newSteps := {
         tacticString,
         goalBefore      := ← printGoalInfo printCtx goalBefore,
         goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo printCtx),
-        tacticDependsOn := ← ContextInfo.runMetaM ctx goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+        tacticDependsOn := tacticDependsOn
         spawnedGoals    := []
       } :: newSteps
 
