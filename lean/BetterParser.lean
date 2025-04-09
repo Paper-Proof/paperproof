@@ -46,19 +46,18 @@ def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : S
   We have assigned something to our goal in mctxAfter.
   All the fvars used in these assignments are what was actually used instead of what was in syntax.
 -/
-def getTacticDependsOn (ctx : ContextInfo) (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : IO (List String) := do
-  ContextInfo.runMetaM ctx goalDecl.lctx do
-    let some expr := mctxAfter.eAssignment.find? goalId
-      | return []
+def getTacticDependsOn (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
+  let some expr := mctxAfter.eAssignment.find? goalId
+    | return []
 
-    -- Need to instantiate it to get all fvars
-    let fullExpr ← instantiateExprMVars expr
-    let fvarIds := (collectFVars {} fullExpr).fvarIds
-    let fvars := fvarIds.filterMap goalDecl.lctx.find?
-    let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
-    -- let pretty := proofFvars.map (fun x => x.userName)
-    -- dbg_trace s!"Used {pretty}"
-    return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
+  -- Need to instantiate it to get all fvars
+  let fullExpr ← instantiateExprMVars expr
+  let fvarIds := (collectFVars {} fullExpr).fvarIds
+  let fvars := fvarIds.filterMap goalDecl.lctx.find?
+  let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
+  -- let pretty := proofFvars.map (fun x => x.userName)
+  -- dbg_trace s!"Used {pretty}"
+  return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- This is used to match goalsBefore with goalsAfter to see what was assigned to what
 def findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
@@ -76,7 +75,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
-def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : IO GoalInfo := do
+def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
     | panic! "printGoalInfo: goal not found in the mctx"
   -- to get tombstones in name ✝ for unreachable hypothesis
@@ -85,9 +84,9 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : IO GoalInfo := do
   let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
     if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
       return acc
-    let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
+    let type ← ppExprWithInfos ppContext hypDecl.type
     let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-    let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
+    let isProof : String ← mayBeProof hypDecl.toExpr
     return ({
       username := hypDecl.userName.toString,
       type := type.fmt.pretty,
@@ -171,14 +170,11 @@ def getTacticStringUserWrote (tInfo : TacticInfo) : Option String :=
 def prettifyTacticString (tacticString: String) : String :=
   (tacticString.splitOn "\n").head!.trim
 
-def getRelevantGoalsAfter (ctx : ContextInfo) (goalBeforeDecl: MetavarDecl) (mctxAfter: MetavarContext) (goalBeforeId: MVarId) (goalsAfter: List MVarId) : IO (List MVarId) := do
-  ContextInfo.runMetaM ctx goalBeforeDecl.lctx do
-    let assignedToThisGoal := match mctxAfter.eAssignment.find? goalBeforeId with
-      | some expr => do return (← Meta.getMVars expr).toList
-      | none      => do return []
-    let wow ← assignedToThisGoal
-    return goalsAfter.filter (λ g => wow.contains g)
-
+def getRelevantGoalsAfter (mctxAfter: MetavarContext) (goalBeforeId: MVarId) (goalsAfter: List MVarId) : MetaM (List MVarId) := do
+  let assignedToThisGoal ← match mctxAfter.eAssignment.find? goalBeforeId with
+    | some expr => Meta.getMVars expr
+    | none      => pure #[]
+  return goalsAfter.filter (λ g => assignedToThisGoal.contains g)
 
 partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : IO Result := do
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
@@ -213,16 +209,18 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   let mut newSteps : List ProofStep := []
   -- Typically we only work on one goal, so only one proofStep gets added!
   for goalBefore in goalsThatDisappeared do
-    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-      let relevantGoalsAfter ← getRelevantGoalsAfter ctx goalDecl tInfo.mctxAfter goalBefore tInfo.goalsAfter
-      let tacticDependsOn ← getTacticDependsOn ctx goalBefore goalDecl tInfo.mctxAfter
-      newSteps := {
+    let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore | continue
+    let proofStep : ProofStep ← Lean.Elab.ContextInfo.runMetaM ctx goalDecl.lctx do
+      let relevantGoalsAfter ← getRelevantGoalsAfter tInfo.mctxAfter goalBefore tInfo.goalsAfter
+      let tacticDependsOn ← getTacticDependsOn goalBefore goalDecl tInfo.mctxAfter
+      return {
         tacticString,
         goalBefore      := ← printGoalInfo printCtx goalBefore,
         goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo printCtx),
         tacticDependsOn := tacticDependsOn
         spawnedGoals    := []
-      } :: newSteps
+      }
+    newSteps := proofStep :: newSteps
 
   let currentGoals := (newSteps.map (λ step => step.goalBefore :: step.goalsAfter)).join
   let allGoals := allGoals.insertMany currentGoals
