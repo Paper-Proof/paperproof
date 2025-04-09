@@ -75,7 +75,15 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
-def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
+def printGoalInfo (ctx : ContextInfo) (metavarContext : MetavarContext) (id : MVarId) : MetaM GoalInfo := do
+  -- For printing purposes we always need to use the latest mctx assignments. For example in
+  -- have h := by calc
+  --  3 ≤ 4 := by trivial
+  --  4 ≤ 5 := by trivial
+  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
+  -- it's known to be `3 ≤ 5`
+  let printCtx := { ctx with mctx := metavarContext }
+
   let some decl := printCtx.mctx.findDecl? id
     | panic! "printGoalInfo: goal not found in the mctx"
   -- to get tombstones in name ✝ for unreachable hypothesis
@@ -192,14 +200,6 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
 
   let steps := prettifySteps userWrittenTacticString steps
 
-  -- For printing purposes we always need to use the latest mctx assignments. For example in
-  -- have h := by calc
-  --  3 ≤ 4 := by trivial
-  --  4 ≤ 5 := by trivial
-  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
-  -- it's known to be `3 ≤ 5`
-  let printCtx := { ctx with mctx := tInfo.mctxAfter }
-
   let goalsThatDisappeared := tInfo.goalsBefore.filter λ goalBefore =>
     !tInfo.goalsAfter.contains goalBefore &&
     -- Leave only steps which are not handled in the subtree.
@@ -215,8 +215,8 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
       let tacticDependsOn ← getTacticDependsOn goalBefore goalDecl tInfo.mctxAfter
       return {
         tacticString,
-        goalBefore      := ← printGoalInfo printCtx goalBefore,
-        goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo printCtx),
+        goalBefore      := ← printGoalInfo ctx tInfo.mctxAfter goalBefore,
+        goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo ctx tInfo.mctxAfter),
         tacticDependsOn := tacticDependsOn
         spawnedGoals    := []
       }
