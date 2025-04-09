@@ -196,18 +196,18 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   let .ofTacticInfo tInfo := info                                     | return { steps, allGoals }
   let .some userWrittenTacticString := getTacticStringUserWrote tInfo | return { steps, allGoals }
 
+  -- 3. Prettify .tacticString-s
   let tacticString := prettifyTacticString userWrittenTacticString
-
   let steps := prettifySteps userWrittenTacticString steps
 
+  -- 4. Determine what goalBefore-s were affacted
   let goalsThatDisappeared := tInfo.goalsBefore.filter λ goalBefore =>
     !tInfo.goalsAfter.contains goalBefore &&
     -- Leave only steps which are not handled in the subtree.
     !(steps.map (λ step => step.goalBefore.id)).contains goalBefore
 
-  -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
+  -- 5. Match those goalBefore-s into (goalBefore, goalsAfter) pairs according to assignment
   let mut newSteps : List ProofStep := []
-  -- Typically we only work on one goal, so only one proofStep gets added!
   for goalBefore in goalsThatDisappeared do
     let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore | continue
     let proofStep : ProofStep ← Lean.Elab.ContextInfo.runMetaM ctx goalDecl.lctx do
@@ -228,7 +228,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
-  
+
   newSteps := newSteps.map λ s => { s with spawnedGoals := orphanedGoals }
 
   return { steps := newSteps ++ steps, allGoals }
