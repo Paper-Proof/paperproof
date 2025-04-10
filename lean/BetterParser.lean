@@ -94,7 +94,7 @@ def printGoalInfo (ctx : ContextInfo) (metavarContext : MetavarContext) (id : MV
       return acc
     let type ← ppExprWithInfos ppContext hypDecl.type
     let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-    let isProof : String ← mayBeProof hypDecl.toExpr
+    let isProof : String ← ContextInfo.runMetaM printCtx decl.lctx (mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
       type := type.fmt.pretty,
