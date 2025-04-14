@@ -28,7 +28,7 @@ instance : Hashable GoalInfo where
 
 structure ProofStepPosition where
   start: Lsp.Position
-  stop:  Lsp.Position
+  stop: Lsp.Position
   deriving Inhabited, ToJson, FromJson
 
 structure ProofStep where
@@ -81,15 +81,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
-def printGoalInfo (ctx : ContextInfo) (metavarContext : MetavarContext) (id : MVarId) : MetaM GoalInfo := do
-  -- For printing purposes we always need to use the latest mctx assignments. For example in
-  -- have h := by calc
-  --  3 ≤ 4 := by trivial
-  --  4 ≤ 5 := by trivial
-  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
-  -- it's known to be `3 ≤ 5`
-  let printCtx := { ctx with mctx := metavarContext }
-
+def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
     | panic! "printGoalInfo: goal not found in the mctx"
   -- to get tombstones in name ✝ for unreachable hypothesis
@@ -124,8 +116,29 @@ structure Result where
   steps : List ProofStep
   allGoals : Std.HashSet GoalInfo
 
-/--
-  Transforms `.tacticString`-s of children nodes if their parent is `rw`.
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (List String × GoalInfo × List GoalInfo)) := do
+  -- We want to filter out `focus` like tactics which don't do any assignments
+  -- therefore we check all goals on whether they were assigned during the tactic
+  let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
+  -- For printing purposes we always need to use the latest mctx assignments. For example in
+  -- have h := by calc
+  --  3 ≤ 4 := by trivial
+  --  4 ≤ 5 := by trivial
+  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
+  -- it's known to be `3 ≤ 5`
+  let printCtx := {ctx with mctx := tInfo.mctxAfter}
+  let mut goalsBefore ← getUnassignedGoals goalMVars tInfo.mctxBefore
+  let mut goalsAfter ← getUnassignedGoals goalMVars tInfo.mctxAfter
+  let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
+  goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
+  goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
+  -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
+  let mut result : List (List String × GoalInfo × List GoalInfo) := []
+  for goalBefore in goalsBefore do
+    if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
+      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
+      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
+          (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
   @EXAMPLES
 
@@ -180,12 +193,9 @@ def nameNumLt (n1 n2 : Name) : Bool :=
 
 /--
   InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
-
   @EXAMPLES
-
   `tInfo.stx`               //=> `(Tactic.tacticSeq1Indented [(Tactic.exact "exact" (Term.proj ab "." (fieldIdx "2")))])`
   `tInfo.stx.getSubstring?` //=> `(some (exact ab.2 ))`
-
   `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
   `tInfo.stx.getSubstring?` //=> `None`
 -/
@@ -200,12 +210,6 @@ def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
 def prettifyTacticString (tacticString: String) : String :=
   (tacticString.splitOn "\n").head!.trim
 
-def getRelevantGoalsAfter (mctxAfter: MetavarContext) (goalBeforeId: MVarId) (goalsAfter: List MVarId) : MetaM (List MVarId) := do
-  let assignedToThisGoal ← match mctxAfter.eAssignment.find? goalBeforeId with
-    | some expr => Meta.getMVars expr
-    | none      => pure #[]
-  return goalsAfter.filter (λ g => assignedToThisGoal.contains g)
-
 def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPosition := do
   let doc ← Lean.Server.RequestM.readDoc
   let text : FileMap := doc.meta.text
@@ -214,55 +218,42 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
-  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
-  let results : List Result := results.filterMap id
-  -- 1. Flatten `ProofStep`s
-  let steps : List ProofStep := (results.map (λ result => result.steps)).join
-  -- 2. Flatten `GoalInfo`s
-  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
+partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : RequestM Result := do
+  let res := res.filterMap id
+  let some ctx := i.updateContext? ctx
+    | panic! "unexpected context node"
+  let steps := res.map (fun r => r.steps) |>.join
+  let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
+  let .ofTacticInfo tInfo := i | return { steps, allGoals := allSubGoals }
 
-  let .some ctx := info.updateContext? ctx              | panic! "unexpected context node"
-  let .ofTacticInfo tInfo := info                       | return { steps, allGoals }
-  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals := allSubGoals }
 
-  -- 3. Prettify .tacticString-s
   let tacticString := prettifyTacticString tacticSubstring.toString
-  let steps := prettifySteps_IMPERFECT tInfo.stx steps
-
-  -- 4. Determine what goalBefore-s were affacted
-  let goalsThatDisappeared := tInfo.goalsBefore.filter λ goalBefore =>
-    !tInfo.goalsAfter.contains goalBefore &&
-    -- Leave only steps which are not handled in the subtree.
-    !(steps.map (λ step => step.goalBefore.id)).contains goalBefore
-
+  let steps := prettifySteps tInfo.stx steps
+  
   let position ← getProofStepPosition tacticSubstring
 
-  -- 5. Match those goalBefore-s into (goalBefore, goalsAfter) pairs according to assignment
-  let mut newSteps : List ProofStep := []
-  for goalBefore in goalsThatDisappeared do
-    let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore | continue
-    let proofStep : ProofStep ← Lean.Elab.ContextInfo.runMetaM ctx goalDecl.lctx do
-      let relevantGoalsAfter ← getRelevantGoalsAfter tInfo.mctxAfter goalBefore tInfo.goalsAfter
-      let tacticDependsOn ← getTacticDependsOn goalBefore goalDecl tInfo.mctxAfter
-      return {
-        tacticString,
-        goalBefore      := ← printGoalInfo ctx tInfo.mctxAfter goalBefore,
-        goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo ctx tInfo.mctxAfter),
-        tacticDependsOn := tacticDependsOn
-        spawnedGoals    := []
-        position        := position
-      }
-    newSteps := proofStep :: newSteps
-
-  let currentGoals := (newSteps.map (λ step => step.goalBefore :: step.goalsAfter)).join
-  let allGoals := allGoals.insertMany currentGoals
+  let proofTreeEdges ← getGoalsChange ctx tInfo
+  let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
+  let allGoals := allSubGoals.insertMany $ currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-  newSteps := newSteps.map λ s => { s with spawnedGoals := orphanedGoals }
+  let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
+    -- Leave only steps which are not handled in the subtree.
+    if steps.map (·.goalBefore) |>.elem goalBefore then
+      none
+    else
+      some {
+        tacticString,
+        goalBefore,
+        goalsAfter,
+        tacticDependsOn,
+        spawnedGoals := orphanedGoals
+        position := position
+      }
 
   return { steps := newSteps ++ steps, allGoals }
 
