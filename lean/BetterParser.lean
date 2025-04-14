@@ -26,12 +26,18 @@ instance : BEq GoalInfo where
 instance : Hashable GoalInfo where
   hash g := hash g.id
 
+structure ProofStepPosition where
+  start: Lsp.Position
+  stop:  Lsp.Position
+  deriving Inhabited, ToJson, FromJson
+
 structure ProofStep where
   tacticString    : String
   goalBefore      : GoalInfo
   goalsAfter      : List GoalInfo
   tacticDependsOn : List String
   spawnedGoals    : List GoalInfo
+  position        : ProofStepPosition
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
@@ -167,9 +173,9 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
   `tInfo.stx.getSubstring?` //=> `None`
 -/
-def getTacticStringUserWrote (tInfo : TacticInfo) : Option String :=
+def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
   match tInfo.stx.getSubstring? with
-  | .some substring => substring.toString
+  | .some substring => substring
   | .none => none
 
 /--
@@ -184,6 +190,14 @@ def getRelevantGoalsAfter (mctxAfter: MetavarContext) (goalBeforeId: MVarId) (go
     | none      => pure #[]
   return goalsAfter.filter (λ g => assignedToThisGoal.contains g)
 
+def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPosition := do
+  let doc ← Lean.Server.RequestM.readDoc
+  let text : FileMap := doc.meta.text
+  return {
+    start := Lean.FileMap.utf8PosToLspPos text tacticSubstring.startPos,
+    stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
+  }
+
 partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
   let results : List Result := results.filterMap id
@@ -192,19 +206,21 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   -- 2. Flatten `GoalInfo`s
   let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
 
-  let .some ctx := info.updateContext? ctx                            | panic! "unexpected context node"
-  let .ofTacticInfo tInfo := info                                     | return { steps, allGoals }
-  let .some userWrittenTacticString := getTacticStringUserWrote tInfo | return { steps, allGoals }
+  let .some ctx := info.updateContext? ctx              | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info                       | return { steps, allGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
   -- 3. Prettify .tacticString-s
-  let tacticString := prettifyTacticString userWrittenTacticString
-  let steps := prettifySteps userWrittenTacticString steps
+  let tacticString := prettifyTacticString tacticSubstring.toString
+  let steps := prettifySteps tacticString steps
 
   -- 4. Determine what goalBefore-s were affacted
   let goalsThatDisappeared := tInfo.goalsBefore.filter λ goalBefore =>
     !tInfo.goalsAfter.contains goalBefore &&
     -- Leave only steps which are not handled in the subtree.
     !(steps.map (λ step => step.goalBefore.id)).contains goalBefore
+
+  let position ← getProofStepPosition tacticSubstring
 
   -- 5. Match those goalBefore-s into (goalBefore, goalsAfter) pairs according to assignment
   let mut newSteps : List ProofStep := []
@@ -219,6 +235,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
         goalsAfter      := ← relevantGoalsAfter.mapM (printGoalInfo ctx tInfo.mctxAfter),
         tacticDependsOn := tacticDependsOn
         spawnedGoals    := []
+        position        := position
       }
     newSteps := proofStep :: newSteps
 
