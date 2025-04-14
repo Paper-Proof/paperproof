@@ -52,7 +52,7 @@ def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : S
   We have assigned something to our goal in mctxAfter.
   All the fvars used in these assignments are what was actually used instead of what was in syntax.
 -/
-def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
+def getTacticDependsOn (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
   let some expr := mctxAfter.eAssignment.find? goalId
     | return []
 
@@ -90,9 +90,9 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := 
   let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
     if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
       return acc
-    let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
+    let type ← ppExprWithInfos ppContext hypDecl.type
     let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-    let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
+    let isProof : String ← ContextInfo.runMetaM printCtx decl.lctx (mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
       type := type.fmt.pretty,
@@ -140,23 +140,47 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (Li
       let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
           (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
-      result := (
-        tacticDependsOn,
-        ← printGoalInfo printCtx goalBefore,
-        ← goalsAfter.filter assignedMVars.contains |>.mapM (printGoalInfo printCtx)
-      ) :: result
-  return result
+  @EXAMPLES
 
-def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
+  "Set.mem_inter_iff," => "rw [Set.mem_inter_iff]"
+  "and_comm"           => "rw [and_comm]"
+  "]"                  => "rw [rfl]"
+-/
+def prettifySteps_NOT_USED (ts : String) (steps : List ProofStep) : List ProofStep :=
+  let prettifyRw (tacticString: String) (steps: List ProofStep) : List ProofStep := steps.map λ step =>
+    if step.tacticString.startsWith tacticString then step
+    else
+      let rwPart := if step.tacticString == "]"
+        then "rfl"
+        else step.tacticString.trim.dropRightWhile (· == ',')
+      { step with tacticString := s!"{tacticString} [{rwPart}]" }
+  -- ___Why don't we match by syntax instead?
+  --    Many of these tactics are defined Mathlib (ntw_rw, nth_rewrite, rw_mod_cast), and we'd need to import Mathlib to be able to match them by syntax.
+  --    We don't want Paperproof to depend on Mathlib however.
+  if ts.startsWith "rw "          then prettifyRw "rw"          steps else
+  if ts.startsWith "erw "         then prettifyRw "erw"         steps else
+  if ts.startsWith "rwa "         then prettifyRw "rwa"         steps else
+  if ts.startsWith "rewrite "     then prettifyRw "rewrite"     steps else
+  if ts.startsWith "nth_rw "      then prettifyRw "nth_rw"      steps else
+  if ts.startsWith "nth_rewrite " then prettifyRw "nth_rewrite" steps else
+  if ts.startsWith "rw_mod_cast " then prettifyRw "rw_mod_cast" steps
+  else steps
+
+-- This is not perfect, ignores "nth_rw", "nth_rewrite" and "rw_mod_cast". We don't want to import those, because we don't want to depend on mathlib.
+-- But we also can't match by string like in the function above, because some nodes in the InfoTree look like this: `rw [smth]; exact h1`.
+-- See `TEST.lean` for examples that don't work with the `prettifySteps_NOT_USED()` function.
+def prettifySteps_IMPERFECT (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
+  let prettifyRw (tacticString: String) (steps: List ProofStep) : List ProofStep := steps.map λ step =>
+    let rwPart := if step.tacticString == "]"
+      then "rfl"
+      else step.tacticString.trim.dropRightWhile (· == ',')
+    { step with tacticString := s!"{tacticString} [{rwPart}]" }
   match stx with
-  | `(tactic| rw [$_,*] $(_)?)
-  | `(tactic| rewrite [$_,*] $(_)?) =>
-    let prettify (tStr : String) :=
-      let res := tStr.trim.dropRightWhile (· == ',')
-      -- rw puts final rfl on the "]" token
-      if res == "]" then "rfl" else res
-    return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
-  | _ => return steps
+  | `(tactic| rw [$_,*] $(_)?)      => prettifyRw "rw" steps
+  | `(tactic| erw [$_,*] $(_)?)     => prettifyRw "erw" steps
+  | `(tactic| rwa [$_,*] $(_)?)     => prettifyRw "rwa" steps
+  | `(tactic| rewrite [$_,*] $(_)?) => prettifyRw "rewrite" steps
+  | _ => steps
 
 -- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
 -- That's not completely right because it doesn't compare prefixes but
