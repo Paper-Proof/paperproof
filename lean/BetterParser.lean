@@ -26,12 +26,18 @@ instance : BEq GoalInfo where
 instance : Hashable GoalInfo where
   hash g := hash g.id
 
+structure ProofStepPosition where
+  start: Lsp.Position
+  stop: Lsp.Position
+  deriving Inhabited, ToJson, FromJson
+
 structure ProofStep where
-  tacticString : String
-  goalBefore : GoalInfo
-  goalsAfter : List GoalInfo
+  tacticString    : String
+  goalBefore      : GoalInfo
+  goalsAfter      : List GoalInfo
   tacticDependsOn : List String
-  spawnedGoals : List GoalInfo
+  spawnedGoals    : List GoalInfo
+  position        : ProofStepPosition
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
@@ -75,7 +81,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
-def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : IO GoalInfo := do
+def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
     | panic! "printGoalInfo: goal not found in the mctx"
   -- to get tombstones in name ✝ for unreachable hypothesis
@@ -97,7 +103,7 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : IO GoalInfo := do
   return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
 
 -- Returns unassigned goals from the provided list of goals
-def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : IO (List MVarId) := do
+def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : RequestM (List MVarId) := do
   goals.filterMapM fun id => do
     if let none := mctx.findDecl? id then
       return none
@@ -110,7 +116,7 @@ structure Result where
   steps : List ProofStep
   allGoals : Std.HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : IO (List (List String × GoalInfo × List GoalInfo)) := do
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -161,21 +167,47 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | .num _ _,  _ => true
   | _, _ => false
 
-partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : IO Result := do
+/--
+  InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
+  @EXAMPLES
+  `tInfo.stx`               //=> `(Tactic.tacticSeq1Indented [(Tactic.exact "exact" (Term.proj ab "." (fieldIdx "2")))])`
+  `tInfo.stx.getSubstring?` //=> `(some (exact ab.2 ))`
+  `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
+  `tInfo.stx.getSubstring?` //=> `None`
+-/
+def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
+  match tInfo.stx.getSubstring? with
+  | .some substring => substring
+  | .none => none
+
+/--
+  By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
+-/
+def prettifyTacticString (tacticString: String) : String :=
+  (tacticString.splitOn "\n").head!.trim
+
+def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPosition := do
+  let doc ← Lean.Server.RequestM.readDoc
+  let text : FileMap := doc.meta.text
+  return {
+    start := Lean.FileMap.utf8PosToLspPos text tacticSubstring.startPos,
+    stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
+  }
+
+partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : RequestM Result := do
   let res := res.filterMap id
   let some ctx := i.updateContext? ctx
     | panic! "unexpected context node"
   let steps := res.map (fun r => r.steps) |>.join
   let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
   let .ofTacticInfo tInfo := i | return { steps, allGoals := allSubGoals }
-  -- shortcut if it's not a tactic user wrote
-  -- \n trim to avoid empty lines/comments until next tactic,
-  -- especially at the end of theorem it will capture comment for the next one
-  let some tacticString := tInfo.stx.getSubstring?.map
-          (·.toString |>.splitOn "\n" |>.head!.trim)
-    | return {steps, allGoals := allSubGoals}
 
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals := allSubGoals }
+
+  let tacticString := prettifyTacticString tacticSubstring.toString
   let steps := prettifySteps tInfo.stx steps
+  
+  let position ← getProofStepPosition tacticSubstring
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
@@ -196,6 +228,7 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
         goalsAfter,
         tacticDependsOn,
         spawnedGoals := orphanedGoals
+        position := position
       }
 
   return { steps := newSteps ++ steps, allGoals }
