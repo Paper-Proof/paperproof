@@ -133,7 +133,7 @@ structure Result where
   "and_comm"           => "rw [and_comm]"
   "]"                  => "rw [rfl]"
 -/
-def prettifySteps (ts : String) (steps : List ProofStep) : List ProofStep :=
+def prettifySteps_NOT_USED (ts : String) (steps : List ProofStep) : List ProofStep :=
   let prettifyRw (tacticString: String) (steps: List ProofStep) : List ProofStep := steps.map λ step =>
     if step.tacticString.startsWith tacticString then step
     else
@@ -152,6 +152,24 @@ def prettifySteps (ts : String) (steps : List ProofStep) : List ProofStep :=
   if ts.startsWith "nth_rewrite " then prettifyRw "nth_rewrite" steps else
   if ts.startsWith "rw_mod_cast " then prettifyRw "rw_mod_cast" steps
   else steps
+
+-- This is not perfect, ignores "nth_rw", "nth_rewrite" and "rw_mod_cast". We don't want to import those, because we don't want to depend on mathlib.
+-- But we also can't match by string like in the function above, because some nodes in the InfoTree look like this: `rw [smth]; exact h1`.
+-- See `TEST.lean` for examples that don't work with the `prettifySteps_NOT_USED()` function.
+def prettifySteps_IMPERFECT (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
+  let prettifyRw (tacticString: String) (steps: List ProofStep) : List ProofStep := steps.map λ step =>
+    if step.tacticString.startsWith tacticString then step
+    else
+      let rwPart := if step.tacticString == "]"
+        then "rfl"
+        else step.tacticString.trim.dropRightWhile (· == ',')
+      { step with tacticString := s!"{tacticString} [{rwPart}]" }
+  match stx with
+  | `(tactic| rw [$_,*] $(_)?)      => prettifyRw "rw" steps
+  | `(tactic| erw [$_,*] $(_)?)     => prettifyRw "erw" steps
+  | `(tactic| rwa [$_,*] $(_)?)     => prettifyRw "rwa" steps
+  | `(tactic| rewrite [$_,*] $(_)?) => prettifyRw "rewrite" steps
+  | _ => steps
 
 -- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
 -- That's not completely right because it doesn't compare prefixes but
@@ -212,7 +230,7 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
 
   -- 3. Prettify .tacticString-s
   let tacticString := prettifyTacticString tacticSubstring.toString
-  let steps := prettifySteps tacticString steps
+  let steps := prettifySteps_IMPERFECT tInfo.stx steps
 
   -- 4. Determine what goalBefore-s were affacted
   let goalsThatDisappeared := tInfo.goalsBefore.filter λ goalBefore =>
