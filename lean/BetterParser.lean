@@ -158,12 +158,10 @@ def prettifySteps_NOT_USED (ts : String) (steps : List ProofStep) : List ProofSt
 -- See `TEST.lean` for examples that don't work with the `prettifySteps_NOT_USED()` function.
 def prettifySteps_IMPERFECT (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
   let prettifyRw (tacticString: String) (steps: List ProofStep) : List ProofStep := steps.map λ step =>
-    if step.tacticString.startsWith tacticString then step
-    else
-      let rwPart := if step.tacticString == "]"
-        then "rfl"
-        else step.tacticString.trim.dropRightWhile (· == ',')
-      { step with tacticString := s!"{tacticString} [{rwPart}]" }
+    let rwPart := if step.tacticString == "]"
+      then "rfl"
+      else step.tacticString.trim.dropRightWhile (· == ',')
+    { step with tacticString := s!"{tacticString} [{rwPart}]" }
   match stx with
   | `(tactic| rw [$_,*] $(_)?)      => prettifyRw "rw" steps
   | `(tactic| erw [$_,*] $(_)?)     => prettifyRw "erw" steps
