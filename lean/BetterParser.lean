@@ -162,44 +162,42 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | _, _ => false
 
 partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : IO Result := do
-    let res := res.filterMap id
-    let some ctx := i.updateContext? ctx
-      | panic! "unexpected context node"
-    let steps := res.map (fun r => r.steps) |>.join
-    let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
-    if let .ofTacticInfo tInfo := i then
-      -- shortcut if it's not a tactic user wrote
-      -- \n trim to avoid empty lines/comments until next tactic,
-      -- especially at the end of theorem it will capture comment for the next one
-      let some tacticString := tInfo.stx.getSubstring?.map
-             (·.toString |>.splitOn "\n" |>.head!.trim)
-        | return {steps, allGoals := allSubGoals}
+  let res := res.filterMap id
+  let some ctx := i.updateContext? ctx
+    | panic! "unexpected context node"
+  let steps := res.map (fun r => r.steps) |>.join
+  let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
+  let .ofTacticInfo tInfo := i | return { steps, allGoals := allSubGoals }
+  -- shortcut if it's not a tactic user wrote
+  -- \n trim to avoid empty lines/comments until next tactic,
+  -- especially at the end of theorem it will capture comment for the next one
+  let some tacticString := tInfo.stx.getSubstring?.map
+          (·.toString |>.splitOn "\n" |>.head!.trim)
+    | return {steps, allGoals := allSubGoals}
 
-      let steps := prettifySteps tInfo.stx steps
+  let steps := prettifySteps tInfo.stx steps
 
-      let proofTreeEdges ← getGoalsChange ctx tInfo
-      let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
-      let allGoals := allSubGoals.insertMany $ currentGoals
-      -- It's like tacticDependsOn but unnamed mvars instead of hyps.
-      -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-      let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
-        |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
+  let proofTreeEdges ← getGoalsChange ctx tInfo
+  let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
+  let allGoals := allSubGoals.insertMany $ currentGoals
+  -- It's like tacticDependsOn but unnamed mvars instead of hyps.
+  -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
+  let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
+    |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-      let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
-       -- Leave only steps which are not handled in the subtree.
-        if steps.map (·.goalBefore) |>.elem goalBefore then
-          none
-        else
-          some {
-            tacticString,
-            goalBefore,
-            goalsAfter,
-            tacticDependsOn,
-            spawnedGoals := orphanedGoals
-          }
-
-      return { steps := newSteps ++ steps, allGoals }
+  let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
+    -- Leave only steps which are not handled in the subtree.
+    if steps.map (·.goalBefore) |>.elem goalBefore then
+      none
     else
-      return { steps, allGoals := allSubGoals}
+      some {
+        tacticString,
+        goalBefore,
+        goalsAfter,
+        tacticDependsOn,
+        spawnedGoals := orphanedGoals
+      }
+
+  return { steps := newSteps ++ steps, allGoals }
 
 partial def BetterParser (i : InfoTree) := i.visitM (postNode := postNode)
