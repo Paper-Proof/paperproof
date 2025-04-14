@@ -105,7 +105,7 @@ def printGoalInfo (ctx : ContextInfo) (metavarContext : MetavarContext) (id : MV
   return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
 
 -- Returns unassigned goals from the provided list of goals
-def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : IO (List MVarId) := do
+def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : RequestM (List MVarId) := do
   goals.filterMapM fun id => do
     if let none := mctx.findDecl? id then
       return none
@@ -184,7 +184,7 @@ def getRelevantGoalsAfter (mctxAfter: MetavarContext) (goalBeforeId: MVarId) (go
     | none      => pure #[]
   return goalsAfter.filter (λ g => assignedToThisGoal.contains g)
 
-partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : IO Result := do
+partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
   let results : List Result := results.filterMap id
   -- 1. Flatten `ProofStep`s
@@ -232,6 +232,5 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
   newSteps := newSteps.map λ s => { s with spawnedGoals := orphanedGoals }
 
   return { steps := newSteps ++ steps, allGoals }
-
 
 partial def BetterParser (i : InfoTree) := i.visitM (postNode := postNode)
