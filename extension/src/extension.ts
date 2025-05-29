@@ -6,7 +6,6 @@ import { Shared } from "./types";
 export function activate(context: vscode.ExtensionContext) {
   const shared : Shared = {
     context,
-    latestInfo: null,
     onLeanClientRestarted: null,
     webviewPanel: null,
     // Creates the 'paperproof' channel in vscode's "OUTPUT" pane

@@ -146,11 +146,6 @@ function Main() {
   };
 
   React.useEffect(() => {
-    if (window.initialInfo) {
-      const proofResponse : ProofResponse = window.initialInfo;
-      updateUI(proofResponse);
-    }
-
     const updateFromVscode = (event: MessageEvent) => {
       const message = event.data;
       if (message.type === 'from_extension:update_settings') {

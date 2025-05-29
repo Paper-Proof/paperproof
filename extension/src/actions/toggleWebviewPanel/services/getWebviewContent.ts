@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ProofStateOrError, Shared } from "../../../types";
 
-function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, initialInfo: ProofStateOrError) {
+function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
   let js = "";
   let css = "";
   const environment = vscode.workspace.getConfiguration("paperproof").get("environment");
@@ -35,7 +35,6 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel, in
     </head>
     <body>
       <script>
-        window.initialInfo = ${JSON.stringify(initialInfo)};
         window.initialSettings = ${JSON.stringify(initialSettings)};
       </script>
       <div id="root"></div>

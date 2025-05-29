@@ -40,7 +40,6 @@ export interface Settings {
 }
 
 export interface PaperproofWindow extends Window {
-  initialInfo: ProofResponse | null;
   initialSettings: Settings
 }
 

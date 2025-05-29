@@ -10,12 +10,10 @@ export interface ProofError {
   error: string;
 }
 
-// It can only be `null` in the `window.initialInfo`.
-export type ProofStateOrError = ProofState | ProofError | null;
+export type ProofStateOrError = ProofState | ProofError;
 
 export interface Shared {
   context: vscode.ExtensionContext;
-  latestInfo: ProofStateOrError;
   onLeanClientRestarted: vscode.Disposable | null;
   webviewPanel: vscode.WebviewPanel | null;
   log: vscode.OutputChannel;

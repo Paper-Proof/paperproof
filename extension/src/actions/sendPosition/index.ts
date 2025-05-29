@@ -34,7 +34,6 @@ const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefine
   });
   const body = await getResponseOrError(shared, tdp);
   if (token.isCancellationRequested) { return; }
-  shared.latestInfo = body;
   await shared.webviewPanel?.webview.postMessage({
     type: 'from_extension:sendPosition',
     data: body

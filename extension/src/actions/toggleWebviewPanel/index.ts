@@ -12,7 +12,7 @@ const toggleWebviewPanel = (shared: Shared) => {
       { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true }
     );
-    webviewPanel.webview.html = getWebviewContent(shared, webviewPanel, shared.latestInfo);
+    webviewPanel.webview.html = getWebviewContent(shared, webviewPanel);
 
     // Handle settings updates from webview
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
