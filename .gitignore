@@ -12,3 +12,6 @@
 lean/lakefile.olean
 
 app/.yarn/
+
+# Don't commit built extensions
+*.vsix
