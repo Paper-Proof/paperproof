@@ -27,5 +27,5 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
         throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
       return {
         steps := parsedTree.steps,
-        version := 2
+        version := 3
       }

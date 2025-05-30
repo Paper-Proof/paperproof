@@ -101,7 +101,7 @@ function Main() {
     }
     // Check version for compatibility
     const leanRpcVersion = proofResponse.version ?? 1;
-    const desiredVersion = 2;
+    const desiredVersion = 3;
     if (leanRpcVersion !== desiredVersion) {
       setSnackbarMessage(`
         Your <b>Paperproof vscode extension</b> has version ${desiredVersion}, and <br/>
