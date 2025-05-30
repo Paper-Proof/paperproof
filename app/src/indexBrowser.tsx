@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, HypNode, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
+import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
 import ProofTree from "./components/ProofTree";
@@ -13,7 +13,6 @@ import PerfectArrow from "./components/PerfectArrow";
 import Snackbar from '@mui/material/Snackbar';
 import zoomOnNavigation from "./services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
-import HypothesisNode from "./components/ProofTree/components/BoxEl/components/Hypotheses/components/HypothesisNode";
 import zoomManually from "./services/zoomManually";
 
 // Allowing certain properties on window
@@ -185,37 +184,6 @@ function Main() {
     setUIVersion((UIVersion) => UIVersion + 1);
   }
 
-  // Evgenia: I commented this out, because it doesn't actually work very well - and it even tends to prevent me from seeing the proof tree.
-  //
-  // React.useLayoutEffect(() => {
-  //   if (!converted || !converted.highlights) {
-  //     return;
-  //   }
-
-  //   const highlightedHypEls = converted.highlights.hypIds
-  //     .map((hypId) => document.getElementById(`hypothesis-${hypId}`))
-  //     .filter((hypEl) => hypEl) as HTMLElement[];
-
-  //   const observer = new IntersectionObserver((entries) => {
-  //     setIdsOutsideViewport((outsiderIds) => {
-  //       let newIdsOutsideViewport = [...outsiderIds];
-  //       entries.forEach((entry) => {
-  //         const hypId = entry.target.id.replace('hypothesis-', '');
-  //         if (outsiderIds.includes(hypId) && entry.isIntersecting) {
-  //           newIdsOutsideViewport = newIdsOutsideViewport.filter((id) => id !== hypId);
-  //         } else if (!outsiderIds.includes(hypId) && !entry.isIntersecting) {
-  //           newIdsOutsideViewport.push(hypId);
-  //         }
-  //       });
-  //       return newIdsOutsideViewport;
-  //     });
-  //   }, { threshold: 1.0 });
-
-  //   highlightedHypEls.forEach((hypEl) => observer.observe(hypEl));
-
-  //   return () => { observer.disconnect() };
-  // }, [converted]);
-
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.altKey && event.key === "≠") {
@@ -233,20 +201,6 @@ function Main() {
     };
   }, []);
 
-  let displayHyps : HypNode[] = []; 
-  if (converted && converted.highlights) {
-    const allHyps = converted.proofTree.boxes
-      .flatMap((box) => box.hypLayers.flatMap((hypLayer) => hypLayer.hypNodes))
-      .filter((hyp) => hyp.isProof === "proof")
-    displayHyps = idsOutsideViewport.map((id) => allHyps.find((hyp) => hyp.id === id)).filter((hyp) => hyp) as HypNode[];
-  }
-
-  const canWriteTactic = converted && converted.highlights &&
-    !converted.proofTree.tactics.find((tactic) =>
-      tactic.successGoalId === converted.highlights!.goalId ||
-      tactic.goalArrows.find((goalArrow) => goalArrow.fromId === converted.highlights!.goalId)
-    );
-
   return <>
     {
       converted &&
@@ -262,15 +216,6 @@ function Main() {
           position
         }}
       >
-        {
-          canWriteTactic &&
-          displayHyps.length > 0 &&
-          <div className="in-scope-hypotheses">
-            {displayHyps.map((hypNode) =>
-              <HypothesisNode key={hypNode.id} hypNode={hypNode} withId={false}/>
-            )}
-          </div>
-        }
         <div className={`
           proof-tree
           ${settings.isReadonlyMode    ? '-isReadonlyModeON'    : ''}

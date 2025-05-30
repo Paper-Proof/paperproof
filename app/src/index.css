@@ -420,16 +420,6 @@ footer{
   min-width: 200px;
 }
 
-/*______________________ PROOF-TREE: fixed hypotheses ______________________*/
-
-.in-scope-hypotheses{
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  display: flex;
-  flex-wrap: wrap;
-  z-index: 300;
-}
-
 /*______________________ MUI: error toast colors ______________________*/
 .MuiSnackbar-root .MuiSnackbarContent-root{
   background-color: white;
