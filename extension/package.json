@@ -89,15 +89,8 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run build-app && yarn run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
     "build-app": "node esbuild.prod.config.mjs",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "package": "webpack --mode production --devtool hidden-source-map"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
