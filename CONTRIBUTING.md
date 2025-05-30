@@ -76,11 +76,11 @@ To deploy them, you need to publish our vscode extension:
 2. **Build and publish**
 
     ```shell
-    vsce publish patch --no-yarn
+    vsce publish minor --no-yarn
     ```
 
     This will autoincrement the `/extension/package.json` version, and publish the Paperproof extension on [marketplace.visualstudio.com/items?itemName=paperproof.paperproof](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof).  
-    Possible increment options are `major`, `minor`, and `patch`.
+    Possible increment options are `minor` (nearly always) and `major` (in exceptionally rare cases, only when Paperproof is entirely rewritten).
 
 ### Deploying `/lean`
 
@@ -97,6 +97,30 @@ The 3 folders you'll be working on is:
 - `/extension` (contains VSCode extension code).  
 
 If you want to test the results of your changes, you can go to `Examples.lean`, or to `/_examples/...` for some more test cases.
+
+# Version management
+
+Like mentioned above, Paperproof VSCode extension and Paperproof Lean library are deployed separately; and, correspondingly, users download them separately.  
+The **lean library version** and **vscode extension version** should be compatible.  
+
+To ensure such compatibility, we have
+
+- **lean library version**: `.version` field from `/lean/Paperproof.lean`, and
+- **vscode extension version**: `desiredVersion` constant in `/app/indexBrowser.lean`
+
+that must *exactly match*.  
+
+If they don't match, we tell the user to update their **lean library version**.  
+**Vscode extension version** is always ahead of the game, because VSCode automatically updates the extensions as soon as they are published.
+
+___
+
+There are some other mentions of versioning which have nothing to do with this matching:
+
+- `GlobalContextType.UIVersion` - this is just how we determine when we should rerender the dependency arrows in the ui
+- `/extension/package.json version` - this is automatically incremented when we publish vscode extension
+- `/app/package.json version`, `/lean/lake-manifest.json version` - NOT USED
+- `leanExtension.packageJSON.version` - we check the **vscode-lean4**'s extension version if connecting to their api errors out (this usually means **vscode-lean4** updated their api, and **paperproof** is not yet up to date)
 
 
 <div align="center">
