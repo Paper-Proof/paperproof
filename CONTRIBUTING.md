@@ -43,12 +43,14 @@ If you change something in the `/extension` folder, run
 
 ```shell
 cd extension
-vsce package --out paperproof.vsix --no-yarn
+vsce package --out paperproof.vsix
 code --uninstall-extension paperproof.paperproof || true
 code --install-extension paperproof.vsix
 ```
 
 and restart vscode (literally - quit it fully, and open it again).
+
+> *ATTENTION: make sure you have yarn v1, otherwise you'll be getting errors from vsce (see [this issue](https://github.com/microsoft/vscode-vsce/issues/517#issuecomment-874323151)).*
 
 > *ATTENTION: if paperproof webview doesn't respond to `.postMessage(...)` calls, AND you have the OUTPUT pane open - close it, and it should start working. It's just some weird vscode glitch.*
 
@@ -76,7 +78,7 @@ To deploy them, you need to publish our vscode extension:
 2. **Build and publish**
 
     ```shell
-    vsce publish minor --no-yarn
+    vsce publish minor
     ```
 
     This will autoincrement the `/extension/package.json` version, and publish the Paperproof extension on [marketplace.visualstudio.com/items?itemName=paperproof.paperproof](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof).  
