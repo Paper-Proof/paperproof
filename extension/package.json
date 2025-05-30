@@ -89,7 +89,7 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run build-app && yarn run build-extension",
-    "build-app": "cd ../app; node esbuild.prod.config.js",
+    "build-app": "cd ../app; node esbuild.prod.js",
     "build-extension": "node esbuild.js"
   },
   "devDependencies": {
