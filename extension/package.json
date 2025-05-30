@@ -88,9 +88,9 @@
     "icon": "./images/paper.png"
   },
   "scripts": {
-    "vscode:prepublish": "yarn run build-app && yarn run package",
+    "vscode:prepublish": "yarn run build-app && yarn run build-extension",
     "build-app": "node esbuild.prod.config.mjs",
-    "package": "webpack --mode production --devtool hidden-source-map"
+    "build-extension": "node esbuild.js"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
