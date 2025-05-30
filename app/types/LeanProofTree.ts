@@ -1,3 +1,5 @@
+import { PositionStartStop } from "types";
+
 export type LeanHypothesis = {
   value: null | string;
   username: string;
@@ -19,6 +21,7 @@ export type LeanTactic = {
   goalBefore: LeanGoal;
   goalsAfter: LeanGoal[];
   spawnedGoals: LeanGoal[];
+  position: PositionStartStop;
 };
 
 export type LeanProofTree = LeanTactic[];

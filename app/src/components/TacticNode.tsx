@@ -1,10 +1,22 @@
 import React from "react";
-import { Arrow, Tactic } from "types";
+import { Arrow, Position, PositionStartStop, Tactic } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
 import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
+
+const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean => {
+  return (
+    cursor.line > tactic.start.line || 
+    (cursor.line === tactic.start.line && cursor.character >= tactic.start.character)
+  )
+  &&
+  (
+    cursor.line < tactic.stop.line || 
+    (cursor.line === tactic.stop.line && cursor.character <= tactic.stop.character)
+  );
+ };
 
 interface TacticNodeProps {
   tactic?: Tactic;
@@ -22,7 +34,7 @@ const TacticNode = (props: TacticNodeProps) => {
   if (!props.tactic){
     return
   }
-
+  
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
   const thisEl = React.useRef<HTMLInputElement>(null);
 
@@ -38,11 +50,18 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const isSorried = props.tactic.text.includes("sorry") || props.tactic.text === "done";
   const isSuccess = props.tactic.successGoalId && !isSorried
+  const isPositionMatch = isPositionWithin(global.position, props.tactic.position);
 
   const text = prettifyTacticText(props.tactic.text)
   return (
     <div 
-      className={`tactic -hint ${props.className || ''} ${isSuccess ? '-success' : ''} ${isSorried ? '-sorried' : ''}`} 
+      className={`
+        tactic -hint
+        ${props.className || ''}
+        ${isSuccess ? '-success' : ''}
+        ${isSorried ? '-sorried' : ''}
+        ${isPositionMatch ? '-position-matches' : ''}
+      `} 
       id={props.shardId ?
         `tactic-${props.tactic.id}-${props.shardId}` :
         `tactic-${props.tactic.id}`

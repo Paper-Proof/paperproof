@@ -68,6 +68,21 @@ interface Arrow {
   to: Point;
 }
 
+export interface Position {
+  line: number;
+  character: number;
+}
+
+export const fakePosition : Position = {
+  line: -1,
+  character: -1
+}
+
+export interface PositionStartStop {
+  start: Position;
+  stop: Position;
+}
+
 export {
   LeanHypothesis,
   LeanGoal,

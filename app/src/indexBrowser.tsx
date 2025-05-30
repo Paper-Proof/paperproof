@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, HypNode, PaperproofAcquireVsCodeApi, Settings } from "types";
+import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, HypNode, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
 import ProofTree from "./components/ProofTree";
@@ -35,6 +35,7 @@ interface GlobalContextType {
   setSettings: (x: Settings) => void;
   proofTree: ConvertedProofTree;
   highlights: Highlights;
+  position: Position;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -66,6 +67,7 @@ function Main() {
   const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
 
   const [settings, setSettings] = useState(window.initialSettings);
+  const [position, setPosition] = useState<Position>(fakePosition);
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
@@ -154,6 +156,8 @@ function Main() {
         setLoadingAfterClick(false)
         const proofResponse : ProofResponse = message.data;
         updateUI(proofResponse);
+      } else if (message.type === 'from_extension:update_position') {
+        setPosition(message.data);
       } else if (message.type === 'from_extension:start_loading') {
         setLoadingAfterClick(true)
       }
@@ -255,6 +259,7 @@ function Main() {
 
           proofTree: converted.proofTree,
           highlights: converted.highlights,
+          position
         }}
       >
         {

@@ -7,6 +7,7 @@ import {
   Tactic,
   HypNode,
   Box,
+  fakePosition,
 } from "types";
 
 let boxId: number;
@@ -369,7 +370,8 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     hypArrows: prettyHypArrows,
     successGoalId: goalsAfter.length === 0 ? goalBefore.id : undefined,
     haveBoxIds: haveBoxIds,
-    byBoxIds: byBoxIds
+    byBoxIds: byBoxIds,
+    position: tactic.position
   });
 };
 
@@ -415,7 +417,8 @@ const drawInitialGoal = (
       },
     ],
     haveBoxIds: [],
-    byBoxIds: []
+    byBoxIds: [],
+    position: { start: fakePosition, stop: fakePosition }
   });
 };
 

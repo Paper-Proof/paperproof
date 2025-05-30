@@ -1,3 +1,5 @@
+import { PositionStartStop } from "types";
+
 export interface GoalNode {
   text: string;
   name: string;
@@ -77,6 +79,7 @@ export interface Tactic {
   // there are 2 `byBox`s.
   haveBoxIds: string[];
   byBoxIds: string[];
+  position: PositionStartStop;
 }
 
 export interface ConvertedProofTree {
