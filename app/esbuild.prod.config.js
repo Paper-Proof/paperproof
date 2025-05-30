@@ -1,9 +1,9 @@
 import esbuild from "esbuild";
 
 await esbuild.build({
-  entryPoints: ["../app/src/indexBrowser.tsx"],
+  entryPoints: ["src/indexBrowser.tsx"],
   bundle: true,
-  outfile: "dist/indexBrowser.js",
+  outfile: "../extension/dist/indexBrowser.js",
   sourcemap: true,
   platform: "browser",
   loader: {
