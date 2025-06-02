@@ -68,11 +68,6 @@
           "default": false,
           "description": "Enable compact tactics display"
         },
-        "paperproof.isReadonlyMode": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable read-only mode"
-        },
         "paperproof.isHiddenGoalNames": {
           "type": "boolean",
           "default": true,

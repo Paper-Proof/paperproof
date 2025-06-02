@@ -25,7 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
       const settings = {
         isCompactMode    : config.get('isCompactMode'),
         isCompactTactics : config.get('isCompactTactics'),
-        isReadonlyMode   : config.get('isReadonlyMode'),
         isHiddenGoalNames: config.get('isHiddenGoalNames'),
         isGreenHypotheses: config.get('isGreenHypotheses')
       };

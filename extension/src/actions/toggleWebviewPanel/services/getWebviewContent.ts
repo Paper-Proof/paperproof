@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ProofStateOrError, Shared } from "../../../types";
+import { Shared } from "../../../types";
 
 function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
   let js = "";
@@ -19,7 +19,6 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
   const initialSettings = {
     isCompactMode    : config.get('isCompactMode'),
     isCompactTactics : config.get('isCompactTactics'),
-    isReadonlyMode   : config.get('isReadonlyMode'),
     isHiddenGoalNames: config.get('isHiddenGoalNames'),
     isGreenHypotheses: config.get('isGreenHypotheses'),
   };

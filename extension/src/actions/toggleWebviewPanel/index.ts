@@ -36,7 +36,6 @@ const toggleWebviewPanel = (shared: Shared) => {
           data: {
             isCompactMode    : config.get('isCompactMode'),
             isCompactTactics : config.get('isCompactTactics'),
-            isReadonlyMode   : config.get('isReadonlyMode'),
             isHiddenGoalNames: config.get('isHiddenGoalNames'),
             isGreenHypotheses: config.get('isGreenHypotheses')
           }

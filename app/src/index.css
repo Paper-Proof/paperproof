@@ -235,29 +235,22 @@ body{
   background: #a4dabc;
   border: 2px solid rgb(152 214 179);
   .name{ color: #d0005b; }
+  &.-highlighted{ border-color: #50a961; }
 }
 .-isGreenHypothesesOFF{
   .hypothesis.data{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
+    &.-highlighted{ border-color: #e0c732; }
   }
 }
 .goal{
   background: rgb(249, 195, 195);
   border: 2px solid rgb(246, 185, 185);
   color: #5a5656;
+  &.-highlighted{ border-color: #d06868; }
 }
-.proof-tree:not(.-isReadonlyModeON){
-  .hypothesis.-highlighted{
-    border-color: #50a961;
-  }
-  &.-isGreenHypothesesOFF .hypothesis.data.-highlighted{
-    border-color: #e0c732;
-  }
-  .goal.-highlighted{
-    border-color: #d06868;
-  }
-}
+
 .proof-tree.-isHiddenGoalNamesON{
   .goal-username{
     display: none;

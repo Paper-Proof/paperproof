@@ -100,13 +100,6 @@ const ContextMenu = (props: Props) => {
         <div className="text">Always green hypotheses</div>
         <Switch checked={settings.isGreenHypotheses} size="small"/>
       </MenuItem>
-
-      <Divider/>
-
-      <MenuItem onClick={handleSettingToggle("isReadonlyMode")}>
-        <div className="text">Readonly mode</div>
-        <Switch checked={settings.isReadonlyMode} size="small"/>
-      </MenuItem>
     </Menu>
   )
 }

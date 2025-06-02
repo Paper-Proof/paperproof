@@ -218,7 +218,6 @@ function Main() {
       >
         <div className={`
           proof-tree
-          ${settings.isReadonlyMode    ? '-isReadonlyModeON'    : ''}
           ${settings.isCompactMode     ? '-isCompactModeON'     : ''}
           ${settings.isCompactTactics  ? '-isCompactTacticsON'  : '-isCompactTacticsOFF'}
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}

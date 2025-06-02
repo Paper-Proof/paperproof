@@ -34,7 +34,6 @@ export type ProofResponse = ValidProofResponse | { error: any };
 export interface Settings {
   isCompactMode    : boolean;
   isCompactTactics : boolean;
-  isReadonlyMode   : boolean;
   isHiddenGoalNames: boolean;
   isGreenHypotheses: boolean;
 }
