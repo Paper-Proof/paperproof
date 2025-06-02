@@ -248,17 +248,14 @@ body{
   color: #5a5656;
 }
 .proof-tree:not(.-isReadonlyModeON){
-  .hypothesis.-faded{
-    background: color-mix(in srgb, var(--color), #a4dabc 30%);
-    border-color: color-mix(in srgb, var(--color), rgb(152 214 179) 30%);
+  .hypothesis.-highlighted{
+    border-color: #50a961;
   }
-  &.-isGreenHypothesesOFF .hypothesis.data.-faded{
-    background: color-mix(in srgb, var(--color), #f9e9b5 30%);
-    border-color: color-mix(in srgb, var(--color), rgb(239, 227, 152) 30%);
+  &.-isGreenHypothesesOFF .hypothesis.data.-highlighted{
+    border-color: #e0c732;
   }
-  .goal.-faded{
-    background: color-mix(in srgb, var(--color), rgb(249, 195, 195) 30%);
-    border-color: color-mix(in srgb, var(--color), rgb(246, 185, 185) 30%);
+  .goal.-highlighted{
+    border-color: #d06868;
   }
 }
 .proof-tree.-isHiddenGoalNamesON{

@@ -6,7 +6,7 @@ import { TypeGoalNode } from 'types';
 const GoalNodeEl = ({ goalNode }: { goalNode: TypeGoalNode }) => {
   const { highlights } = useGlobalContext();
   return (
-    <div className={`goal -hint ${!highlights || highlights.goalId === goalNode.id ? "" : "-faded"}`}>
+    <div className={`goal -hint ${highlights?.goalId === goalNode.id ? "-highlighted" : ""}`}>
       <Hint>{goalNode}</Hint>
       {goalNode.text}
     </div>

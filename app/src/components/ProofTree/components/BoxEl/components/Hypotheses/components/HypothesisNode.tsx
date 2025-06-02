@@ -33,7 +33,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
     <Search hypNode={props.hypNode}>
       <div
         id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
-        className={`hypothesis -hint ${!highlights || highlights.hypIds.includes(props.hypNode.id) ? "" : "-faded"} ${props.hypNode.isProof} ${isSearched ? '-is-searched' : ''}`}
+        className={`hypothesis -hint ${highlights?.hypIds.includes(props.hypNode.id) ? "-highlighted" : ""} ${props.hypNode.isProof} ${isSearched ? '-is-searched' : ''}`}
         onClick={handleClick}
       >
         <Hint>{props.hypNode}</Hint>
