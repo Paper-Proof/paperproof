@@ -475,13 +475,13 @@ Paperproof is a package that's usually only used during development, so you migh
 - Paperproof ♥️ Natural Deduction: [link](https://lakesare.brick.do/paperproof-love-natural-deduction-3Mve6W8NgYRJ)
 - Paperproof ⚔️ Lean's _#explode_: [link](https://paperproof.brick.do/paperproof-lean-s-explode-Bab05XYMp21q)
 - Lean ⚔️ Coq ⚔️ Metamath ⚔️ Isabel proof trees: [link](https://lakesare.brick.do/lean-coq-isabel-and-their-proof-trees-yjnd2O2RgxwV)
-- Paperproof's Architecture: [link](https://paperproof.brick.do/paperproof-s-architecture-P632P44ezDa9)
 
 **Practical:**
 
 - How to add my Lean repo to Github Codespaces: [link](https://lakesare.brick.do/how-to-add-my-lean-repo-to-github-codespaces-A13P6g7aYwgg)
 - Can Paperproof render proof terms: [link](https://paperproof.brick.do/can-paperproof-render-proof-terms-qm1NZZkazb21)
-- How to parse the _InfoTree_: [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree)
+- Paperproof's Architecture: [link](https://paperproof.brick.do/paperproof-s-architecture-P632P44ezDa9)
+- Anatomy of the _InfoTree_: [link](https://paperproof.brick.do/wip-info-tree-anatomy-Qdgyz0zkybL2), [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree)
 
 **Videos:**
 
