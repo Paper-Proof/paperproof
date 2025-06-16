@@ -15,7 +15,7 @@
 .coin-loading-icon > div {
   display: inline-block;
   margin: 8px;
-  background: var(--vscode-activityBar-activeBorder);
+  background: rgba(42, 45, 45, 0.116);
   width: 20px;
   height: 20px;
   border-radius: 50%;
