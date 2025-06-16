@@ -6,13 +6,13 @@
 
     <img width="582" alt="image" src="https://github.com/Paper-Proof/paperproof/assets/7578559/6d56f704-1b65-4ee7-91c0-08396206cc7d">
 
-3. **Install dependencies**
+3. **Install dependencies in /app**
 
     ```shell
-    cd app; yarn install
+    yarn install
     ```
 
-3. **Start watching your changes**
+3. **Start watching your changes in /app**
 
     ```shell
     yarn server
