@@ -72,8 +72,6 @@ function Main() {
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
-  const [idsOutsideViewport, setIdsOutsideViewport] = React.useState<string[]>([]);
-
   const updateUI = (proofResponse : ProofResponse) => {
     if ("error" in proofResponse) {
       if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
@@ -135,7 +133,6 @@ function Main() {
       highlights: newHighlights,
       statement: currentStatement,
     });
-    setIdsOutsideViewport([]);
   }
 
   const updateSettings = (newSettings: Settings) => {
