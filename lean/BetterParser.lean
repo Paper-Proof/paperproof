@@ -194,16 +194,7 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
-  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
-  let results : List Result := results.filterMap id
-  -- 1. Flatten `ProofStep`s
-  let steps : List ProofStep := (results.map (λ result => result.steps)).join
-  -- 2. Flatten `GoalInfo`s
-  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
-
-  let .some ctx := info.updateContext? ctx              | panic! "unexpected context node"
-  let .ofTacticInfo tInfo := info                       | return { steps, allGoals }
+partial def parseTacticInfo (ctx : ContextInfo) (tInfo : TacticInfo) (steps : List ProofStep) (allGoals: Std.HashSet GoalInfo) : RequestM Result := do
   let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
   let tacticString := prettifyTacticString tacticSubstring.toString
@@ -234,5 +225,18 @@ partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoT
       }
 
   return { steps := newSteps ++ steps, allGoals }
+
+partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
+  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
+  let results : List Result := results.filterMap id
+  -- 1. Flatten `ProofStep`s
+  let steps : List ProofStep := (results.map (λ result => result.steps)).join
+  -- 2. Flatten `GoalInfo`s
+  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
+
+  let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info          | return { steps, allGoals }
+  
+  parseTacticInfo ctx tInfo steps allGoals
 
 partial def BetterParser (i : InfoTree) := i.visitM (postNode := postNode)
