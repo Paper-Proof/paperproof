@@ -41,9 +41,21 @@ const HeaderEl = (props: HeaderProps) => {
     {
       props.row1Hyps && props.row1Hyps.length > 0 &&
       <div className="row-1">
-        {props.row1Hyps.map((hypNode, index) =>
-          <HypothesisNode key={index} hypNode={hypNode}/>
-        )}
+        <div>
+          {
+            props.row1Hyps.filter((h) => h.isProof === 'data')
+            .map((hypNode, index) => <HypothesisNode key={index} hypNode={hypNode}/>)
+          }
+        </div>
+        {
+          props.row1Hyps.filter((h) => h.isProof === 'proof').length > 0 &&
+          <div style={{ paddingTop: 2 }}>
+            {
+              props.row1Hyps.filter((h) => h.isProof === 'proof')
+              .map((hypNode, index) => <HypothesisNode key={index} hypNode={hypNode}/>)
+            }
+          </div>
+        }
       </div>
     }
     {/* We pull up hyp nodes from below to fit into this { position: absolute; } div */}

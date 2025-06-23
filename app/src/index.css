@@ -14,6 +14,8 @@ These are experimental.
 }
 */
 
+.proof-tree.-isSingleTacticModeON #box-1{ width: 100vw !important; }
+
 .tactic.-hypothesis-tactic{
   display: flex;
   justify-content: space-between;
@@ -112,6 +114,10 @@ body{
   &.-success .perfect-arrow{
     display: block;
   }
+}
+
+.proof-tree.-isSingleTacticModeON{
+  .tactic .perfect-arrow{ z-index: 5; display: block; }
 }
 
 /*______________________ PROOF-TREE: colors ______________________*/
@@ -361,7 +367,7 @@ header{
     }
   }
 
-  div.row-1{
+  div.row-1 > div{
     width: 100%;
     display: flex;
     flex-wrap: wrap-reverse;

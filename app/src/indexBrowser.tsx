@@ -123,7 +123,7 @@ function Main() {
     //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
     const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
     convertedProofTree.boxes.forEach((box) => {
-      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
+      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree, settings.isSingleTacticMode)
     });
     const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
     const currentStatement = getStatement(proofResponse.proofTree);
@@ -161,7 +161,7 @@ function Main() {
 
     addEventListener('message', updateFromVscode);
     return () => removeEventListener('message', updateFromVscode);
-  }, []);
+  }, [settings]);
 
   React.useLayoutEffect(() => {
     if (!converted) return;
