@@ -6,20 +6,21 @@ open Lean Server RequestM
 
 structure InputParams where
   pos : Lsp.Position
+  -- "single_tactic" or "tree"
+  mode: String
   deriving FromJson, ToJson
 
 structure OutputParams where
-  steps : List ProofStep
-  version : Nat
+  steps  : List ProofStep
+  version: Nat
   deriving Inhabited, FromJson, ToJson
 
 @[server_rpc_method]
 def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams) := do
-  let mode := "default"
   withWaitFindSnapAtPos params.pos fun snap => do
     checkIfUserIsStillTyping snap params.pos
 
-    if mode == "before_after" then
+    if params.mode == "single_tactic" then
       let hoverPos := ((← readDoc).meta.text).lspPosToUtf8Pos params.pos
       let tacticsAtThisPosition : List Elab.GoalsAtResult := snap.infoTree.goalsAt? (← readDoc).meta.text hoverPos
       let some tactic := tacticsAtThisPosition.head? | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩

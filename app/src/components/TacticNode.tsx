@@ -55,7 +55,7 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const isSorried = props.tactic.text.includes("sorry") || props.tactic.text === "done";
   const isSuccess = props.tactic.successGoalId && !isSorried
-  const isPositionMatch = isPositionWithin(global.position, props.tactic.position);
+  const isPositionMatch = global.settings.isSingleTacticMode ? false : isPositionWithin(global.position, props.tactic.position);
 
   const text = prettifyTacticText(props.tactic.text)
   return (

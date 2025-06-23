@@ -34,6 +34,7 @@ const toggleWebviewPanel = (shared: Shared) => {
         webviewPanel.webview.postMessage({
           type: 'from_extension:update_settings',
           data: {
+            isSingleTacticMode: config.get('isSingleTacticMode'),
             isCompactMode    : config.get('isCompactMode'),
             isCompactTactics : config.get('isCompactTactics'),
             isHiddenGoalNames: config.get('isHiddenGoalNames'),

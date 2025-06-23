@@ -67,6 +67,13 @@ const ContextMenu = (props: Props) => {
       }
       { props.box.id !== "1" && <Divider/> }
 
+      <MenuItem onClick={handleSettingToggle("isSingleTacticMode")}>
+        <div className="text">Single-tactic Mode</div>
+        <Switch checked={settings.isSingleTacticMode} size="small"/>
+      </MenuItem>
+
+      <Divider/>
+
       <MenuItem onClick={(event) => handleZoom(event, "in")}>
         <div className="text">Zoom in</div>
         <div className="shortcut">⎇ +</div>

@@ -23,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (shared.webviewPanel && event.affectsConfiguration('paperproof')) {
       const config = vscode.workspace.getConfiguration('paperproof');
       const settings = {
+        isSingleTacticMode: config.get('isSingleTacticMode'),
         isCompactMode    : config.get('isCompactMode'),
         isCompactTactics : config.get('isCompactTactics'),
         isHiddenGoalNames: config.get('isHiddenGoalNames'),

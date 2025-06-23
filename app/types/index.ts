@@ -32,6 +32,7 @@ export interface ValidProofResponse {
 export type ProofResponse = ValidProofResponse | { error: any };
 
 export interface Settings {
+  isSingleTacticMode: boolean;
   isCompactMode    : boolean;
   isCompactTactics : boolean;
   isHiddenGoalNames: boolean;

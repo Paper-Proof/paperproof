@@ -17,6 +17,7 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
 
   const config = vscode.workspace.getConfiguration('paperproof');
   const initialSettings = {
+    isSingleTacticMode: config.get('isSingleTacticMode'),
     isCompactMode    : config.get('isCompactMode'),
     isCompactTactics : config.get('isCompactTactics'),
     isHiddenGoalNames: config.get('isHiddenGoalNames'),
