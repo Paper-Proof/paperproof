@@ -194,15 +194,14 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : RequestM Result := do
-  let res := res.filterMap id
-  let some ctx := i.updateContext? ctx
-    | panic! "unexpected context node"
-  let steps := res.map (fun r => r.steps) |>.join
-  let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
-  let .ofTacticInfo tInfo := i | return { steps, allGoals := allSubGoals }
+partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
+  let results := results.filterMap id
+  let some ctx := info.updateContext? ctx | panic! "unexpected context node"
+  let steps := results.map (fun r => r.steps) |>.join
+  let allGoals := Std.HashSet.empty.insertMany $ results.bind (·.allGoals.toList)
+  let .ofTacticInfo tInfo := info | return { steps, allGoals := allGoals }
 
-  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals := allSubGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals := allGoals }
 
   let tacticString := prettifyTacticString tacticSubstring.toString
   let steps := prettifySteps tInfo.stx steps
@@ -211,7 +210,7 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
-  let allGoals := allSubGoals.insertMany $ currentGoals
+  let allGoals := allGoals.insertMany $ currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
