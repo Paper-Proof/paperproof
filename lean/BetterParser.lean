@@ -195,13 +195,16 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
   }
 
 partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
-  let results := results.filterMap id
-  let some ctx := info.updateContext? ctx | panic! "unexpected context node"
-  let steps := results.map (fun r => r.steps) |>.join
-  let allGoals := Std.HashSet.empty.insertMany $ results.bind (·.allGoals.toList)
-  let .ofTacticInfo tInfo := info | return { steps, allGoals := allGoals }
+  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
+  let results : List Result := results.filterMap id
+  -- 1. Flatten `ProofStep`s
+  let steps : List ProofStep := (results.map (λ result => result.steps)).join
+  -- 2. Flatten `GoalInfo`s
+  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
 
-  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals := allGoals }
+  let .some ctx := info.updateContext? ctx              | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info                       | return { steps, allGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
   let tacticString := prettifyTacticString tacticSubstring.toString
   let steps := prettifySteps tInfo.stx steps
