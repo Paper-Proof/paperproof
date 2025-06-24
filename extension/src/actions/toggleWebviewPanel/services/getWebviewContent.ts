@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Shared } from "../../../types";
+import Settings from '../../../services/Settings';
 
 function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
   let js = "";
@@ -15,15 +16,6 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
     css = "http://localhost:80/indexBrowser.css";
   }
 
-  const config = vscode.workspace.getConfiguration('paperproof');
-  const initialSettings = {
-    isSingleTacticMode: config.get('isSingleTacticMode'),
-    isCompactMode    : config.get('isCompactMode'),
-    isCompactTactics : config.get('isCompactTactics'),
-    isHiddenGoalNames: config.get('isHiddenGoalNames'),
-    isGreenHypotheses: config.get('isGreenHypotheses'),
-  };
-
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -35,7 +27,7 @@ function getWebviewContent(shared: Shared, webviewPanel: vscode.WebviewPanel) {
     </head>
     <body>
       <script>
-        window.initialSettings = ${JSON.stringify(initialSettings)};
+        window.initialSettings = ${JSON.stringify(Settings.getSettings())};
       </script>
       <div id="root"></div>
       <script src="${js}"></script>

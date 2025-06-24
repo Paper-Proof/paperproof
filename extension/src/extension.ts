@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import toggleWebviewPanel from "./actions/toggleWebviewPanel";
 import sendPosition from "./actions/sendPosition";
 import { Shared } from "./types";
+import Settings from "./services/Settings";
 
 export function activate(context: vscode.ExtensionContext) {
   const shared : Shared = {
@@ -13,34 +14,14 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("paperproof.environment")) {
-      // This makes the asset urls reload automatically, without any participation from the developer
-      if (shared.webviewPanel) { shared.webviewPanel.dispose(); }
-      toggleWebviewPanel(shared);
-    }
-
-    // Send updated settings to webview
-    if (shared.webviewPanel && event.affectsConfiguration('paperproof')) {
-      const config = vscode.workspace.getConfiguration('paperproof');
-      const settings = {
-        isSingleTacticMode: config.get('isSingleTacticMode'),
-        isCompactMode    : config.get('isCompactMode'),
-        isCompactTactics : config.get('isCompactTactics'),
-        isHiddenGoalNames: config.get('isHiddenGoalNames'),
-        isGreenHypotheses: config.get('isGreenHypotheses')
-      };
-      shared.webviewPanel.webview.postMessage({
-        type: 'from_extension:update_settings',
-        data: settings
-      });
-    }
+    Settings.updateSettingsFromExtension(event, shared)
   });
 
   // Sending types to the server on cursor changes.
   // We use a `cancellationToken` to make sure only the last request gets through.
   let cancellationToken: vscode.CancellationTokenSource | null = null;
 
-  const handle = (textEditor: vscode.TextEditor | undefined) => {
+  const fetchInfoTree = (textEditor: vscode.TextEditor | undefined) => {
     // Our parser is expensive - don't run it unless the Papeproof panel is open
     // (see https://github.com/Paper-Proof/paperproof/issues/51#issuecomment-2408463605)
     if (!shared.webviewPanel) { return; }
@@ -51,10 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   vscode.window.onDidChangeActiveTextEditor((textEditor) => {
-    handle(textEditor);
+    fetchInfoTree(textEditor);
   });
   vscode.window.onDidChangeTextEditorSelection((event) => {
-    handle(event.textEditor);
+    fetchInfoTree(event.textEditor);
   });
 
   context.subscriptions.push(
