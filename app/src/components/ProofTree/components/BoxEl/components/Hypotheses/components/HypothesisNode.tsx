@@ -13,10 +13,10 @@ export interface HypothesisProps {
 const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   const { searchedHypIds } = useGlobalContext();
 
-  const name = prettifyHypothesisUsername(props.hypNode.name)
+  const name = prettifyHypothesisUsername(props.hypNode.name);
   const { highlights } = useGlobalContext();
 
-  const isSearched = searchedHypIds.find((searchedId) => props.hypNode.id === searchedId)
+  const isSearched = searchedHypIds.find((searchedId) => props.hypNode.id === searchedId);
 
   const [isHidden, setIsHidden] = React.useState(false);
 
@@ -33,11 +33,17 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
     <Search hypNode={props.hypNode}>
       <div
         id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
-        className={`hypothesis -hint ${highlights?.hypIds.includes(props.hypNode.id) ? "-highlighted" : ""} ${props.hypNode.isProof} ${isSearched ? '-is-searched' : ''}`}
+        className={`
+          hypothesis
+          -hint
+          ${highlights?.hypIds.includes(props.hypNode.id) ? "-highlighted" : ""}
+          ${props.hypNode.isProof}
+          ${isSearched ? '-is-searched' : ''}
+        `}
         onClick={handleClick}
       >
         <Hint>{props.hypNode}</Hint>
-        {name && <span className="name">{props.hypNode.name}</span>}
+        {name && <span className="name">{name}</span>}
         {name && ": "}
         <span className="text">{props.hypNode.text}</span>
       </div>
