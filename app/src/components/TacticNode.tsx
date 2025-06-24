@@ -20,7 +20,7 @@ const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean 
     cursor.line < stopLine || 
     (cursor.line === stopLine && cursor.character < stopCharacter)
   );
- };
+};
 
 interface TacticNodeProps {
   tactic?: Tactic;
@@ -47,6 +47,7 @@ const TacticNode = (props: TacticNodeProps) => {
 
   React.useLayoutEffect(() => {
     if (!props.tactic) return
+    if (global.settings.isSingleTacticMode) return 
     const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
       .map((dependsOnHypId) => createArrow(`hypothesis-${dependsOnHypId}`, thisEl.current))
       .filter((arrow) : arrow is Arrow => arrow !== null);

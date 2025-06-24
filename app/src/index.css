@@ -15,15 +15,22 @@ These are experimental.
 */
 
 .single-tactic-hyp-row{
-  padding-top: 2px;
+  padding-top: 1px;
   display: block !important;
   .hypothesis{
     display: block;
     width: fit-content;
+    margin-top: 2px;
   }
 }
 
 .proof-tree.-isSingleTacticModeON #box-1{ width: 100vw !important; }
+
+.proof-tree.-isSingleTacticModeON{
+  .hypothesis.-highlighted{
+    border-color: rgba(100, 173, 115, 0.873);
+  }
+}
 
 .tactic.-hypothesis-tactic{
   display: flex;

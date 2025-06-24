@@ -17,6 +17,9 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   const global = useGlobalContext();
   const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
 
+  const singleTactic = global.proofTree.tactics[1]
+  const isImportant = global.settings.isSingleTacticMode && singleTactic && singleTactic.dependsOnIds.includes(props.hypNode.id)
+
   const name = prettifyHypothesisUsername(props.hypNode.name);
 
   const isSearched = global.searchedHypIds.find((searchedId) => props.hypNode.id === searchedId);
@@ -47,7 +50,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
         className={`
           hypothesis
           -hint
-          ${global.highlights?.hypIds.includes(props.hypNode.id) ? "-highlighted" : ""}
+          ${global.highlights?.hypIds.includes(props.hypNode.id) || isImportant ? "-highlighted" : ""}
           ${props.hypNode.isProof}
           ${isSearched ? '-is-searched' : ''}
           ${isHypHidden ? '-hidden' : ''}
