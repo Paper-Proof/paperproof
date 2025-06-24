@@ -30,6 +30,8 @@ interface GlobalContextType {
   setCollapsedBoxIds: (x: string[]) => void;
   searchedHypIds: string[];
   setSearchedHypIds: (x: string[]) => void;
+  deletedHypothesisNames: string[];
+  setDeletedHypothesisNames: (x: string[]) => void;
   settings: Settings;
   setSettings: (x: Settings) => void;
   proofTree: ConvertedProofTree;
@@ -64,6 +66,7 @@ function Main() {
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
+  const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
 
   const [settings, setSettings] = useState(window.initialSettings);
   const [position, setPosition] = useState<Position>(fakePosition);
@@ -206,6 +209,7 @@ function Main() {
           UIVersion, refreshUI,
           collapsedBoxIds, setCollapsedBoxIds,
           searchedHypIds,  setSearchedHypIds,
+          deletedHypothesisNames, setDeletedHypothesisNames,
           settings,        setSettings: updateSettings,
 
           proofTree: converted.proofTree,

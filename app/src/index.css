@@ -242,6 +242,7 @@ body{
   border: 2px solid rgb(152 214 179);
   .name{ color: #d0005b; }
   &.-highlighted{ border-color: #50a961; }
+  &.-hidden{ cursor: pointer; }
 }
 .-isGreenHypothesesOFF{
   .hypothesis.data{
