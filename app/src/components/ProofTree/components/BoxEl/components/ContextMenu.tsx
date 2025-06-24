@@ -72,29 +72,34 @@ const ContextMenu = (props: Props) => {
         <Switch checked={settings.isSingleTacticMode} size="small"/>
       </MenuItem>
 
-      <Divider/>
+      
+      {
+        !settings.isSingleTacticMode &&
+        <>
+          <Divider/>
+          <MenuItem onClick={(event) => handleZoom(event, "in")}>
+            <div className="text">Zoom in</div>
+            <div className="shortcut">⎇ +</div>
+          </MenuItem>
 
-      <MenuItem onClick={(event) => handleZoom(event, "in")}>
-        <div className="text">Zoom in</div>
-        <div className="shortcut">⎇ +</div>
-      </MenuItem>
+          <MenuItem onClick={(event) => handleZoom(event, "out")}>
+            <div className="text">Zoom out</div>
+            <div className="shortcut">⎇ -</div>
+          </MenuItem>
 
-      <MenuItem onClick={(event) => handleZoom(event, "out")}>
-        <div className="text">Zoom out</div>
-        <div className="shortcut">⎇ -</div>
-      </MenuItem>
+          <Divider/>
 
-      <Divider/>
+          <MenuItem onClick={handleSettingToggle("isCompactMode")}>
+            <div className="text">Compact horizontally</div>
+            <Switch checked={settings.isCompactMode} size="small"/>
+          </MenuItem>
 
-      <MenuItem onClick={handleSettingToggle("isCompactMode")}>
-        <div className="text">Compact horizontally</div>
-        <Switch checked={settings.isCompactMode} size="small"/>
-      </MenuItem>
-
-      <MenuItem onClick={handleSettingToggle("isCompactTactics")}>
-        <div className="text">Compact tactics</div>
-        <Switch checked={settings.isCompactTactics} size="small"/>
-      </MenuItem>
+          <MenuItem onClick={handleSettingToggle("isCompactTactics")}>
+            <div className="text">Compact tactics</div>
+            <Switch checked={settings.isCompactTactics} size="small"/>
+          </MenuItem>
+        </>
+      }
 
       <Divider/>
 
