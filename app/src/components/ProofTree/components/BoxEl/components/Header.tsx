@@ -49,7 +49,7 @@ const HeaderEl = (props: HeaderProps) => {
         </div>
         {
           props.row1Hyps.filter((h) => h.isProof === 'proof').length > 0 &&
-          <div style={{ paddingTop: 2 }}>
+          <div className="single-tactic-hyp-row">
             {
               props.row1Hyps.filter((h) => h.isProof === 'proof')
               .map((hypNode, index) => <HypothesisNode key={index} hypNode={hypNode}/>)
