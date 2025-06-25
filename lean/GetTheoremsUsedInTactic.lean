@@ -4,8 +4,6 @@ import BetterParser
 
 open Lean Elab Server
 
-
-
 structure ArgumentInfo where
   name : String
   type : String
@@ -24,37 +22,29 @@ partial def getIds : Syntax → NameSet
   | .ident _ _ nm _ => NameSet.empty.insert nm
   | _ => {}
 
+/-- Check if a substring position is within a given range -/
+def isInRange (substr : Substring) (startPos stopPos : String.Pos) : Bool :=
+  substr.startPos >= startPos && substr.stopPos <= stopPos
+
+/-- Extract theorem name from expression, handling constants, applications, and local variables -/
+def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
+  guard (!expr.isSyntheticSorry)
+  match expr.consumeMData with
+  | .const name _ => some name
+  | .app .. => expr.getAppFn.consumeMData.constName?
+  | .fvar .. => do
+    let ldecl ← lctx.findFVar? expr
+    let val ← ldecl.value?
+    val.getAppFn.consumeMData.constName?
+  | _ => none
+
 /-- Finds theorem names within a specific source code range (for filtering to user-written code only) -/
-def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : Array Name :=
-  -- Helper to check if position is within tactic range
-  let isInRange (substr : Substring) : Bool :=
-    substr.startPos >= tacticStartPos && substr.stopPos <= tacticStopPos
-  
-  -- Helper to extract theorem name from expression
-  let extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name :=
-    if expr.isSyntheticSorry then none
-    else
-      match expr.consumeMData with
-      | .const name _ => some name
-      | .app .. => expr.getAppFn.consumeMData.constName?
-      | .fvar .. => 
-        if let some ldecl := lctx.findFVar? expr then
-          if let some val := ldecl.value? then
-            val.getAppFn.consumeMData.constName?
-          else none
-        else none
-      | _ => none
-  
-  -- Main logic: filter and extract theorem names
-  (tree.deepestNodes fun _ info _ =>
-    match info with
-    | .ofTermInfo ti =>
-      if let some substr := ti.stx.getSubstring? then
-        if isInRange substr then
-          extractTheoremName ti.expr ti.lctx
-        else none
-      else none
-    | _ => none).toArray
+def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : List Name :=
+  tree.deepestNodes fun _ info _ => do
+    let .ofTermInfo ti := info | none
+    let substr ← ti.stx.getSubstring?
+    guard (isInRange substr tacticStartPos tacticStopPos)
+    extractTheoremName ti.expr ti.lctx
 
 def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
   Meta.forallTelescope expr fun args body => do
@@ -116,5 +106,5 @@ def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx
         | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
   let some tacticSubstring := getTacticSubstring tacticInfo
         | throwThe RequestError ⟨.invalidParams, "xxx"⟩
-  (findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos).toList.filterMapM (extractTheoremSignature ctx goalDecl)
-  
+  let theorems := findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos
+  theorems.filterMapM (extractTheoremSignature ctx goalDecl)
