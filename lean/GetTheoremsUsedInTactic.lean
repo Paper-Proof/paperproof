@@ -26,31 +26,35 @@ partial def getIds : Syntax → NameSet
 
 /-- Finds theorem names within a specific source code range (for filtering to user-written code only) -/
 def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : Array Name :=
-  let nodes := tree.deepestNodes (fun _ info _ =>
+  -- Helper to check if position is within tactic range
+  let isInRange (substr : Substring) : Bool :=
+    substr.startPos >= tacticStartPos && substr.stopPos <= tacticStopPos
+  
+  -- Helper to extract theorem name from expression
+  let extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name :=
+    if expr.isSyntheticSorry then none
+    else
+      match expr.consumeMData with
+      | .const name _ => some name
+      | .app .. => expr.getAppFn.consumeMData.constName?
+      | .fvar .. => 
+        if let some ldecl := lctx.findFVar? expr then
+          if let some val := ldecl.value? then
+            val.getAppFn.consumeMData.constName?
+          else none
+        else none
+      | _ => none
+  
+  -- Main logic: filter and extract theorem names
+  (tree.deepestNodes fun _ info _ =>
     match info with
-    | Elab.Info.ofTermInfo ti =>
-      -- Check if this term's position is within the tactic range
-      
+    | .ofTermInfo ti =>
       if let some substr := ti.stx.getSubstring? then
-        -- Check if this term's position is within the tactic range
-        if substr.startPos >= tacticStartPos && substr.stopPos <= tacticStopPos then
-          -- Continue with the existing logic
-          if ti.expr.isSyntheticSorry then none
-          else
-            match ti.expr.consumeMData with
-            | .const name _ => some name
-            | .app .. => Expr.getAppFn ti.expr |>.consumeMData |>.constName?
-            | .fvar .. =>
-              if let some ldecl := ti.lctx.findFVar? ti.expr then
-                if let some val := ldecl.value? then
-                  Expr.getAppFn val |>.consumeMData |>.constName?
-                else none
-              else none
-            | _ => none
+        if isInRange substr then
+          extractTheoremName ti.expr ti.lctx
         else none
       else none
-    | _ => none) |>.toArray
-  nodes
+    | _ => none).toArray
 
 def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
   Meta.forallTelescope expr fun args body => do
