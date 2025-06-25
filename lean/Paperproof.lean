@@ -35,41 +35,36 @@ partial def getIds : Syntax → NameSet
   | .ident _ _ nm _ => NameSet.empty.insert nm
   | _ => {}
 
-/-- Finds possible theorems in syntax by looking for TermInfo nodes in the info tree.
-    This approach is more robust than just extracting identifiers from syntax. -/
-def findTheoremsInInfoTree (tree : Elab.InfoTree) : Array (Name × Elab.TermInfo) :=
-  -- We use deepestNodes instead of foldInfo to get the most specific (deepest) nodes
-  -- for each branch of the InfoTree, avoiding duplicates and overlapping nodes
+/-- Finds theorems within a specific source code range (for filtering to user-written code only) -/
+def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : Array (Name × Elab.TermInfo) :=
   let nodes := tree.deepestNodes (fun ctx info children =>
     match info with
     | Elab.Info.ofTermInfo ti =>
-      if ti.expr.isSyntheticSorry then none
-      else
-        match ti.expr.consumeMData with
-        | .const name _ => some (name, ti)
-        | .app .. =>
-          -- Look for the function name in applications
-          let name? := Expr.getAppFn ti.expr |>.consumeMData |>.constName?
-          name?.map fun name => (name, ti)
-        | .fvar .. =>
-          -- For local variables, we need to check if they're assigned to a theorem
-          -- This handles cases like `have h := my_theorem ...`
-          if let some ldecl := ti.lctx.findFVar? ti.expr then
-            if let some val := ldecl.value? then
-              let name? := Expr.getAppFn val |>.consumeMData |>.constName?
+      -- Check if this term's position is within the tactic range
+      
+      if let some substr := ti.stx.getSubstring? then
+        -- Check if this term's position is within the tactic range
+        if substr.startPos >= tacticStartPos && substr.stopPos <= tacticStopPos then
+          -- Continue with the existing logic
+          if ti.expr.isSyntheticSorry then none
+          else
+            match ti.expr.consumeMData with
+            | .const name _ => some (name, ti)
+            | .app .. =>
+              let name? := Expr.getAppFn ti.expr |>.consumeMData |>.constName?
               name?.map fun name => (name, ti)
-            else none
-          else none
-        | _ => none
+            | .fvar .. =>
+              if let some ldecl := ti.lctx.findFVar? ti.expr then
+                if let some val := ldecl.value? then
+                  let name? := Expr.getAppFn val |>.consumeMData |>.constName?
+                  name?.map fun name => (name, ti)
+                else none
+              else none
+            | _ => none
+        else none
+
+      else none
     | _ => none) |>.toArray
-  
-  -- Deduplicate by name to avoid showing the same theorem multiple times
-  -- let result : Array (Name × Elab.TermInfo) := #[]
-  -- let mut seen : HashSet Name := {}
-  -- for (name, ti) in nodes do
-  --   if !seen.contains name then
-  --     seen := seen.insert name
-  --     result := result.push (name, ti)
   nodes
 
 def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
@@ -103,7 +98,6 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
     
     let bodyStr ← ppExprWithInfos ppCtx body
     return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
-
 def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (nameAndTerm : Name × Elab.TermInfo) : RequestM (Option TheoremSignature) := do
   let (name, termInfo) := nameAndTerm
   try
@@ -154,7 +148,15 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
         | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
       
       let parsedTree ← parseTacticInfo ctx tactic.tacticInfo [] ∅
-      let theorems ← findTheoremsInInfoTree snap.infoTree |> Array.toList |>.filterMapM (extractTheoremSignature ctx goalDecl)
+      
+      -- Get the tactic's source code range and filter theorems to that range
+      let theorems ← 
+        if let some tacticSubstring := getTacticSubstring tactic.tacticInfo then
+          findTheoremsInTacticRange snap.infoTree tacticSubstring.startPos tacticSubstring.stopPos
+          |> Array.toList |>.filterMapM (extractTheoremSignature ctx goalDecl)
+        else
+          pure []
+
       return { steps := parsedTree.steps, version := 3, theorems }
     else
       let some parsedTree ← BetterParser snap.infoTree
