@@ -35,6 +35,43 @@ partial def getIds : Syntax → NameSet
   | .ident _ _ nm _ => NameSet.empty.insert nm
   | _ => {}
 
+/-- Finds possible theorems in syntax by looking for TermInfo nodes in the info tree.
+    This approach is more robust than just extracting identifiers from syntax. -/
+def findTheoremsInInfoTree (tree : Elab.InfoTree) : Array (Name × Elab.TermInfo) :=
+  -- We use deepestNodes instead of foldInfo to get the most specific (deepest) nodes
+  -- for each branch of the InfoTree, avoiding duplicates and overlapping nodes
+  let nodes := tree.deepestNodes (fun ctx info children =>
+    match info with
+    | Elab.Info.ofTermInfo ti =>
+      if ti.expr.isSyntheticSorry then none
+      else
+        match ti.expr.consumeMData with
+        | .const name _ => some (name, ti)
+        | .app .. =>
+          -- Look for the function name in applications
+          let name? := Expr.getAppFn ti.expr |>.consumeMData |>.constName?
+          name?.map fun name => (name, ti)
+        | .fvar .. =>
+          -- For local variables, we need to check if they're assigned to a theorem
+          -- This handles cases like `have h := my_theorem ...`
+          if let some ldecl := ti.lctx.findFVar? ti.expr then
+            if let some val := ldecl.value? then
+              let name? := Expr.getAppFn val |>.consumeMData |>.constName?
+              name?.map fun name => (name, ti)
+            else none
+          else none
+        | _ => none
+    | _ => none) |>.toArray
+  
+  -- Deduplicate by name to avoid showing the same theorem multiple times
+  -- let result : Array (Name × Elab.TermInfo) := #[]
+  -- let mut seen : HashSet Name := {}
+  -- for (name, ti) in nodes do
+  --   if !seen.contains name then
+  --     seen := seen.insert name
+  --     result := result.push (name, ti)
+  nodes
+
 def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
   Meta.forallTelescope expr fun args body => do
     let mut lctx := LocalContext.empty
@@ -67,15 +104,29 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
     let bodyStr ← ppExprWithInfos ppCtx body
     return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
 
-def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name : Name) : RequestM (Option TheoremSignature) := do
+def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (nameAndTerm : Name × Elab.TermInfo) : RequestM (Option TheoremSignature) := do
+  let (name, termInfo) := nameAndTerm
   try
     ctx.runMetaM goalDecl.lctx do
       let resolvedName ← resolveGlobalConstNoOverloadCore name
       let constInfo ← getConstInfo resolvedName
+      
+      -- Only process declarations that might be useful as theorems (skip pure constructors, etc.)
+      -- if constInfo.isConstructor && !constInfo.type.isProp && !constInfo.type.hasArrow then
+      --   return none
+        
       let ppCtx := { (ctx.toPPContext (goalDecl.lctx |>.sanitizeNames.run' {options := {}})) with 
                      opts := (ctx.toPPContext goalDecl.lctx).opts.setBool `pp.fullNames true }
       
+      -- If we have a term info, we can get more precise information about the expression
+      let expr := termInfo.expr
+      
+      -- Get documentation if available
+      let docString? ← findDocString? (ctx.env) resolvedName
+      
+      -- Use ppSignature for constants when possible (similar to Lean's hover)
       let nameStr ← liftM (ppExprWithInfos ppCtx (mkConst constInfo.name))
+          
       let typeExpr ← ppExprWithInfos ppCtx constInfo.type
       let (instanceArgs, implicitArgs, explicitArgs, body) ← getAllArgsWithTypes constInfo.type
       
@@ -103,7 +154,7 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
         | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
       
       let parsedTree ← parseTacticInfo ctx tactic.tacticInfo [] ∅
-      let theorems ← (getIds tactic.tacticInfo.stx).toList.filterMapM (extractTheoremSignature ctx goalDecl)
+      let theorems ← findTheoremsInInfoTree snap.infoTree |> Array.toList |>.filterMapM (extractTheoremSignature ctx goalDecl)
       return { steps := parsedTree.steps, version := 3, theorems }
     else
       let some parsedTree ← BetterParser snap.infoTree
