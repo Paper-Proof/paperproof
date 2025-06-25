@@ -24,9 +24,9 @@ partial def getIds : Syntax → NameSet
   | .ident _ _ nm _ => NameSet.empty.insert nm
   | _ => {}
 
-/-- Finds theorems within a specific source code range (for filtering to user-written code only) -/
-def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : Array (Name × Elab.TermInfo) :=
-  let nodes := tree.deepestNodes (fun ctx info children =>
+/-- Finds theorem names within a specific source code range (for filtering to user-written code only) -/
+def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : Array Name :=
+  let nodes := tree.deepestNodes (fun _ info _ =>
     match info with
     | Elab.Info.ofTermInfo ti =>
       -- Check if this term's position is within the tactic range
@@ -38,20 +38,16 @@ def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopP
           if ti.expr.isSyntheticSorry then none
           else
             match ti.expr.consumeMData with
-            | .const name _ => some (name, ti)
-            | .app .. =>
-              let name? := Expr.getAppFn ti.expr |>.consumeMData |>.constName?
-              name?.map fun name => (name, ti)
+            | .const name _ => some name
+            | .app .. => Expr.getAppFn ti.expr |>.consumeMData |>.constName?
             | .fvar .. =>
               if let some ldecl := ti.lctx.findFVar? ti.expr then
                 if let some val := ldecl.value? then
-                  let name? := Expr.getAppFn val |>.consumeMData |>.constName?
-                  name?.map fun name => (name, ti)
+                  Expr.getAppFn val |>.consumeMData |>.constName?
                 else none
               else none
             | _ => none
         else none
-
       else none
     | _ => none) |>.toArray
   nodes
@@ -88,8 +84,7 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
     let bodyStr ← ppExprWithInfos ppCtx body
     return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
 
-def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (nameAndTerm : Name × Elab.TermInfo) : RequestM (Option TheoremSignature) := do
-  let (name, termInfo) := nameAndTerm
+def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name : Name) : RequestM (Option TheoremSignature) := do
   try
     ctx.runMetaM goalDecl.lctx do
       let resolvedName ← resolveGlobalConstNoOverloadCore name
@@ -117,7 +112,5 @@ def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx
         | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
   let some tacticSubstring := getTacticSubstring tacticInfo
         | throwThe RequestError ⟨.invalidParams, "xxx"⟩
-  (
-    findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos
-  ).toList.filterMapM (λ name_and_term => extractTheoremSignature ctx goalDecl name_and_term)
+  (findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos).toList.filterMapM (extractTheoremSignature ctx goalDecl)
   
