@@ -8,12 +8,13 @@ const fetchLeanData = async (log: vscode.OutputChannel, client: any, tdp: TextDo
 
   const config = vscode.workspace.getConfiguration('paperproof');
   const mode = config.get('isSingleTacticMode') ? 'single_tactic' : 'tree';
-  if (mode === 'single_tactic') {
+if (mode === 'single_tactic') {
     const proofTreeResponse = await vscodeRequest(log, "getSnapshotData", client, uri, tdp, { pos: tdp.position, mode });
     return {
       goal:  null,
       proofTree: proofTreeResponse.steps,
       version: proofTreeResponse.version ?? undefined,
+      theorems: proofTreeResponse.theorems ?? [],
     };
   } else {
     const proofTreeResponse = await vscodeRequest(log, "getSnapshotData", client, uri, tdp, { pos: tdp.position, mode });

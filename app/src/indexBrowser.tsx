@@ -76,6 +76,7 @@ function Main() {
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
   const updateUI = (proofResponse : ProofResponse) => {
+    console.log(proofResponse)
     if ("error" in proofResponse) {
       if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
         // This is a normal situation, just return.

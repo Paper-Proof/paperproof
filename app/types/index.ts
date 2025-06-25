@@ -20,6 +20,11 @@ import {
 import { ContextMenuType } from "./Mui";
 
 // SERVER REQUEST/RESPONSE
+export interface TheoremSignature {
+  name: string;
+  signature: string;
+}
+
 export interface ValidProofResponse {
   // Version of the Lean RPC response. `undefined` is version 1. We use to issue
   // user messages to update lean library or refresh vscode to avoid maintaining
@@ -27,6 +32,7 @@ export interface ValidProofResponse {
   version?: number;
   proofTree: LeanProofTree;
   goal: LeanInteractiveGoal | null;
+  theorems?: TheoremSignature[];
 }
 
 export type ProofResponse = ValidProofResponse | { error: any };
