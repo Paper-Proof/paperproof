@@ -36,13 +36,20 @@ def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
     val.getAppFn.consumeMData.constName?
   | _ => none
 
-/-- Finds theorem names within a specific source code range (for filtering to user-written code only) -/
-def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : List Name :=
-  tree.deepestNodes fun _ info _ => do
+/-- Finds unique fully qualified theorem names within a specific source code range -/
+def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : MetaM (List Name) := do
+  -- 1. Extract theorem names from tactic
+  let rawNames := tree.deepestNodes fun _ info _ => do
     let .ofTermInfo ti := info | none
     let substr ← ti.stx.getSubstring?
     guard (isInRange substr tacticStartPos tacticStopPos)
     extractTheoremName ti.expr ti.lctx
+
+  -- 2. Make theorem names fully qualified
+  let resolvedNames : List Name ← rawNames.mapM resolveGlobalConstNoOverloadCore
+
+  -- 3. Remove duplicates
+  pure resolvedNames.toSSet.toList
 
 def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
   Meta.forallTelescope expr fun args body => do
@@ -76,32 +83,30 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
     let bodyStr ← ppExprWithInfos ppCtx body
     return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
 
-def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name : Name) : RequestM (Option TheoremSignature) := do
-  try
-    ctx.runMetaM goalDecl.lctx do
-      let resolvedName ← resolveGlobalConstNoOverloadCore name
-      let constInfo ← getConstInfo resolvedName
-        
-      let ppCtx := { (ctx.toPPContext (goalDecl.lctx |>.sanitizeNames.run' {options := {}})) with 
-                     opts := (ctx.toPPContext goalDecl.lctx).opts.setBool `pp.fullNames true }
+def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name : Name) : MetaM (Option TheoremSignature) := do
+  let constInfo ← getConstInfo name
 
-      -- Use ppSignature for constants when possible (similar to Lean's hover)
-      let nameStr ← liftM (ppExprWithInfos ppCtx (mkConst constInfo.name))
-      let (instanceArgs, implicitArgs, explicitArgs, body) ← getAllArgsWithTypes constInfo.type
-      
-      return some { 
-        name := nameStr.fmt.pretty,
-        instanceArgs,
-        implicitArgs,
-        explicitArgs,
-        body
-      }
-  catch _ => return none
+  let ppCtx := { (ctx.toPPContext (goalDecl.lctx |>.sanitizeNames.run' {options := {}})) with opts := (ctx.toPPContext goalDecl.lctx).opts.setBool `pp.fullNames true }
+
+  -- Use ppSignature for constants when possible (similar to Lean's hover)
+  let nameStr ← liftM (ppExprWithInfos ppCtx (mkConst constInfo.name))
+  let (instanceArgs, implicitArgs, explicitArgs, body) ← getAllArgsWithTypes constInfo.type
+  
+  return some { 
+    name := nameStr.fmt.pretty,
+    instanceArgs,
+    implicitArgs,
+    explicitArgs,
+    body
+  }
 
 def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : RequestM (List TheoremSignature) := do
   let some goalDecl := ctx.mctx.findDecl? tacticInfo.goalsBefore.head!
-        | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
+    | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
   let some tacticSubstring := getTacticSubstring tacticInfo
-        | throwThe RequestError ⟨.invalidParams, "xxx"⟩
-  let theorems := findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos
-  theorems.filterMapM (extractTheoremSignature ctx goalDecl)
+    | throwThe RequestError ⟨.invalidParams, "noTacticSubstring"⟩
+
+  ctx.runMetaM goalDecl.lctx do
+    let theoremNames ← findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos
+    theoremNames.filterMapM (extractTheoremSignature ctx goalDecl)
+  
