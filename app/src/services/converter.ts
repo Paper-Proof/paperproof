@@ -371,7 +371,8 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     successGoalId: goalsAfter.length === 0 ? goalBefore.id : undefined,
     haveBoxIds: haveBoxIds,
     byBoxIds: byBoxIds,
-    position: tactic.position
+    position: tactic.position,
+    theorems: tactic.theorems
   });
 };
 
@@ -418,7 +419,8 @@ const drawInitialGoal = (
     ],
     haveBoxIds: [],
     byBoxIds: [],
-    position: { start: fakePosition, stop: fakePosition }
+    position: { start: fakePosition, stop: fakePosition },
+    theorems: []
   });
 };
 

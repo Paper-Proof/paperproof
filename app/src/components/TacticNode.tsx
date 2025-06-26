@@ -37,7 +37,7 @@ const TacticNode = (props: TacticNodeProps) => {
     </div>
   }
   if (!props.tactic){
-    return
+    return;
   }
   
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
@@ -46,8 +46,8 @@ const TacticNode = (props: TacticNodeProps) => {
   const global = useGlobalContext();
 
   React.useLayoutEffect(() => {
-    if (!props.tactic) return
-    if (global.settings.isSingleTacticMode) return 
+    if (!props.tactic) return;
+    if (global.settings.isSingleTacticMode) return;
     const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
       .map((dependsOnHypId) => createArrow(`hypothesis-${dependsOnHypId}`, thisEl.current))
       .filter((arrow) : arrow is Arrow => arrow !== null);
@@ -55,10 +55,11 @@ const TacticNode = (props: TacticNodeProps) => {
   }, [props.tactic, global.UIVersion]);
 
   const isSorried = props.tactic.text.includes("sorry") || props.tactic.text === "done";
-  const isSuccess = props.tactic.successGoalId && !isSorried
+  const isSuccess = props.tactic.successGoalId && !isSorried;
   const isPositionMatch = global.settings.isSingleTacticMode ? false : isPositionWithin(global.position, props.tactic.position);
 
-  const text = prettifyTacticText(props.tactic.text)
+  const text = prettifyTacticText(props.tactic.text);
+
   return (
     <div 
       className={`

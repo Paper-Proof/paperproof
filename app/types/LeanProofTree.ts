@@ -1,5 +1,18 @@
 import { PositionStartStop } from "types";
 
+export interface ArgumentInfo {
+  name: string;
+  type: string;
+}
+
+export interface TheoremSignature {
+  name: string;
+  instanceArgs: ArgumentInfo[];
+  implicitArgs: ArgumentInfo[];
+  explicitArgs: ArgumentInfo[];
+  body: string;
+}
+
 export type LeanHypothesis = {
   value: null | string;
   username: string;
@@ -22,6 +35,7 @@ export type LeanTactic = {
   goalsAfter: LeanGoal[];
   spawnedGoals: LeanGoal[];
   position: PositionStartStop;
+  theorems: TheoremSignature[];
 };
 
 export type LeanProofTree = LeanTactic[];
