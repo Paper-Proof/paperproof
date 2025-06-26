@@ -1,7 +1,5 @@
 import Lean
-
-import BetterParser
-
+import GetTacticSubstring
 open Lean Elab Server
 
 structure ArgumentInfo where
@@ -99,7 +97,6 @@ def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name :
         body
       }
   catch _ => return none
-
 
 def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : RequestM (List TheoremSignature) := do
   let some goalDecl := ctx.mctx.findDecl? tacticInfo.goalsBefore.head!

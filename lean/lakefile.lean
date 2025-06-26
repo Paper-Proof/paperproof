@@ -9,3 +9,4 @@ lean_lib Paperproof
 lean_lib BetterParser
 lean_lib CheckIfUserIsStillTyping
 lean_lib GetTheoremsUsedInTactic
+lean_lib GetTacticSubstring

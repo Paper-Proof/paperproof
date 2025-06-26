@@ -1,6 +1,8 @@
 import Lean
 import Lean.Meta.Basic
 import Lean.Meta.CollectMVars
+import GetTheoremsUsedInTactic
+import GetTacticSubstring
 open Lean Elab Server
 
 structure Hypothesis where
@@ -38,6 +40,7 @@ structure ProofStep where
   tacticDependsOn : List String
   spawnedGoals    : List GoalInfo
   position        : ProofStepPosition
+  theorems        : List TheoremSignature
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
@@ -168,19 +171,6 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | _, _ => false
 
 /--
-  InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
-  @EXAMPLES
-  `tInfo.stx`               //=> `(Tactic.tacticSeq1Indented [(Tactic.exact "exact" (Term.proj ab "." (fieldIdx "2")))])`
-  `tInfo.stx.getSubstring?` //=> `(some (exact ab.2 ))`
-  `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
-  `tInfo.stx.getSubstring?` //=> `None`
--/
-def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
-  match tInfo.stx.getSubstring? with
-  | .some substring => substring
-  | .none => none
-
-/--
   By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
 -/
 def prettifyTacticString (tacticString: String) : String :=
@@ -194,7 +184,9 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def parseTacticInfo (ctx : ContextInfo) (tInfo : TacticInfo) (steps : List ProofStep) (allGoals: Std.HashSet GoalInfo) : RequestM Result := do
+partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (ifReturnTheorems : Bool) : RequestM Result := do
+  let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info          | return { steps, allGoals }
   let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
   let tacticString := prettifyTacticString tacticSubstring.toString
@@ -210,6 +202,7 @@ partial def parseTacticInfo (ctx : ContextInfo) (tInfo : TacticInfo) (steps : Li
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
+  let theorems ← if ifReturnTheorems then GetTheoremsUsedInTactic infoTree tInfo ctx else pure []
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
@@ -222,21 +215,21 @@ partial def parseTacticInfo (ctx : ContextInfo) (tInfo : TacticInfo) (steps : Li
         tacticDependsOn,
         spawnedGoals := orphanedGoals
         position := position
+        theorems := theorems
       }
 
   return { steps := newSteps ++ steps, allGoals }
 
-partial def postNode (ctx : ContextInfo) (info : Info) (_: PersistentArray InfoTree) (results : List (Option Result)) : RequestM Result := do
+partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option Result)) : RequestM Result := do
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
   let results : List Result := results.filterMap id
   -- 1. Flatten `ProofStep`s
   let steps : List ProofStep := (results.map (λ result => result.steps)).join
   -- 2. Flatten `GoalInfo`s
   let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
-
-  let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
-  let .ofTacticInfo tInfo := info          | return { steps, allGoals }
   
-  parseTacticInfo ctx tInfo steps allGoals
+  parseTacticInfo infoTree ctx info steps allGoals (ifReturnTheorems := false)
 
-partial def BetterParser (i : InfoTree) := i.visitM (postNode := postNode)
+partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
+  λ ctx info _ results => postNode infoTree ctx info results
+)
