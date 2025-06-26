@@ -107,5 +107,6 @@ export {
   Point,
   Arrow,
   HypLayer,
-  ContextMenuType
+  ContextMenuType,
+  TheoremSignature
 };

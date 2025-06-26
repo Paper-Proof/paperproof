@@ -13,6 +13,51 @@ These are experimental.
   background: red;
 }
 */
+.theorem-highlight{
+  text-decoration: underline;
+  text-decoration-color: #5589aa;
+  cursor: pointer;
+  text-underline-offset: 2px;
+  &:hover{
+    opacity: 0.8;
+  }
+}
+.theorem-wrapper{
+  margin-top: 8px;
+  padding: 8px;
+  background-color: rgb(174 205 236 / 57%);
+  border-radius: 4px;
+  font-size: 12px;
+  .theorem{
+    .name{ font-weight: bold; }
+    .args{
+      display: block;
+      .instance-args, .implicit-args, .explicit-args{
+        display: flex;
+         row-gap: 2px;
+        .arg{
+          background: rgb(255 255 255 / 25%);
+          border-radius: 4px;
+          margin-right: 3px;
+          padding: 2px 5px;
+          margin-bottom: 0px;
+        }
+      }
+      .instance-args{
+        color: rgb(128, 126, 126);
+      }
+      .implicit-args{
+        color: rgb(144, 139, 71);
+      }
+      .explicit-args{
+        color: rgb(75, 135, 75);
+      }
+    }
+  }
+}
+.tactic{
+  flex-wrap: wrap;
+}
 
 .single-tactic-hyp-row{
   padding-top: 1px;
