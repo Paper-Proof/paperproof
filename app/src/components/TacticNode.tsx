@@ -185,13 +185,19 @@ const TacticNode = (props: TacticNodeProps) => {
             <div className="name">{theorem.name}</div>
             <div className="args">
               <div className="instance-args">
-                {theorem.instanceArgs.map((arg) => <div className="arg">{`[ ${arg.type} ]`}</div>)}
+                {theorem.instanceArgs.map((arg) =>
+                  <div className="arg">{`[ ${arg.type} ]`}</div>
+                )}
               </div>
               <div className="implicit-args">
-                {theorem.implicitArgs.map((arg) => <div className="arg">{`{ ${arg.name}: ${arg.type} }`}</div>)}
+                {theorem.implicitArgs.map((arg) =>
+                  <div className="arg">{`{ `}<span className="name">{arg.name}</span>{`: ${arg.type} }`}</div>
+                )}
               </div>
               <div className="explicit-args">
-                {theorem.explicitArgs.map((arg) => <div className="arg">{`( ${arg.name}: ${arg.type} )`}</div>)}
+                {theorem.explicitArgs.map((arg) =>
+                  <div className="arg">{`( `}<span className="name">{arg.name}</span>{`: ${arg.type} )`}</div>
+                )}
               </div>
             </div>
             <div className="body">

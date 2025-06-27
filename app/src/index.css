@@ -25,33 +25,48 @@ These are experimental.
 .theorem-wrapper{
   margin-top: 8px;
   padding: 8px;
-  background-color: rgb(174 205 236 / 57%);
-  border-radius: 4px;
-  font-size: 12px;
+  width: 100%;
   .theorem{
+    text-align: left;
     .name{ font-weight: bold; }
     .args{
       display: block;
+      margin-left: 15px;
       .instance-args, .implicit-args, .explicit-args{
         display: flex;
          row-gap: 2px;
         .arg{
-          background: rgb(255 255 255 / 25%);
+          /* background: rgb(255 255 255 / 25%); */
           border-radius: 4px;
           margin-right: 3px;
           padding: 2px 5px;
           margin-bottom: 0px;
+          word-spacing: 8px;
+          font-size: 13px;
+          font-weight: 400;
+          .name{
+            font-weight: bold;
+            color: #5a5656;
+          }
         }
       }
       .instance-args{
-        color: rgb(128, 126, 126);
+        color: rgb(174 174 174);
       }
       .implicit-args{
-        color: rgb(144, 139, 71);
+        color: rgb(174 174 174);
       }
       .explicit-args{
-        color: rgb(75, 135, 75);
+        color: #5a5656;
+        word-spacing: 8px;
       }
+    }
+    .body{
+      margin-left: 19px;
+      color: #5a5656;
+      font-size: 13px;
+      font-weight: 400;
+      word-spacing: 8px;
     }
   }
 }
