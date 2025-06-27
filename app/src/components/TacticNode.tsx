@@ -34,7 +34,6 @@ const TacticNode = (props: TacticNodeProps) => {
   const isEllipsisTactic = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
   if (isEllipsisTactic) {
     return <div className="active-tactic">
-      {/* <img src="https://private-user-images.githubusercontent.com/7578559/264729795-58f24cf2-4336-4376-8738-6463e3802ba0.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzE0NzEwMTksIm5iZiI6MTczMTQ3MDcxOSwicGF0aCI6Ii83NTc4NTU5LzI2NDcyOTc5NS01OGYyNGNmMi00MzM2LTQzNzYtODczOC02NDYzZTM4MDJiYTAucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MTExMyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDExMTNUMDQwNTE5WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9ZWRkYTkxZWQ0N2QzZjhiZmI4NzFjNzZlYTc4NmQ5YTU1ODc5NzNmZTcyYmY1ZjNjODYyYjc1MDJlNzEyYjU1OSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.hPFir-MxOhsP9OxlaQ_uOmHBTZVJozmqo7rCvGv0ZFw"/> */}
       <div className="tactic -ellipsis">...</div>
     </div>
   }
@@ -62,19 +61,20 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const text = prettifyTacticText(props.tactic.text);
 
-  const theorems = props.tactic.theorems || [];
   const [theorem, setTheorem] = React.useState<TheoremSignature | null>(null);
 
-  // Extract short name from theorem (part after last dot)
   const getTheoremShortName = (theoremName: string): string => {
-    const lastDotIndex = theoremName.lastIndexOf('.');
-    return lastDotIndex !== -1 ? theoremName.substring(lastDotIndex + 1) : theoremName;
+    return theoremName
+      // Skip all modules
+      .split('.').at(-1)!
+      // Strip "@"
+      .split('@').at(-1)!
   };
 
   // Find all occurrences of theorem short names in the text
   const findTheoremMatches = (text: string, theorems: TheoremSignature[]) => {
     const matches: Array<{start: number, end: number, theorem: TheoremSignature}> = [];
-    
+
     theorems.forEach(theorem => {
       const shortName = getTheoremShortName(theorem.name);
       let startIndex = 0;
@@ -171,10 +171,10 @@ const TacticNode = (props: TacticNodeProps) => {
       {
         isSuccess ?
         <div className="text">
-          <span>🎉</span> <span>{renderTextWithTheorems(text, theorems)}</span> <span>🎉</span>
+          <span>🎉</span> <span>{renderTextWithTheorems(text, props.tactic.theorems)}</span> <span>🎉</span>
         </div> :
         <div className="text">
-          {renderTextWithTheorems(text, theorems)}
+          {renderTextWithTheorems(text, props.tactic.theorems)}
         </div>
       }
 
@@ -186,17 +186,23 @@ const TacticNode = (props: TacticNodeProps) => {
             <div className="args">
               <div className="instance-args">
                 {theorem.instanceArgs.map((arg) =>
-                  <div className="arg">{`[ ${arg.type} ]`}</div>
+                  <div className="arg" key={arg.name}>
+                    {`[ ${arg.type} ]`}
+                  </div>
                 )}
               </div>
               <div className="implicit-args">
                 {theorem.implicitArgs.map((arg) =>
-                  <div className="arg">{`{ `}<span className="name">{arg.name}</span>{`: ${arg.type} }`}</div>
+                  <div className="arg" key={arg.name}>
+                    {`{ `}<span className="name">{arg.name}</span>{`: ${arg.type} }`}
+                  </div>
                 )}
               </div>
               <div className="explicit-args">
                 {theorem.explicitArgs.map((arg) =>
-                  <div className="arg">{`( `}<span className="name">{arg.name}</span>{`: ${arg.type} )`}</div>
+                  <div className="arg" key={arg.name}>
+                    {`( `}<span className="name">{arg.name}</span>{`: ${arg.type} )`}
+                  </div>
                 )}
               </div>
             </div>

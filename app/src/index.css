@@ -15,7 +15,7 @@ These are experimental.
 */
 .theorem-highlight{
   text-decoration: underline;
-  text-decoration-color: #5589aa;
+  text-decoration-color: #72787c;
   cursor: pointer;
   text-underline-offset: 2px;
   &:hover{
