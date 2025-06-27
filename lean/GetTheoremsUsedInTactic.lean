@@ -27,11 +27,13 @@ def isInRange (substr : Substring) (startPos stopPos : String.Pos) : Bool :=
 /-- Extract theorem name from expression, handling constants, applications, and local variables -/
 def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
   guard (!expr.isSyntheticSorry)
-  match expr.consumeMData with
+  -- It's important to use cleanExpr here, otherwise we'll be getting "fvar expected" exceptions sometimes
+  let cleanExpr := expr.consumeMData
+  match cleanExpr with
   | .const name _ => some name
   | .app .. => expr.getAppFn.consumeMData.constName?
   | .fvar .. => do
-    let ldecl ← lctx.findFVar? expr
+    let ldecl ← lctx.findFVar? cleanExpr
     let val ← ldecl.value?
     val.getAppFn.consumeMData.constName?
   | _ => none
