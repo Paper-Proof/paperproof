@@ -129,7 +129,7 @@ const TacticNode = (props: TacticNodeProps) => {
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            if (theorem) {
+            if (theorem === match.theorem) {
               setTheorem(null)
             } else {
               setTheorem(match.theorem);

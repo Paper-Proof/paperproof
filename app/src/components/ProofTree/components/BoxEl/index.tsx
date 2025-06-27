@@ -116,7 +116,7 @@ const BoxEl = (props: MyProps) => {
   return <section
     className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
-    onMouseUp={onClick}
+    onClick={onClick}
     onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
   >
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
