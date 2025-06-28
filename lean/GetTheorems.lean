@@ -9,7 +9,7 @@ structure ArgumentInfo where
 
 structure DeclarationInfo where
   name : Name
-  declType : String  -- "theorem", "lemma", "definition", "axiom", etc.
+  declarationType : String  -- "theorem", "lemma", "definition", "axiom", etc.
   body : Option String  -- definition body if applicable
   deriving Inhabited, FromJson, ToJson
 
@@ -20,13 +20,13 @@ instance : Hashable DeclarationInfo where
   hash a := hash a.name
 
 structure TheoremSignature where
-  name         : String
-  instanceArgs : List ArgumentInfo := [] -- []
-  implicitArgs : List ArgumentInfo := [] -- {}
-  explicitArgs : List ArgumentInfo := [] -- ()
-  type         : String := ""            -- return type
-  declType     : String := ""            -- declaration type
-  declBody     : Option String := none   -- definition body if applicable
+  name              : String
+  instanceArgs      : List ArgumentInfo := [] -- []
+  implicitArgs      : List ArgumentInfo := [] -- {}
+  explicitArgs      : List ArgumentInfo := [] -- ()
+  type              : String := ""            -- return type
+  declarationType   : String := ""            -- declaration type
+  body              : Option String := none   -- definition body if applicable
   deriving Inhabited, FromJson, ToJson
 
 partial def getIds : Syntax → NameSet
@@ -118,8 +118,8 @@ def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl
     implicitArgs,
     explicitArgs,
     type := typeStr,
-    declType,
-    declBody
+    declarationType := declType,
+    body := declBody
   }
 
 /-- Extract theorem name from expression, handling constants, applications, and local variables -/

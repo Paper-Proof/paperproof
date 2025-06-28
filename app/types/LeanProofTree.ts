@@ -5,13 +5,33 @@ export interface ArgumentInfo {
   type: string;
 }
 
-export interface TheoremSignature {
+export type DeclarationType = "theorem" | "axiom" | "def";
+
+export interface BaseTheoremSignature {
   name: string;
   instanceArgs: ArgumentInfo[];
   implicitArgs: ArgumentInfo[];
   explicitArgs: ArgumentInfo[];
   type: string;
+  declarationType: DeclarationType;
 }
+
+export interface TheoremSignature extends BaseTheoremSignature {
+  declarationType: "theorem";
+  body: undefined;
+}
+
+export interface AxiomSignature extends BaseTheoremSignature {
+  declarationType: "axiom";
+  body: undefined;
+}
+
+export interface DefinitionSignature extends BaseTheoremSignature {
+  declarationType: "def";
+  body: string | undefined;
+}
+
+export type AnyTheoremSignature = TheoremSignature | AxiomSignature | DefinitionSignature;
 
 export type LeanHypothesis = {
   value: null | string;
@@ -35,7 +55,7 @@ export type LeanTactic = {
   goalsAfter: LeanGoal[];
   spawnedGoals: LeanGoal[];
   position: PositionStartStop;
-  theorems: TheoremSignature[];
+  theorems: AnyTheoremSignature[];
 };
 
 export type LeanProofTree = LeanTactic[];

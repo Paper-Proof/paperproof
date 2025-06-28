@@ -4,6 +4,9 @@ import {
   LeanTactic,
   LeanProofTree,
   TheoremSignature,
+  AxiomSignature,
+  DefinitionSignature,
+  AnyTheoremSignature,
   ArgumentInfo,
 } from "./LeanProofTree";
 import { LeanInteractiveHyp, LeanInteractiveGoal } from "./LeanInteractiveGoal";
@@ -108,5 +111,9 @@ export {
   Arrow,
   HypLayer,
   ContextMenuType,
-  TheoremSignature
+  TheoremSignature,
+  AxiomSignature,
+  DefinitionSignature,
+  AnyTheoremSignature,
+  ArgumentInfo
 };

@@ -26,6 +26,9 @@ These are experimental.
   margin-top: 8px;
   padding: 8px;
   width: 100%;
+  .args, .type, .body{
+    font-family: var(--vscode-editor-font-family);
+  }
   .theorem{
     text-align: left;
     .name{ font-weight: bold; }
@@ -38,13 +41,22 @@ These are experimental.
         margin-top: 2px;
         .arg{
           margin-right: 3px;
-          word-spacing: 8px;
           font-size: 13px;
           font-weight: 400;
-          .name{
+          .arg-name{
             font-weight: bold;
             color: #72787c;
           }
+        }
+      }
+      .parenthesis{
+        color: rgb(174 174 174);
+        font-weight: bold;
+        &.-left{
+          padding-right: 4px;
+        }
+        &.-right{
+          padding-left: 4px;
         }
       }
       .instance-args{
@@ -53,18 +65,22 @@ These are experimental.
       .implicit-args{
         color: rgb(174 174 174);
       }
-      .explicit-args{
+      .explicit-args .type{
         color: #5a5656;
-        word-spacing: 8px;
       }
     }
     .type{
       margin-left: 19px;
-      color: #5a5656;
       font-size: 13px;
       font-weight: 400;
-      word-spacing: 8px;
       margin-top: 2px;
+    }
+    .body{
+      margin-left: 19px;
+      font-weight: bold;
+      color: #72787c;
+      margin-top: 2px;
+      white-space: pre-wrap;
     }
   }
 }
@@ -93,7 +109,7 @@ These are experimental.
 .tactic.-hypothesis-tactic{
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
+  /* cursor: pointer; */
   transition: background-color 0.5s ease; 
   &.-highlight{
     background-color: rgb(255, 146, 250) !important;
@@ -291,6 +307,9 @@ body{
 
     background: rgb(0 213 255 / 12%);
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%239ed6e1' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  }
+  &.-with-theorem{
+    background-color: transparent !important;
   }
   &.-sorried{
     text-align: center;

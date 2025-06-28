@@ -1,5 +1,5 @@
 import React from "react";
-import { Arrow, Position, PositionStartStop, Tactic, TheoremSignature } from "types";
+import { Arrow, Position, PositionStartStop, Tactic, AnyTheoremSignature } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
 import { useGlobalContext } from "src/indexBrowser";
@@ -61,7 +61,7 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const text = prettifyTacticText(props.tactic.text);
 
-  const [theorem, setTheorem] = React.useState<TheoremSignature | null>(null);
+  const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
 
   const getTheoremShortName = (theoremName: string): string => {
     return theoremName
@@ -72,8 +72,8 @@ const TacticNode = (props: TacticNodeProps) => {
   };
 
   // Find all occurrences of theorem short names in the text
-  const findTheoremMatches = (text: string, theorems: TheoremSignature[]) => {
-    const matches: Array<{start: number, end: number, theorem: TheoremSignature}> = [];
+  const findTheoremMatches = (text: string, theorems: AnyTheoremSignature[]) => {
+    const matches: Array<{start: number, end: number, theorem: AnyTheoremSignature}> = [];
 
     theorems.forEach(theorem => {
       const shortName = getTheoremShortName(theorem.name);
@@ -105,7 +105,7 @@ const TacticNode = (props: TacticNodeProps) => {
   };
 
   // Render text with theorem highlights
-  const renderTextWithTheorems = (text: string, theorems: TheoremSignature[]) => {
+  const renderTextWithTheorems = (text: string, theorems: AnyTheoremSignature[]) => {
     const matches = findTheoremMatches(text, theorems);
     
     if (matches.length === 0) {
@@ -165,12 +165,22 @@ const TacticNode = (props: TacticNodeProps) => {
     }
   }
 
+  const renderArg = (pLeft: String, pRight: String, name: string | null, type: string) => {
+    return <div className="arg" key={name}>
+      <span className="parenthesis -left">{pLeft}</span>
+      <span className="arg-name">{name ? cleanHypName(name) + ' : ' : ''}</span>
+      <span className="arg-type">{type}</span>
+      <span className="parenthesis -right">{pRight}</span>
+    </div>
+  }
+
   return (
     <div 
       className={`
         tactic -hint
         ${props.className || ''}
         ${isSuccess ? '-success' : ''}
+        ${theorem ? '-with-theorem' : ''}
         ${isSorried ? '-sorried' : ''}
         ${isPositionMatch ? '-position-matches' : ''}
       `} 
@@ -196,33 +206,26 @@ const TacticNode = (props: TacticNodeProps) => {
         theorem &&
         <section className="theorem-wrapper">
           <div className="theorem">
-            <div className="name">{theorem.name}</div>
+            <div className="name">{theorem.declarationType} {theorem.name}</div>
             <div className="args">
               <div className="instance-args">
-                {theorem.instanceArgs.map((arg) =>
-                  <div className="arg" key={arg.name}>
-                    {`[ ${arg.type} ]`}
-                  </div>
-                )}
+                {theorem.instanceArgs.map((arg) => renderArg("[", "]", null, arg.type))}
               </div>
               <div className="implicit-args">
-                {theorem.implicitArgs.map((arg) =>
-                  <div className="arg" key={arg.name}>
-                    {`{ `}<span className="name">{cleanHypName(arg.name)}</span>{`: ${arg.type} }`}
-                  </div>
-                )}
+                {theorem.implicitArgs.map((arg) => renderArg("{", "}", arg.name, arg.type))}
               </div>
               <div className="explicit-args">
-                {theorem.explicitArgs.map((arg) =>
-                  <div className="arg" key={arg.name}>
-                    {`( `}<span className="name">{cleanHypName(arg.name)}</span>{`: ${arg.type} )`}
-                  </div>
-                )}
+                {theorem.explicitArgs.map((arg) => renderArg("(", ")", arg.name, arg.type))}
               </div>
             </div>
             <div className="type">
               : {theorem.type}
             </div>
+            {theorem.declarationType === "def" && theorem.body && (
+              <div className="body">
+                := {theorem.body}
+              </div>
+            )}
           </div>
         </section>
       }
