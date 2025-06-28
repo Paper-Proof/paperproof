@@ -43,8 +43,9 @@ def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopP
   -- 1. Extract theorem names from tactic
   let rawNames := tree.deepestNodes fun _ info _ => do
     let .ofTermInfo ti := info | none
-    let substr ← ti.stx.getSubstring?
-    guard (isInRange substr tacticStartPos tacticStopPos)
+    -- let substr ← ti.stx.getSubstring?
+    -- Guarding this misses some lemmas
+    -- guard (isInRange substr tacticStartPos tacticStopPos)
     extractTheoremName ti.expr ti.lctx
 
   -- 2. Make theorem names fully qualified
