@@ -31,22 +31,19 @@ These are experimental.
     .name{ font-weight: bold; }
     .args{
       display: block;
-      margin-left: 15px;
+      margin-left: 18px;
       .instance-args, .implicit-args, .explicit-args{
         display: flex;
-         row-gap: 2px;
+        flex-wrap: wrap;
+        margin-top: 2px;
         .arg{
-          /* background: rgb(255 255 255 / 25%); */
-          border-radius: 4px;
           margin-right: 3px;
-          padding: 2px 5px;
-          margin-bottom: 0px;
           word-spacing: 8px;
           font-size: 13px;
           font-weight: 400;
           .name{
             font-weight: bold;
-            color: #5a5656;
+            color: #72787c;
           }
         }
       }
@@ -67,6 +64,7 @@ These are experimental.
       font-size: 13px;
       font-weight: 400;
       word-spacing: 8px;
+      margin-top: 2px;
     }
   }
 }
