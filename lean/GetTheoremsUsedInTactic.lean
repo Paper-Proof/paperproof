@@ -7,12 +7,26 @@ structure ArgumentInfo where
   type : String
   deriving Inhabited, FromJson, ToJson
 
+structure DeclarationInfo where
+  name : Name
+  declType : String  -- "theorem", "lemma", "definition", "axiom", etc.
+  body : Option String  -- definition body if applicable
+  deriving Inhabited, FromJson, ToJson
+
+instance : BEq DeclarationInfo where
+  beq a b := a.name == b.name
+
+instance : Hashable DeclarationInfo where
+  hash a := hash a.name
+
 structure TheoremSignature where
   name         : String
   instanceArgs : List ArgumentInfo := [] -- []
   implicitArgs : List ArgumentInfo := [] -- {}
   explicitArgs : List ArgumentInfo := [] -- ()
   body         : String := ""            -- return type
+  declType     : String := ""            -- declaration type
+  declBody     : Option String := none   -- definition body if applicable
   deriving Inhabited, FromJson, ToJson
 
 partial def getIds : Syntax → NameSet
@@ -23,6 +37,32 @@ partial def getIds : Syntax → NameSet
 /-- Check if a substring position is within a given range -/
 def isInRange (substr : Substring) (startPos stopPos : String.Pos) : Bool :=
   substr.startPos >= startPos && substr.stopPos <= stopPos
+
+/-- Get declaration type string from ConstantInfo -/
+def getDeclarationType (ci : ConstantInfo) : String :=
+  match ci with
+  | .axiomInfo _  => "axiom"
+  | .defnInfo _   => "def"
+  | .thmInfo _    => "theorem"
+  | .opaqueInfo _ => "opaque"
+  | .quotInfo _   => "quotient"
+  | .inductInfo _ => "inductive"
+  | .ctorInfo _   => "constructor"
+  | .recInfo _    => "recursor"
+
+/-- Get declaration body if it's a definition -/
+def getDeclarationBody (ci : ConstantInfo) : MetaM (Option String) := do
+  match ci.value? with
+  | some expr => do
+    let ppCtx : PPContext := { 
+      env := ← getEnv, 
+      mctx := ← getMCtx, 
+      lctx := LocalContext.empty,
+      opts := (← getOptions).setBool `pp.fullNames true 
+    }
+    let bodyStr ← ppExprWithInfos ppCtx expr
+    return some bodyStr.fmt.pretty
+  | none => return none
 
 /-- Extract theorem name from expression, handling constants, applications, and local variables -/
 def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
@@ -39,7 +79,7 @@ def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
   | _ => none
 
 /-- Finds unique fully qualified theorem names within a specific source code range -/
-def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : MetaM (List Name) := do
+def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) : MetaM (List DeclarationInfo) := do
   -- 1. Extract theorem names from tactic
   let rawNames := tree.deepestNodes fun _ info _ => do
     let .ofTermInfo ti := info | none
@@ -51,8 +91,16 @@ def findTheoremsInTacticRange (tree : Elab.InfoTree) (tacticStartPos tacticStopP
   -- 2. Make theorem names fully qualified
   let resolvedNames : List Name ← rawNames.mapM resolveGlobalConstNoOverloadCore
 
-  -- 3. Remove duplicates
-  pure resolvedNames.toSSet.toList
+  -- 3. Get declaration info for each name
+  let declInfos : List DeclarationInfo ← resolvedNames.mapM fun name => do
+    let constInfo ← getConstInfo name
+    let declType := getDeclarationType constInfo
+    let body ← getDeclarationBody constInfo
+    return { name, declType, body }
+
+  -- 4. Remove duplicates (based on name)
+  let uniqueDecls := declInfos.toSSet.toList
+  pure uniqueDecls
 
 def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
   Meta.forallTelescope expr fun args body => do
@@ -86,8 +134,8 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
     let bodyStr ← ppExprWithInfos ppCtx body
     return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
 
-def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name : Name) : MetaM (Option TheoremSignature) := do
-  let constInfo ← getConstInfo name
+def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (declInfo : DeclarationInfo) : MetaM (Option TheoremSignature) := do
+  let constInfo ← getConstInfo declInfo.name
 
   let ppCtx := { (ctx.toPPContext (goalDecl.lctx |>.sanitizeNames.run' {options := {}})) with opts := (ctx.toPPContext goalDecl.lctx).opts.setBool `pp.fullNames true }
 
@@ -100,7 +148,9 @@ def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (name :
     instanceArgs,
     implicitArgs,
     explicitArgs,
-    body
+    body,
+    declType := declInfo.declType,
+    declBody := declInfo.body
   }
 
 def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : RequestM (List TheoremSignature) := do
