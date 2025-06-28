@@ -151,6 +151,20 @@ const TacticNode = (props: TacticNodeProps) => {
     return parts;
   };
 
+  // noncomputable def fn_of_sum_ne_inlww {α β₁ β₂ : Type} {f : α → β₁ ⊕ β₂} (hf : ∀ www : α, ∀ b₁ : β₁, f www ≠ ◩b₁) : α → β₂ :=
+  // fun nnn => (fn_sum_ne_inl hf nnn).choose
+  // BEFORE
+  // (a._@.Seymour.Matroid.Operations.Sum3.MatrixLikeSum3._hyg.8589: α )
+  // AFTER
+  // (anonymous: α )
+  const cleanHypName = (name: string) => {
+    if (name.includes('_hyg')) {
+      return '_';
+    } else {
+      return name;
+    }
+  }
+
   return (
     <div 
       className={`
@@ -194,14 +208,14 @@ const TacticNode = (props: TacticNodeProps) => {
               <div className="implicit-args">
                 {theorem.implicitArgs.map((arg) =>
                   <div className="arg" key={arg.name}>
-                    {`{ `}<span className="name">{arg.name}</span>{`: ${arg.type} }`}
+                    {`{ `}<span className="name">{cleanHypName(arg.name)}</span>{`: ${arg.type} }`}
                   </div>
                 )}
               </div>
               <div className="explicit-args">
                 {theorem.explicitArgs.map((arg) =>
                   <div className="arg" key={arg.name}>
-                    {`( `}<span className="name">{arg.name}</span>{`: ${arg.type} )`}
+                    {`( `}<span className="name">{cleanHypName(arg.name)}</span>{`: ${arg.type} )`}
                   </div>
                 )}
               </div>
