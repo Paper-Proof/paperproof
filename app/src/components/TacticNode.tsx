@@ -220,8 +220,8 @@ const TacticNode = (props: TacticNodeProps) => {
                 )}
               </div>
             </div>
-            <div className="body">
-              : {theorem.body}
+            <div className="type">
+              : {theorem.type}
             </div>
           </div>
         </section>

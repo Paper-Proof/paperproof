@@ -10,7 +10,7 @@ export interface TheoremSignature {
   instanceArgs: ArgumentInfo[];
   implicitArgs: ArgumentInfo[];
   explicitArgs: ArgumentInfo[];
-  body: string;
+  type: string;
 }
 
 export type LeanHypothesis = {

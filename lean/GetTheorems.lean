@@ -24,7 +24,7 @@ structure TheoremSignature where
   instanceArgs : List ArgumentInfo := [] -- []
   implicitArgs : List ArgumentInfo := [] -- {}
   explicitArgs : List ArgumentInfo := [] -- ()
-  body         : String := ""            -- return type
+  type         : String := ""            -- return type
   declType     : String := ""            -- declaration type
   declBody     : Option String := none   -- definition body if applicable
   deriving Inhabited, FromJson, ToJson
@@ -99,7 +99,7 @@ def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl
   let nameStr ← ppExprWithInfos ppCtx (mkConst constInfo.name)
   
   -- Extract arguments and return type
-  let (instanceArgs, implicitArgs, explicitArgs, body) ← getAllArgsWithTypes constInfo.type
+  let (instanceArgs, implicitArgs, explicitArgs, typeStr) ← getAllArgsWithTypes constInfo.type
   
   -- Only include definition body for "def" declarations
   let declBody ← 
@@ -117,7 +117,7 @@ def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl
     instanceArgs,
     implicitArgs,
     explicitArgs,
-    body,
+    type := typeStr,
     declType,
     declBody
   }
