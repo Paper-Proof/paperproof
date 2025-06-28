@@ -4,7 +4,6 @@ import Lean.Elab.Tactic
 
 import BetterParser
 import CheckIfUserIsStillTyping
-import GetTheoremsUsedInTactic
 
 open Lean Elab Meta Server RequestM
 

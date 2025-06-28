@@ -153,7 +153,7 @@ def extractTheoremSignature (ctx : ContextInfo) (goalDecl : MetavarDecl) (declIn
     declBody := declInfo.body
   }
 
-def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : RequestM (List TheoremSignature) := do
+def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : RequestM (List TheoremSignature) := do
   let some goalDecl := ctx.mctx.findDecl? tacticInfo.goalsBefore.head!
     | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
   let some tacticSubstring := getTacticSubstring tacticInfo
@@ -162,4 +162,3 @@ def GetTheoremsUsedInTactic (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx
   ctx.runMetaM goalDecl.lctx do
     let theoremNames ← findTheoremsInTacticRange infoTree tacticSubstring.startPos tacticSubstring.stopPos
     theoremNames.filterMapM (extractTheoremSignature ctx goalDecl)
-  

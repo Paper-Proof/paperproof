@@ -1,7 +1,7 @@
 import Lean
 import Lean.Meta.Basic
 import Lean.Meta.CollectMVars
-import GetTheoremsUsedInTactic
+import GetTheorems
 import GetTacticSubstring
 open Lean Elab Server
 
@@ -202,7 +202,7 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-  let theorems ← if ifReturnTheorems then GetTheoremsUsedInTactic infoTree tInfo ctx else pure []
+  let theorems ← if ifReturnTheorems then GetTheorems infoTree tInfo ctx else pure []
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
