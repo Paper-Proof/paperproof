@@ -1,14 +1,5 @@
-import {
-  LeanProofTree,
-  LeanHypothesis,
-  LeanTactic,
-  LeanGoal,
-  ConvertedProofTree,
-  Tactic,
-  HypNode,
-  Box,
-  fakePosition,
-} from "types";
+import { LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal, ConvertedProofTree, Tactic, HypNode, Box, fakePosition } from "types";
+import logProofTreeForDebugging from "./logProofTreeForDebugging";
 
 let boxId: number;
 let tacticId: number;
@@ -478,33 +469,6 @@ const filterBacktrackingSteps = (steps: LeanTactic[]): LeanTactic[] => {
   return result;
 };
 
-function getHypById(convertedProofTree: ConvertedProofTree, hypId: string | null): string | null {
-  if (hypId === null) return null
-  for (const box of convertedProofTree.boxes) {
-    const foundHyp = box.hypLayers
-      .flatMap(layer => layer.hypNodes)
-      .find(hypNode => hypNode.id === hypId);
-    
-    if (foundHyp) {
-      return foundHyp.text;
-    }
-  }
-  
-  return null;
-}
-
-function getGoalById(convertedProofTree: ConvertedProofTree, goalId: string): string | null {
-  for (const box of convertedProofTree.boxes) {
-    const foundGoal = box.goalNodes.find(goalNode => goalNode.id === goalId);
-    
-    if (foundGoal) {
-      return foundGoal.text;
-    }
-  }
-  
-  return null;
-}
-
 const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
   boxId = 1;
   tacticId = 1;
@@ -527,22 +491,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
 
   postprocess(convertedProofTree);
 
-  const copypaste = {
-    tactics: convertedProofTree.tactics.map((tactic) => ({
-      text: tactic.text,
-      hypothesisChanges: tactic.hypArrows.map((a) => ({
-        from: getHypById(convertedProofTree, a.fromId),
-        to: a.toIds.map((id) => getHypById(convertedProofTree, id))
-      })),
-      goalChanges: tactic.goalArrows.map((a) => ({
-        from: getGoalById(convertedProofTree, a.fromId),
-        to: getGoalById(convertedProofTree, a.toId),
-      })),
-      closedSomeGoal: tactic.successGoalId ? getGoalById(convertedProofTree, tactic.successGoalId) : null
-    }))
-  }
-
-  console.log({ leanProofTree, convertedProofTree, copypaste });
+  logProofTreeForDebugging(leanProofTree, convertedProofTree)
 
   return convertedProofTree;
 };
