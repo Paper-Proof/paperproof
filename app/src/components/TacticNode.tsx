@@ -6,7 +6,7 @@ import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
 import DependsOnUI from "src/services/DependsOnUI";
-import findAllWordBoundaryMatches from "src/services/findAllWordBoundaryMatches";
+import FancySubstring, { SubstringMatch } from "src/services/FancySubstring";
 
 const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean => {
   // If tactic spans many lines, it just means it's the last tactic in this proof, and Lean thinks empty lines below belong to this tactic
@@ -65,75 +65,12 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
 
-  const getTheoremShortName = (theoremName: string): string => {
-    return theoremName
+  const getTheoremShortName = (theorem: AnyTheoremSignature): string => {
+    return theorem.name
       // Skip all modules
       .split('.').at(-1)!
       // Strip "@"
       .split('@').at(-1)!
-  };
-
-  const findTheoremMatches = (text: string, theorems: AnyTheoremSignature[]) => {
-    const matches: Array<{start: number, end: number, theorem: AnyTheoremSignature}> = [];
-
-    theorems.forEach(theorem => {
-      const shortName = getTheoremShortName(theorem.name);
-      const positions = findAllWordBoundaryMatches(text, shortName);
-
-      positions.forEach((start) => {
-        matches.push({ start, end: start + shortName.length, theorem });
-      });
-    });
-
-    // Sort matches by position to handle overlaps
-    return matches.sort((a, b) => a.start - b.start);
-  };
-
-  // Render text with theorem highlights
-  const renderTextWithTheorems = (text: string, theorems: AnyTheoremSignature[]) => {
-    const matches = findTheoremMatches(text, theorems);
-    
-    if (matches.length === 0) {
-      return text;
-    }
-    
-    const parts = [];
-    let lastIndex = 0;
-    
-    matches.forEach((match, index) => {
-      // Add text before the match
-      if (match.start > lastIndex) {
-        parts.push(text.substring(lastIndex, match.start));
-      }
-      
-      // Add the highlighted theorem
-      parts.push(
-        <span
-          key={`theorem-${index}`}
-          className="theorem-highlight"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            if (theorem === match.theorem) {
-              setTheorem(null)
-            } else {
-              setTheorem(match.theorem);
-            }
-          }}
-        >
-          {text.substring(match.start, match.end)}
-        </span>
-      );
-      
-      lastIndex = match.end;
-    });
-    
-    // Add remaining text
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-    
-    return parts;
   };
 
   // noncomputable def fn_of_sum_ne_inlww {α β₁ β₂ : Type} {f : α → β₁ ⊕ β₂} (hf : ∀ www : α, ∀ b₁ : β₁, f www ≠ ◩b₁) : α → β₂ :=
@@ -159,6 +96,25 @@ const TacticNode = (props: TacticNodeProps) => {
     </div>
   }
 
+  const tacticText = FancySubstring.renderTextWithMatches(
+    text,
+    props.tactic.theorems,
+    getTheoremShortName,
+    (match: SubstringMatch<AnyTheoremSignature>, index: number, text: string) => {
+      return <span
+        key={`theorem-${index}`}
+        className="theorem-highlight"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setTheorem(theorem === match.item ? null : match.item);
+        }}
+      >
+        {text.substring(match.start, match.end)}
+      </span>
+    }
+  );
+
   return (
     <div 
       className={`
@@ -180,10 +136,10 @@ const TacticNode = (props: TacticNodeProps) => {
       {
         isSuccess ?
         <div className="text">
-          <span>🎉</span> <span>{renderTextWithTheorems(text, props.tactic.theorems)}</span> <span>🎉</span>
+          <span>🎉</span> <span>{tacticText}</span> <span>🎉</span>
         </div> :
         <div className="text">
-          {renderTextWithTheorems(text, props.tactic.theorems)}
+          {tacticText}
         </div>
       }
 

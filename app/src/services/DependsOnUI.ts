@@ -1,7 +1,7 @@
 import { GlobalContextType } from "src/indexBrowser";
 import getHypById from "./getHypById";
 import { HypNode } from "types";
-import findAllWordBoundaryMatches from "./findAllWordBoundaryMatches";
+import FancySubstring from "./FancySubstring";
 
 const shouldDrawArrowToHypothesis = (global: GlobalContextType, hypId: string): boolean => {
   if (global.settings.isSingleTacticMode) {
@@ -19,7 +19,7 @@ const shouldHighlightHypothesis = (global: GlobalContextType, hypNode: HypNode):
       singleTactic.dependsOnIds.includes(hypNode.id) &&
       (
         hypNode.isProof === "proof" ||
-        (!!hypNode.name && findAllWordBoundaryMatches(singleTactic.text, hypNode.name).length > 0)
+        (!!hypNode.name && FancySubstring.findAllMatches(singleTactic.text, hypNode.name).length > 0)
       );
   } else {
     return !!global.highlights && global.highlights.hypIds.includes(hypNode.id);
