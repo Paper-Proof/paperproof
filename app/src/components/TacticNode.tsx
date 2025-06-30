@@ -6,6 +6,7 @@ import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
 import DependsOnUI from "src/services/DependsOnUI";
+import findAllWordBoundaryMatches from "src/services/findAllWordBoundaryMatches";
 
 const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean => {
   // If tactic spans many lines, it just means it's the last tactic in this proof, and Lean thinks empty lines below belong to this tactic
@@ -72,30 +73,18 @@ const TacticNode = (props: TacticNodeProps) => {
       .split('@').at(-1)!
   };
 
-  // Find all occurrences of theorem short names in the text
   const findTheoremMatches = (text: string, theorems: AnyTheoremSignature[]) => {
     const matches: Array<{start: number, end: number, theorem: AnyTheoremSignature}> = [];
 
     theorems.forEach(theorem => {
       const shortName = getTheoremShortName(theorem.name);
-      let startIndex = 0;
-      
-      while (true) {
-        const index = text.indexOf(shortName, startIndex);
-        if (index === -1) break;
-        const isWordBoundary = new RegExp(`\\b${shortName}\\b`).test(text);
-        if (isWordBoundary) {
-          matches.push({
-            start: index,
-            end: index + shortName.length,
-            theorem
-          });
-        }
+      const positions = findAllWordBoundaryMatches(text, shortName);
 
-        startIndex = index + 1;
-      }
+      positions.forEach((start) => {
+        matches.push({ start, end: start + shortName.length, theorem });
+      });
     });
-    
+
     // Sort matches by position to handle overlaps
     return matches.sort((a, b) => a.start - b.start);
   };
