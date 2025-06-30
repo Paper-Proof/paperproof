@@ -1,5 +1,5 @@
 import React from "react";
-import { Arrow, Position, PositionStartStop, Tactic, AnyTheoremSignature, HypNode } from "types";
+import { Arrow, Tactic, AnyTheoremSignature } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
 import { useGlobalContext } from "src/indexBrowser";
@@ -8,6 +8,7 @@ import prettifyTacticText from "src/services/prettifyTacticText";
 import DependsOnUI from "src/services/DependsOnUI";
 import FancySubstring, { SubstringMatch } from "src/services/FancySubstring";
 import isCursorWithinTactic from "src/services/isCursorWithinTactic";
+import Theorem from "./Theorem";
 
 interface TacticNodeProps {
   tactic?: Tactic;
@@ -58,28 +59,6 @@ const TacticNode = (props: TacticNodeProps) => {
       .split('@').at(-1)!
   };
 
-  // noncomputable def fn_of_sum_ne_inlww {α β₁ β₂ : Type} {f : α → β₁ ⊕ β₂} (hf : ∀ www : α, ∀ b₁ : β₁, f www ≠ ◩b₁) : α → β₂ :=
-  // fun nnn => (fn_sum_ne_inl hf nnn).choose
-  // BEFORE
-  // (a._@.Seymour.Matroid.Operations.Sum3.MatrixLikeSum3._hyg.8589: α )
-  // AFTER
-  // (anonymous: α )
-  const cleanHypName = (name: string) => {
-    if (name.includes('_hyg')) {
-      return '_';
-    } else {
-      return name;
-    }
-  }
-
-  const renderArg = (pLeft: String, pRight: String, name: string | null, type: string) => {
-    return <div className="arg" key={name}>
-      <span className="parenthesis -left">{pLeft}</span>
-      <span className="arg-name">{name ? cleanHypName(name) + ' : ' : ''}</span>
-      <span className="arg-type">{type}</span>
-      <span className="parenthesis -right">{pRight}</span>
-    </div>
-  }
 
   const tacticText = FancySubstring.renderTextWithMatches(
     text,
@@ -128,33 +107,8 @@ const TacticNode = (props: TacticNodeProps) => {
         </div>
       }
 
-      {
-        theorem &&
-        <section className="theorem-wrapper">
-          <div className="theorem">
-            <div className="name">{theorem.declarationType} {theorem.name}</div>
-            <div className="args">
-              <div className="instance-args">
-                {theorem.instanceArgs.map((arg) => renderArg("[", "]", null, arg.type))}
-              </div>
-              <div className="implicit-args">
-                {theorem.implicitArgs.map((arg) => renderArg("{", "}", arg.name, arg.type))}
-              </div>
-              <div className="explicit-args">
-                {theorem.explicitArgs.map((arg) => renderArg("(", ")", arg.name, arg.type))}
-              </div>
-            </div>
-            <div className="type">
-              : {theorem.type}
-            </div>
-            {theorem.declarationType === "def" && theorem.body && (
-              <div className="body">
-                := {theorem.body}
-              </div>
-            )}
-          </div>
-        </section>
-      }
+      {theorem && <Theorem theorem={theorem}/>}
+
       {!props.circleEl && perfectArrows.map((arrow, index) =>
         <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
       )}
