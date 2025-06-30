@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
+import "./css/theorem.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./services/getHighlights";

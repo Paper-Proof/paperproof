@@ -122,6 +122,7 @@ def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl
     body := declBody
   }
 
+-- TODO I think now we can remove everything and just leave .const here
 /-- Extract theorem name from expression, handling constants, applications, and local variables -/
 def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
   guard (!expr.isSyntheticSorry)

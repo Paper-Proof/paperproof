@@ -1,111 +1,32 @@
-/* 
-These are experimental.
-
-.active-tactic{
-  text-align: center;
-}
-.active-tactic img{
-  width: 40px;
-  margin-bottom: 10px;
-}
-
-.box.-sorried{
-  background: red;
-}
-*/
-.theorem-highlight{
-  text-decoration: underline;
-  text-decoration-color: #72787c;
-  cursor: pointer;
-  text-underline-offset: 2px;
-  &:hover{
-    opacity: 0.8;
-  }
-}
-.theorem-wrapper{
-  margin-top: 8px;
-  padding: 8px;
-  width: 100%;
-  .args, .type, .body{
-    font-family: var(--vscode-editor-font-family);
-  }
-  .theorem{
-    text-align: left;
-    .name{ font-weight: bold; }
-    .args{
-      display: block;
-      margin-left: 18px;
-      .instance-args, .implicit-args, .explicit-args{
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 2px;
-        .arg{
-          margin-right: 3px;
-          font-size: 13px;
-          font-weight: 400;
-          .arg-name{
-            font-weight: bold;
-            color: #72787c;
-          }
-        }
-      }
-      .parenthesis{
-        color: rgb(174 174 174);
-        font-weight: bold;
-        &.-left{
-          padding-right: 4px;
-        }
-        &.-right{
-          padding-left: 4px;
-        }
-      }
-      .instance-args{
-        color: rgb(174 174 174);
-      }
-      .implicit-args{
-        color: rgb(174 174 174);
-      }
-      .explicit-args .type{
-        color: #5a5656;
-      }
-    }
-    .type{
-      margin-left: 19px;
-      font-size: 13px;
-      font-weight: 400;
-      margin-top: 2px;
-    }
-    .body{
-      margin-left: 19px;
-      font-weight: bold;
-      color: #72787c;
-      margin-top: 2px;
-      white-space: pre-wrap;
-    }
-  }
-}
-.tactic{
-  flex-wrap: wrap;
-}
-
-.single-tactic-hyp-row{
-  padding-top: 1px;
-  display: block !important;
-  .hypothesis{
-    display: block;
-    width: fit-content;
-    margin-top: 2px;
-  }
-}
-
-.proof-tree.-isSingleTacticModeON #box-1{ width: 100vw !important; }
-
 .proof-tree.-isSingleTacticModeON{
+  #box-1{ width: 100vw !important; }
+
   .hypothesis.-highlighted, .hypothesis.data.-highlighted{
     border-color: rgba(100, 173, 115, 0.873);
   }
+
+  .single-tactic-hyp-row{
+    padding-top: 1px;
+    display: block !important;
+    .hypothesis{
+      display: block;
+      width: fit-content;
+      margin-top: 2px;
+    }
+  }
+
+  .theorem-highlight{
+    text-decoration: underline;
+    text-decoration-color: #72787c;
+    cursor: pointer;
+    text-underline-offset: 2px;
+    &:hover{
+      opacity: 0.8;
+    }
+  }
 }
 
+/* This is for folding/unfolding `have`s */
 .tactic.-hypothesis-tactic{
   display: flex;
   justify-content: space-between;
@@ -271,6 +192,7 @@ body{
   }
 }
 .hypothesis, .goal, .tactic{
+  flex-wrap: wrap;
   padding: 5px 12px;
   border-radius: 3px;
   /* exactly 3 lines */
