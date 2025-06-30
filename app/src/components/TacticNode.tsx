@@ -7,22 +7,7 @@ import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
 import DependsOnUI from "src/services/DependsOnUI";
 import FancySubstring, { SubstringMatch } from "src/services/FancySubstring";
-
-const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean => {
-  // If tactic spans many lines, it just means it's the last tactic in this proof, and Lean thinks empty lines below belong to this tactic
-  const tacticSpansManyLines = tactic.stop.line - tactic.start.line > 1;
-  const stopLine = tacticSpansManyLines ? tactic.start.line + 1 : tactic.stop.line;
-  const stopCharacter = tacticSpansManyLines ? 0 : tactic.stop.character;
-  return (
-    cursor.line > tactic.start.line || 
-    (cursor.line === tactic.start.line && cursor.character >= tactic.start.character)
-  )
-  &&
-  (
-    cursor.line < stopLine || 
-    (cursor.line === stopLine && cursor.character < stopCharacter)
-  );
-};
+import isCursorWithinTactic from "src/services/isCursorWithinTactic";
 
 interface TacticNodeProps {
   tactic?: Tactic;
@@ -59,7 +44,7 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const isSorried = props.tactic.text.includes("sorry") || props.tactic.text === "done";
   const isSuccess = props.tactic.successGoalId && !isSorried;
-  const isPositionMatch = global.settings.isSingleTacticMode ? false : isPositionWithin(global.position, props.tactic.position);
+  const isPositionMatch = global.settings.isSingleTacticMode ? false : isCursorWithinTactic(global.position, props.tactic.position);
 
   const text = prettifyTacticText(props.tactic.text);
 
