@@ -7,6 +7,7 @@ import Search from "src/components/Search";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import onContextMenu from "src/services/onContextMenu";
+import DependsOnUI from "src/services/DependsOnUI";
 
 export interface HypothesisProps {
   hypNode: HypNode;
@@ -16,9 +17,6 @@ export interface HypothesisProps {
 const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   const global = useGlobalContext();
   const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
-
-  const singleTactic = global.proofTree.tactics[1]
-  const isImportant = global.settings.isSingleTacticMode && singleTactic && singleTactic.dependsOnIds.includes(props.hypNode.id)
 
   const name = prettifyHypothesisUsername(props.hypNode.name);
 
@@ -50,7 +48,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
         className={`
           hypothesis
           -hint
-          ${global.highlights?.hypIds.includes(props.hypNode.id) || isImportant ? "-highlighted" : ""}
+          ${DependsOnUI.shouldHighlightHypothesis(global, props.hypNode) ? "-highlighted" : ""}
           ${props.hypNode.isProof}
           ${isSearched ? '-is-searched' : ''}
           ${isHypHidden ? '-hidden' : ''}

@@ -101,7 +101,7 @@ These are experimental.
 .proof-tree.-isSingleTacticModeON #box-1{ width: 100vw !important; }
 
 .proof-tree.-isSingleTacticModeON{
-  .hypothesis.-highlighted{
+  .hypothesis.-highlighted, .hypothesis.data.-highlighted{
     border-color: rgba(100, 173, 115, 0.873);
   }
 }

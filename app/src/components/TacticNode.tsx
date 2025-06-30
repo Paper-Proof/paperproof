@@ -1,10 +1,11 @@
 import React from "react";
-import { Arrow, Position, PositionStartStop, Tactic, AnyTheoremSignature } from "types";
+import { Arrow, Position, PositionStartStop, Tactic, AnyTheoremSignature, HypNode } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
 import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
+import DependsOnUI from "src/services/DependsOnUI";
 
 const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean => {
   // If tactic spans many lines, it just means it's the last tactic in this proof, and Lean thinks empty lines below belong to this tactic
@@ -48,9 +49,9 @@ const TacticNode = (props: TacticNodeProps) => {
 
   React.useLayoutEffect(() => {
     if (!props.tactic) return;
-    if (global.settings.isSingleTacticMode) return;
     const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
-      .map((dependsOnHypId) => createArrow(`hypothesis-${dependsOnHypId}`, thisEl.current))
+      .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, hypId))
+      .map((hypId) => createArrow(`hypothesis-${hypId}`, thisEl.current))
       .filter((arrow) : arrow is Arrow => arrow !== null);
     setPerfectArrows(newPerfectArrows);
   }, [props.tactic, global.UIVersion]);
@@ -82,12 +83,7 @@ const TacticNode = (props: TacticNodeProps) => {
       while (true) {
         const index = text.indexOf(shortName, startIndex);
         if (index === -1) break;
-        
-        // Check if this is a word boundary (not part of a larger identifier)
-        const prevChar = index > 0 ? text[index - 1] : ' ';
-        const nextChar = index + shortName.length < text.length ? text[index + shortName.length] : ' ';
-        const isWordBoundary = !/[a-zA-Z0-9_]/.test(prevChar) && !/[a-zA-Z0-9_]/.test(nextChar);
-        
+        const isWordBoundary = new RegExp(`\\b${shortName}\\b`).test(text);
         if (isWordBoundary) {
           matches.push({
             start: index,
@@ -95,7 +91,7 @@ const TacticNode = (props: TacticNodeProps) => {
             theorem
           });
         }
-        
+
         startIndex = index + 1;
       }
     });

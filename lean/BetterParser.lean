@@ -63,10 +63,7 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
   let fullExpr ← instantiateExprMVars expr
   let fvarIds := (collectFVars {} fullExpr).fvarIds
   let fvars := fvarIds.filterMap goalDecl.lctx.find?
-  let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
-  -- let pretty := proofFvars.map (fun x => x.userName)
-  -- dbg_trace s!"Used {pretty}"
-  return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
+  return fvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- This is used to match goalsBefore with goalsAfter to see what was assigned to what
 def findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do

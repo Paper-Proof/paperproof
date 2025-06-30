@@ -23,7 +23,7 @@ declare const acquireVsCodeApi: PaperproofAcquireVsCodeApi;
 // Get vscode API reference once
 const vscode = acquireVsCodeApi();
 
-interface GlobalContextType {
+export interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
   collapsedBoxIds: string[];

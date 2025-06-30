@@ -1,5 +1,5 @@
 import { PositionStartStop } from "types";
-import { AnyTheoremSignature, TheoremSignature } from "./LeanProofTree";
+import { AnyTheoremSignature } from "./LeanProofTree";
 
 export interface GoalNode {
   text: string;
