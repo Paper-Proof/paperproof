@@ -1,4 +1,5 @@
 import { PositionStartStop } from "types";
+import { AnyTheoremSignature } from "./LeanProofTree";
 
 export interface GoalNode {
   text: string;
@@ -80,6 +81,7 @@ export interface Tactic {
   haveBoxIds: string[];
   byBoxIds: string[];
   position: PositionStartStop;
+  theorems: AnyTheoremSignature[];
 }
 
 export interface ConvertedProofTree {

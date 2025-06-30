@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
+import "./css/theorem.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./services/getHighlights";
@@ -23,13 +24,15 @@ declare const acquireVsCodeApi: PaperproofAcquireVsCodeApi;
 // Get vscode API reference once
 const vscode = acquireVsCodeApi();
 
-interface GlobalContextType {
+export interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
   searchedHypIds: string[];
   setSearchedHypIds: (x: string[]) => void;
+  deletedHypothesisNames: string[];
+  setDeletedHypothesisNames: (x: string[]) => void;
   settings: Settings;
   setSettings: (x: Settings) => void;
   proofTree: ConvertedProofTree;
@@ -64,6 +67,7 @@ function Main() {
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
+  const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
 
   const [settings, setSettings] = useState(window.initialSettings);
   const [position, setPosition] = useState<Position>(fakePosition);
@@ -71,8 +75,6 @@ function Main() {
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-
-  const [idsOutsideViewport, setIdsOutsideViewport] = React.useState<string[]>([]);
 
   const updateUI = (proofResponse : ProofResponse) => {
     if ("error" in proofResponse) {
@@ -125,7 +127,7 @@ function Main() {
     //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
     const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
     convertedProofTree.boxes.forEach((box) => {
-      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
+      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree, settings.isSingleTacticMode)
     });
     const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
     const currentStatement = getStatement(proofResponse.proofTree);
@@ -135,7 +137,6 @@ function Main() {
       highlights: newHighlights,
       statement: currentStatement,
     });
-    setIdsOutsideViewport([]);
   }
 
   const updateSettings = (newSettings: Settings) => {
@@ -164,7 +165,7 @@ function Main() {
 
     addEventListener('message', updateFromVscode);
     return () => removeEventListener('message', updateFromVscode);
-  }, []);
+  }, [settings]);
 
   React.useLayoutEffect(() => {
     if (!converted) return;
@@ -209,6 +210,7 @@ function Main() {
           UIVersion, refreshUI,
           collapsedBoxIds, setCollapsedBoxIds,
           searchedHypIds,  setSearchedHypIds,
+          deletedHypothesisNames, setDeletedHypothesisNames,
           settings,        setSettings: updateSettings,
 
           proofTree: converted.proofTree,
@@ -218,6 +220,7 @@ function Main() {
       >
         <div className={`
           proof-tree
+          ${settings.isSingleTacticMode ? '-isSingleTacticModeON' : ''}
           ${settings.isCompactMode     ? '-isCompactModeON'     : ''}
           ${settings.isCompactTactics  ? '-isCompactTacticsON'  : '-isCompactTacticsOFF'}
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}

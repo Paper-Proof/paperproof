@@ -1,14 +1,5 @@
-import {
-  LeanProofTree,
-  LeanHypothesis,
-  LeanTactic,
-  LeanGoal,
-  ConvertedProofTree,
-  Tactic,
-  HypNode,
-  Box,
-  fakePosition,
-} from "types";
+import { LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal, ConvertedProofTree, Tactic, HypNode, Box, fakePosition } from "types";
+import logProofTreeForDebugging from "./logProofTreeForDebugging";
 
 let boxId: number;
 let tacticId: number;
@@ -371,7 +362,8 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     successGoalId: goalsAfter.length === 0 ? goalBefore.id : undefined,
     haveBoxIds: haveBoxIds,
     byBoxIds: byBoxIds,
-    position: tactic.position
+    position: tactic.position,
+    theorems: tactic.theorems
   });
 };
 
@@ -418,7 +410,8 @@ const drawInitialGoal = (
     ],
     haveBoxIds: [],
     byBoxIds: [],
-    position: { start: fakePosition, stop: fakePosition }
+    position: { start: fakePosition, stop: fakePosition },
+    theorems: []
   });
 };
 
@@ -498,7 +491,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
 
   postprocess(convertedProofTree);
 
-  console.log({ leanProofTree, convertedProofTree });
+  logProofTreeForDebugging(leanProofTree, convertedProofTree)
 
   return convertedProofTree;
 };

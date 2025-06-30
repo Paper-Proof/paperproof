@@ -1,23 +1,36 @@
-/* 
-These are experimental.
+.proof-tree.-isSingleTacticModeON{
+  #box-1{ width: 100vw !important; }
 
-.active-tactic{
-  text-align: center;
-}
-.active-tactic img{
-  width: 40px;
-  margin-bottom: 10px;
+  .hypothesis.-highlighted, .hypothesis.data.-highlighted{
+    border-color: rgba(100, 173, 115, 0.873);
+  }
+
+  .single-tactic-hyp-row{
+    padding-top: 1px;
+    display: block !important;
+    .hypothesis{
+      display: block;
+      width: fit-content;
+      margin-top: 2px;
+    }
+  }
+
+  .theorem-highlight{
+    text-decoration: underline;
+    text-decoration-color: #72787c;
+    cursor: pointer;
+    text-underline-offset: 2px;
+    &:hover{
+      opacity: 0.8;
+    }
+  }
 }
 
-.box.-sorried{
-  background: red;
-}
-*/
-
+/* This is for folding/unfolding `have`s */
 .tactic.-hypothesis-tactic{
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
+  /* cursor: pointer; */
   transition: background-color 0.5s ease; 
   &.-highlight{
     background-color: rgb(255, 146, 250) !important;
@@ -114,6 +127,10 @@ body{
   }
 }
 
+.proof-tree.-isSingleTacticModeON{
+  .tactic .perfect-arrow{ z-index: 5; display: block; }
+}
+
 /*______________________ PROOF-TREE: colors ______________________*/
 /* This would be really easy to achieve with opacities, however various nodes goalUsernames must *cover* tactic borders to make them look good, which means they must be solid-color. */
 .box{
@@ -175,6 +192,7 @@ body{
   }
 }
 .hypothesis, .goal, .tactic{
+  flex-wrap: wrap;
   padding: 5px 12px;
   border-radius: 3px;
   /* exactly 3 lines */
@@ -212,6 +230,9 @@ body{
     background: rgb(0 213 255 / 12%);
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%239ed6e1' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
+  &.-with-theorem{
+    background-color: transparent !important;
+  }
   &.-sorried{
     text-align: center;
     background: #f2ded94f;
@@ -236,6 +257,7 @@ body{
   border: 2px solid rgb(152 214 179);
   .name{ color: #d0005b; }
   &.-highlighted{ border-color: #50a961; }
+  &.-hidden{ cursor: pointer; }
 }
 .-isGreenHypothesesOFF{
   .hypothesis.data{
@@ -361,7 +383,7 @@ header{
     }
   }
 
-  div.row-1{
+  div.row-1 > div{
     width: 100%;
     display: flex;
     flex-wrap: wrap-reverse;

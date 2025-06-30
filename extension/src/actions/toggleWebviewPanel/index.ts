@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { Shared } from "../../types";
 import getWebviewContent from './services/getWebviewContent';
+import Settings from "../../services/Settings";
+import sendPosition from "../sendPosition";
 
 const toggleWebviewPanel = (shared: Shared) => {
   if (shared.webviewPanel) {
@@ -10,46 +12,22 @@ const toggleWebviewPanel = (shared: Shared) => {
       "paperproof",
       "Paperproof",
       { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
-      { enableScripts: true, retainContextWhenHidden: true }
+      { enableScripts: true, retainContextWhenHidden: true },
     );
     webviewPanel.webview.html = getWebviewContent(shared, webviewPanel);
 
-    // Handle settings updates from webview
-    webviewPanel.webview.onDidReceiveMessage(async (message) => {
-      if (message.type === 'from_webview:update_settings') {
-        const config = vscode.workspace.getConfiguration();
-        Object.entries(message.data).forEach(([settingKey, settingValue]) => {
-          // ___Does it update User Settings or Workspace Settings?
-          //    User Settings.
-          //    Argument `vscode.ConfigurationTarget.Global` makes it so that we update User Settings. If we left it out, Workspace Settings would be affected.
-          config.update(`paperproof.${settingKey}`, settingValue, vscode.ConfigurationTarget.Global);
-        });
-      }
-    });
+    webviewPanel.webview.onDidReceiveMessage(Settings.updateSettingsFromWebview);
 
-    // Listen for VSCode settings changes and notify webview
-    const configurationListener = vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('paperproof')) {
-        const config = vscode.workspace.getConfiguration('paperproof');
-        webviewPanel.webview.postMessage({
-          type: 'from_extension:update_settings',
-          data: {
-            isCompactMode    : config.get('isCompactMode'),
-            isCompactTactics : config.get('isCompactTactics'),
-            isHiddenGoalNames: config.get('isHiddenGoalNames'),
-            isGreenHypotheses: config.get('isGreenHypotheses')
-          }
-        });
-      }
-    });
-
-    // Clean up the configuration listener when webview is closed
+    // This is a must, this lets us open&close paperproof panel multiple times. Also reacts to closing the tab via pressing "x".
     webviewPanel.onDidDispose(() => { 
       shared.webviewPanel = null;
-      configurationListener.dispose();
     });
-    
+
     shared.webviewPanel = webviewPanel;
+
+    if (vscode.window.visibleTextEditors[0]) {
+      sendPosition(shared, vscode.window.visibleTextEditors[0], (new vscode.CancellationTokenSource()).token);
+    }
   }
 };
 
