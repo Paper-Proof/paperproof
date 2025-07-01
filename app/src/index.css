@@ -1,8 +1,11 @@
 .proof-tree.-isSingleTacticModeON{
   #box-1{ width: 100vw !important; }
 
-  .hypothesis.-highlighted, .hypothesis.data.-highlighted{
+  .row-2 .hypothesis.-highlighted, .hypothesis.data.-highlighted{
     border-color: rgba(100, 173, 115, 0.873);
+  }
+  .hypothesis-table .hypothesis.-highlighted{
+    border-color: rgb(152 214 179) !important;
   }
 
   .single-tactic-hyp-row{
