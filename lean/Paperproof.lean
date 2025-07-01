@@ -4,6 +4,7 @@ import Lean.Elab.Tactic
 
 import BetterParser
 import CheckIfUserIsStillTyping
+import GoalsAt
 
 open Lean Elab Meta Server RequestM
 
@@ -24,7 +25,7 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
     if params.mode == "single_tactic" then
       let text := (← readDoc).meta.text
       let hoverPos := text.lspPosToUtf8Pos params.pos
-      let some tactic := (snap.infoTree.goalsAt? text hoverPos).head?
+      let some tactic := (goalsAt? snap.infoTree text hoverPos).head?
         | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
       let info := Elab.Info.ofTacticInfo tactic.tacticInfo
       let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (ifReturnTheorems := true)
