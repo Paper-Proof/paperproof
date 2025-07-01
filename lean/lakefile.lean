@@ -11,3 +11,4 @@ lean_lib CheckIfUserIsStillTyping
 lean_lib GetTheorems
 lean_lib GetTacticSubstring
 lean_lib GoalsAt
+lean_lib GetClosestRw
