@@ -22,7 +22,6 @@ partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.Pos) : L
         if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
           let isClosingBracketInRewriteSequence := ti.stx.getAtomVal == "]"
           if (gs.isEmpty || (hoverPos ≥ tailPos && gs.all (·.indented))) && !isClosingBracketInRewriteSequence then
-            -- Instead of everything that we collected below, return this new cool tactic!
             return [{
               ctxInfo := ctx
               tacticInfo := ti

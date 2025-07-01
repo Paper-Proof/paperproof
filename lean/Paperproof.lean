@@ -34,7 +34,7 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
       let some tactic := (goalsAt? snap.infoTree text hoverPos).head?
         | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
       let info := Elab.Info.ofTacticInfo tactic.tacticInfo
-      let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (ifReturnTheorems := true)
+      let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (isSingleTacticMode := true)
       return { steps := parsedTree.steps, version := 3 }
     | .tree =>
       let some parsedTree ← BetterParser snap.infoTree

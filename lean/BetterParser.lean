@@ -181,7 +181,7 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (ifReturnTheorems : Bool) : RequestM Result := do
+partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) : RequestM Result := do
   let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
   let .ofTacticInfo tInfo := info          | return { steps, allGoals }
   let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
@@ -199,7 +199,7 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-  let theorems ← if ifReturnTheorems then GetTheorems infoTree tInfo ctx else pure []
+  let theorems ← if isSingleTacticMode then GetTheorems infoTree tInfo ctx else pure []
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
@@ -225,7 +225,7 @@ partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (res
   -- 2. Flatten `GoalInfo`s
   let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
   
-  parseTacticInfo infoTree ctx info steps allGoals (ifReturnTheorems := false)
+  parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
 
 partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
   λ ctx info _ results => postNode infoTree ctx info results
