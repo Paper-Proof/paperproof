@@ -22,8 +22,9 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
   withWaitFindSnapAtPos params.pos fun snap => do
     checkIfUserIsStillTyping snap params.pos
     if params.mode == "single_tactic" then
-      let hoverPos := ((← readDoc).meta.text).lspPosToUtf8Pos params.pos
-      let some tactic := (snap.infoTree.goalsAt? (← readDoc).meta.text hoverPos).head?
+      let text := (← readDoc).meta.text
+      let hoverPos := text.lspPosToUtf8Pos params.pos
+      let some tactic := (snap.infoTree.goalsAt? text hoverPos).head?
         | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
       let info := Elab.Info.ofTacticInfo tactic.tacticInfo
       let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (ifReturnTheorems := true)
