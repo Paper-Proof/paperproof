@@ -8,9 +8,14 @@ import GoalsAt
 
 open Lean Elab Meta Server RequestM
 
+inductive Mode where
+  | single_tactic
+  | tree
+  deriving FromJson, ToJson
+
 structure InputParams where
   pos : Lsp.Position
-  mode: String
+  mode: Mode
   deriving FromJson, ToJson
 
 structure OutputParams where
@@ -22,7 +27,8 @@ structure OutputParams where
 def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     checkIfUserIsStillTyping snap params.pos
-    if params.mode == "single_tactic" then
+    match params.mode with
+    | .single_tactic =>
       let text := (← readDoc).meta.text
       let hoverPos := text.lspPosToUtf8Pos params.pos
       let some tactic := (goalsAt? snap.infoTree text hoverPos).head?
@@ -30,7 +36,7 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
       let info := Elab.Info.ofTacticInfo tactic.tacticInfo
       let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (ifReturnTheorems := true)
       return { steps := parsedTree.steps, version := 3 }
-    else
+    | .tree =>
       let some parsedTree ← BetterParser snap.infoTree
         | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
       -- This happens when we hover over something other than a theorem
