@@ -8,6 +8,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import onContextMenu from "src/services/onContextMenu";
 import DependsOnUI from "src/services/DependsOnUI";
+import fancySubstringHypotheses from "src/services/fancySubstringHypotheses";
 
 export interface HypothesisProps {
   hypNode: HypNode;
@@ -74,7 +75,7 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
         <Hint>{props.hypNode}</Hint>
         {name && <span className="name">{name}</span>}
         {!isHypHidden && name && ": "}
-        {!isHypHidden && <span className="text">{props.hypNode.text}</span>}
+        {!isHypHidden && props.hypNode.text && <span className="text">{fancySubstringHypotheses(props.hypNode.text, global)}</span>}
       </div>
     </Search>
   )

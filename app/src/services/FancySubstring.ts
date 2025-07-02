@@ -62,10 +62,7 @@ type ItemConfig<T> = {
   renderMatch: (match: SubstringMatch<T>, index: number, text: string) => React.ReactNode;
 };
 
-const renderTextWithMatches = (
-  text: string,
-  configs: ItemConfig<any>[]
-): (string | React.ReactNode)[] => {
+const renderTextWithMatches = (text: string, configs: ItemConfig<any>[]): React.ReactNode => {
   // Collect all matches from all configs
   const allMatches = configs.flatMap(config => 
     findSubstringMatches(text, config.items, config.getItemString)
