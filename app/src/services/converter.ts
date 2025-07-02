@@ -446,10 +446,10 @@ const removeParticularHypsFromTactic = (tactic: LeanTactic) => {
     (goal) => {
       // ___Why remove ".universe" hypotheses?
       //    This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
-      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe") &&
+      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"))
       // ___Why remove hypotheses with `✝` in the name?
       //  This usually means we are not intersted in this hypothesis, it just takes up space. E.g., if we did `rcases h with ⟨_, m⟩`, then we'll get hypotheses `left✝` and `m`.
-      !hyp.username.includes('✝'))
+      // && !hyp.username.includes('✝'))
     }
   );
 };
