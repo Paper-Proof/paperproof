@@ -9,6 +9,7 @@ import DependsOnUI from "src/services/DependsOnUI";
 import FancySubstring, { SubstringMatch } from "src/services/FancySubstring";
 import isCursorWithinTactic from "src/services/isCursorWithinTactic";
 import Theorem from "./Theorem";
+import getHypById from "src/services/getHypById";
 
 const getTheoremShortName = (theorem: AnyTheoremSignature): string => {
   return theorem.name
@@ -59,24 +60,36 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
 
-  const tacticText = FancySubstring.renderTextWithMatches(
-    text,
-    props.tactic.theorems,
-    getTheoremShortName,
-    (match: SubstringMatch<AnyTheoremSignature>, index: number, text: string) => {
-      return <span
-        key={`theorem-${index}`}
-        className="theorem-highlight"
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          setTheorem(theorem === match.item ? null : match.item);
-        }}
-      >
-        {text.substring(match.start, match.end)}
-      </span>
+  const tacticText = FancySubstring.renderTextWithMatches(text, [
+    {
+      items: props.tactic.theorems,
+      getItemString: getTheoremShortName,
+      renderMatch: (match, index, text) => (
+        <span
+          key={`theorem-${index}`}
+          className="fancy-substring-theorem"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setTheorem(theorem === match.item ? null : match.item);
+          }}
+        >
+          {text.substring(match.start, match.end)}
+        </span>
+      )
+    },
+    {
+      items: props.tactic.dependsOnIds
+        .map((id) => getHypById(global.proofTree, id)?.name)
+        .filter((hypName) => hypName),
+      getItemString: (hypName) => hypName,
+      renderMatch: (match, index, text) => (
+        <span key={`hypothesis-${index}`} className="fancy-substring-hypothesis">
+          {text.substring(match.start, match.end)}
+        </span>
+      )
     }
-  );
+  ]);
 
   return (
     <div 

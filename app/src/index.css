@@ -8,6 +8,7 @@
   .hypothesis.-highlighted, .hypothesis.data.-highlighted{
     border-color: #72787C;
   }
+
   .hypothesis-table .hypothesis.-highlighted{
     border-color: rgb(152 214 179) !important;
   }
@@ -22,7 +23,7 @@
     }
   }
 
-  .theorem-highlight{
+  .fancy-substring-theorem{
     text-decoration: underline;
     text-decoration-color: #72787c;
     cursor: pointer;
@@ -31,6 +32,12 @@
       opacity: 0.8;
     }
   }
+  .fancy-substring-hypothesis{
+    color: #d0005b;
+  }
+}
+.tactic{
+  font-family: var(--vscode-editor-font-family);
 }
 
 /* This is for folding/unfolding `have`s */

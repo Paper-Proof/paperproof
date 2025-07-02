@@ -8,6 +8,7 @@ export interface GoalNode {
 }
 
 export interface HypNode {
+  // TODO I think hyps always have .text and .name?
   text: string | null;
   name: string | null;
   id: string;

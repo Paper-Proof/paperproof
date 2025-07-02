@@ -56,36 +56,44 @@ const findSubstringMatches = <T>(text: string, items: T[], getItemString: (item:
     .sort((a, b) => a.start - b.start);
 };
 
-/**
- * Renders text with highlighted matches, using a custom render function for matched items.
- */
-const renderTextWithMatches = <T>(
+type ItemConfig<T> = {
+  items: T[];
+  getItemString: (item: T) => string;
+  renderMatch: (match: SubstringMatch<T>, index: number, text: string) => React.ReactNode;
+};
+
+const renderTextWithMatches = (
   text: string,
-  items: T[],
-  getItemString: (item: T) => string,
-  renderMatch: (match: SubstringMatch<T>, index: number, text: string) => React.ReactNode
+  configs: ItemConfig<any>[]
 ): (string | React.ReactNode)[] => {
-  const matches = findSubstringMatches(text, items, getItemString);
+  // Collect all matches from all configs
+  const allMatches = configs.flatMap(config => 
+    findSubstringMatches(text, config.items, config.getItemString)
+      .map(match => ({ ...match, config }))
+  );
   
-  if (matches.length === 0) {
+  // Sort by position
+  allMatches.sort((a, b) => a.start - b.start);
+  
+  if (allMatches.length === 0) {
     return [text];
   }
   
   const parts: (string | React.ReactNode)[] = [];
   let lastIndex = 0;
   
-  matches.forEach((match, index) => {
+  allMatches.forEach((match, index) => {
     // Add text before the match
     if (match.start > lastIndex) {
       parts.push(text.substring(lastIndex, match.start));
     }
-
-    // Add the rendered match
-    parts.push(renderMatch(match, index, text));
+    
+    // Render using the match's config
+    parts.push(match.config.renderMatch(match, index, text));
     
     lastIndex = match.end;
   });
-
+  
   // Add remaining text
   if (lastIndex < text.length) {
     parts.push(text.substring(lastIndex));
