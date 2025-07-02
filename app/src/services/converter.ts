@@ -1,14 +1,5 @@
-import {
-  LeanProofTree,
-  LeanHypothesis,
-  LeanTactic,
-  LeanGoal,
-  ConvertedProofTree,
-  Tactic,
-  HypNode,
-  Box,
-  fakePosition,
-} from "types";
+import { LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal, ConvertedProofTree, Tactic, HypNode, Box, fakePosition } from "types";
+import logProofTreeForDebugging from "./logProofTreeForDebugging";
 
 let boxId: number;
 let tacticId: number;
@@ -371,7 +362,8 @@ const handleTacticApp = (tactic: LeanTactic, pretty: ConvertedProofTree) => {
     successGoalId: goalsAfter.length === 0 ? goalBefore.id : undefined,
     haveBoxIds: haveBoxIds,
     byBoxIds: byBoxIds,
-    position: tactic.position
+    position: tactic.position,
+    theorems: tactic.theorems
   });
 };
 
@@ -418,7 +410,8 @@ const drawInitialGoal = (
     ],
     haveBoxIds: [],
     byBoxIds: [],
-    position: { start: fakePosition, stop: fakePosition }
+    position: { start: fakePosition, stop: fakePosition },
+    theorems: []
   });
 };
 
@@ -453,10 +446,10 @@ const removeParticularHypsFromTactic = (tactic: LeanTactic) => {
     (goal) => {
       // ___Why remove ".universe" hypotheses?
       //    This is particularly necessary in Mathlib files - theorems there tend to have plenty of `variable () ()` hypotheses that have nothing to do with the proof.
-      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe") &&
+      goal.hyps = goal.hyps.filter((hyp) => !(hyp.isProof === "universe"))
       // ___Why remove hypotheses with `✝` in the name?
       //  This usually means we are not intersted in this hypothesis, it just takes up space. E.g., if we did `rcases h with ⟨_, m⟩`, then we'll get hypotheses `left✝` and `m`.
-      !hyp.username.includes('✝'))
+      // && !hyp.username.includes('✝'))
     }
   );
 };
@@ -498,7 +491,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
 
   postprocess(convertedProofTree);
 
-  console.log({ leanProofTree, convertedProofTree });
+  logProofTreeForDebugging(leanProofTree, convertedProofTree)
 
   return convertedProofTree;
 };

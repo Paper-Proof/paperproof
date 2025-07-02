@@ -111,10 +111,12 @@ const BoxEl = (props: MyProps) => {
     }
   }
 
+  const global = useGlobalContext();
+
   return <section
     className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
-    onMouseUp={onClick}
+    onClick={onClick}
     onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
   >
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
@@ -155,7 +157,9 @@ const BoxEl = (props: MyProps) => {
     {
       isRootBox ?
       <footer>
-        <div className="title">theorem</div>
+        <div className="title">
+          {global.settings.isSingleTacticMode ? 'goal' : 'theorem'}
+        </div>
       </footer> :
       <div className="goal-username">
         {prettifyGoalUsername(props.box.goalNodes[0].name)}

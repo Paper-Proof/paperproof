@@ -63,6 +63,11 @@
           "default": false,
           "description": "Enable compact mode for proof display"
         },
+        "paperproof.isSingleTacticMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Switch between a proof-tree mode and a single-tactic mode"
+        },
         "paperproof.isCompactTactics": {
           "type": "boolean",
           "default": false,

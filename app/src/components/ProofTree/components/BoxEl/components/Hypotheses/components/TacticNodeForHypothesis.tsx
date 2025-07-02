@@ -11,7 +11,7 @@ interface Props {
 }
 const TacticNodeForHypothesis = (props: Props) => {
   const tactic = props.cell.tactic;
-  const { proofTree } = useGlobalContext();
+  const global = useGlobalContext();
 
   if (tactic.text === "init") return null
 
@@ -54,6 +54,15 @@ const TacticNodeForHypothesis = (props: Props) => {
 
   const [backgroundColor, setBackgroundColor] = useState<boolean>(false);
 
+  const onClick = (event: React.MouseEvent) => {
+    if (global.settings.isSingleTacticMode) return
+    if (isBoxHidden) {
+      showAllChildrenBoxes(event)
+    } else {
+      hideAllChildrenBoxes(event)
+    }
+  }
+
   return (
     <>
       {
@@ -63,7 +72,7 @@ const TacticNodeForHypothesis = (props: Props) => {
             !isBoxHidden &&
             <BoxEl
               key={haveBoxId}
-              box={proofTree.boxes.find((box) => box.id === haveBoxId)!}
+              box={global.proofTree.boxes.find((box) => box.id === haveBoxId)!}
             />
           ))}
         </div>
@@ -76,7 +85,7 @@ const TacticNodeForHypothesis = (props: Props) => {
         `}
         tactic={props.cell.tactic}
         shardId={props.cell.shardId}
-        onClick={isBoxHidden ? showAllChildrenBoxes : hideAllChildrenBoxes}
+        onClick={onClick}
         circleEl={
           hasChildrenBoxes &&
           (isBoxHidden ?
