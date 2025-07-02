@@ -21,12 +21,15 @@ const findAllMatches = (text: string, substring: string): number[] => {
   while ((index = text.indexOf(substring, index)) !== -1) {
     const prevChar = index > 0 ? text[index - 1] : ' ';
     const nextChar = index + substring.length < text.length ? text[index + substring.length] : ' ';
-    const isWordBoundary = !/[a-zA-Z0-9_]/.test(prevChar) && !/[a-zA-Z0-9_]/.test(nextChar);
     
+    // All characters that Lean var name can have (according to Claude)
+    const letterRegex = /[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_'!?]/u;
+    const isWordBoundary = !letterRegex.test(prevChar) && !letterRegex.test(nextChar);
+
     if (isWordBoundary) {
       positions.push(index);
     }
-    
+
     index += 1;
   }
   
@@ -42,21 +45,13 @@ export interface SubstringMatch<T = any> {
 /**
  * Finds all substring matches in text that exist as complete words (with word boundaries).
  */
-const findSubstringMatches = <T>(
-  text: string, 
-  items: T[], 
-  getItemString: (item: T) => string
-): SubstringMatch<T>[] => {
+const findSubstringMatches = <T>(text: string, items: T[], getItemString: (item: T) => string): SubstringMatch<T>[] => {
   return items
     .flatMap(item => {
       const searchString = getItemString(item);
       const positions = findAllMatches(text, searchString);
-      
-      return positions.map(start => ({
-        start,
-        end: start + searchString.length,
-        item
-      }));
+
+      return positions.map(start => ({ start, end: start + searchString.length, item }));
     })
     .sort((a, b) => a.start - b.start);
 };
@@ -84,13 +79,13 @@ const renderTextWithMatches = <T>(
     if (match.start > lastIndex) {
       parts.push(text.substring(lastIndex, match.start));
     }
-    
+
     // Add the rendered match
     parts.push(renderMatch(match, index, text));
     
     lastIndex = match.end;
   });
-  
+
   // Add remaining text
   if (lastIndex < text.length) {
     parts.push(text.substring(lastIndex));
