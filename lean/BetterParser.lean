@@ -181,12 +181,13 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) : RequestM Result := do
+partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) (forcedTacticString : String := "") : RequestM Result := do
   let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
   let .ofTacticInfo tInfo := info          | return { steps, allGoals }
   let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
-  let tacticString := prettifyTacticString tacticSubstring.toString
+  let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else prettifyTacticString tacticSubstring.toString
+
   let steps := prettifySteps tInfo.stx steps
   
   let position ← getProofStepPosition tacticSubstring

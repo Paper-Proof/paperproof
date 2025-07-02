@@ -5,7 +5,7 @@ import Lean.Elab.Tactic
 import BetterParser
 import CheckIfUserIsStillTyping
 import GoalsAt
-import GetClosestRw
+import PrettifyRwTactic
 
 open Lean Elab Meta Server RequestM
 
@@ -30,14 +30,13 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
     checkIfUserIsStillTyping snap params.pos
     match params.mode with
     | .single_tactic =>
-      let text := (← readDoc).meta.text
+      let text : FileMap := (← readDoc).meta.text
       let hoverPos : String.Pos := text.lspPosToUtf8Pos params.pos
       let some tactic := (goalsAt? snap.infoTree text hoverPos).head?
         | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
       let info := Elab.Info.ofTacticInfo tactic.tacticInfo
-      let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (isSingleTacticMode := true)
-      let closestRwString := getClosestRw text hoverPos
-      dbg_trace closestRwString
+      let forcedTacticString : String ← Paperproof.prettifyRwTactic tactic.tacticInfo text hoverPos
+      let parsedTree ← parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (isSingleTacticMode := true) (forcedTacticString := forcedTacticString)
       return { steps := parsedTree.steps, version := 3 }
     | .tree =>
       let some parsedTree ← BetterParser snap.infoTree
