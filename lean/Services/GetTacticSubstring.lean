@@ -1,5 +1,8 @@
 import Lean
+
 open Lean Elab
+
+namespace Paperproof.Services
 
 /--
   InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
@@ -13,3 +16,5 @@ def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
   match tInfo.stx.getSubstring? with
   | .some substring => substring
   | .none => none
+
+end Paperproof.Services

@@ -1,6 +1,10 @@
 import Lean
-import GetTacticSubstring
+
+import Services.GetTacticSubstring
+
 open Lean Elab Server
+
+namespace Paperproof.Services
 
 structure ArgumentInfo where
   name : String
@@ -174,3 +178,5 @@ def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextIn
 
   ctx.runMetaM goalDecl.lctx do
     findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
+
+end Paperproof.Services

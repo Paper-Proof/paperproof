@@ -1,9 +1,13 @@
 import Lean
 import Lean.Meta.Basic
 import Lean.Meta.CollectMVars
-import GetTheorems
-import GetTacticSubstring
+
+import Services.GetTheorems
+import Services.GetTacticSubstring
+
 open Lean Elab Server
+
+namespace Paperproof.Services
 
 structure Hypothesis where
   username : String
@@ -231,3 +235,5 @@ partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (res
 partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
   λ ctx info _ results => postNode infoTree ctx info results
 )
+
+end Paperproof.Services

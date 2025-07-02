@@ -2,11 +2,11 @@ import Lean
 import Lean.Meta.Basic
 import Lean.Elab.Tactic
 
-import GetTacticSubstring
+import Services.GetTacticSubstring
 
 open Lean Elab Meta Server RequestM
 
-namespace Paperproof
+namespace Paperproof.Services
 
 inductive State
   | start
@@ -64,3 +64,5 @@ def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : Stri
     pure s!"{closestRwTacticName} [{rwRule}]"
   else
     pure ""
+
+end Paperproof.Services

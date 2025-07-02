@@ -2,6 +2,8 @@ import Lean
 
 open Lean Elab
 
+namespace Paperproof.Services
+
 /-
   This is a DIRECT copypaste of Lean's `InfoTree.goalsAt?`, with one adjustment - we add the `!isClosingBracketInRewriteSequence` condition.
   ___Is it ok to edit this function?
@@ -54,4 +56,6 @@ where
   isEmptyBy (stx : Syntax) : Bool :=
     -- there are multiple `by` kinds with the same structure
     stx.getNumArgs == 2 && stx[0].isToken "by" && stx[1].getNumArgs == 1 && stx[1][0].isMissing
+
+end Paperproof.Services
 
