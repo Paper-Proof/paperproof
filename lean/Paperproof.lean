@@ -39,13 +39,13 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
       let info := Elab.Info.ofTacticInfo tactic.tacticInfo
       let forcedTacticString : String ← Paperproof.Services.prettifyRwTactic tactic.tacticInfo text hoverPos
       let parsedTree ← Paperproof.Services.parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (isSingleTacticMode := true) (forcedTacticString := forcedTacticString)
-      return { steps := parsedTree.steps, version := 3 }
+      return { steps := parsedTree.steps, version := 4 }
     | .tree =>
       let some parsedTree ← Paperproof.Services.BetterParser snap.infoTree
         | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
       -- This happens when we hover over something other than a theorem
       if parsedTree.steps.length == 0 then
         throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
-      return { steps := parsedTree.steps, version := 3 }
+      return { steps := parsedTree.steps, version := 4 }
 
 end Paperproof
