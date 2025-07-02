@@ -4,6 +4,7 @@ import FancySubstring from './FancySubstring';
 
 const fancySubstringHypotheses = (text: string, global: GlobalContextType): React.ReactNode => {
   if (!global.settings.isSingleTacticMode) return text
+  if (!global.settings.areHypsHighlighted) return text
 
   // Collect all "data" hypotheses from the proof tree
   const proofHypothesisNames = global.proofTree.boxes

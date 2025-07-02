@@ -63,6 +63,11 @@
           "default": false,
           "description": "Enable compact mode for proof display"
         },
+        "paperproof.areHypsHighlighted": {
+          "type": "boolean",
+          "default": false,
+          "description": "In all hypothesis and goal nodes, marks referenced hypothesis names"
+        },
         "paperproof.isSingleTacticMode": {
           "type": "boolean",
           "default": false,

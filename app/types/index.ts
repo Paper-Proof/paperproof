@@ -39,10 +39,11 @@ export type ProofResponse = ValidProofResponse | { error: any };
 
 export interface Settings {
   isSingleTacticMode: boolean;
-  isCompactMode    : boolean;
-  isCompactTactics : boolean;
-  isHiddenGoalNames: boolean;
-  isGreenHypotheses: boolean;
+  isCompactMode     : boolean;
+  isCompactTactics  : boolean;
+  isHiddenGoalNames : boolean;
+  isGreenHypotheses : boolean;
+  areHypsHighlighted: boolean;
 }
 
 export interface PaperproofWindow extends Window {

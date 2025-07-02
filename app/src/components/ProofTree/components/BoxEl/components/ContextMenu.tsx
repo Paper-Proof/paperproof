@@ -109,9 +109,17 @@ const ContextMenu = (props: Props) => {
       </MenuItem>
 
       <MenuItem onClick={handleSettingToggle("isGreenHypotheses")}>
-        <div className="text">Always green hypotheses</div>
+        <div className="text">Make all hypotheses green</div>
         <Switch checked={settings.isGreenHypotheses} size="small"/>
       </MenuItem>
+
+      {
+        settings.isSingleTacticMode &&
+        <MenuItem onClick={handleSettingToggle("areHypsHighlighted")}>
+          <div className="text">Should highlight hypothesis names</div>
+          <Switch checked={settings.areHypsHighlighted} size="small"/>
+        </MenuItem>
+      }
     </Menu>
   )
 }

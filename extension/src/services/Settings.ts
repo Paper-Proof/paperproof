@@ -36,7 +36,8 @@ const updateSettingsFromExtension = (event: vscode.ConfigurationChangeEvent, sha
       isCompactMode     : config.get('isCompactMode'),
       isCompactTactics  : config.get('isCompactTactics'),
       isHiddenGoalNames : config.get('isHiddenGoalNames'),
-      isGreenHypotheses : config.get('isGreenHypotheses')
+      isGreenHypotheses : config.get('isGreenHypotheses'),
+      areHypsHighlighted: config.get('areHypsHighlighted'),
     };
     shared.webviewPanel.webview.postMessage({
       type: 'from_extension:update_settings',
@@ -53,6 +54,7 @@ const getSettings = () => {
     isCompactTactics  : config.get('isCompactTactics'),
     isHiddenGoalNames : config.get('isHiddenGoalNames'),
     isGreenHypotheses : config.get('isGreenHypotheses'),
+    areHypsHighlighted: config.get('areHypsHighlighted'),
   };
 }
 
