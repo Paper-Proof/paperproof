@@ -10,6 +10,14 @@ import FancySubstring, { SubstringMatch } from "src/services/FancySubstring";
 import isCursorWithinTactic from "src/services/isCursorWithinTactic";
 import Theorem from "./Theorem";
 
+const getTheoremShortName = (theorem: AnyTheoremSignature): string => {
+  return theorem.name
+    // Skip all modules
+    .split('.').at(-1)!
+    // Strip "@"
+    .split('@').at(-1)!
+};
+
 interface TacticNodeProps {
   tactic?: Tactic;
   className?: string;
@@ -50,15 +58,6 @@ const TacticNode = (props: TacticNodeProps) => {
   const text = prettifyTacticText(props.tactic.text);
 
   const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
-
-  const getTheoremShortName = (theorem: AnyTheoremSignature): string => {
-    return theorem.name
-      // Skip all modules
-      .split('.').at(-1)!
-      // Strip "@"
-      .split('@').at(-1)!
-  };
-
 
   const tacticText = FancySubstring.renderTextWithMatches(
     text,
