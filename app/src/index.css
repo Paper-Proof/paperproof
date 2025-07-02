@@ -1,6 +1,10 @@
 .proof-tree.-isSingleTacticModeON{
   #box-1{ width: 100vw !important; }
 
+  /* Makes yellow hypothesis color correct */
+  header div.row-1 > div{
+    flex-wrap: wrap;
+  }
   .hypothesis.-highlighted, .hypothesis.data.-highlighted{
     border-color: #72787C;
   }
