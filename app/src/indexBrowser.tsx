@@ -18,6 +18,8 @@ import zoomOnNavigation from "./services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
 import zoomManually from "./services/zoomManually";
 import handleExtensionErrors, { versionErrorEl } from "./services/handleExtensionErrors";
+import getTacticByGoalId from "./services/getTacticByGoalId";
+import areWeOnEllipsisTactic from "./services/areWeOnEllipsisTactic";
 
 // Allowing certain properties on window
 declare const window: PaperproofWindow;
@@ -200,6 +202,7 @@ function Main() {
           ${settings.isCompactTactics  ? '-isCompactTacticsON'  : '-isCompactTacticsOFF'}
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
+          ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
         `}>
           <ProofTree/>
           {perfectArrows.map((arrow, index) =>
