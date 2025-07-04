@@ -37,7 +37,7 @@
   }
 }
 .tactic{
-  font-family: var(--vscode-editor-font-family);
+  /* font-family: var(--vscode-editor-font-family); */
 }
 
 .proof-tree.-we-are-on-ellipsis-tactic{
