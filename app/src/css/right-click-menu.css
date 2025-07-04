@@ -1,0 +1,21 @@
+.MuiMenuItem-root{
+  font-size: 14px !important;
+  min-height: 0 !important;
+  padding-right: 12px !important;
+  justify-content: space-between !important;
+
+  .MuiSwitch-root{
+    margin-left: 7px;
+  }
+
+  .shortcut{
+    color: grey;
+    width: 38px;
+    background: #f3f5f7;
+    padding: 0 6px;
+    font-weight: bold;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: monospace;
+  }
+}

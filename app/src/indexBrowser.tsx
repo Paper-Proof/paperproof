@@ -4,6 +4,7 @@ import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow,
 import "./index.css";
 import "./css/coin-loading-icon.css";
 import "./css/theorem.css";
+import "./css/right-click-menu.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./services/getHighlights";
