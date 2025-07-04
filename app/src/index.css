@@ -1,6 +1,11 @@
 .proof-tree.-isSingleTacticModeON{
   #box-1{ width: 100vw !important; }
 
+  /* This is so that unfolded theorems don't take up excessive space for no reason */
+  .tactic.-hypothesis-tactic{
+    display: block;
+  }
+
   /* Makes yellow hypothesis color correct */
   header div.row-1 > div{
     flex-wrap: wrap;
