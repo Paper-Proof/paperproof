@@ -35,7 +35,8 @@ export interface ValidProofResponse {
   theorems?: TheoremSignature[];
 }
 
-export type ProofResponse = ValidProofResponse | { error: any };
+export type ErroryProofResponse = { error: any };
+export type ProofResponse = ValidProofResponse | ErroryProofResponse;
 
 export interface Settings {
   isSingleTacticMode: boolean;
