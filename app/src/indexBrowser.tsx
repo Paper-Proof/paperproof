@@ -233,6 +233,15 @@ function Main() {
         </div>
       </GlobalContext.Provider>
     }
+    {
+      !converted && !snackbarOpen &&
+      <Snackbar
+        open
+        autoHideDuration={null}
+        message={<div>Welcome!<br/>Please click on any line of your proof.</div>}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      />
+    }
     <Snackbar
       open={snackbarOpen}
       autoHideDuration={null}
