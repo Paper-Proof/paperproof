@@ -446,13 +446,6 @@ footer{
   min-width: 200px;
 }
 
-/*______________________ MUI: error toast colors ______________________*/
-.MuiSnackbar-root .MuiSnackbarContent-root{
-  background-color: white;
-  color: #434343;
-}
-
-
 /*______________________ DEVELOPMENT ______________________*/
 .-hint pre{
   display: none;

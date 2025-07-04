@@ -4,6 +4,7 @@ import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow,
 import "./index.css";
 import "./css/coin-loading-icon.css";
 import "./css/theorem.css";
+import "./css/snackbar.css";
 import "./css/right-click-menu.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
@@ -74,7 +75,7 @@ function Main() {
   const [position, setPosition] = useState<Position>(fakePosition);
 
   // We do need separate state vars for prettier animations
-  const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
+  const [snackbarMessage, setSnackbarMessage] = useState<String | React.ReactNode | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
   const updateUI = (proofResponse : ProofResponse) => {
@@ -95,7 +96,7 @@ function Main() {
         setSnackbarMessage("Not within theorem");
         setSnackbarOpen(true);
       } else if (proofResponse.error.startsWith('no snapshot found at')) {
-        setSnackbarMessage(`No snapshot found. <br/>Is your cursor located after <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">#exit</span>?`);
+        setSnackbarMessage(<>No snapshot found.<br/>Is your cursor located after <span className="inline-code">#exit</span>?</>);
         setSnackbarOpen(true);
       } else {
         console.warn("We are not handling some error explicitly?", proofResponse);
@@ -106,16 +107,18 @@ function Main() {
     const leanRpcVersion = proofResponse.version ?? 1;
     const desiredVersion = 4;
     if (leanRpcVersion !== desiredVersion) {
-      setSnackbarMessage(`
-        Your <b>Paperproof vscode extension</b> has version ${desiredVersion}, and <br/>
-        your <b>Paperproof Lean library</b> has version ${leanRpcVersion}.<br/><br/>
-        For Paperproof to work well, these versions must match.
-        <br/>
-        Please run <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">lake update Paperproof</span> to upgrade the <b>Paperproof Lean library</b> - this is guaranteed to give you matching versions.
-        <br/><br/>
+      setSnackbarMessage(
+        <>
+          Your <b>Paperproof vscode extension</b> has version {desiredVersion}, and <br/>
+          your <b>Paperproof Lean library</b> has version {leanRpcVersion}.<br/><br/>
+          For Paperproof to work well, these versions must match.
+          <br/>
+          Please run <span className="inline-code">lake update Paperproof</span> to upgrade the <b>Paperproof Lean library</b> - this is guaranteed to give you matching versions.
+          <br/><br/>
 
-        <i style="color: #9d9d9e;">Explanation: these version numbers are independent from the paperproof vscode extension version numbers. We update these versions rather rarely, only when we update the response from our lean library in a manner incompatible with the way our vscode extension handles it.</i>
-      `)
+          <i className="explanation">Explanation: these version numbers are independent from the paperproof vscode extension version numbers. We update these versions rather rarely, only when we update the response from our lean library in a manner incompatible with the way our vscode extension handles it.</i>
+        </>
+      )
       setSnackbarOpen(true);
       return;
     }
@@ -246,7 +249,7 @@ function Main() {
     <Snackbar
       open={snackbarOpen}
       autoHideDuration={null}
-      message={snackbarMessage && <div dangerouslySetInnerHTML={{ __html: snackbarMessage }}/>}
+      message={snackbarMessage && (typeof snackbarMessage === 'string' ? <div dangerouslySetInnerHTML={{ __html: snackbarMessage }}/> : snackbarMessage)}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     />
     {
