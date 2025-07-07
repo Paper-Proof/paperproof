@@ -40,8 +40,10 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
       let some goalsAtResult := (Paperproof.Services.goalsAt? snap.infoTree text hoverPos).head? | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
       let tacticInfo := goalsAtResult.tacticInfo
 
-      if ← Paperproof.Services.shouldRenderSingleSequent tacticInfo text hoverPos then 
-        let goal ← Paperproof.Services.printGoalInfo goalsAtResult.ctxInfo tacticInfo.goalsAfter.head!
+      if ← Paperproof.Services.shouldRenderSingleSequent tacticInfo text hoverPos then
+        let some mvarId := tacticInfo.goalsAfter.head?
+          | throwThe RequestError ⟨.invalidParams, "noGoalsAfter"⟩
+        let goal ← Paperproof.Services.printGoalInfo goalsAtResult.ctxInfo mvarId
         let fakeStep : Paperproof.Services.ProofStep := {
           tacticString    := "fake"
           goalBefore      := goal

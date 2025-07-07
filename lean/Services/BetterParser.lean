@@ -87,7 +87,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
 
 def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
-    | panic! "printGoalInfo: goal not found in the mctx"
+    | throwThe RequestError ⟨.invalidParams, "goalNotFoundInMctx"⟩
   -- to get tombstones in name ✝ for unreachable hypothesis
   let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
   let ppContext := printCtx.toPPContext lctx
@@ -99,10 +99,10 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := 
     let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
-      type := type.fmt.pretty,
-      value := value.map (·.fmt.pretty),
-      id := hypDecl.fvarId.name.toString,
-      isProof := isProof
+      type     := type.fmt.pretty,
+      value    := value.map (·.fmt.pretty),
+      id       := hypDecl.fvarId.name.toString,
+      isProof  := isProof
     } : Hypothesis) :: acc)
   return {
     username := decl.userName.toString
