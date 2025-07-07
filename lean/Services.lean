@@ -4,3 +4,4 @@ import Services.GetTacticSubstring
 import Services.GetTheorems
 import Services.GoalsAt
 import Services.PrettifyRwTactic
+import Services.ShouldRenderSingleSequent

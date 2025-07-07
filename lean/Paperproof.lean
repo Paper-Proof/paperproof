@@ -6,6 +6,7 @@ import Services.BetterParser
 import Services.CheckIfUserIsStillTyping
 import Services.GoalsAt
 import Services.PrettifyRwTactic
+import Services.ShouldRenderSingleSequent
 
 open Lean Elab Meta Server RequestM
 
@@ -34,12 +35,26 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
     | .single_tactic =>
       let text : FileMap := (← readDoc).meta.text
       let hoverPos : String.Pos := text.lspPosToUtf8Pos params.pos
-      let some tactic := (Paperproof.Services.goalsAt? snap.infoTree text hoverPos).head?
-        | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
-      let info := Elab.Info.ofTacticInfo tactic.tacticInfo
-      let forcedTacticString : String ← Paperproof.Services.prettifyRwTactic tactic.tacticInfo text hoverPos
-      let parsedTree ← Paperproof.Services.parseTacticInfo snap.infoTree tactic.ctxInfo info [] ∅ (isSingleTacticMode := true) (forcedTacticString := forcedTacticString)
-      return { steps := parsedTree.steps, version := 4 }
+      let some goalsAtResult := (Paperproof.Services.goalsAt? snap.infoTree text hoverPos).head? | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
+      let tacticInfo := goalsAtResult.tacticInfo
+
+      if ← Paperproof.Services.shouldRenderSingleSequent tacticInfo text hoverPos then 
+        let goal ← Paperproof.Services.printGoalInfo goalsAtResult.ctxInfo tacticInfo.goalsAfter.head!
+        let fakeStep : Paperproof.Services.ProofStep := {
+          tacticString    := "fake"
+          goalBefore      := goal
+          goalsAfter      := [goal]
+          tacticDependsOn := []
+          spawnedGoals    := []
+          position        := { start := ⟨0, 0⟩, stop := ⟨0, 0⟩ }
+          theorems        := []
+        }
+        return { steps := [fakeStep], version := 4 }
+      else
+        let forcedTacticString : String ← Paperproof.Services.prettifyRwTactic tacticInfo text hoverPos
+        let info : Info := Elab.Info.ofTacticInfo tacticInfo
+        let parsedTree ← Paperproof.Services.parseTacticInfo snap.infoTree goalsAtResult.ctxInfo info [] ∅ (isSingleTacticMode := true) (forcedTacticString := forcedTacticString)
+        return { steps := parsedTree.steps, version := 4 }
     | .tree =>
       let some parsedTree ← Paperproof.Services.BetterParser snap.infoTree
         | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩

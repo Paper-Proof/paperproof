@@ -28,8 +28,12 @@ interface TacticNodeProps {
   circleEl?: React.ReactNode;
 }
 const TacticNode = (props: TacticNodeProps) => {
-  const isEllipsisTactic = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
-  if (isEllipsisTactic) {
+  const global = useGlobalContext();
+
+  const isSorriedAndWriting = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
+  const isFake = global.settings.isSingleTacticMode && global.proofTree.tactics.find((t) => t.text === "fake");
+  // console.log(props.tactic)
+  if (isSorriedAndWriting || isFake) {
     return <div className="active-tactic">
       <div className="tactic -ellipsis">...</div>
     </div>
@@ -40,8 +44,6 @@ const TacticNode = (props: TacticNodeProps) => {
   
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
   const thisEl = React.useRef<HTMLInputElement>(null);
-
-  const global = useGlobalContext();
 
   React.useLayoutEffect(() => {
     if (!props.tactic) return;
