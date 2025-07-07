@@ -104,7 +104,12 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := 
       id := hypDecl.fvarId.name.toString,
       isProof := isProof
     } : Hypothesis) :: acc)
-  return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
+  return {
+    username := decl.userName.toString
+    type     := (← ppExprWithInfos ppContext decl.type).fmt.pretty
+    hyps     := hyps
+    id       := id
+  }
 
 -- Returns unassigned goals from the provided list of goals
 def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : RequestM (List MVarId) := do
