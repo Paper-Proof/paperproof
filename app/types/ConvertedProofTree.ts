@@ -1,4 +1,5 @@
 import { PositionStartStop } from "types";
+import { AnyTheoremSignature } from "./LeanProofTree";
 
 export interface GoalNode {
   text: string;
@@ -7,6 +8,7 @@ export interface GoalNode {
 }
 
 export interface HypNode {
+  // TODO I think hyps always have .text and .name?
   text: string | null;
   name: string | null;
   id: string;
@@ -80,6 +82,7 @@ export interface Tactic {
   haveBoxIds: string[];
   byBoxIds: string[];
   position: PositionStartStop;
+  theorems: AnyTheoremSignature[];
 }
 
 export interface ConvertedProofTree {

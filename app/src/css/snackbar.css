@@ -1,0 +1,24 @@
+.MuiSnackbar-root{
+  .MuiSnackbarContent-root{
+    background-color: white;
+    color: #434343;
+
+    span.inline-code{
+      color: #4791b8;
+      padding: 4px 7px;
+      background: #90969621;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    i.explanation{
+      color: #9d9d9e;
+    }
+
+    span.command-name{
+      color: #4791b8;
+    }
+  }
+}

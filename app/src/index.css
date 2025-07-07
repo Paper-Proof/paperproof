@@ -1,23 +1,59 @@
-/* 
-These are experimental.
+.proof-tree.-isSingleTacticModeON{
+  #box-1{ width: 100vw !important; }
 
-.active-tactic{
-  text-align: center;
+  /* This is so that unfolded theorems don't take up excessive space for no reason */
+  .tactic.-hypothesis-tactic{
+    display: block;
+  }
+
+  /* Makes yellow hypothesis color correct */
+  header div.row-1 > div{
+    flex-wrap: wrap;
+  }
+  .hypothesis.-highlighted, .hypothesis.data.-highlighted{
+    border-color: #72787C;
+  }
+
+  .hypothesis-table .hypothesis.-highlighted{
+    border-color: rgb(152 214 179) !important;
+  }
+
+  .single-tactic-hyp-row{
+    padding-top: 1px;
+    display: block !important;
+    .hypothesis{
+      display: block;
+      width: fit-content;
+      margin-top: 2px;
+    }
+  }
+
+  .fancy-substring-theorem{
+    text-decoration: underline;
+    text-decoration-color: #72787c;
+    cursor: pointer;
+    text-underline-offset: 2px;
+    &:hover{
+      opacity: 0.8;
+    }
+  }
+  .fancy-substring-hypothesis{
+    color: #d0005b;
+  }
 }
-.active-tactic img{
-  width: 40px;
-  margin-bottom: 10px;
+.tactic{
+  /* font-family: var(--vscode-editor-font-family); */
 }
 
-.box.-sorried{
-  background: red;
+.proof-tree.-we-are-on-ellipsis-tactic{
+  .hypothesis.-highlighted, .goal.-highlighted{ border-color: #72787C; }
 }
-*/
 
+/* This is for folding/unfolding `have`s */
 .tactic.-hypothesis-tactic{
   display: flex;
   justify-content: space-between;
-  cursor: pointer;
+  /* cursor: pointer; */
   transition: background-color 0.5s ease; 
   &.-highlight{
     background-color: rgb(255, 146, 250) !important;
@@ -114,6 +150,10 @@ body{
   }
 }
 
+.proof-tree.-isSingleTacticModeON{
+  .tactic .perfect-arrow{ z-index: 5; display: block; }
+}
+
 /*______________________ PROOF-TREE: colors ______________________*/
 /* This would be really easy to achieve with opacities, however various nodes goalUsernames must *cover* tactic borders to make them look good, which means they must be solid-color. */
 .box{
@@ -175,6 +215,7 @@ body{
   }
 }
 .hypothesis, .goal, .tactic{
+  flex-wrap: wrap;
   padding: 5px 12px;
   border-radius: 3px;
   /* exactly 3 lines */
@@ -212,6 +253,9 @@ body{
     background: rgb(0 213 255 / 12%);
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%239ed6e1' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
+  &.-with-theorem{
+    background-color: transparent !important;
+  }
   &.-sorried{
     text-align: center;
     background: #f2ded94f;
@@ -231,24 +275,23 @@ body{
     padding-bottom: 8px;
   }
 }
+
 .hypothesis{
   background: #a4dabc;
   border: 2px solid rgb(152 214 179);
   .name{ color: #d0005b; }
-  &.-highlighted{ border-color: #50a961; }
+  &.-hidden{ cursor: pointer; }
 }
 .-isGreenHypothesesOFF{
   .hypothesis.data{
     background: #f9e9b5;
     border: 2px solid rgb(239, 227, 152);
-    &.-highlighted{ border-color: #e0c732; }
   }
 }
 .goal{
   background: rgb(249, 195, 195);
   border: 2px solid rgb(246, 185, 185);
   color: #5a5656;
-  &.-highlighted{ border-color: #d06868; }
 }
 
 .proof-tree.-isHiddenGoalNamesON{
@@ -361,7 +404,7 @@ header{
     }
   }
 
-  div.row-1{
+  div.row-1 > div{
     width: 100%;
     display: flex;
     flex-wrap: wrap-reverse;
@@ -408,34 +451,6 @@ footer{
 }
 #box-1 > .box-insides > .goals{
   min-width: 200px;
-}
-
-/*______________________ MUI: error toast colors ______________________*/
-.MuiSnackbar-root .MuiSnackbarContent-root{
-  background-color: white;
-  color: #434343;
-}
-
-.MuiMenuItem-root{
-  font-size: 14px !important;
-  min-height: 0 !important;
-  padding-right: 12px !important;
-  justify-content: space-between !important;
-
-  .shortcut{
-    color: grey;
-    width: 38px;
-    background: #f3f5f7;
-    padding: 0 6px;
-    font-weight: bold;
-    border-radius: 3px;
-    font-size: 13px;
-    font-family: monospace;
-  }
-}
-
-.MuiSwitch-root{
-  margin-left: 7px;
 }
 
 /*______________________ DEVELOPMENT ______________________*/

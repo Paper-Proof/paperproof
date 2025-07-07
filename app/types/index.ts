@@ -3,6 +3,11 @@ import {
   LeanGoal,
   LeanTactic,
   LeanProofTree,
+  TheoremSignature,
+  AxiomSignature,
+  DefinitionSignature,
+  AnyTheoremSignature,
+  ArgumentInfo,
 } from "./LeanProofTree";
 import { LeanInteractiveHyp, LeanInteractiveGoal } from "./LeanInteractiveGoal";
 import {
@@ -27,15 +32,19 @@ export interface ValidProofResponse {
   version?: number;
   proofTree: LeanProofTree;
   goal: LeanInteractiveGoal | null;
+  theorems?: TheoremSignature[];
 }
 
-export type ProofResponse = ValidProofResponse | { error: any };
+export type ErroryProofResponse = { error: any };
+export type ProofResponse = ValidProofResponse | ErroryProofResponse;
 
 export interface Settings {
-  isCompactMode    : boolean;
-  isCompactTactics : boolean;
-  isHiddenGoalNames: boolean;
-  isGreenHypotheses: boolean;
+  isSingleTacticMode: boolean;
+  isCompactMode     : boolean;
+  isCompactTactics  : boolean;
+  isHiddenGoalNames : boolean;
+  isGreenHypotheses : boolean;
+  areHypsHighlighted: boolean;
 }
 
 export interface PaperproofWindow extends Window {
@@ -103,5 +112,10 @@ export {
   Point,
   Arrow,
   HypLayer,
-  ContextMenuType
+  ContextMenuType,
+  TheoremSignature,
+  AxiomSignature,
+  DefinitionSignature,
+  AnyTheoremSignature,
+  ArgumentInfo
 };

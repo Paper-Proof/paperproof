@@ -1,7 +1,13 @@
 import Lean
 import Lean.Meta.Basic
 import Lean.Meta.CollectMVars
+
+import Services.GetTheorems
+import Services.GetTacticSubstring
+
 open Lean Elab Server
+
+namespace Paperproof.Services
 
 structure Hypothesis where
   username : String
@@ -38,6 +44,7 @@ structure ProofStep where
   tacticDependsOn : List String
   spawnedGoals    : List GoalInfo
   position        : ProofStepPosition
+  theorems        : List TheoremSignature
   deriving Inhabited, ToJson, FromJson
 
 def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
@@ -60,10 +67,7 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
   let fullExpr ← instantiateExprMVars expr
   let fvarIds := (collectFVars {} fullExpr).fvarIds
   let fvars := fvarIds.filterMap goalDecl.lctx.find?
-  let proofFvars ← fvars.filterM (Meta.isProof ·.toExpr)
-  -- let pretty := proofFvars.map (fun x => x.userName)
-  -- dbg_trace s!"Used {pretty}"
-  return proofFvars.map (fun x => x.fvarId.name.toString) |>.toList
+  return fvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- This is used to match goalsBefore with goalsAfter to see what was assigned to what
 def findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
@@ -83,7 +87,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
 
 def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
-    | panic! "printGoalInfo: goal not found in the mctx"
+    | throwThe RequestError ⟨.invalidParams, "goalNotFoundInMctx"⟩
   -- to get tombstones in name ✝ for unreachable hypothesis
   let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
   let ppContext := printCtx.toPPContext lctx
@@ -95,12 +99,17 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := 
     let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
-      type := type.fmt.pretty,
-      value := value.map (·.fmt.pretty),
-      id := hypDecl.fvarId.name.toString,
-      isProof := isProof
+      type     := type.fmt.pretty,
+      value    := value.map (·.fmt.pretty),
+      id       := hypDecl.fvarId.name.toString,
+      isProof  := isProof
     } : Hypothesis) :: acc)
-  return ⟨ decl.userName.toString, (← ppExprWithInfos ppContext decl.type).fmt.pretty, hyps, id⟩
+  return {
+    username := decl.userName.toString
+    type     := (← ppExprWithInfos ppContext decl.type).fmt.pretty
+    hyps     := hyps
+    id       := id
+  }
 
 -- Returns unassigned goals from the provided list of goals
 def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : RequestM (List MVarId) := do
@@ -168,19 +177,6 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | _, _ => false
 
 /--
-  InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
-  @EXAMPLES
-  `tInfo.stx`               //=> `(Tactic.tacticSeq1Indented [(Tactic.exact "exact" (Term.proj ab "." (fieldIdx "2")))])`
-  `tInfo.stx.getSubstring?` //=> `(some (exact ab.2 ))`
-  `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
-  `tInfo.stx.getSubstring?` //=> `None`
--/
-def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
-  match tInfo.stx.getSubstring? with
-  | .some substring => substring
-  | .none => none
-
-/--
   By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
 -/
 def prettifyTacticString (tacticString: String) : String :=
@@ -194,29 +190,26 @@ def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPositi
     stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
   }
 
-partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree) (res : List (Option Result)) : RequestM Result := do
-  let res := res.filterMap id
-  let some ctx := i.updateContext? ctx
-    | panic! "unexpected context node"
-  let steps := res.map (fun r => r.steps) |>.join
-  let allSubGoals := Std.HashSet.empty.insertMany $ res.bind (·.allGoals.toList)
-  let .ofTacticInfo tInfo := i | return { steps, allGoals := allSubGoals }
+partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) (forcedTacticString : String := "") : RequestM Result := do
+  let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info          | return { steps, allGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
-  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals := allSubGoals }
+  let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else prettifyTacticString tacticSubstring.toString
 
-  let tacticString := prettifyTacticString tacticSubstring.toString
   let steps := prettifySteps tInfo.stx steps
   
   let position ← getProofStepPosition tacticSubstring
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
-  let allGoals := allSubGoals.insertMany $ currentGoals
+  let allGoals := allGoals.insertMany $ currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
+  let theorems ← if isSingleTacticMode then GetTheorems infoTree tInfo ctx else pure []
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
@@ -229,8 +222,23 @@ partial def postNode (ctx : ContextInfo) (i : Info) (_: PersistentArray InfoTree
         tacticDependsOn,
         spawnedGoals := orphanedGoals
         position := position
+        theorems := theorems
       }
 
   return { steps := newSteps ++ steps, allGoals }
 
-partial def BetterParser (i : InfoTree) := i.visitM (postNode := postNode)
+partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option Result)) : RequestM Result := do
+  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
+  let results : List Result := results.filterMap id
+  -- 1. Flatten `ProofStep`s
+  let steps : List ProofStep := (results.map (λ result => result.steps)).join
+  -- 2. Flatten `GoalInfo`s
+  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
+  
+  parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
+
+partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
+  λ ctx info _ results => postNode infoTree ctx info results
+)
+
+end Paperproof.Services

@@ -12,7 +12,8 @@ const zoomToBox = (boxId: string) => {
     window.innerWidth / boxEl.offsetWidth, 
     window.innerHeight / boxEl.offsetHeight // .offsetHeight ignores transforms
   );
-  const scaleFactorWanted = window.innerWidth / boxEl.offsetWidth;
+  const padding = 10
+  const scaleFactorWanted = (window.innerWidth - padding * 2) / boxEl.offsetWidth;
   const scaleFactor = Math.min(scaleFactorWanted, 1)
 
   const scrollTopFinal_top =

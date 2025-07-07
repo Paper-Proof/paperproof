@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
+import "./css/theorem.css";
+import "./css/snackbar.css";
+import "./css/right-click-menu.css";
 import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./services/getHighlights";
@@ -14,6 +17,9 @@ import Snackbar from '@mui/material/Snackbar';
 import zoomOnNavigation from "./services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
 import zoomManually from "./services/zoomManually";
+import handleExtensionErrors, { versionErrorEl } from "./services/handleExtensionErrors";
+import getTacticByGoalId from "./services/getTacticByGoalId";
+import areWeOnEllipsisTactic from "./services/areWeOnEllipsisTactic";
 
 // Allowing certain properties on window
 declare const window: PaperproofWindow;
@@ -23,13 +29,15 @@ declare const acquireVsCodeApi: PaperproofAcquireVsCodeApi;
 // Get vscode API reference once
 const vscode = acquireVsCodeApi();
 
-interface GlobalContextType {
+export interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
   searchedHypIds: string[];
   setSearchedHypIds: (x: string[]) => void;
+  deletedHypothesisNames: string[];
+  setDeletedHypothesisNames: (x: string[]) => void;
   settings: Settings;
   setSettings: (x: Settings) => void;
   proofTree: ConvertedProofTree;
@@ -64,59 +72,30 @@ function Main() {
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
+  const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
 
   const [settings, setSettings] = useState(window.initialSettings);
   const [position, setPosition] = useState<Position>(fakePosition);
 
   // We do need separate state vars for prettier animations
-  const [snackbarMessage, setSnackbarMessage] = useState<String | null>(null);
+  const [snackbarMessage, setSnackbarMessage] = useState<String | React.ReactNode | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
-  const [idsOutsideViewport, setIdsOutsideViewport] = React.useState<string[]>([]);
-
   const updateUI = (proofResponse : ProofResponse) => {
+    // 1. If extension returned error - set snackbar; don't create a tree
     if ("error" in proofResponse) {
-      if (proofResponse.error === 'File changed.' || proofResponse.error === 'stillTyping') {
-        // This is a normal situation, just return.
-      } else if (proofResponse.error.startsWith('wrongLeanExtensionVersion')) {
-        const errorMessage = proofResponse.error.split('wrongLeanExtensionVersion: ')[1];
-        setSnackbarMessage(errorMessage);
-        setSnackbarOpen(true);
-      } else if (proofResponse.error === 'leanNotYetRunning') {
-        setSnackbarMessage("Waiting for Lean");
-        setSnackbarOpen(true);
-      } else if (proofResponse.error.startsWith("No RPC method")) {
-        setSnackbarMessage(`Missing "import Paperproof" in this .lean file, please import it.`);
-        setSnackbarOpen(true);
-      } else if (proofResponse.error === 'zeroProofSteps') {
-        setSnackbarMessage("Not within theorem");
-        setSnackbarOpen(true);
-      } else if (proofResponse.error.startsWith('no snapshot found at')) {
-        setSnackbarMessage(`No snapshot found. <br/>Is your cursor located after <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">#exit</span>?`);
-        setSnackbarOpen(true);
-      } else {
-        console.warn("We are not handling some error explicitly?", proofResponse);
-      }
+      handleExtensionErrors(proofResponse, setSnackbarMessage, setSnackbarOpen)
       return;
     }
-    // Check version for compatibility
+    // 2. If extension version mismatch - set snackbar; don't create a tree
     const leanRpcVersion = proofResponse.version ?? 1;
-    const desiredVersion = 3;
+    const desiredVersion = 4;
     if (leanRpcVersion !== desiredVersion) {
-      setSnackbarMessage(`
-        Your <b>Paperproof vscode extension</b> has version ${desiredVersion}, and <br/>
-        your <b>Paperproof Lean library</b> has version ${leanRpcVersion}.<br/><br/>
-        For Paperproof to work well, these versions must match.
-        <br/>
-        Please run <span style="color: #4791b8; padding: 4px 7px; background: #90969621; border-radius: 3px; font-size: 12px; font-family: monospace; font-weight: 600;">lake update Paperproof</span> to upgrade the <b>Paperproof Lean library</b> - this is guaranteed to give you matching versions.
-        <br/><br/>
-
-        <i style="color: #9d9d9e;">Explanation: these version numbers are independent from the paperproof vscode extension version numbers. We update these versions rather rarely, only when we update the response from our lean library in a manner incompatible with the way our vscode extension handles it.</i>
-      `)
+      setSnackbarMessage(versionErrorEl(desiredVersion, leanRpcVersion))
       setSnackbarOpen(true);
       return;
     }
-
+    // 3. If everything's good - hide all snackbars, create a tree
     setSnackbarOpen(false);
 
     // ___Why don't we memoize these functions/avoid rerenders?
@@ -125,7 +104,7 @@ function Main() {
     //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
     const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
     convertedProofTree.boxes.forEach((box) => {
-      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree)
+      box.hypTables = hypsToTables(box.hypLayers, convertedProofTree, settings.isSingleTacticMode)
     });
     const newHighlights = getHighlights(convertedProofTree.equivalentIds, proofResponse.goal);
     const currentStatement = getStatement(proofResponse.proofTree);
@@ -135,7 +114,6 @@ function Main() {
       highlights: newHighlights,
       statement: currentStatement,
     });
-    setIdsOutsideViewport([]);
   }
 
   const updateSettings = (newSettings: Settings) => {
@@ -164,7 +142,7 @@ function Main() {
 
     addEventListener('message', updateFromVscode);
     return () => removeEventListener('message', updateFromVscode);
-  }, []);
+  }, [settings]);
 
   React.useLayoutEffect(() => {
     if (!converted) return;
@@ -209,6 +187,7 @@ function Main() {
           UIVersion, refreshUI,
           collapsedBoxIds, setCollapsedBoxIds,
           searchedHypIds,  setSearchedHypIds,
+          deletedHypothesisNames, setDeletedHypothesisNames,
           settings,        setSettings: updateSettings,
 
           proofTree: converted.proofTree,
@@ -218,10 +197,12 @@ function Main() {
       >
         <div className={`
           proof-tree
+          ${settings.isSingleTacticMode ? '-isSingleTacticModeON' : ''}
           ${settings.isCompactMode     ? '-isCompactModeON'     : ''}
           ${settings.isCompactTactics  ? '-isCompactTacticsON'  : '-isCompactTacticsOFF'}
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
+          ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
         `}>
           <ProofTree/>
           {perfectArrows.map((arrow, index) =>
@@ -230,10 +211,19 @@ function Main() {
         </div>
       </GlobalContext.Provider>
     }
+    {
+      !converted && !snackbarOpen &&
+      <Snackbar
+        open
+        autoHideDuration={null}
+        message={<div>Welcome!<br/>Please click on any line of your proof.</div>}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      />
+    }
     <Snackbar
       open={snackbarOpen}
       autoHideDuration={null}
-      message={snackbarMessage && <div dangerouslySetInnerHTML={{ __html: snackbarMessage }}/>}
+      message={snackbarMessage && (typeof snackbarMessage === 'string' ? <div dangerouslySetInnerHTML={{ __html: snackbarMessage }}/> : snackbarMessage)}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     />
     {

@@ -60,11 +60,14 @@ const isHypChildless = (proofTree: ConvertedProofTree, hypNodeId: string) : bool
   return !hasChildren
 }
 
-const partitionHypsIntoRow1AndRow2 = (proofTree: ConvertedProofTree, initLayer: HypLayer): [HypNode[], HypNode[]] => {
+const partitionHypsIntoRow1AndRow2 = (proofTree: ConvertedProofTree, initLayer: HypLayer, isSingleTacticMode: boolean): [HypNode[], HypNode[]] => {
   const row1Hyps : HypNode[] = [];
   const row2Hyps : HypNode[] = [];
   initLayer.hypNodes.forEach((hypNode : HypNode) => {
-    if (hypNode.isProof === "data" && isHypChildless(proofTree, hypNode.id)) {
+    const isRow1 = isSingleTacticMode ?
+      isHypChildless(proofTree, hypNode.id) :
+      hypNode.isProof === "data" && isHypChildless(proofTree, hypNode.id)
+    if (isRow1) {
       row1Hyps.push(hypNode);
     } else {
       row2Hyps.push(hypNode);
@@ -73,7 +76,7 @@ const partitionHypsIntoRow1AndRow2 = (proofTree: ConvertedProofTree, initLayer: 
   return [row1Hyps, row2Hyps]
 }
 
-const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree) : Table[] => {
+const hypsToTables = (hypLayers : Box['hypLayers'], proofTree: ConvertedProofTree, isSingleTacticMode: boolean) : Table[] => {
   const tables : Table[] = [];
   let currentTable : Table = tables[tables.length - 1];
 
@@ -83,7 +86,7 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
 
     // Start a new table if this is the "init" tactic!
     if (tactic.text === "init") {
-      const [row1Hyps, row2Hyps] = partitionHypsIntoRow1AndRow2(proofTree, hypLayer)
+      const [row1Hyps, row2Hyps] = partitionHypsIntoRow1AndRow2(proofTree, hypLayer, isSingleTacticMode)
       thisLayerHypNodes = row2Hyps;
       tables.push({ tabledHyps: [], tabledTactics: [], currentRow: 0, row1Hyps });
       currentTable = tables[tables.length - 1];
@@ -149,4 +152,4 @@ const hypLayersToTabledCells = (hypLayers : Box['hypLayers'], proofTree: Convert
   return tables;
 }
 
-export default hypLayersToTabledCells;
+export default hypsToTables;

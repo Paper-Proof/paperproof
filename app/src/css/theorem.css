@@ -1,0 +1,61 @@
+.theorem{
+  margin-top: 8px;
+  padding: 8px;
+  padding-left: 0;
+  width: 100%;
+  text-align: left;
+  .args, .type, .body{
+    font-family: var(--vscode-editor-font-family);
+  }
+  .name{ font-weight: bold; }
+  .args{
+    display: block;
+    margin-left: 18px;
+    .instance-args, .implicit-args, .explicit-args{
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 2px;
+      .arg{
+        margin-right: 3px;
+        font-size: 13px;
+        font-weight: 400;
+        .arg-name{
+          font-weight: bold;
+          color: #72787c;
+        }
+      }
+    }
+    .parenthesis{
+      color: rgb(174 174 174);
+      font-weight: bold;
+      &.-left{
+        padding-right: 4px;
+      }
+      &.-right{
+        padding-left: 4px;
+      }
+    }
+    .instance-args{
+      color: rgb(174 174 174);
+    }
+    .implicit-args{
+      color: rgb(174 174 174);
+    }
+    .explicit-args .type{
+      color: #5a5656;
+    }
+  }
+  .type{
+    margin-left: 19px;
+    font-size: 13px;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .body{
+    margin-left: 19px;
+    font-weight: bold;
+    color: #72787c;
+    margin-top: 2px;
+    white-space: pre-wrap;
+  }
+}

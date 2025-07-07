@@ -12,17 +12,10 @@ import prettifyGoalUsername from "src/services/prettifyGoalUsername";
 import onContextMenu from "src/services/onContextMenu";
 import Header from "./components/Header";
 import GoalNode from "./components/GoalNode";
+import getTacticByGoalId from "src/services/getTacticByGoalId";
 
 interface MyProps {
   box: Box;
-}
-
-const getGoalTactic = (proofTree: ConvertedProofTree, goalNodeId: string) : Tactic | undefined => {
-  const goalTactic = proofTree.tactics.find((tactic) => tactic.goalArrows.find((goalArrow) => goalArrow.fromId === goalNodeId));
-
-  const successTactic = proofTree.tactics.find((tactic) => tactic.successGoalId === goalNodeId);
-
-  return goalTactic || successTactic;
 }
 
 const isBoxSorried = (proofTree: ConvertedProofTree, box: Box, highlights: Highlights) : boolean => {
@@ -94,7 +87,7 @@ const BoxEl = (props: MyProps) => {
   const headerInfo = getHeader(props.box)
 
   const renderByBoxes = (goalNode: TypeGoalNode) => {
-    const goalTactic = getGoalTactic(proofTree, goalNode.id);
+    const goalTactic = getTacticByGoalId(proofTree, goalNode.id);
     if (!goalTactic) return null;
 
     const byBoxes : Box[] = [];
@@ -111,10 +104,12 @@ const BoxEl = (props: MyProps) => {
     }
   }
 
+  const global = useGlobalContext();
+
   return <section
     className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
-    onMouseUp={onClick}
+    onClick={onClick}
     onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
   >
     <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
@@ -145,7 +140,7 @@ const BoxEl = (props: MyProps) => {
             <div className="byBoxes">
               {renderByBoxes(goalNode)}
             </div>
-            <TacticNode isActiveGoal={highlights?.goalId === goalNode.id} tactic={getGoalTactic(proofTree, goalNode.id)}/>
+            <TacticNode isActiveGoal={highlights?.goalId === goalNode.id} tactic={getTacticByGoalId(proofTree, goalNode.id)}/>
             <GoalNode goalNode={goalNode}/>
           </div>
         )}
@@ -155,7 +150,9 @@ const BoxEl = (props: MyProps) => {
     {
       isRootBox ?
       <footer>
-        <div className="title">theorem</div>
+        <div className="title">
+          {global.settings.isSingleTacticMode ? 'goal' : 'theorem'}
+        </div>
       </footer> :
       <div className="goal-username">
         {prettifyGoalUsername(props.box.goalNodes[0].name)}

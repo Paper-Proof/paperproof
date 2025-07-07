@@ -1,69 +1,105 @@
 import React from "react";
-import { Arrow, Position, PositionStartStop, Tactic } from "types";
+import { Arrow, Tactic, AnyTheoremSignature } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
 import { useGlobalContext } from "src/indexBrowser";
 import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
+import DependsOnUI from "src/services/DependsOnUI";
+import FancySubstring, { SubstringMatch } from "src/services/FancySubstring";
+import isCursorWithinTactic from "src/services/isCursorWithinTactic";
+import Theorem from "./Theorem";
+import getHypById from "src/services/getHypById";
 
-const isPositionWithin = (cursor: Position, tactic: PositionStartStop): boolean => {
-  // If tactic spans many lines, it just means it's the last tactic in this proof, and Lean thinks empty lines below belong to this tactic
-  const tacticSpansManyLines = tactic.stop.line - tactic.start.line > 1;
-  const stopLine = tacticSpansManyLines ? tactic.start.line + 1 : tactic.stop.line;
-  const stopCharacter = tacticSpansManyLines ? 0 : tactic.stop.character;
-  return (
-    cursor.line > tactic.start.line || 
-    (cursor.line === tactic.start.line && cursor.character >= tactic.start.character)
-  )
-  &&
-  (
-    cursor.line < stopLine || 
-    (cursor.line === stopLine && cursor.character < stopCharacter)
-  );
- };
+const getTheoremShortName = (theorem: AnyTheoremSignature): string => {
+  return theorem.name
+    // Skip all modules
+    .split('.').at(-1)!
+    // Strip "@"
+    .split('@').at(-1)!
+};
 
 interface TacticNodeProps {
   tactic?: Tactic;
   className?: string;
   shardId?: string;
-  isActiveGoal?: boolean
+  isActiveGoal?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+  circleEl?: React.ReactNode;
 }
 const TacticNode = (props: TacticNodeProps) => {
-  const isEllipsisTactic = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
-  if (isEllipsisTactic) {
+  const global = useGlobalContext();
+
+  const isSorriedAndWriting = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
+  const isFake = global.settings.isSingleTacticMode && global.proofTree.tactics.find((t) => t.text === "fake");
+  // console.log(props.tactic)
+  if (isSorriedAndWriting || isFake) {
     return <div className="active-tactic">
-      {/* <img src="https://private-user-images.githubusercontent.com/7578559/264729795-58f24cf2-4336-4376-8738-6463e3802ba0.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzE0NzEwMTksIm5iZiI6MTczMTQ3MDcxOSwicGF0aCI6Ii83NTc4NTU5LzI2NDcyOTc5NS01OGYyNGNmMi00MzM2LTQzNzYtODczOC02NDYzZTM4MDJiYTAucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MTExMyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDExMTNUMDQwNTE5WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9ZWRkYTkxZWQ0N2QzZjhiZmI4NzFjNzZlYTc4NmQ5YTU1ODc5NzNmZTcyYmY1ZjNjODYyYjc1MDJlNzEyYjU1OSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.hPFir-MxOhsP9OxlaQ_uOmHBTZVJozmqo7rCvGv0ZFw"/> */}
       <div className="tactic -ellipsis">...</div>
     </div>
   }
   if (!props.tactic){
-    return
+    return;
   }
   
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
   const thisEl = React.useRef<HTMLInputElement>(null);
 
-  const global = useGlobalContext();
-
   React.useLayoutEffect(() => {
-    if (!props.tactic) return
+    if (!props.tactic) return;
     const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
-      .map((dependsOnHypId) => createArrow(`hypothesis-${dependsOnHypId}`, thisEl.current))
+      .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, hypId))
+      .map((hypId) => createArrow(`hypothesis-${hypId}`, thisEl.current))
       .filter((arrow) : arrow is Arrow => arrow !== null);
     setPerfectArrows(newPerfectArrows);
   }, [props.tactic, global.UIVersion]);
 
   const isSorried = props.tactic.text.includes("sorry") || props.tactic.text === "done";
-  const isSuccess = props.tactic.successGoalId && !isSorried
-  const isPositionMatch = isPositionWithin(global.position, props.tactic.position);
+  const isSuccess = props.tactic.successGoalId && !isSorried;
+  const isPositionMatch = global.settings.isSingleTacticMode ? false : isCursorWithinTactic(global.position, props.tactic.position);
 
-  const text = prettifyTacticText(props.tactic.text)
+  const text = prettifyTacticText(props.tactic.text);
+
+  const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
+
+  const tacticText = FancySubstring.renderTextWithMatches(text, [
+    {
+      items: props.tactic.theorems,
+      getItemString: getTheoremShortName,
+      renderMatch: (match, index, text) => (
+        <span
+          key={`theorem-${index}`}
+          className="fancy-substring-theorem"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setTheorem(theorem === match.item ? null : match.item);
+          }}
+        >
+          {text.substring(match.start, match.end)}
+        </span>
+      )
+    },
+    {
+      items: props.tactic.dependsOnIds
+        .map((id) => getHypById(global.proofTree, id)?.name)
+        .filter((hypName) => hypName),
+      getItemString: (hypName) => hypName,
+      renderMatch: (match, index, text) => (
+        <span key={`hypothesis-${index}`} className="fancy-substring-hypothesis">
+          {text.substring(match.start, match.end)}
+        </span>
+      )
+    }
+  ]);
+
   return (
     <div 
       className={`
         tactic -hint
         ${props.className || ''}
         ${isSuccess ? '-success' : ''}
+        ${theorem ? '-with-theorem' : ''}
         ${isSorried ? '-sorried' : ''}
         ${isPositionMatch ? '-position-matches' : ''}
       `} 
@@ -78,12 +114,15 @@ const TacticNode = (props: TacticNodeProps) => {
       {
         isSuccess ?
         <div className="text">
-          <span>🎉</span> <span>{text}</span> <span>🎉</span>
+          <span>🎉</span> <span>{tacticText}</span> <span>🎉</span>
         </div> :
         <div className="text">
-          {text}
+          {tacticText}
         </div>
       }
+
+      {theorem && <Theorem theorem={theorem}/>}
+
       {!props.circleEl && perfectArrows.map((arrow, index) =>
         <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
       )}

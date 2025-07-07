@@ -67,27 +67,39 @@ const ContextMenu = (props: Props) => {
       }
       { props.box.id !== "1" && <Divider/> }
 
-      <MenuItem onClick={(event) => handleZoom(event, "in")}>
-        <div className="text">Zoom in</div>
-        <div className="shortcut">⎇ +</div>
+      <MenuItem onClick={handleSettingToggle("isSingleTacticMode")}>
+        <div className="text">Single-tactic Mode</div>
+        <Switch checked={settings.isSingleTacticMode} size="small"/>
       </MenuItem>
 
-      <MenuItem onClick={(event) => handleZoom(event, "out")}>
-        <div className="text">Zoom out</div>
-        <div className="shortcut">⎇ -</div>
-      </MenuItem>
+      
+      {
+        !settings.isSingleTacticMode &&
+        <>
+          <Divider/>
+          <MenuItem onClick={(event) => handleZoom(event, "in")}>
+            <div className="text">Zoom in</div>
+            <div className="shortcut">⎇ +</div>
+          </MenuItem>
 
-      <Divider/>
+          <MenuItem onClick={(event) => handleZoom(event, "out")}>
+            <div className="text">Zoom out</div>
+            <div className="shortcut">⎇ -</div>
+          </MenuItem>
 
-      <MenuItem onClick={handleSettingToggle("isCompactMode")}>
-        <div className="text">Compact horizontally</div>
-        <Switch checked={settings.isCompactMode} size="small"/>
-      </MenuItem>
+          <Divider/>
 
-      <MenuItem onClick={handleSettingToggle("isCompactTactics")}>
-        <div className="text">Compact tactics</div>
-        <Switch checked={settings.isCompactTactics} size="small"/>
-      </MenuItem>
+          <MenuItem onClick={handleSettingToggle("isCompactMode")}>
+            <div className="text">Compact horizontally</div>
+            <Switch checked={settings.isCompactMode} size="small"/>
+          </MenuItem>
+
+          <MenuItem onClick={handleSettingToggle("isCompactTactics")}>
+            <div className="text">Compact tactics</div>
+            <Switch checked={settings.isCompactTactics} size="small"/>
+          </MenuItem>
+        </>
+      }
 
       <Divider/>
 
@@ -97,9 +109,17 @@ const ContextMenu = (props: Props) => {
       </MenuItem>
 
       <MenuItem onClick={handleSettingToggle("isGreenHypotheses")}>
-        <div className="text">Always green hypotheses</div>
+        <div className="text">Make all hypotheses green</div>
         <Switch checked={settings.isGreenHypotheses} size="small"/>
       </MenuItem>
+
+      {
+        settings.isSingleTacticMode &&
+        <MenuItem onClick={handleSettingToggle("areHypsHighlighted")}>
+          <div className="text">Should highlight hypothesis names</div>
+          <Switch checked={settings.areHypsHighlighted} size="small"/>
+        </MenuItem>
+      }
     </Menu>
   )
 }
