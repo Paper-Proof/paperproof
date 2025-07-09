@@ -23,7 +23,7 @@ const findAllMatches = (text: string, substring: string): number[] => {
     const nextChar = index + substring.length < text.length ? text[index + substring.length] : ' ';
     
     // All characters that Lean var name can have (according to Claude)
-    const letterRegex = /[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{No}\p{Pc}_'!?]/u;
+    const letterRegex = /[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{No}\p{Pc}_'!?✝]/u;
     const isWordBoundary = !letterRegex.test(prevChar) && !letterRegex.test(nextChar);
 
     if (isWordBoundary) {
