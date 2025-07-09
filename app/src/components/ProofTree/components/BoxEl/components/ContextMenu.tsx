@@ -16,11 +16,16 @@ const ContextMenu = (props: Props) => {
   const {
     refreshUI,
     collapsedBoxIds, setCollapsedBoxIds,
-    settings,        setSettings
+    settings,        setSettings,
+    setConverted
   } = useGlobalContext();
 
   const handleSettingToggle = (settingKey: keyof Settings) => (event: React.MouseEvent) => {
     event.stopPropagation();
+    // When we switch our modes back and forth, it's important to clear the proof tree, otherwise users will briefly see a silly "css has changed, but proof tree stays the same" state
+    if (settingKey === "isSingleTacticMode") {
+      setConverted(null);
+    }
     setSettings({ ...settings, [settingKey]: !settings[settingKey] });
     refreshUI();
   };

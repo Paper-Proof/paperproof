@@ -18,7 +18,6 @@ import zoomOnNavigation from "./services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
 import zoomManually from "./services/zoomManually";
 import handleExtensionErrors, { versionErrorEl } from "./services/handleExtensionErrors";
-import getTacticByGoalId from "./services/getTacticByGoalId";
 import areWeOnEllipsisTactic from "./services/areWeOnEllipsisTactic";
 
 // Allowing certain properties on window
@@ -43,6 +42,7 @@ export interface GlobalContextType {
   proofTree: ConvertedProofTree;
   highlights: Highlights;
   position: Position;
+  setConverted: (x: Converted | null) => void;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -192,7 +192,8 @@ function Main() {
 
           proofTree: converted.proofTree,
           highlights: converted.highlights,
-          position
+          position,
+          setConverted
         }}
       >
         <div className={`
