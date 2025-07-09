@@ -124,6 +124,19 @@ There are some other mentions of versioning which have nothing to do with this m
 - `/app/package.json version`, `/lean/lake-manifest.json version` - NOT USED
 - `leanExtension.packageJSON.version` - we check the **vscode-lean4**'s extension version if connecting to their api errors out (this usually means **vscode-lean4** updated their api, and **paperproof** is not yet up to date)
 
+___
+
+Additionally, there is a version of Lean that's used for building the Paperproof library.
+There are two Lean versions mentioned in this repo:
+- `/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof` In particular, our `/Examples.lean` and `_/examples.lean` always use it.
+- `/lean/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof/lean`.
+
+When someone uses Paperproof as a dependency, these versions don't affect anything - the project is built using *their* Lean version.
+Our task here is to aim or the largest backwards-compatibility possible.
+
+At the moment we support Lean version in at least [from leanprover/lean4:v4.12.0-rc1, to leanprover/lean4:v4.20.1] range, which is around one year of Lean versions. Our code does raise deprecation warnings for users on v4.20.1 and higher versions of Lean, however we don't upgrade it, as that would break Paperproof for users with Lean v4.12.0. 
+We will upgrade it when Paperproof code starts breaking for users on newer versions of Lean.
+
 
 <div align="center">
 <img width="60px" src="https://github.com/Paper-Proof/paperproof/assets/7578559/58f24cf2-4336-4376-8738-6463e3802ba0">
