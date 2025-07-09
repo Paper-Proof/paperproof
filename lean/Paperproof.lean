@@ -37,7 +37,7 @@ def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams)
     | .single_tactic =>
       let text : FileMap := (← readDoc).meta.text
       let hoverPos : String.Pos := text.lspPosToUtf8Pos params.pos
-      let some goalsAtResult := (Paperproof.Services.goalsAt? snap.infoTree text hoverPos).head? | throwThe RequestError ⟨.invalidParams, "noGoalsAtResult"⟩
+      let some goalsAtResult := (Paperproof.Services.goalsAt? snap.infoTree text hoverPos).head? | throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
       let tacticInfo := goalsAtResult.tacticInfo
 
       if ← Paperproof.Services.shouldRenderSingleSequent tacticInfo text hoverPos then
