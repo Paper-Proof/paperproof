@@ -37,7 +37,7 @@ partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.Pos) : L
               priority := if hoverPos.byteIdx == tailPos.byteIdx + trailSize then 0 else 1
             }]
     return gs
-  let maxPrio? := gs.map (·.priority) |>.maximum?
+  let maxPrio? := gs.map (·.priority) |>.max?
   gs.filter (some ·.priority == maxPrio?)
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool

@@ -51,7 +51,7 @@ def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step
 
 def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : Std.HashSet GoalInfo :=
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
-  (steps.bind stepGoalsAfter).foldl Std.HashSet.erase allGoals
+  (steps.flatMap stepGoalsAfter).foldl Std.HashSet.erase allGoals
 
 /-
   Instead of doing parsing of what user wrote (it wouldn't work for linarith etc),
@@ -202,7 +202,7 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
   let position ← getProofStepPosition tacticSubstring
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
-  let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.join
+  let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.flatten
   let allGoals := allGoals.insertMany $ currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
@@ -231,10 +231,10 @@ partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (res
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
   let results : List Result := results.filterMap id
   -- 1. Flatten `ProofStep`s
-  let steps : List ProofStep := (results.map (λ result => result.steps)).join
+  let steps : List ProofStep := (results.map (λ result => result.steps)).flatten
   -- 2. Flatten `GoalInfo`s
-  let allGoals := Std.HashSet.empty.insertMany ((results.map (λ result => result.allGoals.toList)).join)
-  
+  let allGoals : Std.HashSet GoalInfo := Std.HashSet.ofList ((results.map (λ result => result.allGoals.toList)).flatten)
+
   parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
 
 partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
