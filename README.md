@@ -319,17 +319,6 @@ theorem casesRandom (C: Prop)
    rev = "main"
    ```
 
-   OR, if you use `lakefile.lean`, write:
-
-   ```lean
-   -- if you are on a Lean version >= 4.12.0:
-   require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
-   -- if you are on a Lean version <= 4.8.0:
-   require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"21e4ec999c23fc6181d6528cbaecb600a2db6851"/"lean"
-   ```
-
-   > Note: if you are on a Lean version in-between these two versions, one of these lines should work.     
-
 4. Then, in your terminal, run:
 
    ```shell
