@@ -5,6 +5,7 @@ import { Divider, Switch } from "@mui/material";
 import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
+import copyProofStructureForLLM from "src/services/copyProofStructureForLLM";
 
 interface Props {
   box: Box;
@@ -14,11 +15,13 @@ interface Props {
 
 const ContextMenu = (props: Props) => {
   const {
+    proofTree,
     refreshUI,
     collapsedBoxIds, setCollapsedBoxIds,
     settings,        setSettings,
     setConverted
   } = useGlobalContext();
+  const global = useGlobalContext();
 
   const handleSettingToggle = (settingKey: keyof Settings) => (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -52,6 +55,13 @@ const ContextMenu = (props: Props) => {
     event.stopPropagation();
     zoomManually(type);
   };
+
+  const copyForLLM = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const proofStructure = copyProofStructureForLLM(proofTree);
+    navigator.clipboard.writeText(proofStructure);
+    props.setContextMenu(null);
+  }
 
   return (
     <Menu
@@ -125,6 +135,11 @@ const ContextMenu = (props: Props) => {
           <Switch checked={settings.areHypsHighlighted} size="small"/>
         </MenuItem>
       }
+
+      <MenuItem onClick={copyForLLM}>
+        <div className="text">Copy for LLM</div>
+        <div className="shortcut" style={{ textAlign: 'center' }}>📋</div>
+      </MenuItem>
     </Menu>
   )
 }

@@ -1,5 +1,4 @@
 import { LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal, ConvertedProofTree, Tactic, HypNode, Box, fakePosition } from "types";
-import logProofTreeForDebugging from "./logProofTreeForDebugging";
 
 let boxId: number;
 let tacticId: number;
@@ -491,7 +490,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
 
   postprocess(convertedProofTree);
 
-  logProofTreeForDebugging(leanProofTree, convertedProofTree)
+  console.log({ leanProofTree, convertedProofTree });
 
   return convertedProofTree;
 };
