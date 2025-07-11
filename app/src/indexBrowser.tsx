@@ -19,6 +19,7 @@ import getStatement from "./services/getStatement";
 import zoomManually from "./services/zoomManually";
 import handleExtensionErrors, { versionErrorEl } from "./services/handleExtensionErrors";
 import areWeOnEllipsisTactic from "./services/areWeOnEllipsisTactic";
+import { createSnapshot } from "./services/createSnapshot";
 
 // Allowing certain properties on window
 declare const window: PaperproofWindow;
@@ -43,6 +44,7 @@ export interface GlobalContextType {
   highlights: Highlights;
   position: Position;
   setConverted: (x: Converted | null) => void;
+  createSnapshot: () => Promise<string>;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -193,7 +195,8 @@ function Main() {
           proofTree: converted.proofTree,
           highlights: converted.highlights,
           position,
-          setConverted
+          setConverted,
+          createSnapshot
         }}
       >
         <div className={`

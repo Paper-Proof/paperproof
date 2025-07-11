@@ -15,6 +15,7 @@ interface Props {
 
 const ContextMenu = (props: Props) => {
   const {
+    createSnapshot,
     proofTree,
     refreshUI,
     collapsedBoxIds, setCollapsedBoxIds,
@@ -35,6 +36,17 @@ const ContextMenu = (props: Props) => {
 
   const handleClose = (event: React.MouseEvent) => {
     event.stopPropagation();
+    props.setContextMenu(null);
+  };
+
+  const handleSnapshot = async (event: React.MouseEvent) => {
+    event.stopPropagation();
+    try {
+      const url = await createSnapshot();
+      navigator.clipboard.writeText(url);
+    } catch (error) {
+      console.error('Failed to create snapshot:', error);
+    }
     props.setContextMenu(null);
   };
 
@@ -140,6 +152,15 @@ const ContextMenu = (props: Props) => {
         <div className="text">Copy for LLM</div>
         <div className="shortcut" style={{ textAlign: 'center' }}>📋</div>
       </MenuItem>
+
+      {
+        false &&
+        <MenuItem onClick={handleSnapshot}>
+          <div className="text">Create snapshot</div>
+          <div className="shortcut" style={{ textAlign: 'center' }}>📸</div>
+        </MenuItem>
+      }
+
     </Menu>
   )
 }

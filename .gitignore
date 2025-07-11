@@ -15,3 +15,5 @@ app/.yarn/
 
 # Don't commit built extensions
 *.vsix
+
+paperproof.xyz/snapshots/
