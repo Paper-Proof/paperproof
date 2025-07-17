@@ -164,10 +164,10 @@ function Main() {
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey && event.key === "≠") {
+      if (event.altKey && (event.key === "≠" || event.key === "=")) {
         event.stopPropagation();
         zoomManually("in");
-      } else if (event.altKey && event.key === "–") {
+      } else if (event.altKey && (event.key === "–" || event.key === "-")) {
         zoomManually("out");
       }
     };
