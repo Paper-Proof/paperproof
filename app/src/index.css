@@ -131,11 +131,7 @@ body{
   position: relative;
 }
 .perfect-arrow{
-  position: absolute;
-  top: 0; left: 0;
   z-index: 0;
-  pointer-events: none;
-
   stroke-width: 2px;
   stroke: #a0ceb0;
   fill: #a0ceb0;
