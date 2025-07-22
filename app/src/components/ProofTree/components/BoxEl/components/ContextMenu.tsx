@@ -22,7 +22,6 @@ const ContextMenu = (props: Props) => {
     settings,        setSettings,
     setConverted
   } = useGlobalContext();
-  const global = useGlobalContext();
 
   const handleSettingToggle = (settingKey: keyof Settings) => (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -99,21 +98,20 @@ const ContextMenu = (props: Props) => {
         <Switch checked={settings.isSingleTacticMode} size="small"/>
       </MenuItem>
 
+      <Divider/>
+      <MenuItem onClick={(event) => handleZoom(event, "in")}>
+        <div className="text">Zoom in</div>
+        <div className="shortcut">⎇ +</div>
+      </MenuItem>
+
+      <MenuItem onClick={(event) => handleZoom(event, "out")}>
+        <div className="text">Zoom out</div>
+        <div className="shortcut">⎇ -</div>
+      </MenuItem>
       
       {
         !settings.isSingleTacticMode &&
         <>
-          <Divider/>
-          <MenuItem onClick={(event) => handleZoom(event, "in")}>
-            <div className="text">Zoom in</div>
-            <div className="shortcut">⎇ +</div>
-          </MenuItem>
-
-          <MenuItem onClick={(event) => handleZoom(event, "out")}>
-            <div className="text">Zoom out</div>
-            <div className="shortcut">⎇ -</div>
-          </MenuItem>
-
           <Divider/>
 
           <MenuItem onClick={handleSettingToggle("isCompactMode")}>
