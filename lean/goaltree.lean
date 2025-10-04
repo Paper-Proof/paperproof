@@ -1,29 +1,11 @@
 import Lean
+import Services.BetterParser
 
 open Lean Elab
 
+namespace Paperproof.Services
 
-def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
-  match tInfo.stx.getSubstring? with
-  | .some substring => substring
-  | .none => none
-
-structure ArgumentInfo where
-  name : String
-  type : String
-  deriving Inhabited, FromJson, ToJson
-
-structure TheoremSignature where
-  name              : String
-  instanceArgs      : List ArgumentInfo := [] -- []
-  implicitArgs      : List ArgumentInfo := [] -- {}
-  explicitArgs      : List ArgumentInfo := [] -- ()
-  type              : String := ""            -- return type
-  declarationType   : String := ""            -- declaration type
-  body              : Option String := none   -- definition body if applicable
-  deriving Inhabited, FromJson, ToJson
-
-def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
+def static_getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List ArgumentInfo × List ArgumentInfo × String) := do
   Meta.forallTelescope expr fun args body => do
     let mut lctx := LocalContext.empty
     for arg in args do
@@ -55,25 +37,8 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
     let bodyStr ← ppExprWithInfos ppCtx body
     return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
 
-
-/-- Check if a substring position is within a given range -/
-def isInRange (substr : Substring) (startPos stopPos : String.Pos) : Bool :=
-  substr.startPos >= startPos && substr.stopPos <= stopPos
-
-/-- Get declaration type string from ConstantInfo -/
-def getDeclarationType (ci : ConstantInfo) : String :=
-  match ci with
-  | .axiomInfo _  => "axiom"
-  | .defnInfo _   => "def"
-  | .thmInfo _    => "theorem"
-  | .opaqueInfo _ => "opaque"
-  | .quotInfo _   => "quotient"
-  | .inductInfo _ => "inductive"
-  | .ctorInfo _   => "constructor"
-  | .recInfo _    => "recursor"
-
 /-- Process a declaration and extract all relevant info (type, args, body) -/
-def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (Option TheoremSignature) := do
+def static_processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (Option TheoremSignature) := do
   let constInfo ← getConstInfo name
   let declType := getDeclarationType constInfo
 
@@ -88,7 +53,7 @@ def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl
   let nameStr ← ppExprWithInfos ppCtx (mkConst constInfo.name)
 
   -- Extract arguments and return type
-  let (instanceArgs, implicitArgs, explicitArgs, typeStr) ← getAllArgsWithTypes constInfo.type
+  let (instanceArgs, implicitArgs, explicitArgs, typeStr) ← static_getAllArgsWithTypes constInfo.type
 
   -- Only include definition body for "def" declarations
   let declBody ←
@@ -111,23 +76,8 @@ def processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl
     body := declBody
   }
 
--- TODO I think now we can remove everything and just leave .const here
-/-- Extract theorem name from expression, handling constants, applications, and local variables -/
-def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
-  guard (!expr.isSyntheticSorry)
-  -- It's important to use cleanExpr here, otherwise we'll be getting "fvar expected" exceptions sometimes
-  let cleanExpr := expr.consumeMData
-  match cleanExpr with
-  | .const name _ => some name
-  | .app .. => expr.getAppFn.consumeMData.constName?
-  | .fvar .. => do
-    let ldecl ← lctx.findFVar? cleanExpr
-    let val ← ldecl.value?
-    val.getAppFn.consumeMData.constName?
-  | _ => none
-
 /-- Extract theorem names exactly like Lean's hover does - using built-in hover functionality -/
-def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (List TheoremSignature) := do
+def static_findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (List TheoremSignature) := do
   let mut theoremNames : NameSet := {}
 
   -- Sample positions throughout the tactic range (every few characters)
@@ -150,19 +100,19 @@ def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos :
   -- Process each theorem name and filter for relevant declarations
   let theoremSignatures ← theoremNames.toList.filterMapM fun name => do
     let resolvedName ← resolveGlobalConstNoOverloadCore name
-    processDeclaration resolvedName ctx goalDecl
+    static_processDeclaration resolvedName ctx goalDecl
 
   pure theoremSignatures
 
 
-def GetTheoremsq (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : MetaM (List TheoremSignature) := do
+def static_GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : MetaM (List TheoremSignature) := do
   let some goalDecl := ctx.mctx.findDecl? tacticInfo.goalsBefore.head!
     | throwError "error"
   let some tacticSubstring := getTacticSubstring tacticInfo
     | throwError "error"
 
   ctx.runMetaM goalDecl.lctx do
-    findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
+    static_findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
 
 
 
@@ -170,36 +120,13 @@ def GetTheoremsq (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextI
 
 
 
-
-structure Hypothesis where
-  username : String
-  type : String
-  value : Option String
-  -- unique identifier for the hypothesis, fvarId
-  id : String
-  isProof : String
-  deriving Inhabited, ToJson, FromJson
-
-structure GoalInfo where
-  username : String
-  type : String
-  hyps : List Hypothesis
-  -- unique identifier for the goal, mvarId
-  id : MVarId
-  deriving Inhabited, ToJson, FromJson
-
-instance : BEq GoalInfo where
-  beq g1 g2 := g1.id == g2.id
-
-instance : Hashable GoalInfo where
-  hash g := hash g.id
 
 -- structure ProofStepPosition where
 --   start: Lsp.Position
 --   stop: Lsp.Position
 --   deriving Inhabited, ToJson, FromJson
 
-structure ProofStep where
+structure static_ProofStep where
   tacticString    : String
   goalBefore      : GoalInfo
   goalsAfter      : List GoalInfo
@@ -209,11 +136,11 @@ structure ProofStep where
   theorems        : List TheoremSignature
   deriving Inhabited, ToJson, FromJson
 
-def stepGoalsAfter (step : ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
+def static_stepGoalsAfter (step : static_ProofStep) : List GoalInfo := step.goalsAfter ++ step.spawnedGoals
 
-def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : Std.HashSet GoalInfo :=
+def static_noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List static_ProofStep) : Std.HashSet GoalInfo :=
   -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
-  (steps.flatMap stepGoalsAfter).foldl Std.HashSet.erase allGoals
+  (steps.flatMap static_stepGoalsAfter).foldl Std.HashSet.erase allGoals
 
 /-
   Instead of doing parsing of what user wrote (it wouldn't work for linarith etc),
@@ -221,7 +148,7 @@ def noInEdgeGoals (allGoals : Std.HashSet GoalInfo) (steps : List ProofStep) : S
   We have assigned something to our goal in mctxAfter.
   All the fvars used in these assignments are what was actually used instead of what was in syntax.
 -/
-def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
+def static_findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
   let some expr := mctxAfter.eAssignment.find? goalId
     | return []
 
@@ -232,13 +159,13 @@ def findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : 
   return fvars.map (fun x => x.fvarId.name.toString) |>.toList
 
 -- This is used to match goalsBefore with goalsAfter to see what was assigned to what
-def findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
+def static_findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
   let some expr := mctxAfter.eAssignment.find? goalId
     | return []
   let (_, s) ← (Meta.collectMVars expr).run {}
   return s.result.toList
 
-def mayBeProof (expr : Expr) : MetaM String := do
+def static_mayBeProof (expr : Expr) : MetaM String := do
   let type : Expr ← Lean.Meta.inferType expr
   if ← Meta.isProof expr then
     return "proof"
@@ -247,7 +174,7 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
-def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
+def static_printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
     | throwError "error"
   -- to get tombstones in name ✝ for unreachable hypothesis
@@ -258,7 +185,7 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
       return acc
     let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
     let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-    let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
+    let isProof : String ← printCtx.runMetaM decl.lctx (static_mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
       type     := type.fmt.pretty,
@@ -273,7 +200,7 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
     id       := id
   }
 
-def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (List MVarId) := do
+def static_getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (List MVarId) := do
   goals.filterMapM fun id => do
     if let none := mctx.findDecl? id then
       return none
@@ -282,17 +209,17 @@ def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (Li
       return none
     return some id
 
-structure Result where
-  steps : List ProofStep
+structure static_Result where
+  steps : List static_ProofStep
   allGoals : Std.HashSet GoalInfo
 
-instance : ToJson Result where
+instance : ToJson static_Result where
   toJson r := Json.mkObj [
     ("steps", toJson r.steps),
     ("allGoals", toJson (r.allGoals.toList))
   ]
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List String × GoalInfo × List GoalInfo)) := do
+def static_getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -303,8 +230,8 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List 
   -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
   -- it's known to be `3 ≤ 5`
   let printCtx := {ctx with mctx := tInfo.mctxAfter}
-  let mut goalsBefore ← getUnassignedGoals goalMVars tInfo.mctxBefore
-  let mut goalsAfter ← getUnassignedGoals goalMVars tInfo.mctxAfter
+  let mut goalsBefore ← static_getUnassignedGoals goalMVars tInfo.mctxBefore
+  let mut goalsAfter ← static_getUnassignedGoals goalMVars tInfo.mctxAfter
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
   goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
@@ -312,18 +239,18 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List 
   let mut result : List (List String × GoalInfo × List GoalInfo) := []
   for goalBefore in goalsBefore do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
+      let assignedMVars ← ctx.runMetaM goalDecl.lctx (static_findMVarsAssigned goalBefore tInfo.mctxAfter)
       let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
-          (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+          (static_findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
       result := (
         tacticDependsOn,
-        ← printGoalInfo printCtx goalBefore,
-        ← goalsAfter.filter assignedMVars.contains |>.mapM (printGoalInfo printCtx)
+        ← static_printGoalInfo printCtx goalBefore,
+        ← goalsAfter.filter assignedMVars.contains |>.mapM (static_printGoalInfo printCtx)
       ) :: result
   return result
 
-def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
+def static_prettifySteps (stx : Syntax) (steps : List static_ProofStep) : List static_ProofStep := Id.run do
   match stx with
   | `(tactic| rw [$_,*] $(_)?)
   | `(tactic| rewrite [$_,*] $(_)?) =>
@@ -334,42 +261,26 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id
     return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
   | _ => return steps
 
--- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
--- That's not completely right because it doesn't compare prefixes but
--- it's much shorter to write than correct version and serves the purpose.
-def nameNumLt (n1 n2 : Name) : Bool :=
-  match n1, n2 with
-  | .num _ n₁, .num _ n₂ => n₁ < n₂
-  | .num _ _,  _ => true
-  | _, _ => false
-
-/--
-  By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
--/
-def prettifyTacticString (tacticString: String) : String :=
-  (tacticString.splitOn "\n").head!.trim
-
-
-partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) (forcedTacticString : String := "") : MetaM Result := do
+partial def static_parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List static_ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) (forcedTacticString : String := "") : MetaM static_Result := do
   let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
   let .ofTacticInfo tInfo := info          | return { steps, allGoals }
   let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
   let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else prettifyTacticString tacticSubstring.toString
 
-  let steps := prettifySteps tInfo.stx steps
+  let steps := static_prettifySteps tInfo.stx steps
 
   --let position ← sorry
 
-  let proofTreeEdges ← getGoalsChange ctx tInfo
+  let proofTreeEdges ← static_getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.flatten
   let allGoals := allGoals.insertMany $ currentGoals
   -- It's like tacticDependsOn but unnamed mvars instead of hyps.
   -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-  let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
+  let orphanedGoals := currentGoals.foldl Std.HashSet.erase (static_noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-  let theorems ←  GetTheoremsq infoTree tInfo ctx  -- FOR STATIC VERSION, WE DELETE "IF SINGLETACTIC MODE"
+  let theorems ←  static_GetTheorems infoTree tInfo ctx  -- FOR STATIC VERSION, WE DELETE "IF SINGLETACTIC MODE"
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
@@ -388,19 +299,19 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
   return { steps := newSteps ++ steps, allGoals }
 
 
-partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option Result)) : MetaM Result := do
+partial def static_postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option static_Result)) : MetaM static_Result := do
   -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
-  let results : List Result := results.filterMap id
+  let results : List static_Result := results.filterMap id
   -- 1. Flatten `ProofStep`s
-  let steps : List ProofStep := (results.map (λ result => result.steps)).flatten
+  let steps : List static_ProofStep := (results.map (λ result => result.steps)).flatten
   -- 2. Flatten `GoalInfo`s
   let allGoals : Std.HashSet GoalInfo := Std.HashSet.ofList ((results.map (λ result => result.allGoals.toList)).flatten)
 
-  parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
+  static_parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
 
 
-partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
-  λ ctx info _ results => postNode infoTree ctx info results
+partial def static_BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
+  λ ctx info _ results => static_postNode infoTree ctx info results
 )
 
 
@@ -462,7 +373,7 @@ def writeGoalInfo (goal : GoalInfo) : IO Unit := do
       IO.println s!"{hyp.username}:{hyp.type}"
   IO.println "---"
 
-def writeProofStep (step : ProofStep) (stepNumber : Nat) : IO Unit := do
+def writeProofStep (step : static_ProofStep) (stepNumber : Nat) : IO Unit := do
   IO.println s!"\n=== Step {stepNumber} ==="
   IO.println s!"Tactic: {step.tacticString}"
   IO.println s!"\nGoals Before:{step.goalBefore.type}"
@@ -479,12 +390,12 @@ def writeProofStep (step : ProofStep) (stepNumber : Nat) : IO Unit := do
       IO.println s!"Spawned goal {i + 1}:"
       writeGoalInfo goal
 
-def saveResultToFile (r : Result) (filePath : System.FilePath) : IO Unit := do
+def saveResultToFile (r : static_Result) (filePath : System.FilePath) : IO Unit := do
   let json := toJson r
   let jsonStr := Json.pretty json
   IO.FS.writeFile filePath jsonStr
 
-def printresult (r : Result)(filePath : System.FilePath) : IO Unit := do
+def printresult (r : static_Result)(filePath : System.FilePath) : IO Unit := do
   IO.println "Proof Tree:"
   IO.println "==========="
 
@@ -550,7 +461,7 @@ unsafe def main (args : List String) : IO Unit := do
       for tree in s.trees do
         let ctx : Lean.Core.Context := { fileName := "", fileMap := default, options := {} }
         let state : Lean.Core.State := { env := env, messages := Lean.MessageLog.empty }
-        let ioComputation := ((BetterParser tree).run {} {}).toIO ctx state
+        let ioComputation := ((static_BetterParser tree).run {} {}).toIO ctx state
         let ((result, _), _) ← ioComputation
         match result with
         | some r => printresult r config.output_path
