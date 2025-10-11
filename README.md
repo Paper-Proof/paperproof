@@ -447,6 +447,30 @@ Below, you will see a table with the main features of Paperproof.
   </table>
 </details>
 
+## Static Output
+
+Paperproof supports static extraction of its proof structures to JSON files. This feature is useful for data processing in AI applications.
+
+To use this feature, first import and build Paperproof. Then in your `lakefile.toml`, write:
+
+   ```lean
+   [[lean_exe]]
+   name = "goaltree"
+   srcDir = ".lake/packages/Paperproof/lean"
+   supportInterpreter = true
+   ```
+
+Now you can run
+
+   ```shell
+   lake exe goaltree LEAN_FILE_PATH CONSTANT_NAME OUTPUT_PATH
+   ```
+
+in the terminal to save the proof structure of a theorem(lemma, etc.) as a Json file.
+
+Here, `CONSTANT_NAME` is the name of your theorem in lean file. `OUTPUT_PATH` is the path for the output Json file. For example, run `lake exe goaltree ./Examples.lean example_theorem ./output.json`
+to save information in `output.json`.
+
 ## Updating
 
 To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperproof Lean library from this github repo, and build it.
