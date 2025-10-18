@@ -2,197 +2,43 @@ import Lean
 import Services.BetterParser
 import Services.GetTheorems
 
-open Lean Elab
+open Lean Elab Paperproof.Services
 
+-- We can reuse the original ProofStep and Result! Just need to provide dummy position data.
+-- This eliminates the need for static_ versions entirely.
 
-def static_getAllArgsWithTypes (expr : Expr) : MetaM (List Paperproof.Services.ArgumentInfo × List Paperproof.Services.ArgumentInfo × List Paperproof.Services.ArgumentInfo × String) := do
-  Meta.forallTelescope expr fun args body => do
-    let mut lctx := LocalContext.empty
-    for arg in args do
-      let decl ← arg.fvarId!.getDecl
-      lctx := lctx.addDecl decl
+-- Dummy position for standalone execution (not connected to any real document)
+def dummyPosition : ProofStepPosition := {
+  start := { line := 0, character := 0 },
+  stop := { line := 0, character := 0 }
+}
 
-    let ppCtx : PPContext := {
-      env := ← getEnv,
-      mctx := ← getMCtx,
-      lctx,
-      opts := (← getOptions).setBool `pp.fullNames true
-    }
+-- Add ToJson instance for Result (original doesn't have one)
+instance : ToJson Result where
+  toJson r := Json.mkObj [
+    ("steps", toJson r.steps),
+    ("allGoals", toJson (r.allGoals.toList))
+  ]
 
-    let mut instanceArgs := []
-    let mut implicitArgs := []
-    let mut explicitArgs := []
-
-    for arg in args do
-      let decl ← arg.fvarId!.getDecl
-      let typeStr ← ppExprWithInfos ppCtx decl.type
-      let argInfo := { name := decl.userName.toString, type := typeStr.fmt.pretty : Paperproof.Services.ArgumentInfo }
-
-      match decl.binderInfo with
-      | BinderInfo.instImplicit => instanceArgs := instanceArgs ++ [argInfo]
-      | BinderInfo.implicit => implicitArgs := implicitArgs ++ [argInfo]
-      | BinderInfo.strictImplicit => implicitArgs := implicitArgs ++ [argInfo]
-      | BinderInfo.default => explicitArgs := explicitArgs ++ [argInfo]
-
-    let bodyStr ← ppExprWithInfos ppCtx body
-    return (instanceArgs, implicitArgs, explicitArgs, bodyStr.fmt.pretty)
-
-/-- Process a declaration and extract all relevant info (type, args, body) -/
-def static_processDeclaration (name : Name) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (Option Paperproof.Services.TheoremSignature) := do
-  let constInfo ← getConstInfo name
-  let declType := Paperproof.Services.getDeclarationType constInfo
-
-  -- Only process theorems, axioms, and definitions
-  unless (declType == "theorem" || declType == "axiom" || declType == "def") do
-    return none
-
-  let ppCtx := { (ctx.toPPContext (goalDecl.lctx |>.sanitizeNames.run' {options := {}})) with
-    opts := (ctx.toPPContext goalDecl.lctx).opts.setBool `pp.fullNames true }
-
-  -- Get the name with full qualification
-  let nameStr ← ppExprWithInfos ppCtx (mkConst constInfo.name)
-
-  -- Extract arguments and return type
-  let (instanceArgs, implicitArgs, explicitArgs, typeStr) ← static_getAllArgsWithTypes constInfo.type
-
-  -- Only include definition body for "def" declarations
-  let declBody ←
-    if declType == "def" then
-      match constInfo.value? with
-      | some expr => do
-        let bodyStr ← ppExprWithInfos ppCtx expr
-        pure (some bodyStr.fmt.pretty)
-      | none => pure none
-    else
-      pure none
-
-  return some {
-    name := nameStr.fmt.pretty,
-    instanceArgs,
-    implicitArgs,
-    explicitArgs,
-    type := typeStr,
-    declarationType := declType,
-    body := declBody
-  }
-
-/-- Extract theorem names exactly like Lean's hover does - using built-in hover functionality -/
-def static_findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (List Paperproof.Services.TheoremSignature) := do
-  let mut theoremNames : NameSet := {}
-
-  -- Sample positions throughout the tactic range (every few characters)
-  -- This ensures we catch all identifiers that would show on hover
-  let mut currentPos := tacticStartPos
-  let step : String.Pos := ⟨3⟩  -- Check every 3 characters
-
-  while currentPos < tacticStopPos do
-    -- Use Lean's actual hover function to find what would show at this position
-    if let some infoWithCtx := tree.hoverableInfoAt? currentPos then
-      -- Extract theorem name from the hover info
-      match infoWithCtx.info with
-      | .ofTermInfo termInfo =>
-        if let some name := Paperproof.Services.extractTheoremName termInfo.expr termInfo.lctx then
-          theoremNames := theoremNames.insert name
-      | _ => pure ()
-
-    currentPos := currentPos + step
-
-  -- Process each theorem name and filter for relevant declarations
-  let theoremSignatures ← theoremNames.toList.filterMapM fun name => do
-    let resolvedName ← resolveGlobalConstNoOverloadCore name
-    static_processDeclaration resolvedName ctx goalDecl
-
-  pure theoremSignatures
-
-
-def static_GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : MetaM (List Paperproof.Services.TheoremSignature) := do
-  let some goalDecl := ctx.mctx.findDecl? tacticInfo.goalsBefore.head!
-    | throwError "error"
-  let some tacticSubstring := Paperproof.Services.getTacticSubstring tacticInfo
-    | throwError "error"
-
-  ctx.runMetaM goalDecl.lctx do
-    static_findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
-
-
-
-
-
-
-
-
--- structure ProofStepPosition where
---   start: Lsp.Position
---   stop: Lsp.Position
---   deriving Inhabited, ToJson, FromJson
-
-structure static_ProofStep where
-  tacticString    : String
-  goalBefore      : Paperproof.Services.GoalInfo
-  goalsAfter      : List Paperproof.Services.GoalInfo
-  tacticDependsOn : List String
-  spawnedGoals    : List Paperproof.Services.GoalInfo
-  --position        : ProofStepPosition
-  theorems        : List Paperproof.Services.TheoremSignature
-  deriving Inhabited, ToJson, FromJson
-
-def static_stepGoalsAfter (step : static_ProofStep) : List Paperproof.Services.GoalInfo := step.goalsAfter ++ step.spawnedGoals
-
-def static_noInEdgeGoals (allGoals : Std.HashSet Paperproof.Services.GoalInfo) (steps : List static_ProofStep) : Std.HashSet Paperproof.Services.GoalInfo :=
-  -- Some of the orphaned goals might be matched by tactics in sibling subtrees, e.g. for tacticSeq.
-  (steps.flatMap static_stepGoalsAfter).foldl Std.HashSet.erase allGoals
-
-/-
-  Instead of doing parsing of what user wrote (it wouldn't work for linarith etc),
-  let's do the following.
-  We have assigned something to our goal in mctxAfter.
-  All the fvars used in these assignments are what was actually used instead of what was in syntax.
--/
-def static_findHypsUsedByTactic (goalId: MVarId) (goalDecl : MetavarDecl) (mctxAfter : MetavarContext) : MetaM (List String) := do
-  let some expr := mctxAfter.eAssignment.find? goalId
-    | return []
-
-  -- Need to instantiate it to get all fvars
-  let fullExpr ← instantiateExprMVars expr
-  let fvarIds := (collectFVars {} fullExpr).fvarIds
-  let fvars := fvarIds.filterMap goalDecl.lctx.find?
-  return fvars.map (fun x => x.fvarId.name.toString) |>.toList
-
--- This is used to match goalsBefore with goalsAfter to see what was assigned to what
-def static_findMVarsAssigned (goalId : MVarId) (mctxAfter : MetavarContext) : MetaM (List MVarId) := do
-  let some expr := mctxAfter.eAssignment.find? goalId
-    | return []
-  let (_, s) ← (Meta.collectMVars expr).run {}
-  return s.result.toList
-
-def static_mayBeProof (expr : Expr) : MetaM String := do
-  let type : Expr ← Lean.Meta.inferType expr
-  if ← Meta.isProof expr then
-    return "proof"
-  if type.isSort then
-    return "universe"
-  else
-    return "data"
-
-def static_printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM Paperproof.Services.GoalInfo := do
+-- Static version of printGoalInfo for MetaM (not RequestM)
+def static_printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
-    | throwError "error"
-  -- to get tombstones in name ✝ for unreachable hypothesis
+    | throwError "Goal not found in mctx"
   let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
   let ppContext := printCtx.toPPContext lctx
   let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
     if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
       return acc
-    let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
-    let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
-    let isProof : String ← printCtx.runMetaM decl.lctx (static_mayBeProof hypDecl.toExpr)
+    let type ← ppExprWithInfos ppContext hypDecl.type
+    let value ← hypDecl.value?.mapM (fun expr => ppExprWithInfos ppContext expr)
+    let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
       type     := type.fmt.pretty,
-      value    := value.map (·.fmt.pretty),
+      value    := value.map (fun x => x.fmt.pretty),
       id       := hypDecl.fvarId.name.toString,
       isProof  := isProof
-    } : Paperproof.Services.Hypothesis) :: acc)
+    } : Hypothesis) :: acc)
   return {
     username := decl.userName.toString
     type     := (← ppExprWithInfos ppContext decl.type).fmt.pretty
@@ -200,49 +46,31 @@ def static_printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM Paperpro
     id       := id
   }
 
+-- Static version of getUnassignedGoals for MetaM
 def static_getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (List MVarId) := do
   goals.filterMapM fun id => do
     if let none := mctx.findDecl? id then
       return none
-    if mctx.eAssignment.contains id ||
-       mctx.dAssignment.contains id then
+    if mctx.eAssignment.contains id || mctx.dAssignment.contains id then
       return none
     return some id
 
-structure static_Result where
-  steps : List static_ProofStep
-  allGoals : Std.HashSet Paperproof.Services.GoalInfo
-
-instance : ToJson static_Result where
-  toJson r := Json.mkObj [
-    ("steps", toJson r.steps),
-    ("allGoals", toJson (r.allGoals.toList))
-  ]
-
-def static_getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List String × Paperproof.Services.GoalInfo × List Paperproof.Services.GoalInfo)) := do
-  -- We want to filter out `focus` like tactics which don't do any assignments
-  -- therefore we check all goals on whether they were assigned during the tactic
+-- Static version of getGoalsChange for MetaM
+def static_getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List String × GoalInfo × List GoalInfo)) := do
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
-  -- For printing purposes we always need to use the latest mctx assignments. For example in
-  -- have h := by calc
-  --  3 ≤ 4 := by trivial
-  --  4 ≤ 5 := by trivial
-  -- at mctxBefore type of `h` is `?m.260`, but by the time calc is elaborated at mctxAfter
-  -- it's known to be `3 ≤ 5`
   let printCtx := {ctx with mctx := tInfo.mctxAfter}
   let mut goalsBefore ← static_getUnassignedGoals goalMVars tInfo.mctxBefore
   let mut goalsAfter ← static_getUnassignedGoals goalMVars tInfo.mctxAfter
   let commonGoals := goalsBefore.filter fun g => goalsAfter.contains g
   goalsBefore := goalsBefore.filter (!commonGoals.contains ·)
-  goalsAfter :=  goalsAfter.filter (!commonGoals.contains ·)
-  -- We need to match them into (goalBefore, goalsAfter) pairs according to assignment.
-  let mut result : List (List String × Paperproof.Services.GoalInfo × List Paperproof.Services.GoalInfo) := []
+  goalsAfter := goalsAfter.filter (!commonGoals.contains ·)
+  
+  let mut result : List (List String × GoalInfo × List GoalInfo) := []
   for goalBefore in goalsBefore do
     if let some goalDecl := tInfo.mctxBefore.findDecl? goalBefore then
-      let assignedMVars ← ctx.runMetaM goalDecl.lctx (static_findMVarsAssigned goalBefore tInfo.mctxAfter)
-      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
-          (static_findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
-
+      let assignedMVars ← ctx.runMetaM goalDecl.lctx (findMVarsAssigned goalBefore tInfo.mctxAfter)
+      let tacticDependsOn ← ctx.runMetaM goalDecl.lctx (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
+      
       result := (
         tacticDependsOn,
         ← static_printGoalInfo printCtx goalBefore,
@@ -250,39 +78,37 @@ def static_getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List
       ) :: result
   return result
 
-def static_prettifySteps (stx : Syntax) (steps : List static_ProofStep) : List static_ProofStep := Id.run do
-  match stx with
-  | `(tactic| rw [$_,*] $(_)?)
-  | `(tactic| rewrite [$_,*] $(_)?) =>
-    let prettify (tStr : String) :=
-      let res := tStr.trim.dropRightWhile (· == ',')
-      -- rw puts final rfl on the "]" token
-      if res == "]" then "rfl" else res
-    return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
-  | _ => return steps
+-- We can eliminate this entirely and just call findTheoremsLikeHover directly!
+-- This is exactly what the original GetTheorems does, just with MetaM instead of RequestM
 
-partial def static_parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List static_ProofStep) (allGoals : Std.HashSet Paperproof.Services.GoalInfo) (isSingleTacticMode : Bool) (forcedTacticString : String := "") : MetaM static_Result := do
+-- Reuse existing prettifySteps, just provide original ProofStep with dummy position
+-- No need for separate static version!
+
+-- Static version of parseTacticInfo using original ProofStep structure
+partial def static_parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) : MetaM Result := do
   let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
   let .ofTacticInfo tInfo := info          | return { steps, allGoals }
-  let .some tacticSubstring := Paperproof.Services.getTacticSubstring tInfo | return { steps, allGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
-  let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else Paperproof.Services.prettifyTacticString tacticSubstring.toString
-
-  let steps := static_prettifySteps tInfo.stx steps
-
-  --let position ← sorry
+  let tacticString := prettifyTacticString tacticSubstring.toString
+  let steps := prettifySteps tInfo.stx steps  -- Use original function!
 
   let proofTreeEdges ← static_getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.flatten
   let allGoals := allGoals.insertMany $ currentGoals
-  -- It's like tacticDependsOn but unnamed mvars instead of hyps.
-  -- Important to sort for have := calc for example, e.g. calc 3 < 4 ... 4 < 5 ...
-  let orphanedGoals := currentGoals.foldl Std.HashSet.erase (static_noInEdgeGoals allGoals steps)
-    |>.toArray.insertionSort (Paperproof.Services.nameNumLt ·.id.name ·.id.name) |>.toList
+  
+  -- Use original stepGoalsAfter and noInEdgeGoals functions!
+  let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
+    |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-  let theorems ←  static_GetTheorems infoTree tInfo ctx  -- FOR STATIC VERSION, WE DELETE "IF SINGLETACTIC MODE"
+  -- Call findTheoremsLikeHover directly instead of going through wrapper
+  let theorems ← 
+    match ctx.mctx.findDecl? tInfo.goalsBefore.head!, getTacticSubstring tInfo with
+    | some goalDecl, some tacticSubstring =>
+      ctx.runMetaM goalDecl.lctx do
+        findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
+    | _, _ => pure []
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
-    -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
       none
     else
@@ -291,24 +117,19 @@ partial def static_parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (inf
         goalBefore,
         goalsAfter,
         tacticDependsOn,
-        spawnedGoals := orphanedGoals
-        --position := position
+        spawnedGoals := orphanedGoals,
+        position := dummyPosition,  -- Just use dummy position!
         theorems := theorems
       }
 
   return { steps := newSteps ++ steps, allGoals }
 
+partial def static_postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option Result)) : MetaM Result := do
+  let results : List Result := results.filterMap id
+  let steps : List ProofStep := (results.map (λ result => result.steps)).flatten
+  let allGoals : Std.HashSet GoalInfo := Std.HashSet.ofList ((results.map (λ result => result.allGoals.toList)).flatten)
 
-partial def static_postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option static_Result)) : MetaM static_Result := do
-  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
-  let results : List static_Result := results.filterMap id
-  -- 1. Flatten `ProofStep`s
-  let steps : List static_ProofStep := (results.map (λ result => result.steps)).flatten
-  -- 2. Flatten `GoalInfo`s
-  let allGoals : Std.HashSet Paperproof.Services.GoalInfo := Std.HashSet.ofList ((results.map (λ result => result.allGoals.toList)).flatten)
-
-  static_parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
-
+  static_parseTacticInfo infoTree ctx info steps allGoals
 
 partial def static_BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
   λ ctx info _ results => static_postNode infoTree ctx info results
@@ -373,7 +194,7 @@ def writeGoalInfo (goal : Paperproof.Services.GoalInfo) : IO Unit := do
       IO.println s!"{hyp.username}:{hyp.type}"
   IO.println "---"
 
-def writeProofStep (step : static_ProofStep) (stepNumber : Nat) : IO Unit := do
+def writeProofStep (step : ProofStep) (stepNumber : Nat) : IO Unit := do
   IO.println s!"\n=== Step {stepNumber} ==="
   IO.println s!"Tactic: {step.tacticString}"
   IO.println s!"\nGoals Before:{step.goalBefore.type}"
@@ -390,12 +211,12 @@ def writeProofStep (step : static_ProofStep) (stepNumber : Nat) : IO Unit := do
       IO.println s!"Spawned goal {i + 1}:"
       writeGoalInfo goal
 
-def saveResultToFile (r : static_Result) (filePath : System.FilePath) : IO Unit := do
+def saveResultToFile (r : Result) (filePath : System.FilePath) : IO Unit := do
   let json := toJson r
   let jsonStr := Json.pretty json
   IO.FS.writeFile filePath jsonStr
 
-def printresult (r : static_Result)(filePath : System.FilePath) : IO Unit := do
+def printresult (r : Result)(filePath : System.FilePath) : IO Unit := do
   IO.println "Proof Tree:"
   IO.println "==========="
 
