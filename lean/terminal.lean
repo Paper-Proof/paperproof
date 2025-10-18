@@ -1,7 +1,4 @@
-import Lean
-import Services.BetterParser
-import Services.GetTheorems
-/--
+/-
   # Terminal Output
   Paperproof supports static extraction of its proof structures to JSON files via terminal execution. 
   This feature is useful for data processing in AI applications.
@@ -27,6 +24,10 @@ import Services.GetTheorems
   For example, run `lake exe terminal ./Examples.lean example_theorem ./output.json`
   to save information in `output.json`.
 -/
+import Lean
+import Services.BetterParser
+import Services.GetTheorems
+
 open Lean Elab Paperproof.Services
 
 def dummyPosition : ProofStepPosition := {
