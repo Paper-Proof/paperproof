@@ -342,29 +342,6 @@ theorem casesRandom (C: Prop)
 
    You can click on any theorem now (well, only tactic-based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
 
-#### Static Output
-Paperproof supports static extraction of its proof structures to JSON files. This feature is useful for data processing in AI applications.
-
-To use this feature, first import and build Paperproof. Then in your `lakefile.toml`, write:
-
-   ```lean
-   [[lean_exe]]
-   name = "goaltree"
-   srcDir = ".lake/packages/Paperproof/lean"
-   supportInterpreter = true
-   ```
-
-Now you can run
-
-   ```shell
-   lake exe goaltree LEAN_FILE_PATH CONSTANT_NAME OUTPUT_PATH
-   ```
-
-in the terminal to save the proof structure of a theorem(lemma, etc.) as a Json file.
-
-Here, `CONSTANT_NAME` is the name of your theorem in lean file. `OUTPUT_PATH` is the path for the output Json file. For example, run `lake exe goaltree ./Examples.lean example_theorem ./output.json`
-to save information in `output.json`.
-
 > [!TIP]
 > If you get a build error when you try to build the paperproof package, please copypaste the error message and create the corresponding issue in Paperproof.
 > Lean updates its metaprogramming api frequently - we try to go along with it, and it's helpful when incompatibilities are discovered on time.   

@@ -1,13 +1,32 @@
 import Lean
 import Services.BetterParser
 import Services.GetTheorems
+/--
+  # Static Output
+  Paperproof supports static extraction of its proof structures to JSON files. This feature is useful for data processing in AI applications.
 
+  To use this feature, first import and build Paperproof. Then in your `lakefile.toml`, write:
+
+    ```lean
+    [[lean_exe]]
+    name = "goaltree"
+    srcDir = ".lake/packages/Paperproof/lean"
+    supportInterpreter = true
+    ```
+
+  Now you can run
+
+    ```shell
+    lake exe goaltree LEAN_FILE_PATH CONSTANT_NAME OUTPUT_PATH
+    ```
+
+  in the terminal to save the proof structure of a theorem(lemma, etc.) as a Json file.
+
+  Here, `CONSTANT_NAME` is the name of your theorem in lean file. `OUTPUT_PATH` is the path for the output Json file. For example, run `lake exe goaltree ./Examples.lean example_theorem ./output.json`
+  to save information in `output.json`.
+-/
 open Lean Elab Paperproof.Services
 
--- We can reuse the original ProofStep and Result! Just need to provide dummy position data.
--- This eliminates the need for static_ versions entirely.
-
--- Dummy position for standalone execution (not connected to any real document)
 def dummyPosition : ProofStepPosition := {
   start := { line := 0, character := 0 },
   stop := { line := 0, character := 0 }
