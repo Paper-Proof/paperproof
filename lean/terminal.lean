@@ -2,27 +2,29 @@ import Lean
 import Services.BetterParser
 import Services.GetTheorems
 /--
-  # Static Output
-  Paperproof supports static extraction of its proof structures to JSON files. This feature is useful for data processing in AI applications.
+  # Terminal Output
+  Paperproof supports static extraction of its proof structures to JSON files via terminal execution. 
+  This feature is useful for data processing in AI applications.
 
-  To use this feature, first import and build Paperproof. Then in your `lakefile.toml`, write:
+  To use this feature, first import and build Paperproof. Then in your `lakefile.lean`, write:
 
     ```lean
-    [[lean_exe]]
-    name = "goaltree"
-    srcDir = ".lake/packages/Paperproof/lean"
-    supportInterpreter = true
+    @[default_target]
+    lean_exe terminal where
+      srcDir := ".lake/packages/Paperproof/lean"
+      supportInterpreter := true
     ```
 
   Now you can run
 
     ```shell
-    lake exe goaltree LEAN_FILE_PATH CONSTANT_NAME OUTPUT_PATH
+    lake exe terminal LEAN_FILE_PATH CONSTANT_NAME OUTPUT_PATH
     ```
 
-  in the terminal to save the proof structure of a theorem(lemma, etc.) as a Json file.
+  in the terminal to save the proof structure of a theorem (lemma, etc.) as a JSON file.
 
-  Here, `CONSTANT_NAME` is the name of your theorem in lean file. `OUTPUT_PATH` is the path for the output Json file. For example, run `lake exe goaltree ./Examples.lean example_theorem ./output.json`
+  Here, `CONSTANT_NAME` is the name of your theorem in the lean file. `OUTPUT_PATH` is the path for the output JSON file. 
+  For example, run `lake exe terminal ./Examples.lean example_theorem ./output.json`
   to save information in `output.json`.
 -/
 open Lean Elab Paperproof.Services
@@ -171,7 +173,7 @@ structure Config where
 
 def parseArgs (args : Array String) : IO Config := do
   if args.size < 3 then
-    throw <| IO.userError "usage:lean exe goaltree FILE_PATH CONST_NAME OUTPUT_FILE_PATH"
+    throw <| IO.userError "usage:lean exe terminal FILE_PATH CONST_NAME OUTPUT_FILE_PATH"
   let mut cfg : Config := {}
   cfg := { cfg with file_path := ⟨args[0]!⟩ }
   cfg := { cfg with const_name := args[1]!.toName }
