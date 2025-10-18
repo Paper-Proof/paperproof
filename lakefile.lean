@@ -19,3 +19,9 @@ require Paperproof from "lean"
 -- require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
 
 require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "master"
+
+-- Uncomment this is you want to use paperproof statically
+-- @[default_target]
+-- lean_exe terminal where
+--   srcDir := "lean"
+--   supportInterpreter := true
