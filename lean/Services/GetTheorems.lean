@@ -152,7 +152,7 @@ def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos :
   
   while currentPos < tacticStopPos do
     -- Use Lean's actual hover function to find what would show at this position
-    if let some infoWithCtx := tree.hoverableInfoAt? currentPos then
+    if let some infoWithCtx ← tree.hoverableInfoAtM? currentPos then
       -- Extract theorem name from the hover info
       match infoWithCtx.info with
       | .ofTermInfo termInfo => 
