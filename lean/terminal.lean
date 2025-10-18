@@ -224,12 +224,12 @@ def writeProofStep (step : ProofStep) (stepNumber : Nat) : IO Unit := do
     IO.println "\nGoals After: No goals (proof completed)"
   else
     IO.println s!"\nGoals After: {step.goalsAfter.length} goal(s)"
-    for (i, goal) in step.goalsAfter.enum do
+    for (goal, i) in step.goalsAfter.zipIdx do
       IO.println s!"Goal {i + 1}:"
       writeGoalInfo goal
   if !step.spawnedGoals.isEmpty then
     IO.println s!"Spawned goals: {step.spawnedGoals.length}"
-    for (i, goal) in step.spawnedGoals.enum do
+    for (goal, i) in step.spawnedGoals.zipIdx do
       IO.println s!"Spawned goal {i + 1}:"
       writeGoalInfo goal
 
