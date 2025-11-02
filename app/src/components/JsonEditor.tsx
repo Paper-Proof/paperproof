@@ -326,6 +326,10 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
             insertSpaces: true,
             folding: true,
             bracketMatching: 'always',
+            // Disable confusable character warnings
+            unicodeHighlight: {
+              ambiguousCharacters: false,
+            },
           }}
         />
       </div>
