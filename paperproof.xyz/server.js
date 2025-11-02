@@ -102,6 +102,50 @@ app.post('/api/snapshot', async (req, res) => {
   }
 });
 
+// Serve the built JavaScript file
+app.get('/dist/standaloneRenderer.js', async (req, res) => {
+  try {
+    const jsPath = '../app/dist/standaloneRenderer.js';
+    const js = await fs.readFile(jsPath, 'utf8');
+    res.setHeader('Content-Type', 'application/javascript');
+    res.send(js);
+  } catch (error) {
+    console.error('Error serving renderer JS:', error);
+    res.status(500).send('Error loading renderer JS');
+  }
+});
+
+// Serve the built CSS file
+app.get('/dist/standaloneRenderer.css', async (req, res) => {
+  try {
+    const cssPath = '../app/dist/standaloneRenderer.css';
+    const css = await fs.readFile(cssPath, 'utf8');
+    res.setHeader('Content-Type', 'text/css');
+    res.send(css);
+  } catch (error) {
+    console.error('Error serving renderer CSS:', error);
+    res.status(500).send('Error loading renderer CSS');
+  }
+});
+
+// Standalone renderer page - serve the built HTML
+app.get('/renderer', async (req, res) => {
+  try {
+    const htmlPath = '../app/standalone-renderer.html';
+    const html = await fs.readFile(htmlPath, 'utf8');
+    res.send(html);
+  } catch (error) {
+    console.error('Error serving renderer page:', error);
+    res.status(500).send('Error loading renderer page');
+  }
+});
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+
 // Serve snapshot
 app.get('/:id', async (req, res) => {
   try {
@@ -114,10 +158,6 @@ app.get('/:id', async (req, res) => {
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
