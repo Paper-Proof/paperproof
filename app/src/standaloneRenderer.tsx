@@ -6,6 +6,7 @@ import "./index.css";
 import converter from "./services/converter";
 import hypsToTables from "./services/hypsToTables";
 import { convertUserProofTreeToLean } from "./services/userToLeanProofTreeConverter";
+import JsonEditor from "./components/JsonEditor";
 
 // Mock the indexBrowser module to avoid VS Code dependencies
 (window as any).acquireVsCodeApi = () => ({});
@@ -57,28 +58,81 @@ function StandaloneRenderer() {
   const [error, setError] = useState<string | null>(null);
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
+  const [isJsonValid, setIsJsonValid] = useState<boolean>(false);
 
-  const handleRender = () => {
-    try {
+  // Manual validation function to check if JSON is valid
+  const validateAndCompile = (jsonValue: string) => {
+    console.log('validateAndCompile called with:', jsonValue.substring(0, 100) + '...');
+    
+    if (!jsonValue.trim()) {
+      setConvertedProofTree(null);
       setError(null);
-      if (!jsonInput.trim()) {
-        setError('Please paste some JSON data first.');
-        return;
+      return;
+    }
+
+    try {
+      // Try parsing as JSON first
+      const userProofTree = JSON.parse(jsonValue);
+      console.log('JSON parsed successfully:', userProofTree);
+      
+      // Basic validation - check if it's an array
+      if (!Array.isArray(userProofTree)) {
+        throw new Error('Root must be an array');
       }
-      const userProofTree: UserProofTree = JSON.parse(jsonInput);
-      const leanProofTree: LeanProofTree = convertUserProofTreeToLean(userProofTree);
+      
+      // Check basic structure of first tactic if present
+      if (userProofTree.length > 0) {
+        const firstTactic = userProofTree[0];
+        if (!firstTactic.tacticString || !firstTactic.goalBefore || !firstTactic.goalsAfter) {
+          throw new Error('Invalid tactic structure');
+        }
+      }
+      
+      setError(null);
+      
+      // Convert to LeanProofTree format
+      const leanProofTree = convertUserProofTreeToLean(userProofTree);
       const converted: ConvertedProofTree = converter(leanProofTree);
       converted.boxes.forEach((box) => {
         box.hypTables = hypsToTables(box.hypLayers, converted, false);
       });
       setConvertedProofTree(converted);
+      setIsJsonValid(true);
+      
+      console.log('Successfully compiled proof tree!');
+      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError('Error rendering proof: ' + errorMessage);
-      console.error('Full error:', err);
+      console.log('Validation/compilation failed:', errorMessage);
+      setError('Error: ' + errorMessage);
+      setConvertedProofTree(null);
+      setIsJsonValid(false);
     }
   };
 
+  // Auto-compile proof tree when JSON is valid (Monaco callback)
+  const handleValidationChange = (isValid: boolean, markers: any[]) => {
+    console.log('Monaco validation callback - isValid:', isValid, 'markers:', markers.length);
+    setIsJsonValid(isValid);
+    
+    if (isValid) {
+      // If Monaco says it's valid, try to compile
+      validateAndCompile(jsonInput);
+    } else {
+      // Clear proof tree when Monaco says it's invalid
+      setConvertedProofTree(null);
+    }
+  };
+
+  // Handle direct JSON input changes (fallback)
+  const handleJsonChange = (newValue: string) => {
+    setJsonInput(newValue);
+    
+    // Debounced validation as fallback if Monaco doesn't trigger
+    setTimeout(() => {
+      validateAndCompile(newValue);
+    }, 300); // Wait 300ms for user to stop typing
+  };
   const dummyCreateSnapshot = async () => {
     return "snapshot-id";
   };
@@ -89,20 +143,20 @@ function StandaloneRenderer() {
         <h1>PaperProof Standalone Renderer</h1>
         <p>Paste your simplified proof tree JSON below to visualize the proof:</p>
         
-        <textarea
+        <JsonEditor
           value={jsonInput}
-          onChange={(e) => setJsonInput(e.target.value)}
-          placeholder="Paste your simplified proof tree JSON here..."
+          onChange={handleJsonChange}
+          onValidationChange={handleValidationChange}
+          height="400px"
+          theme="light"
         />
-        
-        <button onClick={handleRender}>Render Proof</button>
       </div>
 
       <div>
         {error && <div>{error}</div>}
         
         {!error && !convertedProofTree && (
-          <div>Click "Render Proof" to visualize your proof tree.</div>
+          <div>Enter valid JSON above to see your proof tree visualization.</div>
         )}
         
         {convertedProofTree && (
