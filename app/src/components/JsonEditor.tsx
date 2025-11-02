@@ -19,6 +19,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 }) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [errors, setErrors] = useState<monaco.editor.IMarker[]>([]);
+  const [instructionsCopied, setInstructionsCopied] = useState(false);
   const monacoInstance = useMonaco();
 
   // Load Solarized Light theme when Monaco is ready
@@ -331,6 +332,34 @@ Example - proving s ∩ t = t ∩ s:
 
 Focus on capturing the logical flow: what we know at each step, what we're proving, and how each action transforms the state.`;
 
+  const copyInstructionsToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(instructionsText);
+      setInstructionsCopied(true);
+      console.log('Instructions copied to clipboard');
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setInstructionsCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy instructions to clipboard:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = instructionsText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setInstructionsCopied(true);
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setInstructionsCopied(false);
+      }, 2000);
+    }
+  };
+
   return (
     <div>
       {/* Error display */}
@@ -404,19 +433,38 @@ Focus on capturing the logical flow: what we know at each step, what we're provi
             padding: '6px 12px',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '12px'
+            fontSize: '12px',
+            marginRight: '10px'
           }}
         >
           Test Schema Error
         </button>
+        <span style={{ fontSize: '12px', color: '#333' }}>
+          Click <button 
+            type="button"
+            onClick={copyInstructionsToClipboard}
+            style={{
+              background: instructionsCopied ? '#4caf50' : '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '0px 8px',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {instructionsCopied ? '✓ Copied!' : 'here'}
+          </button> to copy instructions for llm.
+        </span>
       </div>
 
       {/* Monaco Editor */}
       <div style={{ 
-        height, 
-        border: '1px solid #ddd', 
+        height,
         borderRadius: '4px',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        marginBottom: 40,
       }}>
         <Editor
           height="100%"
@@ -440,25 +488,12 @@ Focus on capturing the logical flow: what we know at each step, what we're provi
             tabSize: 2,
             insertSpaces: true,
             folding: true,
-            bracketMatching: 'always',
             // Disable confusable character warnings
             unicodeHighlight: {
               ambiguousCharacters: false,
             },
           }}
         />
-      </div>
-
-      {/* Status indicator */}
-      <div style={{ 
-        marginTop: '5px', 
-        fontSize: '12px',
-        color: errors.length === 0 ? '#28a745' : '#dc3545'
-      }}>
-        {errors.length === 0 
-          ? '✅ Valid JSON & Schema' 
-          : `❌ ${errors.length} validation error(s)`
-        }
       </div>
     </div>
   );
