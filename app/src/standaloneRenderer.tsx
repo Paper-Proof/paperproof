@@ -148,7 +148,7 @@ function StandaloneRenderer() {
           onChange={handleJsonChange}
           onValidationChange={handleValidationChange}
           height="400px"
-          theme="light"
+          theme="solarized-light"
         />
       </div>
 

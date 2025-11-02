@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Editor } from '@monaco-editor/react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Editor, useMonaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
 interface JsonEditorProps {
@@ -7,7 +7,7 @@ interface JsonEditorProps {
   onChange: (value: string) => void;
   onValidationChange?: (isValid: boolean, errors: monaco.editor.IMarker[]) => void;
   height?: string;
-  theme?: 'vs-dark' | 'light' | 'vs';
+  theme?: 'vs-dark' | 'light' | 'vs' | 'solarized-light';
 }
 
 const JsonEditor: React.FC<JsonEditorProps> = ({
@@ -15,13 +15,48 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
   onChange,
   onValidationChange,
   height = '400px',
-  theme = 'light'
+  theme = 'solarized-light'
 }) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [errors, setErrors] = useState<monaco.editor.IMarker[]>([]);
+  const monacoInstance = useMonaco();
+
+  // Load Solarized Light theme when Monaco is ready
+  useEffect(() => {
+    if (monacoInstance) {
+      console.log('Monaco instance available, loading Solarized Light theme...');
+      import('monaco-themes/themes/Solarized-light.json')
+        .then((themeData: any) => {
+          console.log('Theme data loaded:', themeData);
+          monacoInstance.editor.defineTheme('solarized-light', themeData);
+          monacoInstance.editor.setTheme('solarized-light');
+          console.log('Solarized Light theme loaded and set successfully');
+        })
+        .catch((error) => {
+          console.error('Failed to load Solarized Light theme:', error);
+          console.log('Falling back to light theme');
+        });
+    } else {
+      console.log('Monaco instance not yet available');
+    }
+  }, [monacoInstance]);
 
   // Configure Monaco with Zod schema before editor mounts
   const handleEditorWillMount = (monaco: any) => {
+    console.log('handleEditorWillMount called');
+    
+    // Load theme in beforeMount as well
+    import('monaco-themes/themes/Solarized-light.json')
+      .then((themeData: any) => {
+        console.log('Loading theme in beforeMount:', themeData);
+        monaco.editor.defineTheme('solarized-light', themeData);
+        monaco.editor.setTheme('solarized-light');
+        console.log('Theme set in beforeMount');
+      })
+      .catch((error) => {
+        console.error('Failed to load theme in beforeMount:', error);
+      });
+    
     try {
       // Convert Zod schema to JSON Schema
       // Note: We'll do this manually since z.toJSONSchema might not be available in all Zod versions
