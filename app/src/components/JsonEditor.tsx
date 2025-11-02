@@ -216,6 +216,121 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
   }
 ]`;
 
+const instructionsText = `Instructions for Creating Mathematical Proof Trees
+Overview:
+You will convert natural language mathematical proofs into a structured JSON format that represents the proof as a sequence of steps. Each step shows how hypotheses (what we know) and goals (what we're trying to prove) change throughout the proof.
+Core Structure:
+A proof is an array of tactics (proof steps). Each tactic transforms the proof state:
+{
+  "tacticString": "introduce x",           // 2-5 word description of the step
+  "tacticDependsOn": ["hyp_1", "hyp_2"],  // IDs of hypotheses used (optional)
+  "goalBefore": { ... },                   // State before this step
+  "goalsAfter": [ ... ],                   // State(s) after this step
+  "spawnedGoals": [ ... ]                  // For advanced cases (optional)
+}
+Data Types:
+Hypothesis - represents something we know or have assumed:
+{
+  "username": "h1",          // Variable name (optional, defaults to "")
+  "type": "x ∈ S ∩ T",      // What this hypothesis states
+  "id": "hyp_1",            // Unique identifier
+  "isProof": "proof"        // Usually "proof" or "data" (optional)
+}
+Goal - represents what we're trying to prove at a given point:
+{
+  "type": "x ∈ T ∩ S",                    // Statement to prove
+  "id": "goal_1",                          // Unique identifier  
+  "username": "h",                         // Optional label (defaults to "")
+  "hyps": [ /* array of hypotheses */ ]   // Available hypotheses
+}
+How to Structure a Proof:
+1. Start with initial state: First tactic shows the theorem statement
+2. Each step: Describe what happens (introduce variable, rewrite expression, split into cases, etc.)
+3. Track changes: 
+   - When you introduce a new hypothesis, add it to hyps in goalsAfter
+   - When you transform a hypothesis, change its type and give it a new id
+   - When the goal changes, update the type in goalsAfter
+4. Branching: If proof splits (cases, iff), goalsAfter has multiple goals
+5. Dependencies: List IDs of hypotheses actually used in tacticDependsOn
+
+Induction:
+When applying induction on a variable n (natural number), create TWO goals:
+
+Goal 1 (base case):
+- type: Replace n with 0 in the goal statement
+- hyps: Keep all original hypotheses EXCEPT remove n itself
+
+Goal 2 (inductive case):  
+- type: Replace n with (n+1) or (succ n) in the goal statement
+- hyps: Keep all original hypotheses + add these two NEW hypotheses:
+  * n : ℕ (the predecessor, with a NEW id)
+  * IH : [statement with n] (inductive hypothesis - the goal statement but for n, with username "IH")
+
+<induction_example>
+{
+  "tacticString": "induction on n",
+  "tacticDependsOn": ["hyp_1"],
+  "goalBefore": {
+    "type": "0 + n = n",
+    "id": "goal_1",
+    "hyps": [
+      {"username": "n", "type": "ℕ", "id": "hyp_1", "isProof": "data"}
+    ]
+  },
+  "goalsAfter": [
+    {
+      "type": "0 + 0 = 0",
+      "id": "goal_2",
+      "username": "base",
+      "hyps": []
+    },
+    {
+      "type": "0 + (n+1) = n+1",
+      "id": "goal_3",
+      "username": "ind",
+      "hyps": [
+        {"username": "n", "type": "ℕ", "id": "hyp_2", "isProof": "data"},
+        {"username": "IH", "type": "0 + n = n", "id": "hyp_3", "isProof": "proof"}
+      ]
+    }
+  ]
+}
+</induction_example>
+
+Formatting Guidelines:
+- tacticString: Use clear 2-5 word descriptions: "introduce x", "rewrite using ∩ definition", "apply commutativity", "cases on h1", "induction on n"
+- types: Prefer mathematical unicode (∈, ∩, →, ∧, ∀) over words, but natural language is acceptable for clarity
+- IDs: Use simple sequential IDs: "hyp_1", "hyp_2", "goal_1", etc.
+- isProof: Use "proof" for assumptions/implications, "data" for concrete objects/values
+
+Example - proving s ∩ t = t ∩ s:
+<example>
+[
+  {
+    "tacticString": "intro x",
+    "goalBefore": {
+      "type": "s ∩ t = t ∩ s",
+      "id": "goal_1",
+      "hyps": [
+        {"username": "s", "type": "Set ℕ", "id": "hyp_1"},
+        {"username": "t", "type": "Set ℕ", "id": "hyp_2"}
+      ]
+    },
+    "goalsAfter": [{
+      "type": "x ∈ s ∩ t ↔ x ∈ t ∩ s",
+      "id": "goal_2",
+      "hyps": [
+        {"username": "s", "type": "Set ℕ", "id": "hyp_1"},
+        {"username": "t", "type": "Set ℕ", "id": "hyp_2"},
+        {"username": "x", "type": "ℕ", "id": "hyp_3"}
+      ]
+    }]
+  }
+]
+</example>
+
+Focus on capturing the logical flow: what we know at each step, what we're proving, and how each action transforms the state.`;
+
   return (
     <div>
       {/* Error display */}
