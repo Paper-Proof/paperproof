@@ -18,22 +18,14 @@ if [ "$DROPLET_IP" = "YOUR_DROPLET_IP" ]; then
 fi
 
 echo "📦 Creating deployment archive..."
-cd ../..
-tar -czf paperproof.xyz/deployment/paperproof-deploy.tar.gz \
+cd ..
+tar -czf deployment/paperproof-deploy.tar.gz \
     --exclude='node_modules' \
     --exclude='.git' \
     --exclude='*.log' \
     --exclude='snapshots' \
     --exclude='deployment' \
-    --exclude='extension' \
-    --exclude='lean' \
-    --exclude='_examples' \
-    --exclude='**/.lake' \
-    --exclude='**/lake-packages' \
-    --exclude='**/.yarn' \
-    paperproof.xyz/ \
-    app/dist/ \
-    app/standalone-renderer.html
+    .
 
 echo "🔧 Setting up server dependencies..."
 ssh root@$DROPLET_IP << 'EOF'
@@ -49,21 +41,20 @@ ssh root@$DROPLET_IP << 'EOF'
     apt-get install -y nginx certbot python3-certbot-nginx
     
     # Create directories
-    mkdir -p /var/www/paperproof.xyz /var/log/paperproof /var/www/app
+    mkdir -p /var/www/paperproof.xyz /var/log/paperproof
     
     echo "✅ Server setup complete"
 EOF
 
 echo "📤 Uploading application..."
-scp paperproof.xyz/deployment/paperproof-deploy.tar.gz root@$DROPLET_IP:/tmp/
+scp deployment/paperproof-deploy.tar.gz root@$DROPLET_IP:/tmp/
 
 echo "⚙️ Installing application..."
 ssh root@$DROPLET_IP << 'EOF'
-    cd /var/www
-    tar -xzf /tmp/paperproof-deploy.tar.gz
-    cd paperproof.xyz
+    cd /var/www/paperproof.xyz
+    tar -xzf /tmp/paperproof-deploy.tar.gz --strip-components=1
     npm ci --only=production
-    chown -R www-data:www-data /var/www/paperproof.xyz /var/log/paperproof /var/www/app
+    chown -R www-data:www-data /var/www/paperproof.xyz /var/log/paperproof
     echo "✅ Application installed"
 EOF
 
@@ -89,7 +80,7 @@ ssh root@$DROPLET_IP << 'EOF'
 EOF
 
 echo "🧹 Cleaning up..."
-rm paperproof.xyz/deployment/paperproof-deploy.tar.gz
+rm deployment/paperproof-deploy.tar.gz
 
 echo "🎉 Paperproof.xyz deployment complete!"
 echo ""
