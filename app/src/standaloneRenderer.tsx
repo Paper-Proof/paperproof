@@ -29,6 +29,8 @@ interface StandaloneGlobalContextType {
   position: any;
   setConverted: (x: any) => void;
   createSnapshot: () => Promise<string>;
+  setSnackbarMessage: (message: String | React.ReactNode | null) => void;
+  setSnackbarOpen: (open: boolean) => void;
 }
 
 const StandaloneGlobalContext = React.createContext<StandaloneGlobalContextType | undefined>(undefined);
@@ -184,6 +186,8 @@ function StandaloneRenderer() {
               position: { line: 0, column: 0 },
               setConverted: () => {},
               createSnapshot: dummyCreateSnapshot,
+              setSnackbarMessage: () => {}, // Dummy function - no snackbar in standalone
+              setSnackbarOpen: () => {}, // Dummy function - no snackbar in standalone
             }}
           >
             <div className={`

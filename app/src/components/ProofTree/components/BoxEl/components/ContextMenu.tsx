@@ -20,7 +20,9 @@ const ContextMenu = (props: Props) => {
     refreshUI,
     collapsedBoxIds, setCollapsedBoxIds,
     settings,        setSettings,
-    setConverted
+    setConverted,
+    setSnackbarMessage,
+    setSnackbarOpen
   } = useGlobalContext();
 
   const handleSettingToggle = (settingKey: keyof Settings) => (event: React.MouseEvent) => {
@@ -43,8 +45,15 @@ const ContextMenu = (props: Props) => {
     try {
       const url = await createSnapshot();
       navigator.clipboard.writeText(url);
+      setSnackbarMessage(<div style={{ display: 'flex', alignItems: 'center' }}>
+        <span style={{ paddingRight: 10 }}>📸</span>
+        <span>Created a snapshot!<br/>The link is already in your clipboard.</span>
+      </div>);
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to create snapshot:', error);
+      setSnackbarMessage(`Couldn't create a snapshot! This is probably because you are in Github Codespaces. It should work locally!`);
+      setSnackbarOpen(true);
     }
     props.setContextMenu(null);
   };
