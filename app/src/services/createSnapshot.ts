@@ -9,10 +9,12 @@ const generateSnapshotData = (): { proofTreeHTML: string } => {
   };
 };
 
+const paperproofXYZ = 'http://128.199.52.81'
+
 export const createSnapshot = async (): Promise<string> => {
   const data = generateSnapshotData();
   
-  const response = await fetch('http://localhost:3001/api/snapshot', {
+  const response = await fetch(`${paperproofXYZ}/api/snapshot`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -25,5 +27,5 @@ export const createSnapshot = async (): Promise<string> => {
   }
   
   const result = await response.json();
-  return `http://localhost:3001/${result.id}`;
+  return `${paperproofXYZ}/${result.id}`;
 };

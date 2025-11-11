@@ -151,14 +151,10 @@ const ContextMenu = (props: Props) => {
         <div className="shortcut" style={{ textAlign: 'center' }}>📋</div>
       </MenuItem>
 
-      {
-        false &&
-        <MenuItem onClick={handleSnapshot}>
-          <div className="text">Create snapshot</div>
-          <div className="shortcut" style={{ textAlign: 'center' }}>📸</div>
-        </MenuItem>
-      }
-
+      <MenuItem onClick={handleSnapshot}>
+        <div className="text">Create snapshot</div>
+        <div className="shortcut" style={{ textAlign: 'center' }}>📸</div>
+      </MenuItem>
     </Menu>
   )
 }
