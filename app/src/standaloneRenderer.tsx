@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ConvertedProofTree, LeanProofTree } from "types";
-import { UserProofTree } from "types/UserProofTree";
+import { ConvertedProofTree } from "types";
 import "./index.css";
 import converter from "./services/converter";
 import hypsToTables from "./services/hypsToTables";
@@ -141,10 +140,10 @@ function StandaloneRenderer() {
 
   return (
     <div>
-      <div>
-        <h1>PaperProof Standalone Renderer</h1>
-        <p>Paste your simplified proof tree JSON below to visualize the proof:</p>
-        
+      <section>
+        <h1>Paperproof</h1>
+        <p>Paste your JSON below to visualize any proof:</p>
+  
         <JsonEditor
           value={jsonInput}
           onChange={handleJsonChange}
@@ -152,9 +151,9 @@ function StandaloneRenderer() {
           height="400px"
           theme="solarized-light"
         />
-      </div>
+      </section>
 
-      <div>
+      <section>
         {error && <div>{error}</div>}
         
         {!error && !convertedProofTree && (
@@ -199,7 +198,7 @@ function StandaloneRenderer() {
             </div>
           </StandaloneGlobalContext.Provider>
         )}
-      </div>
+      </section>
     </div>
   );
 }

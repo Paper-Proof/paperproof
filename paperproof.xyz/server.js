@@ -57,7 +57,7 @@ function generateSnapshotHTML(proofTreeHTML, css) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paperproof Snapshot</title>
+  <title>Snapshot</title>
   
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -66,33 +66,13 @@ function generateSnapshotHTML(proofTreeHTML, css) {
   <link rel="manifest" href="/site.webmanifest">
   
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
-</style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+  </style>
   <style>
-  
     ${css}
-
-    /* Snapshot-specific overrides */
-    .proof-tree {
-      transform: none !important;
-    }
-    
-    /* Disable interactive elements in snapshot */
-    button { pointer-events: none; }
-    .MuiMenu-root { display: none !important; }
-    
-
-    body{
-    font-family: monospace;
-      --vscode-editor-font-family: monospace;
-      padding: 0 !important;
-    }
-      *{
-    font-family: monospace !important;
-    }
   </style>
 </head>
-<body>
+<body class="snapshot">
   ${proofTreeHTML}
 </body>
 </html>`;

@@ -1,3 +1,29 @@
+body.standalone{
+  font-family: monospace; --vscode-editor-font-family: monospace;
+  *{ font-family: monospace !important; }
+}
+
+body.snapshot{
+  font-family: monospace; --vscode-editor-font-family: monospace;
+  *{ font-family: monospace !important; }
+  padding: 0 !important;
+
+  .proof-tree {
+    transform: none !important;
+  }
+
+  /* Disable interactive elements in snapshot */
+  button{ pointer-events: none; }
+  button.hide-boxes{ display: none; }
+  .MuiMenu-root{ display: none !important; }
+
+  tactic.-position-matches{
+    font-weight: normal;
+    color: #72787c;
+  }
+}
+
+
 .proof-tree.-isSingleTacticModeON{
   #box-1{ width: 100vw !important; }
 
@@ -45,7 +71,7 @@
   /* font-family: var(--vscode-editor-font-family); */
 }
 
-.proof-tree.-we-are-on-ellipsis-tactic{
+:not(.snapshot) .proof-tree.-we-are-on-ellipsis-tactic{
   .hypothesis.-highlighted, .goal.-highlighted{ border-color: #72787C; }
 }
 
