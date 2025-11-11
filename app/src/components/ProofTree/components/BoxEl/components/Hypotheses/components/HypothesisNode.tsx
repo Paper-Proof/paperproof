@@ -55,22 +55,24 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
           ${isHypHidden ? '-hidden' : ''}
         `}
         onClick={(e) => isHypHidden ? handleHideHypothesis(e) : () => {}}
-        onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
+        onContextMenu={global.isStandalone ? undefined : (event) => onContextMenu(event, contextMenu, setContextMenu)}
       >
-        <Menu
-          open={contextMenu !== null}
-          onClose={handleCloseMenu}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            contextMenu !== null
-              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-              : undefined
-          }
-        >
-          <MenuItem onClick={handleHideHypothesis}>
-            {isHypHidden ? "Show hypothesis" : "Hide hypothesis"}
-          </MenuItem>
-        </Menu>
+        {!global.isStandalone && (
+          <Menu
+            open={contextMenu !== null}
+            onClose={handleCloseMenu}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              contextMenu !== null
+                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                : undefined
+            }
+          >
+            <MenuItem onClick={handleHideHypothesis}>
+              {isHypHidden ? "Show hypothesis" : "Hide hypothesis"}
+            </MenuItem>
+          </Menu>
+        )}
 
         <Hint>{props.hypNode}</Hint>
         {name && <span className="name">{name}</span>}

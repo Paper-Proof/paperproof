@@ -47,6 +47,7 @@ export interface GlobalContextType {
   createSnapshot: () => Promise<string>;
   setSnackbarMessage: (message: String | React.ReactNode | null) => void;
   setSnackbarOpen: (open: boolean) => void;
+  isStandalone: boolean;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -200,7 +201,8 @@ function Main() {
           setConverted,
           createSnapshot,
           setSnackbarMessage,
-          setSnackbarOpen
+          setSnackbarOpen,
+          isStandalone: false
         }}
       >
         <div className={`

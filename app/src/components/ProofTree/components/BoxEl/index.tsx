@@ -58,7 +58,7 @@ const getHeader = (box: Box): HeaderInfo => {
 
 const BoxEl = (props: MyProps) => {
   const [contextMenu, setContextMenu] = React.useState<ContextMenuType>(null);
-  const { proofTree, highlights } = useGlobalContext();
+  const { proofTree, highlights, isStandalone } = useGlobalContext();
 
   const childrenBoxes = proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
@@ -110,9 +110,9 @@ const BoxEl = (props: MyProps) => {
     className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
     onClick={onClick}
-    onContextMenu={(event) => onContextMenu(event, contextMenu, setContextMenu)}
+    onContextMenu={isStandalone ? undefined : (event) => onContextMenu(event, contextMenu, setContextMenu)}
   >
-    <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>
+    {!isStandalone && <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>}
 
     {
       isRootBox &&
