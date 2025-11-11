@@ -1,12 +1,16 @@
 body.standalone{
   font-family: monospace; --vscode-editor-font-family: monospace;
+  margin: 0;
+  padding: 20px !important;
+  background: #f2ece921;
   *{ font-family: monospace !important; }
 }
 
 body.snapshot{
   font-family: monospace; --vscode-editor-font-family: monospace;
   *{ font-family: monospace !important; }
-  padding: 0 !important;
+  margin: 0;
+  padding: 20px !important;
 
   .proof-tree {
     transform: none !important;
