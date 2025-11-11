@@ -1,14 +1,19 @@
 body.standalone{
-  font-family: monospace; --vscode-editor-font-family: monospace;
+  .proof-tree{
+    font-family: monospace; --vscode-editor-font-family: monospace;
+    *{ font-family: monospace !important; }
+  }
   margin: 0;
   padding: 20px !important;
   background: #f2ece921;
-  *{ font-family: monospace !important; }
+  
 }
 
 body.snapshot{
-  font-family: monospace; --vscode-editor-font-family: monospace;
-  *{ font-family: monospace !important; }
+  .proof-tree{
+    font-family: monospace; --vscode-editor-font-family: monospace;
+    *{ font-family: monospace !important; }
+  }
   margin: 0;
   padding: 20px !important;
 
@@ -21,7 +26,7 @@ body.snapshot{
   button.hide-boxes{ display: none; }
   .MuiMenu-root{ display: none !important; }
 
-  tactic.-position-matches{
+  .tactic.-position-matches{
     font-weight: normal;
     color: #72787c;
   }
