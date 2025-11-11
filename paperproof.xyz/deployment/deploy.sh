@@ -41,7 +41,7 @@ ssh root@$DROPLET_IP << 'EOF'
     apt-get install -y nginx certbot python3-certbot-nginx
     
     # Create directories
-    mkdir -p /var/www/paperproof.xyz /var/log/paperproof /var/www/app
+    mkdir -p /var/www/paperproof.xyz /var/log/paperproof
     
     echo "✅ Server setup complete"
 EOF
@@ -54,7 +54,7 @@ ssh root@$DROPLET_IP << 'EOF'
     cd /var/www/paperproof.xyz
     tar -xzf /tmp/paperproof-deploy.tar.gz --strip-components=1
     npm ci --only=production
-    chown -R www-data:www-data /var/www/paperproof.xyz /var/log/paperproof /var/www/app
+    chown -R www-data:www-data /var/www/paperproof.xyz /var/log/paperproof
     echo "✅ Application installed"
 EOF
 

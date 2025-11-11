@@ -108,7 +108,7 @@ app.post('/api/snapshot', async (req, res) => {
 // Serve the built JavaScript file
 app.get('/dist/standaloneRenderer.js', async (req, res) => {
   try {
-    const jsPath = '../app/dist/standaloneRenderer.js';
+    const jsPath = './public/dist/standaloneRenderer.js';
     const js = await fs.readFile(jsPath, 'utf8');
     res.setHeader('Content-Type', 'application/javascript');
     res.send(js);
@@ -121,7 +121,7 @@ app.get('/dist/standaloneRenderer.js', async (req, res) => {
 // Serve the built CSS file
 app.get('/dist/standaloneRenderer.css', async (req, res) => {
   try {
-    const cssPath = '../app/dist/standaloneRenderer.css';
+    const cssPath = './public/dist/standaloneRenderer.css';
     const css = await fs.readFile(cssPath, 'utf8');
     res.setHeader('Content-Type', 'text/css');
     res.send(css);
@@ -134,7 +134,7 @@ app.get('/dist/standaloneRenderer.css', async (req, res) => {
 // Standalone renderer page - serve the built HTML
 app.get('/renderer', async (req, res) => {
   try {
-    const htmlPath = '../app/standalone-renderer.html';
+    const htmlPath = './public/standalone-renderer.html';
     const html = await fs.readFile(htmlPath, 'utf8');
     res.send(html);
   } catch (error) {
