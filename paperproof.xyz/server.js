@@ -42,6 +42,12 @@ function generateSnapshotHTML(proofTreeHTML, css) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Paperproof Snapshot</title>
   
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 </style>
@@ -138,6 +144,35 @@ app.get('/renderer', async (req, res) => {
     console.error('Error serving renderer page:', error);
     res.status(500).send('Error loading renderer page');
   }
+});
+
+// Serve favicon files
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/favicon.ico'));
+});
+
+app.get('/favicon-16x16.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/favicon-16x16.png'));
+});
+
+app.get('/favicon-32x32.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/favicon-32x32.png'));
+});
+
+app.get('/apple-touch-icon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/apple-touch-icon.png'));
+});
+
+app.get('/android-chrome-192x192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/android-chrome-192x192.png'));
+});
+
+app.get('/android-chrome-512x512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/android-chrome-512x512.png'));
+});
+
+app.get('/site.webmanifest', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/favicon/site.webmanifest'));
 });
 
 // Health check
