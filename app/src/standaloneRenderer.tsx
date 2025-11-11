@@ -59,7 +59,6 @@ function StandaloneRenderer() {
   const [error, setError] = useState<string | null>(null);
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
-  const [isJsonValid, setIsJsonValid] = useState<boolean>(false);
 
   // Manual validation function to check if JSON is valid
   const validateAndCompile = (jsonValue: string) => {
@@ -98,7 +97,6 @@ function StandaloneRenderer() {
         box.hypTables = hypsToTables(box.hypLayers, converted, false);
       });
       setConvertedProofTree(converted);
-      setIsJsonValid(true);
       
       console.log('Successfully compiled proof tree!');
       
@@ -107,15 +105,11 @@ function StandaloneRenderer() {
       console.log('Validation/compilation failed:', errorMessage);
       setError('Error: ' + errorMessage);
       setConvertedProofTree(null);
-      setIsJsonValid(false);
     }
   };
 
   // Auto-compile proof tree when JSON is valid (Monaco callback)
   const handleValidationChange = (isValid: boolean, markers: any[]) => {
-    console.log('Monaco validation callback - isValid:', isValid, 'markers:', markers.length);
-    setIsJsonValid(isValid);
-    
     if (isValid) {
       // If Monaco says it's valid, try to compile
       validateAndCompile(jsonInput);
