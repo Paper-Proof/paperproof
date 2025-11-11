@@ -72,7 +72,7 @@ ssh root@$DROPLET_IP << 'EOF'
     cd /var/www/paperproof.xyz
     mkdir -p /home/www-data/.pm2
     chown -R www-data:www-data /home/www-data/.pm2
-    sudo -u www-data HOME=/home/www-data pm2 start deployment/ecosystem.config.js
+    sudo -u www-data HOME=/home/www-data pm2 startOrRestart deployment/ecosystem.config.js --update-env
     sudo -u www-data HOME=/home/www-data pm2 save
     pm2 startup systemd -u www-data --hp /home/www-data
     systemctl enable nginx

@@ -40,7 +40,7 @@ async function ensureDirectories() {
 // Load CSS
 async function loadCSS() {
   try {
-    const cssPath = '../app/src/index.css'; // Path to your main CSS file
+    const cssPath = './public/dist/standaloneRenderer.css';
     const css = await fs.readFile(cssPath, 'utf8');
     return css;
   } catch (error) {
