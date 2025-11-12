@@ -52,7 +52,7 @@ inductive Random where
   | hello: (2 + 2 = 4) → Random
   | wow: Random
 theorem casesRandom (h: Random) : SomeGoal := by
-  rcases h with ⟨a, b⟩ | ⟨c⟩
+  rcases h with ⟨a, b⟩ | ⟨c⟩ | _
   sorry; sorry; sorry
 
 -- 6. We can see exactly what path was taken by tactic combinators
