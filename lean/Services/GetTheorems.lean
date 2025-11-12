@@ -72,7 +72,7 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
 
 
 /-- Check if a substring position is within a given range -/
-def isInRange (substr : Substring) (startPos stopPos : String.Pos) : Bool :=
+def isInRange (substr : Substring) (startPos stopPos : String.Pos.Raw) : Bool :=
   substr.startPos >= startPos && substr.stopPos <= stopPos
 
 /-- Get declaration type string from ConstantInfo -/
@@ -142,25 +142,25 @@ def extractTheoremName (expr : Expr) (lctx : LocalContext) : Option Name := do
   | _ => none
 
 /-- Extract theorem names exactly like Lean's hover does - using built-in hover functionality -/
-def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (List TheoremSignature) := do
+def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos : String.Pos.Raw) (ctx : ContextInfo) (goalDecl : MetavarDecl) : MetaM (List TheoremSignature) := do
   let mut theoremNames : NameSet := {}
-  
+
   -- Sample positions throughout the tactic range (every few characters)
   -- This ensures we catch all identifiers that would show on hover
   let mut currentPos := tacticStartPos
-  let step : String.Pos := ⟨3⟩  -- Check every 3 characters
-  
+  let step : Nat := 3  -- Check every 3 characters
+
   while currentPos < tacticStopPos do
     -- Use Lean's actual hover function to find what would show at this position
     if let some infoWithCtx ← tree.hoverableInfoAtM? currentPos then
       -- Extract theorem name from the hover info
       match infoWithCtx.info with
-      | .ofTermInfo termInfo => 
+      | .ofTermInfo termInfo =>
         if let some name := extractTheoremName termInfo.expr termInfo.lctx then
           theoremNames := theoremNames.insert name
       | _ => pure ()
-    
-    currentPos := currentPos + step
+
+    currentPos := ⟨currentPos.byteIdx + step⟩
   
   -- Process each theorem name and filter for relevant declarations
   let theoremSignatures ← theoremNames.toList.filterMapM fun name => do

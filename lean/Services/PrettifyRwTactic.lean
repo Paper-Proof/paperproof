@@ -18,15 +18,15 @@ inductive State
   `rw_mod_cast [Set.mem_inter_iff, and_com|m]` //=> `"rw_mod_cast"`
   `nth_rw 2 [Na|t.add_comm]` //=> `"nth_rw"`
 -/
-def getClosestRw (text: Lean.FileMap) (hoverPos: String.Pos) : Id String := do
-  let mut currentPosition : String.Pos := hoverPos
+def getClosestRw (text: Lean.FileMap) (hoverPos: String.Pos.Raw) : Id String := do
+  let mut currentPosition : String.Pos.Raw := hoverPos
   let text : String := Lean.FileMap.source text
   let mut state : State := State.start
   let mut rwList : List Char := []
 
   while currentPosition != 0 do
-    currentPosition := String.prev text currentPosition
-    let currentChar := text.get currentPosition
+    currentPosition := currentPosition.prev text
+    let currentChar := currentPosition.get text
     
     match state with
     | State.start => 
@@ -55,7 +55,7 @@ def isTacticRwRule (tacticInfo: TacticInfo) : Bool :=
   let string : String := tacticInfo.stx.formatStx.pretty
   string.startsWith "[(Tactic.rwRule"
 
-def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos) : RequestM String := do
+def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos.Raw) : RequestM String := do
   if (isTacticRwRule tacticInfo) then
     let .some tacticSubstring := getTacticSubstring tacticInfo | return ""
     let closestRwTacticName := getClosestRw text hoverPos

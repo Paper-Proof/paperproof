@@ -12,7 +12,7 @@ namespace Paperproof.Services
      Without this condition, placing cursor after `rw [Set.mem_inter_iff, and_comm]|` results in Paperproof parsing `]` as a single tactic, which is useless - it's basically equivalent to `rw [rfl]`, and typically it doesn't show any interesting before/after changes.
      What the users do want to see upon placing their cursor on/after `]` is a full rewrite sequence.
 -/
-partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.Pos) : List GoalsAtResult :=
+partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.Pos.Raw) : List GoalsAtResult :=
   let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
     if let Info.ofTacticInfo ti := i then
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
