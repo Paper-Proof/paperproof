@@ -22,17 +22,5 @@ theorem use : ∃ x : Nat, x = 5 := by
   use 42
 
 theorem induction (n : ℕ) : Nat.mul 0 n = 0 := by
-  induction' n with k ih
+  induction n
 
-theorem casesN (n : ℕ) : Nat.mul 0 n = 0 := by
-  cases' n with m
-theorem casesAnd (A B C : Prop) (h : A ∧ B) : C := by
-  cases' h with a b
-theorem casesOr (A B C : Prop) (h : A ∨ B) : C := by
-  cases' h with a b
-inductive Random where
-  | hi : ℕ → String → Random
-  | hello : (2 + 2 = 4) → Random
-  | wow : Random
-theorem casesRandom (C: Prop) (h : Random) : C := by
-  cases' h with a b c

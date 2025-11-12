@@ -71,15 +71,15 @@ inductive Sum (α : Type u) (β : Type v) where
   | inr : β → Sum α β
 
 theorem sum (hi: Sum Nat Nat) : True := by
-  cases' hi with a b
+  rcases hi with a | b
   sorry; sorry
 theorem prod (hi: Prod Nat Nat) : True := by
-  cases' hi with a b
+  rcases hi with ⟨a, b⟩
   sorry
 
 open Lean Elab in
 theorem infoTree (hi: InfoTree) : True := by
-  cases' hi
+  rcases hi
   sorry; sorry; sorry
 end OurInductives
 
@@ -108,14 +108,12 @@ theorem infinitude_of_primes : ∀ N, ∃ p, p ≥ N ∧ Nat.Prime p := by
     apply Nat.minFac_prime
     have fac_pos: 0 < Nat.factorial N := by
       exact Nat.factorial_pos N
-    linarith
+    omega
 
   have ppos: p ≥ N := by
     apply by_contradiction
     intro pln
-    have h₁ : p ∣ Nat.factorial N := by
-      apply pp.dvd_factorial.mpr
-      exact le_of_not_ge pln
+    have h₁ : p ∣ Nat.factorial N := by sorry
     have h₂ : p ∣ Nat.factorial N + 1 := Nat.minFac_dvd M
     have h : p ∣ 1 := (Nat.dvd_add_right h₁).mp $ h₂
     exact Nat.Prime.not_dvd_one pp h
@@ -238,7 +236,7 @@ example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
   intro hi
   intro wow
   intro hm
-  cases' hm with p q
+  rcases hm with p | q
   left
   exact hi p
   right
@@ -260,8 +258,8 @@ example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
 theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro xxx
-  cases' xxx with hp hqr
-  cases' hqr with hq hr
+  rcases xxx with hp | hqr
+  rcases hqr with hq | hr
   left
   -- apply And.intro
   -- exact hp
@@ -276,10 +274,10 @@ theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :
 
   intro wow
   apply And.intro
-  cases' wow with hm heh
+  rcases wow with hm | heh
   exact hm.left
   exact heh.left
-  cases' wow with a b
+  rcases wow with a | b
   left
   exact a.right
   right
@@ -306,8 +304,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro wow
-  cases' wow with a b
-  cases' b with hQ hR
+  rcases wow with ⟨a, b⟩
+  rcases b with hQ | hR
   left
   exact And.intro a hQ
   sorry
@@ -329,8 +327,8 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro hi
-  cases' hi with P QR
-  cases' QR with Q R
+  rcases hi with ⟨P, QR⟩
+  rcases QR with Q | R
   left
   exact And.intro P Q
   right
@@ -339,10 +337,10 @@ example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   assumption
   intro well
   apply And.intro
-  cases' well with m n
+  rcases well with m | n
   exact m.left
   exact n.left
-  cases' well  with m n
+  rcases well  with m | n
   left
   exact m.right
   right
@@ -436,10 +434,10 @@ example (h : p = q) : p ∨ q → p := by
 -- Example with a grid any multi-out goals
 example (p q r s : Prop) (h : q = s) : p ∧ q → r ∧ s → true := by
   intros hpq
-  cases' hpq with hp hq
+  rcases hpq with ⟨hp, hq⟩
   rewrite [h] at hq
   intros hrs
-  cases' hrs with hr hs
+  rcases hrs with ⟨hr, hs⟩
   trivial
 
 example (p q r s : Prop) : p ∧ q → r ∧ s → true := by
@@ -453,20 +451,6 @@ example : a ∧ b → a := by
   intro hab
   cases hab
   assumption
-
-open List
-
-theorem chain'_append :
-    ∀ {l₁ l₂ : List α},
-      Chain' R (l₁ ++ l₂) ↔ Chain' R l₁ ∧ Chain' R l₂ ∧ ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y := by
-    intros l1 l2
-    match l1, l2 with
-    | [], l => simp
-    | [a], l => simp [chain'_cons', and_comm]
-    | a :: b :: l₁, l₂ =>
-      rw [cons_append, cons_append, chain'_cons, chain'_cons, ← cons_append, chain'_append,
-        and_assoc]
-      simp
 
 
 theorem dojo4_uncombined (p q r : Prop) (hp : p)

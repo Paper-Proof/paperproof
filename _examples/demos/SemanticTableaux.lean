@@ -4,31 +4,31 @@ import Paperproof
 --------- SEMANTIC TABLEAUX: basic building blocks ---------
 
 theorem simpleAnd (X: Prop) (Y: Prop) (h: X ∧ Y) : False := by
-  cases' h with h1 h2
+  rcases h with ⟨h1, h2⟩
   all_goals sorry
 
 theorem simpleOr (X: Prop) (Y: Prop) (h: X ∨ Y) : False := by
-  cases' h with h1 h2
+  rcases h with h1 | h2
   all_goals sorry
 
 theorem simpleThen (X: Prop) (Y: Prop) (h: X → Y) : False := by
   rw [imp_iff_not_or] at h
-  cases' h with h1 h2
+  rcases h with h1 | h2
   all_goals sorry
 
 theorem simpleNotOr (X: Prop) (Y: Prop) (h: ¬(X ∨ Y)) : False := by
   rw [not_or] at h
-  cases' h with h1 h2
+  rcases h with ⟨h1, h2⟩
   sorry
 
 theorem simpleNotAnd (X: Prop) (Y: Prop) (h: ¬(X ∧ Y)) : False := by
   rw [not_and_or] at h
-  cases' h with h1 h2
+  rcases h with h1 | h2
   all_goals sorry
 
 theorem simpleNotThen (X: Prop) (Y: Prop) (h: ¬(X → Y)) : False := by
   rw [Classical.not_imp] at h
-  cases' h with h1 h2
+  rcases h with ⟨h1, h2⟩
   sorry
 
 theorem simpleForall {α : Type} (φ : α → Prop) (a : α) (h: ∀ x, φ x) : False := by
@@ -36,7 +36,7 @@ theorem simpleForall {α : Type} (φ : α → Prop) (a : α) (h: ∀ x, φ x) : 
   sorry
 
 theorem simpleExists {α : Type} (φ : α → Prop) (h: ∃ x, φ x) : False := by
-  cases' h with a h1
+  rcases h with ⟨a, h1⟩
   sorry
 
 theorem simpleNotExists {α : Type} (φ : α → Prop) (a : α) (h: ¬ ∃ x, φ x) : False := by
@@ -46,7 +46,7 @@ theorem simpleNotExists {α : Type} (φ : α → Prop) (a : α) (h: ¬ ∃ x, φ
 
 theorem simpleNotForall {α : Type} (φ : α → Prop) (h: ¬ ∀ x, φ x) : False := by
   rw [not_forall] at h
-  cases' h with a h1
+  rcases h with ⟨a, h1⟩
   sorry
 
 --------- SEMANTIC TABLEAUX: full-fledged theorems ---------
@@ -58,15 +58,15 @@ theorem deMorgan (p : Prop) (q : Prop) : ¬(p ∨ q) → (¬p ∧ ¬q) := by
 
   -- Creating 2. and 3.
   rw [Classical.not_imp] at h1
-  cases' h1 with h2 h3
+  rcases h1 with ⟨h2, h3⟩
 
   -- Creating 4. and 5.
   rw [not_or] at h2
-  cases' h2 with h4 h5
+  rcases h2 with ⟨h4, h5⟩
 
   -- Creating 6. and 7.
   rw [not_and, imp_iff_not_or] at h3
-  cases' h3 with h6 h7
+  rcases h3 with h6 | h7
 
   -- Close the branch!
   exact h6 h4
@@ -81,17 +81,17 @@ theorem manyGoals (p : Prop) (q : Prop) : ((p ∨ q) ∧ (q → p)) → p := by
 
   -- Creating 2. and 3.
   rw [Classical.not_imp] at h1
-  cases' h1 with h2 h3
+  rcases h1 with ⟨h2, h3⟩
 
   -- Creating 4. and 5.
-  cases' h2 with h4 h5
+  rcases h2 with ⟨h4, h5⟩
 
   -- Creating 6. and 7.
   rw [imp_iff_not_or] at h5
-  cases' h5 with h6 h7
+  rcases h5 with h6 | h7
 
   -- Creating 8. and 9.
-  cases' h4 with h8 h9
+  rcases h4 with h8 | h9
 
   -- Close the branch!
   exact h3 h8
@@ -109,17 +109,17 @@ theorem firstOrderLogic {α : Type} (P Q : α → Prop)
 
   -- Creating 2. and 3.
   rw [Classical.not_imp] at h1
-  cases' h1 with h2 h3
+  rcases h1 with ⟨h2, h3⟩
 
   -- Creating 4.
-  cases' h2 with a h4
+  rcases h2 with ⟨a, h4⟩
 
   -- Creating 5. and 6.
-  cases' h4 with h5 h6
+  rcases h4 with ⟨h5, h6⟩
 
   -- Creating 7. and 8.
   rw [not_and_or] at h3
-  cases' h3 with h7 h8
+  rcases h3 with h7 | h8
 
   -- Creating 9.
   rw [not_exists] at h7

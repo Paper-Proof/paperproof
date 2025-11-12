@@ -10,7 +10,7 @@ elab "myPersonalTactic" : tactic => do
 
 theorem tacticProof (a b : Prop) : a ∧ b → b ∧ a := by
   intro ab
-  cases' ab with hA hB
+  rcases ab with ⟨hA, hB⟩
   apply And.intro
   exact hB
   exact hA
