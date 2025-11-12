@@ -258,7 +258,7 @@ example (α : Type) (s t : Set α) : s ∩ t = t ∩ s := by
 theorem theorem_7 (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro
   intro xxx
-  rcases xxx with hp | hqr
+  rcases xxx with ⟨hp, hqr⟩
   rcases hqr with hq | hr
   left
   -- apply And.intro
