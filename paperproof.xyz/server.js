@@ -132,7 +132,7 @@ app.get('/dist/standaloneRenderer.css', async (req, res) => {
 });
 
 // Standalone renderer page - serve the built HTML
-app.get('/renderer', async (req, res) => {
+app.get('/', async (req, res) => {
   try {
     const htmlPath = './public/standalone-renderer.html';
     const html = await fs.readFile(htmlPath, 'utf8');
