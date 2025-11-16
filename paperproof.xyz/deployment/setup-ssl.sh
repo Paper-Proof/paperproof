@@ -10,7 +10,7 @@ echo "🔒 Setting up SSL certificate..."
 
 ssh root@$DROPLET_IP << EOF
 # Get SSL certificate
-certbot --nginx -d $DOMAIN -d www.$DOMAIN \
+certbot --nginx -d $DOMAIN \
     --non-interactive --agree-tos --email admin@$DOMAIN
 
 # Restart nginx
@@ -22,4 +22,3 @@ EOF
 echo "✨ SSL setup complete!"
 echo "Your server is now secure at:"
 echo "  🔒 https://$DOMAIN"
-echo "  🔒 https://www.$DOMAIN"
