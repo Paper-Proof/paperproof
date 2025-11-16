@@ -9,7 +9,7 @@ const generateSnapshotData = (): { proofTreeHTML: string } => {
   };
 };
 
-const paperproofXYZ = 'http://128.199.52.81'
+const paperproofXYZ = 'http://paperproof.xyz'
 
 export const createSnapshot = async (): Promise<string> => {
   const data = generateSnapshotData();
