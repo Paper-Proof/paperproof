@@ -3,6 +3,8 @@ import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Tactic.GCongr
 import Paperproof
 
+--------------------------- Nice Things ---------------------------
+
 -- 1. What hypothesis did the `gcongr`/`omega`/`simp`/etc. tactic use??
 example {m n : ℤ} (h1 : m + 3 ≤ 2 * n - 1) (h2 : n ≤ 5) : m + 3 ≤ 9 := by
   calc
@@ -23,10 +25,7 @@ theorem combs (p q r : Prop) (hp : p)
   : (p ∨ q ∨ r) ∧ (q ∨ p ∨ r) ∧ (q ∨ r ∨ p) := by
   repeat (first | apply And.intro | apply Or.inl; assumption | apply Or.inr | assumption)
 
---------------------------- OPTIONS ---------------------------
-
--- 1. Copy for LLM
-
+-- 4. Copy for LLM
 theorem append_assoc {α : Type} (a b c : List α) : (a ++ b) ++ c = a ++ (b ++ c) := by
   induction a with
   | nil => simp only [List.nil_append]
@@ -34,21 +33,12 @@ theorem append_assoc {α : Type} (a b c : List α) : (a ++ b) ++ c = a ++ (b ++ 
     simp [List.cons_append, ih]
 
 
+--------------------------- Real Projets ---------------------------
 
+-- 2. Carleson:933: Mode:all-tactics + create snapshot
+-- 3. Carleson:933: Mode:single-tactic
 
--- 2. Create snapshot
+-- two ways to show diffs: look at red/green highlights + click 3 TIMES
+-- or simply display 2 things after each other
 
-
-theorem commutativityOfIntersections
-(s t : Set Nat) : s ∩ t = t ∩ s := by
-  ext x
-  apply Iff.intro
-
-  intro h1
-  rw [Set.mem_inter_iff, and_comm] at h1
-  exact h1
-
-  intro h2
-  rw [Set.mem_inter_iff, and_comm] at h2
-  exact h2
 

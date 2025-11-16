@@ -52,7 +52,7 @@ const copyProofStructureForLLM = (convertedProofTree: ConvertedProofTree) => {
 
   const formatTactic = (tactic: Tactic, index: number): string => {
     let result = `TACTIC ${index}: \`${tactic.text}\``;
-    
+
     const beforeGoal = tactic.goalChanges.length > 0 ? tactic.goalChanges[0].from : null;
     const afterGoal = tactic.goalChanges.length > 0 ? tactic.goalChanges[0].to : null;
     
@@ -61,7 +61,7 @@ const copyProofStructureForLLM = (convertedProofTree: ConvertedProofTree) => {
       change.from || change.to.some(hyp => hyp)
     );
     const hasGoalChanges = beforeGoal || afterGoal;
-    
+
     if (hasHypothesisChanges || hasGoalChanges) {
       // Format before state
       result += '\n  ...';
@@ -102,13 +102,13 @@ const copyProofStructureForLLM = (convertedProofTree: ConvertedProofTree) => {
       result += `\n  CLOSED: ${tactic.closedSomeGoal}`;
     }
     
-    result += '\n\n******************************************************************\n';
+    result += '\n******************************************************************';
     
     return result;
   };
 
   const string = tactics.map(formatTactic).join('\n');
-  return string;
+  return '******************************************************************\n' + string;
 };
 
 export default copyProofStructureForLLM;
