@@ -6,7 +6,6 @@ body.standalone{
   margin: 0;
   padding: 20px !important;
   background: #f2ece921;
-  
 }
 
 body.snapshot{
@@ -29,6 +28,10 @@ body.snapshot{
   .tactic.-position-matches{
     font-weight: normal;
     color: #72787c;
+  }
+
+  .perfect-arrow{
+    display: none !important;
   }
 }
 
