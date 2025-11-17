@@ -422,27 +422,6 @@ Below, you will see a table with the main features of Paperproof.
     <img width="332" alt="Screenshot 2024-08-26 at 13 58 30" src="https://github.com/user-attachments/assets/02deceff-f482-4897-af5c-4f7223b8bafb">
   </td>
   </tr>
-
-
-  
-
-  <tr>
-  <td colspan="2" align="center">
-  <b>Nodes becomes transparent when they are not in scope.</b><br/>
-  So, an opaque red node represents a currently focused goal, and opaque green nodes represent currently available hypotheses.<br/>  
-  </td>
-  </tr>
-
-  <tr>
-  <td align="center">
-    <img width="151" alt="image" src="https://github.com/user-attachments/assets/d4b2e7cb-b3bd-4e03-b005-7af3b8e9ed70">
-
-  </td>
-  <td align="center">
-    <img width="360" alt="image" src="https://github.com/user-attachments/assets/cf8ccdf1-29d3-4648-91ee-a6c9889289c2">
-  </td>
-  </tr>
-
   </tbody>
   </table>
 </details>
