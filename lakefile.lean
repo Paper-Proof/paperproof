@@ -18,7 +18,7 @@ require Paperproof from "lean"
 
 -- require Paperproof from git "https://github.com/Paper-Proof/paperproof.git"@"main"/"lean"
 
-require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "v4.25.0-rc2"
+require mathlib from git "https://github.com/leanprover-community/mathlib4" @ "v4.26.0-rc2"
 
 -- Uncomment this is you want to use paperproof statically
 -- @[default_target]

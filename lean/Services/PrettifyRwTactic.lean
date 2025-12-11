@@ -42,7 +42,7 @@ def getClosestRw (text: Lean.FileMap) (hoverPos: String.Pos.Raw) : Id String := 
       else
         break
 
-  return String.mk rwList
+  return String.ofList rwList
 
 /--
   EXAMPLE
@@ -60,7 +60,7 @@ def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : Stri
     let .some tacticSubstring := getTacticSubstring tacticInfo | return ""
     let closestRwTacticName := getClosestRw text hoverPos
     
-    let rwRule := (tacticSubstring.toString.splitOn ",").head!.trim
+    let rwRule := ((Substring.Raw.toString tacticSubstring).splitOn ",").head!.trim
     pure s!"{closestRwTacticName} [{rwRule}]"
   else
     pure ""

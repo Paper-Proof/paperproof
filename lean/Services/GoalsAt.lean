@@ -19,7 +19,7 @@ partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.Pos.Raw)
         let trailSize := i.stx.getTrailingSize
         -- dbg_trace trailSize
         -- show info at EOF even if strictly outside token + trail
-        let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+        let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
         -- include at least one trailing character (see also `priority` below)
         if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
           let isClosingBracketInRewriteSequence := ti.stx.getAtomVal == "]"

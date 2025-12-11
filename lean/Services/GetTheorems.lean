@@ -72,7 +72,7 @@ def getAllArgsWithTypes (expr : Expr) : MetaM (List ArgumentInfo × List Argumen
 
 
 /-- Check if a substring position is within a given range -/
-def isInRange (substr : Substring) (startPos stopPos : String.Pos.Raw) : Bool :=
+def isInRange (substr : Substring.Raw) (startPos stopPos : String.Pos.Raw) : Bool :=
   substr.startPos >= startPos && substr.stopPos <= stopPos
 
 /-- Get declaration type string from ConstantInfo -/

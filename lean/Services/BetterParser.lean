@@ -182,7 +182,7 @@ def nameNumLt (n1 n2 : Name) : Bool :=
 def prettifyTacticString (tacticString: String) : String :=
   (tacticString.splitOn "\n").head!.trim
 
-def getProofStepPosition (tacticSubstring: Substring) : RequestM ProofStepPosition := do
+def getProofStepPosition (tacticSubstring: Substring.Raw) : RequestM ProofStepPosition := do
   let doc ← Lean.Server.RequestM.readDoc
   let text : FileMap := doc.meta.text
   return {
@@ -195,7 +195,7 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
   let .ofTacticInfo tInfo := info          | return { steps, allGoals }
   let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
 
-  let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else prettifyTacticString tacticSubstring.toString
+  let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else prettifyTacticString (Substring.Raw.toString tacticSubstring)
 
   let steps := prettifySteps tInfo.stx steps
   

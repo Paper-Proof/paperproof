@@ -12,7 +12,7 @@ namespace Paperproof.Services
   `tInfo.stx`               //=> `(Tactic.rotateRight "rotate_right" []) -- (that's not actually present in our proof)`
   `tInfo.stx.getSubstring?` //=> `None`
 -/
-def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
+def getTacticSubstring (tInfo : TacticInfo) : Option Substring.Raw :=
   match tInfo.stx.getSubstring? with
   | .some substring => substring
   | .none => none
