@@ -9,9 +9,11 @@ package «paperproof» {
   -- add package configuration options here
 }
 
-lean_lib «paperproof» {
-  -- add library configuration options here
-}
+lean_lib «paperproof» {}
+
+-- ___Why do we need it here?
+--    Lets us build `Examples.lean` from the terminal in such a way that vscode sees the cache too (use `lake build Examples`).
+lean_lib «Examples» {}
 
 -- If you're developing locally, this imports paperproof from a local "./lean" folder
 require Paperproof from "lean"
