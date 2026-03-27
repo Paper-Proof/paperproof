@@ -161,7 +161,7 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id
   | `(tactic| rw [$_,*] $(_)?)
   | `(tactic| rewrite [$_,*] $(_)?) =>
     let prettify (tStr : String) :=
-      let res := tStr.trim.dropRightWhile (· == ',')
+      let res := (tStr.trimAscii.toString.dropEndWhile (· == ',')).toString
       -- rw puts final rfl on the "]" token
       if res == "]" then "rfl" else res
     return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
@@ -180,7 +180,7 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
 -/
 def prettifyTacticString (tacticString: String) : String :=
-  (tacticString.splitOn "\n").head!.trim
+  (tacticString.splitOn "\n").head!.trimAscii.toString
 
 def getProofStepPosition (tacticSubstring: Substring.Raw) : RequestM ProofStepPosition := do
   let doc ← Lean.Server.RequestM.readDoc

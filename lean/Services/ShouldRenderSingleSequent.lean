@@ -13,5 +13,5 @@ def shouldRenderSingleSequent (tacticInfo : TacticInfo) (text : FileMap) (hoverP
   let atEOF      := hoverPos.atEnd file
   let isNotOnTactic := charBefore.isWhitespace && (charAfter.isWhitespace || atEOF)
 
-  let isBy := tacticSubstring.toString.trim == "by"
+  let isBy := tacticSubstring.toString.trimAscii.toString == "by"
   return isNotOnTactic || isBy

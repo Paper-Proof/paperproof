@@ -49,7 +49,7 @@ def getClosestRw (text: Lean.FileMap) (hoverPos: String.Pos.Raw) : Id String := 
   `prettifyRwRule "Set.mem_inter_iff, "` //=> `"Set.mem_inter_iff"`
 -/
 def prettifyRwRule (tacticString : String) :=
-  (tacticString.splitOn ",").head!.trim
+  (tacticString.splitOn ",").head!.trimAscii.toString
 
 def isTacticRwRule (tacticInfo: TacticInfo) : Bool :=
   let string : String := tacticInfo.stx.formatStx.pretty
@@ -60,7 +60,7 @@ def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : Stri
     let .some tacticSubstring := getTacticSubstring tacticInfo | return ""
     let closestRwTacticName := getClosestRw text hoverPos
     
-    let rwRule := ((Substring.Raw.toString tacticSubstring).splitOn ",").head!.trim
+    let rwRule := ((Substring.Raw.toString tacticSubstring).splitOn ",").head!.trimAscii.toString
     pure s!"{closestRwTacticName} [{rwRule}]"
   else
     pure ""
