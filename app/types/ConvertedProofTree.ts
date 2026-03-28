@@ -75,10 +75,6 @@ export interface Tactic {
   goalArrows: { fromId: string; toId: string }[];
   hypArrows: { fromId: string | null; toIds: string[]; shardId: string }[];
   successGoalId?: string;
-  // TODO: Those are actually `byBox`s which were used to create
-  // parameters for this tactic. For example in
-  // `have <p, q> := <by rfl, by trivial>`
-  // there are 2 `byBox`s.
   haveBoxIds: string[];
   byBoxIds: string[];
   position: PositionStartStop;
