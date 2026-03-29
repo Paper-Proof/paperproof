@@ -7,3 +7,5 @@ package Paperproof
 lean_lib Paperproof
 
 lean_lib Services
+
+lean_lib Tests
