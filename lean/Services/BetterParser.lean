@@ -85,17 +85,17 @@ def mayBeProof (expr : Expr) : MetaM String := do
   else
     return "data"
 
-def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := do
+public def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : MetaM GoalInfo := do
   let some decl := printCtx.mctx.findDecl? id
-    | throwThe RequestError ⟨.invalidParams, "goalNotFoundInMctx"⟩
+    | throwError "goalNotFoundInMctx"
   -- to get tombstones in name ✝ for unreachable hypothesis
   let lctx := decl.lctx |>.sanitizeNames.run' {options := {}}
   let ppContext := printCtx.toPPContext lctx
   let hyps ← lctx.foldrM (init := []) (fun hypDecl acc => do
     if hypDecl.isAuxDecl || hypDecl.isImplementationDetail then
       return acc
-    let type ← liftM (ppExprWithInfos ppContext hypDecl.type)
-    let value ← liftM (hypDecl.value?.mapM (ppExprWithInfos ppContext))
+    let type ← ppExprWithInfos ppContext hypDecl.type
+    let value ← hypDecl.value?.mapM (fun expr => ppExprWithInfos ppContext expr)
     let isProof : String ← printCtx.runMetaM decl.lctx (mayBeProof hypDecl.toExpr)
     return ({
       username := hypDecl.userName.toString,
@@ -112,7 +112,7 @@ def printGoalInfo (printCtx : ContextInfo) (id : MVarId) : RequestM GoalInfo := 
   }
 
 -- Returns unassigned goals from the provided list of goals
-def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : RequestM (List MVarId) := do
+def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (List MVarId) := do
   goals.filterMapM fun id => do
     if let none := mctx.findDecl? id then
       return none
@@ -125,7 +125,7 @@ structure Result where
   steps : List ProofStep
   allGoals : Std.HashSet GoalInfo
 
-def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : RequestM (List (List String × GoalInfo × List GoalInfo)) := do
+def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
   let goalMVars := tInfo.goalsBefore ++ tInfo.goalsAfter
@@ -182,24 +182,14 @@ def nameNumLt (n1 n2 : Name) : Bool :=
 def prettifyTacticString (tacticString: String) : String :=
   (tacticString.splitOn "\n").head!.trimAscii.toString
 
-def getProofStepPosition (tacticSubstring: Substring.Raw) : RequestM ProofStepPosition := do
-  let doc ← Lean.Server.RequestM.readDoc
-  let text : FileMap := doc.meta.text
-  return {
-    start := Lean.FileMap.utf8PosToLspPos text tacticSubstring.startPos,
-    stop  := Lean.FileMap.utf8PosToLspPos text tacticSubstring.stopPos
-  }
+def getProofStepPosition (fileMap : FileMap) (tacticSubstring: Substring.Raw) : ProofStepPosition := {
+  start := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.startPos,
+  stop  := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.stopPos
+}
 
-partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (isSingleTacticMode : Bool) (forcedTacticString : String := "") : RequestM Result := do
-  let .some ctx := info.updateContext? ctx | panic! "unexpected context node"
-  let .ofTacticInfo tInfo := info          | return { steps, allGoals }
-  let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
-
-  let mut tacticString := if forcedTacticString.length > 0 then forcedTacticString else prettifyTacticString (Substring.Raw.toString tacticSubstring)
-
+def parseTacticBody (fileMap : FileMap) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticSubstring : Substring.Raw) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (tacticString : String) (theorems : List TheoremSignature) : MetaM Result := do
   let steps := prettifySteps tInfo.stx steps
-  
-  let position ← getProofStepPosition tacticSubstring
+  let position := getProofStepPosition fileMap tacticSubstring
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.flatten
@@ -209,7 +199,6 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
   let orphanedGoals := currentGoals.foldl Std.HashSet.erase (noInEdgeGoals allGoals steps)
     |>.toArray.insertionSort (nameNumLt ·.id.name ·.id.name) |>.toList
 
-  let theorems ← if isSingleTacticMode then GetTheorems infoTree tInfo ctx else pure []
   let newSteps := proofTreeEdges.filterMap fun ⟨ tacticDependsOn, goalBefore, goalsAfter ⟩ =>
     -- Leave only steps which are not handled in the subtree.
     if steps.map (·.goalBefore) |>.elem goalBefore then
@@ -221,24 +210,37 @@ partial def parseTacticInfo (infoTree: InfoTree) (ctx : ContextInfo) (info : Inf
         goalsAfter,
         tacticDependsOn,
         spawnedGoals := orphanedGoals
-        position := position
-        theorems := theorems
+        position,
+        theorems
       }
 
   return { steps := newSteps ++ steps, allGoals }
 
-partial def postNode (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (results : List (Option Result)) : RequestM Result := do
-  -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
-  let results : List Result := results.filterMap id
-  -- 1. Flatten `ProofStep`s
-  let steps : List ProofStep := (results.map (λ result => result.steps)).flatten
-  -- 2. Flatten `GoalInfo`s
-  let allGoals : Std.HashSet GoalInfo := Std.HashSet.ofList ((results.map (λ result => result.allGoals.toList)).flatten)
+public def BetterParser_Tree (fileMap : FileMap) (infoTree : InfoTree) : MetaM (Option Result) :=
+  infoTree.visitM (postNode := fun ctx info _ results => do
+    -- Remove `Option.none` values from the `results` list (we have them because of the `.visitM` implementation)
+    let results : List Result := results.filterMap id
+    -- 1. Flatten `ProofStep`s
+    let steps : List ProofStep := (results.map (λ result => result.steps)).flatten
+    -- 2. Flatten `GoalInfo`s
+    let allGoals : Std.HashSet GoalInfo := Std.HashSet.ofList ((results.map (λ result => result.allGoals.toList)).flatten)
+    -- 3. Parse tactic
+    let .some ctx := info.updateContext? ctx              | panic! "unexpected context node"
+    let .ofTacticInfo tInfo := info                       | return { steps, allGoals }
+    let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
+    let tacticString := prettifyTacticString (Substring.Raw.toString tacticSubstring)
+    parseTacticBody fileMap ctx tInfo tacticSubstring steps allGoals tacticString []
+  )
 
-  parseTacticInfo infoTree ctx info steps allGoals (isSingleTacticMode := false)
-
-partial def BetterParser (infoTree : InfoTree) := infoTree.visitM (postNode :=
-  λ ctx info _ results => postNode infoTree ctx info results
-)
+public def BetterParser_SingleTactic (fileMap: FileMap) (infoTree: InfoTree) (ctx : ContextInfo) (info : Info) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (forcedTacticString : String) : MetaM Result := do
+  -- 1. Parse tactic
+  let .some ctx := info.updateContext? ctx               | panic! "unexpected context node"
+  let .ofTacticInfo tInfo := info                        | return { steps, allGoals }
+  let .some tacticSubstring := getTacticSubstring tInfo  | return { steps, allGoals }
+  let tacticString := if forcedTacticString.length > 0
+    then forcedTacticString
+    else prettifyTacticString (Substring.Raw.toString tacticSubstring)
+  let theorems ← GetTheorems infoTree tInfo ctx
+  parseTacticBody fileMap ctx tInfo tacticSubstring steps allGoals tacticString theorems
 
 end Paperproof.Services

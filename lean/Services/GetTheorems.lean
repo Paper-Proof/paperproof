@@ -170,11 +170,11 @@ def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos :
   pure theoremSignatures
 
 
-def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : RequestM (List TheoremSignature) := do
+def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : MetaM (List TheoremSignature) := do
   let some goalDecl := ctx.mctx.findDecl? tacticInfo.goalsBefore.head!
-    | throwThe RequestError ⟨.invalidParams, "noGoalDecl"⟩
+    | throwError "noGoalDecl"
   let some tacticSubstring := getTacticSubstring tacticInfo
-    | throwThe RequestError ⟨.invalidParams, "noTacticSubstring"⟩
+    | throwError "noTacticSubstring"
 
   ctx.runMetaM goalDecl.lctx do
     findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
