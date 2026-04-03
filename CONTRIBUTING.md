@@ -134,7 +134,7 @@ There are two Lean versions mentioned in this repo:
 When someone uses Paperproof as a dependency, these versions don't affect anything - the project is built using *their* Lean version.
 Our task here is to aim or the largest backwards-compatibility possible.
 
-At the moment we support Lean version in at least [from leanprover/lean4:v4.12.0-rc1, to leanprover/lean4:v4.20.1] range, which is around one year of Lean versions. Our code does raise deprecation warnings for users on v4.20.1 and higher versions of Lean, however we don't upgrade it, as that would break Paperproof for users with Lean v4.12.0. 
+At the moment we support Lean version in at least [from leanprover/lean4:v4.12.0-rc1, to leanprover/lean4:v4.20.1] (UPDATE: the versions are more recent now, but the point stands) range, which is around one year of Lean versions. Our code does raise deprecation warnings for users on v4.20.1 and higher versions of Lean, however we don't upgrade it, as that would break Paperproof for users with Lean v4.12.0. 
 We will upgrade it when Paperproof code starts breaking for users on newer versions of Lean.
 
 
