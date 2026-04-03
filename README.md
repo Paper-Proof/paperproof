@@ -307,6 +307,8 @@ theorem casesRandom (C: Prop)
 
 ## Installation
 
+If you're on a recent Lean version (**v4.27.0** or bigger) then it's really easy, follow the steps below. Otherwise, consult [VERSIONS.md](https://github.com/Paper-Proof/paperproof/blob/main/VERSIONS.md).
+
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
 2. In your `lakefile.toml`, write:
