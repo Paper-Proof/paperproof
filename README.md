@@ -325,9 +325,6 @@ theorem casesRandom (C: Prop)
    lake update Paperproof
    ```
 
-   > Note:
-   > if you're getting "error: unexpected arguments: Paperproof", it means you're on the older version of Lean, and it doesn't support per-package updates. In that case, just run `lake build`.
-
 5. In a Lean file with your theorems, write:
 
    ```lean

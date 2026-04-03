@@ -128,15 +128,11 @@ ___
 
 Additionally, there is a version of Lean that's used for building the Paperproof library.
 There are two Lean versions mentioned in this repo:
-- `/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof` In particular, our `/Examples.lean` and `_/examples.lean` always use it.
+- `/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof` In particular, our `/Examples.lean` and `_/examples.lean` always use it. This file doesn't affect the users of Paperproof, it's just for Paperproof developers so that we can test stuff.
 - `/lean/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof/lean`.
 
-When someone uses Paperproof as a dependency, these versions don't affect anything - the project is built using *their* Lean version.
-Our task here is to aim or the largest backwards-compatibility possible.
-
-At the moment we support Lean version in at least [from leanprover/lean4:v4.12.0-rc1, to leanprover/lean4:v4.20.1] (UPDATE: the versions are more recent now, but the point stands) range, which is around one year of Lean versions. Our code does raise deprecation warnings for users on v4.20.1 and higher versions of Lean, however we don't upgrade it, as that would break Paperproof for users with Lean v4.12.0. 
-We will upgrade it when Paperproof code starts breaking for users on newer versions of Lean.
-
+When someone uses Paperproof as a dependency, their project will be FORCEFULLY UPGRADED up to `/lean/lean-toolchain` Lean version (see https://github.com/Paper-Proof/paperproof/issues/69). That's why we keep the LOWEST Lean version we support in `/lean/lean-toolchain`.
+For example, if Paperproof compiles in [`leanprover/lean4:v4.27.0`, `leanprover/lean4:v4.28.0`, `leanprover/lean4:v4.29.0`] (and doesn't compile for any other Lean versions), we must put `leanprover/lean4:v4.27.0` into our `/lean/lean-toolchain`.
 
 <div align="center">
 <img width="60px" src="https://github.com/Paper-Proof/paperproof/assets/7578559/58f24cf2-4336-4376-8738-6463e3802ba0">
