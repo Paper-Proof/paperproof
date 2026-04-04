@@ -72,10 +72,15 @@ const ContextMenu = (props: Props) => {
     refreshUI();
   };
 
-  const handleZoom = (event: React.MouseEvent, type: "in" | "out") => {
-    event.stopPropagation();
-    zoomManually(type);
-  };
+  const [zoom, setZoom] = React.useState(100);
+
+  React.useEffect(() => {
+    if (!props.contextMenu) return;
+    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
+    if (!proofTreeEl) return;
+    const currentScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
+    setZoom(Math.round(currentScale * 10) * 10);
+  }, [props.contextMenu]);
 
   const copyForLLM = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -109,14 +114,13 @@ const ContextMenu = (props: Props) => {
       </MenuItem>
 
       <Divider/>
-      <MenuItem onClick={(event) => handleZoom(event, "in")}>
-        <div className="text">Zoom in</div>
-        <div className="shortcut">⎇ +</div>
-      </MenuItem>
-
-      <MenuItem onClick={(event) => handleZoom(event, "out")}>
-        <div className="text">Zoom out</div>
-        <div className="shortcut">⎇ -</div>
+      <MenuItem disableRipple className="-zoom-control">
+        <div className="text">Zoom</div>
+        <div className="zoom-buttons">
+          <button onClick={(e) => { e.stopPropagation(); zoomManually("out"); setZoom(z => z - 10); }}>−</button>
+          <span className="zoom-value">{zoom}%</span>
+          <button onClick={(e) => { e.stopPropagation(); zoomManually("in"); setZoom(z => z + 10); }}>+</button>
+        </div>
       </MenuItem>
 
       <MenuItem disableRipple className="-font-size-control">
