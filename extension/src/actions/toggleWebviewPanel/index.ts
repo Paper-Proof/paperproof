@@ -3,6 +3,7 @@ import { Shared } from "../../types";
 import getWebviewContent from './services/getWebviewContent';
 import Settings from "../../services/Settings";
 import sendPosition from "../sendPosition";
+import sendFullProofTree from "../sendFullProofTree";
 
 const toggleWebviewPanel = (shared: Shared) => {
   if (shared.webviewPanel) {
@@ -16,7 +17,13 @@ const toggleWebviewPanel = (shared: Shared) => {
     );
     webviewPanel.webview.html = getWebviewContent(shared, webviewPanel);
 
-    webviewPanel.webview.onDidReceiveMessage(Settings.updateSettingsFromWebview);
+    webviewPanel.webview.onDidReceiveMessage(async (message) => {
+      if (message.type === 'from_webview:request_full_proof_tree') {
+        sendFullProofTree(shared);
+        return;
+      }
+      Settings.updateSettingsFromWebview(message);
+    });
 
     // This is a must, this lets us open&close paperproof panel multiple times. Also reacts to closing the tab via pressing "x".
     webviewPanel.onDidDispose(() => { 

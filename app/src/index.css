@@ -1,3 +1,21 @@
+/* In LaTeX mode, remove the fixed max-widths so formulas can use full available width */
+.proof-tree.-isLatexModeON {
+  .goals .goal,
+  .goals .tactic,
+  .hypothesis-table .hypothesis {
+    max-width: none;
+  }
+}
+
+/* Allow KaTeX to wrap at top-level group boundaries */
+.katex-html {
+  white-space: normal;
+}
+/* Keep individual math atoms from breaking mid-token */
+.katex-html .base {
+  white-space: nowrap;
+}
+
 body.standalone{
   .proof-tree{
     font-family: monospace; --vscode-editor-font-family: monospace;
@@ -49,7 +67,7 @@ body.snapshot{
     flex-wrap: wrap;
   }
   .hypothesis.-highlighted, .hypothesis.data.-highlighted{
-    border-color: #72787C;
+    /* border-color: #72787C; */
   }
 
   .hypothesis-table .hypothesis.-highlighted{

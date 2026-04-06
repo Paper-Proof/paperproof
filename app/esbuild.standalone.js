@@ -24,6 +24,9 @@ await esbuild.build({
   loader: {
     ".json": "json",
     ".css": "css",
+    ".woff": "dataurl",
+    ".woff2": "dataurl",
+    ".ttf": "dataurl",
   },
   plugins: [aliasPlugin],
   logLevel: "info",

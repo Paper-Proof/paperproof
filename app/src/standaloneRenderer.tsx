@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ConvertedProofTree } from "types";
+import { ConvertedProofTree, LatexSettings, DEFAULT_LATEX_SETTINGS } from "types";
 import "./index.css";
 import converter from "./services/converter";
 import hypsToTables from "./services/hypsToTables";
@@ -33,6 +33,9 @@ interface StandaloneGlobalContextType {
   isStandalone: boolean;
   fontSize: number;
   setFontSize: (x: number) => void;
+  fetchFullProofTree: () => Promise<ConvertedProofTree>;
+  latexSettings: LatexSettings;
+  setLatexSettings: (x: LatexSettings) => void;
 }
 
 const StandaloneGlobalContext = React.createContext<StandaloneGlobalContextType | undefined>(undefined);
@@ -182,11 +185,14 @@ function StandaloneRenderer() {
               position: { line: 0, column: 0 },
               setConverted: () => {},
               createSnapshot: dummyCreateSnapshot,
-              setSnackbarMessage: () => {}, // Dummy function - no snackbar in standalone
-              setSnackbarOpen: () => {}, // Dummy function - no snackbar in standalone
+              setSnackbarMessage: () => {},
+              setSnackbarOpen: () => {},
               isStandalone: true,
               fontSize: 12,
               setFontSize: () => {},
+              fetchFullProofTree: async () => convertedProofTree!,
+              latexSettings: DEFAULT_LATEX_SETTINGS,
+              setLatexSettings: () => {},
             }}
           >
             <div className={`

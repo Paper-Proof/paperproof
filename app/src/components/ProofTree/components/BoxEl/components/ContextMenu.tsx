@@ -6,6 +6,8 @@ import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
 import copyProofStructureForLLM from "src/services/copyProofStructureForLLM";
+import convertToLatex, { collectTexts, convertTextsToLatex } from "src/services/convertToLatex";
+import SnackbarLatexPrompt from "./SnackbarLatexPrompt";
 
 interface Props {
   box: Box;
@@ -23,6 +25,8 @@ const ContextMenu = (props: Props) => {
     setConverted,
     setSnackbarMessage,
     setSnackbarOpen,
+    fetchFullProofTree,
+    latexSettings, setLatexSettings,
   } = useGlobalContext();
 
   type BooleanSettingKey = { [K in keyof Settings]: Settings[K] extends boolean ? K : never }[keyof Settings];
@@ -89,6 +93,89 @@ const ContextMenu = (props: Props) => {
     props.setContextMenu(null);
   }
 
+  const hasMap = Object.keys(latexSettings.map).length > 0;
+
+  const latexStatusMsg = (text: string) => (
+    <div className="latex-prompt">
+      <div className="latex-prompt-title">Convert to LaTeX</div>
+      <div className="latex-prompt-status">{text}</div>
+    </div>
+  );
+
+  const runLatexConversion = async (textsToConvert: string[], instructions: string, shortenWords: boolean, newSettings?: Partial<typeof latexSettings>) => {
+    setSnackbarMessage(latexStatusMsg(`Converting ${textsToConvert.length} expressions to LaTeX...`));
+    const freshMap = await convertTextsToLatex(textsToConvert, instructions, shortenWords);
+    setLatexSettings({ ...latexSettings, map: { ...latexSettings.map, ...freshMap }, ...newSettings });
+    setSnackbarOpen(false);
+    refreshUI();
+  };
+
+  const collectAllTexts = async (): Promise<string[]> => {
+    const fullTree = await fetchFullProofTree();
+    const fromFull    = collectTexts(fullTree);
+    const fromCurrent = collectTexts(proofTree);
+    const all = new Set([...fromFull.stable, ...fromFull.changing, ...fromCurrent.stable, ...fromCurrent.changing]);
+    return [...all];
+  };
+
+  const openPrompt = () => {
+    setSnackbarMessage(
+      <SnackbarLatexPrompt
+        initialInstructions={latexSettings.instructions}
+        initialShortenWords={latexSettings.shortenWords}
+        onConvert={async (instructions, shortenWords) => {
+          setSnackbarMessage(latexStatusMsg("Parsing the full proof..."));
+          try {
+            const allTexts = await collectAllTexts();
+            await runLatexConversion(allTexts, instructions, shortenWords, { isActive: true, instructions, shortenWords });
+          } catch (error) {
+            console.error("LaTeX conversion failed:", error);
+            setSnackbarMessage("LaTeX conversion failed. Check the console for details.");
+          }
+        }}
+        onCancel={() => setSnackbarOpen(false)}
+      />
+    );
+    setSnackbarOpen(true);
+  };
+
+  const handleLatexToggle = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    props.setContextMenu(null);
+    if (latexSettings.isActive) {
+      setLatexSettings({ ...latexSettings, isActive: false });
+    } else if (hasMap) {
+      setLatexSettings({ ...latexSettings, isActive: true });
+    } else {
+      openPrompt();
+    }
+  };
+
+  const handleNewPrompt = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    props.setContextMenu(null);
+    openPrompt();
+  };
+
+  const handleAddLatex = async (event: React.MouseEvent) => {
+    event.stopPropagation();
+    props.setContextMenu(null);
+    setSnackbarMessage(latexStatusMsg("Parsing the full proof..."));
+    setSnackbarOpen(true);
+    try {
+      const allTexts = await collectAllTexts();
+      const missingTexts = allTexts.filter((t) => !(t in latexSettings.map));
+      if (missingTexts.length === 0) {
+        setSnackbarMessage("All expressions are already converted.");
+        return;
+      }
+      await runLatexConversion(missingTexts, latexSettings.instructions, latexSettings.shortenWords);
+    } catch (error) {
+      console.error("LaTeX ADD failed:", error);
+      setSnackbarMessage("LaTeX conversion failed. Check the console for details.");
+    }
+  };
+
   return (
     <Menu
       open={props.contextMenu !== null}
@@ -111,6 +198,15 @@ const ContextMenu = (props: Props) => {
       <MenuItem onClick={handleSettingToggle("isSingleTacticMode")}>
         <div className="text">Single-tactic Mode</div>
         <Switch checked={settings.isSingleTacticMode} size="small"/>
+      </MenuItem>
+
+      <MenuItem onClick={handleLatexToggle}>
+        <div className="text">LaTeX mode</div>
+        {hasMap && latexSettings.isActive && <>
+          <button className="latex-button -add" onClick={handleAddLatex}>ADD</button>
+          <button className="latex-button -new-prompt" onClick={handleNewPrompt}>NEW PROMPT</button>
+        </>}
+        <Switch checked={latexSettings.isActive} size="small"/>
       </MenuItem>
 
       <Divider/>

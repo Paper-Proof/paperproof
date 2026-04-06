@@ -48,6 +48,21 @@ export interface Settings {
   fontSize          : number;
 }
 
+export interface LatexSettings {
+  map         : Record<string, string>;
+  isActive    : boolean;
+  instructions: string;
+  shortenWords: boolean;
+}
+
+export const DEFAULT_LATEX_SETTINGS: LatexSettings = {
+  map         : {},
+  isActive    : false,
+  instructions: "",
+  shortenWords: false,
+};
+
+
 export interface PaperproofWindow extends Window {
   initialSettings: Settings
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition } from "types";
+import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition, LatexSettings, DEFAULT_LATEX_SETTINGS } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
 import "./css/theorem.css";
@@ -48,6 +48,9 @@ export interface GlobalContextType {
   setSnackbarMessage: (message: String | React.ReactNode | null) => void;
   setSnackbarOpen: (open: boolean) => void;
   isStandalone: boolean;
+  fetchFullProofTree: () => Promise<ConvertedProofTree>;
+  latexSettings: LatexSettings;
+  setLatexSettings: (x: LatexSettings) => void;
 }
 
 const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
@@ -81,6 +84,25 @@ function Main() {
 
   const [settings, setSettings] = useState(window.initialSettings);
   const [position, setPosition] = useState<Position>(fakePosition);
+  const [latexSettings, setLatexSettings] = useState<LatexSettings>(DEFAULT_LATEX_SETTINGS);
+
+  const fetchFullProofTree = (): Promise<ConvertedProofTree> => {
+    return new Promise((resolve, reject) => {
+      const handler = (event: MessageEvent) => {
+        const message = event.data;
+        if (message.type === 'from_extension:full_proof_tree') {
+          removeEventListener('message', handler);
+          if ('error' in message.data) {
+            reject(new Error(message.data.error));
+          } else {
+            resolve(converter(message.data.proofTree));
+          }
+        }
+      };
+      addEventListener('message', handler);
+      vscode.postMessage({ type: 'from_webview:request_full_proof_tree' });
+    });
+  };
 
   // We do need separate state vars for prettier animations
   const [snackbarMessage, setSnackbarMessage] = useState<String | React.ReactNode | null>(null);
@@ -203,6 +225,9 @@ function Main() {
           setSnackbarMessage,
           setSnackbarOpen,
           isStandalone: false,
+          fetchFullProofTree,
+          latexSettings,
+          setLatexSettings,
         }}
       >
         <div className={`
@@ -213,6 +238,7 @@ function Main() {
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
           ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
+          ${latexSettings.isActive ? '-isLatexModeON' : ''}
         `}
         style={{ '--box-font-size': `${settings.fontSize}px` } as React.CSSProperties}>
           <ProofTree/>

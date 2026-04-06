@@ -9,6 +9,9 @@ let ctx = await esbuild.context({
   loader: {
     ".json": "json",
     ".css": "css",
+    ".woff": "dataurl",
+    ".woff2": "dataurl",
+    ".ttf": "dataurl",
   },
   plugins: [],
   logLevel: "info",

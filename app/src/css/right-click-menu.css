@@ -37,6 +37,25 @@
     margin-left: 7px;
   }
 
+  .latex-button {
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    background: #f3f5f7;
+    border-radius: 3px;
+    font-weight: bold;
+    padding: 5px 10px;
+    color: #3a505a;
+    letter-spacing: 0.7px;
+    font-size: 11px;
+    &:hover { background: #e2e5e9; }
+
+    &.-add {
+      margin-left: 24px;
+      margin-right: 6px;
+    }
+  }
+
   .shortcut{
     color: grey;
     width: 38px;
