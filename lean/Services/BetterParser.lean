@@ -180,7 +180,7 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
 -/
 def prettifyTacticString (tacticString: String) : String :=
-  (tacticString.splitOn "\n").head!.trimAscii.toString
+  ((tacticString.splitOn "\n").head?.getD tacticString).trimAscii.toString
 
 def getProofStepPosition (fileMap : FileMap) (tacticSubstring: Substring.Raw) : ProofStepPosition := {
   start := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.startPos,
