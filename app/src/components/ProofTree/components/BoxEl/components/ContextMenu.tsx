@@ -148,7 +148,9 @@ const ContextMenu = (props: Props) => {
       setLatexSettings({ ...latexSettings, isActive: true });
     } else {
       openPrompt();
+      return;
     }
+    refreshUI();
   };
 
   const handleNewPrompt = (event: React.MouseEvent) => {
