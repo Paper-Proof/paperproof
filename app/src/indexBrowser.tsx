@@ -202,7 +202,7 @@ function Main() {
           createSnapshot,
           setSnackbarMessage,
           setSnackbarOpen,
-          isStandalone: false
+          isStandalone: false,
         }}
       >
         <div className={`
@@ -213,7 +213,8 @@ function Main() {
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
           ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
-        `}>
+        `}
+        style={{ '--box-font-size': `${settings.fontSize}px` } as React.CSSProperties}>
           <ProofTree/>
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>

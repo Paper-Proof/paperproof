@@ -22,10 +22,11 @@ const ContextMenu = (props: Props) => {
     settings,        setSettings,
     setConverted,
     setSnackbarMessage,
-    setSnackbarOpen
+    setSnackbarOpen,
   } = useGlobalContext();
 
-  const handleSettingToggle = (settingKey: keyof Settings) => (event: React.MouseEvent) => {
+  type BooleanSettingKey = { [K in keyof Settings]: Settings[K] extends boolean ? K : never }[keyof Settings];
+  const handleSettingToggle = (settingKey: BooleanSettingKey) => (event: React.MouseEvent) => {
     event.stopPropagation();
     // When we switch our modes back and forth, it's important to clear the proof tree, otherwise users will briefly see a silly "css has changed, but proof tree stays the same" state
     if (settingKey === "isSingleTacticMode") {
@@ -116,6 +117,15 @@ const ContextMenu = (props: Props) => {
       <MenuItem onClick={(event) => handleZoom(event, "out")}>
         <div className="text">Zoom out</div>
         <div className="shortcut">⎇ -</div>
+      </MenuItem>
+
+      <MenuItem disableRipple className="-font-size-control">
+        <div className="text">Font size</div>
+        <div className="font-size-buttons">
+          <button onClick={(e) => { e.stopPropagation(); setSettings({ ...settings, fontSize: settings.fontSize - 1 }); refreshUI(); }}>−</button>
+          <span className="font-size-value">{settings.fontSize}px</span>
+          <button onClick={(e) => { e.stopPropagation(); setSettings({ ...settings, fontSize: settings.fontSize + 1 }); refreshUI(); }}>+</button>
+        </div>
       </MenuItem>
       
       {

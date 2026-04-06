@@ -1,3 +1,29 @@
+.MuiMenuItem-root.-font-size-control{
+  cursor: default;
+
+  .font-size-buttons{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+
+    button{
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: inherit;
+      font-size: 14px;
+    }
+  }
+
+  .font-size-value{
+    min-width: 28px;
+    text-align: center;
+  }
+}
+
 .MuiMenuItem-root{
   font-size: 14px !important;
   min-height: 0 !important;

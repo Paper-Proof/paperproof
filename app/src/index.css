@@ -216,7 +216,7 @@ body{
 }}}}}}}}}
 /*______________________ PROOF-TREE: prettiness ______________________*/
 .box{
-  font-size: 12px;
+  font-size: var(--box-font-size, 12px);
   border-radius: 3px;
   flex-grow: 1;
 

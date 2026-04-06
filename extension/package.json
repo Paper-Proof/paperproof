@@ -87,6 +87,11 @@
           "type": "boolean",
           "default": true,
           "description": "Use green color for hypotheses"
+        },
+        "paperproof.fontSize": {
+          "type": "number",
+          "default": 13,
+          "description": "Font size for goals and hypotheses"
         }
       }
     },

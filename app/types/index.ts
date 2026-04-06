@@ -45,6 +45,7 @@ export interface Settings {
   isHiddenGoalNames : boolean;
   isGreenHypotheses : boolean;
   areHypsHighlighted: boolean;
+  fontSize          : number;
 }
 
 export interface PaperproofWindow extends Window {

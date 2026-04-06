@@ -38,6 +38,7 @@ const updateSettingsFromExtension = (event: vscode.ConfigurationChangeEvent, sha
       isHiddenGoalNames : config.get('isHiddenGoalNames'),
       isGreenHypotheses : config.get('isGreenHypotheses'),
       areHypsHighlighted: config.get('areHypsHighlighted'),
+      fontSize          : config.get('fontSize'),
     };
     shared.webviewPanel.webview.postMessage({
       type: 'from_extension:update_settings',
@@ -55,6 +56,7 @@ const getSettings = () => {
     isHiddenGoalNames : config.get('isHiddenGoalNames'),
     isGreenHypotheses : config.get('isGreenHypotheses'),
     areHypsHighlighted: config.get('areHypsHighlighted'),
+    fontSize          : config.get('fontSize'),
   };
 }
 

@@ -31,6 +31,8 @@ interface StandaloneGlobalContextType {
   setSnackbarMessage: (message: String | React.ReactNode | null) => void;
   setSnackbarOpen: (open: boolean) => void;
   isStandalone: boolean;
+  fontSize: number;
+  setFontSize: (x: number) => void;
 }
 
 const StandaloneGlobalContext = React.createContext<StandaloneGlobalContextType | undefined>(undefined);
@@ -183,6 +185,8 @@ function StandaloneRenderer() {
               setSnackbarMessage: () => {}, // Dummy function - no snackbar in standalone
               setSnackbarOpen: () => {}, // Dummy function - no snackbar in standalone
               isStandalone: true,
+              fontSize: 12,
+              setFontSize: () => {},
             }}
           >
             <div className={`
