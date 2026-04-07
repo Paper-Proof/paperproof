@@ -42,7 +42,7 @@
       "editor/title": [
         {
           "command": "paperproof.toggle",
-          "when": "editorLangId == lean4",
+          "when": "editorLangId == lean4 || activeWebviewPanelId == 'lean4_infoview' || activeWebviewPanelId == 'lean4_abbreviationview' || activeWebviewPanelId == 'lean4_loogleview' || activeWebviewPanelId == 'lean4_manualview' || activeWebviewPanelId == 'paperproof'",
           "group": "navigation@2"
         }
       ]
