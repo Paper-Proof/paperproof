@@ -5,4 +5,4 @@ For instructions, please see https://github.com/Paper-Proof/paperproof.
 
 ## Features
 
-Command `Paperproof : Toggle` toggles the paper proof view.
+Command `Paperproof: Toggle` toggles the paperproof view.
