@@ -58,6 +58,11 @@ and restart vscode (literally - quit it fully, and open it again).
 
 If you change something in the `/lean` folder, then go to the file where you're checking your code (usually it's `Examples.lean`), and run **Cmd+Shift+P** `> Lean 4: Refresh File Dependencies`.
 
+# Tests
+
+We test stuff by going to `/Examples.lean` and seeing if the proofs render correctly.
+We also have a test file for the Lean parser at `/lean/Tests.lean`. To "run" these tests, simply go to `/lean/Tests.lean` and see if the file compiles.
+
 # Publishing
 
 Deploying our `main` branch consists of 2 steps - publishing a new vscode extension, and publishing a new Paperproof Lean library.
