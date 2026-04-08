@@ -198,7 +198,7 @@ const ContextMenu = (props: Props) => {
       { props.box.id !== "1" && <Divider/> }
 
       <MenuItem onClick={handleSettingToggle("isSingleTacticMode")}>
-        <div className="text">Single-tactic Mode</div>
+        <div className="text">Single-tactic mode</div>
         <Switch checked={settings.isSingleTacticMode} size="small"/>
       </MenuItem>
 
