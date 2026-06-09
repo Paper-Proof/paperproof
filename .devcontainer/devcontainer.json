@@ -2,10 +2,11 @@
   "name": "Paperproof",
 
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
 
-  "onCreateCommand": "lake exe cache get!",
+  "onCreateCommand": "lake update && lake exe cache get",
 
   "customizations": {
     "vscode": {
