@@ -6,6 +6,7 @@
 .DS_Store
 
 **/.lake
+/lake-manifest.json
 
 .buildt
 
