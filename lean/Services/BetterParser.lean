@@ -156,7 +156,7 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List 
       ) :: result
   return result
 
-def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
+def prettifySteps (stx : Syntax) (steps : List ProofStep) (tacticString : String) : List ProofStep := Id.run do
   match stx with
   | `(tactic| rw [$_,*] $(_)?)
   | `(tactic| rewrite [$_,*] $(_)?) =>
@@ -165,6 +165,13 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id
       -- rw puts final rfl on the "]" token
       if res == "]" then "rfl" else res
     return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
+  | `(tactic| intro $_ $_ $_*) =>
+    -- intro with 2+ names generates one child TacticInfo per name; merge into a single step
+    if steps.isEmpty then return steps
+    return [{ steps.head! with
+      tacticString        := tacticString,
+      goalsAfter          := steps.getLast!.goalsAfter,
+      tacticDependsOn     := (steps.flatMap (·.tacticDependsOn)).eraseDups }]
   | _ => return steps
 
 -- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
@@ -188,7 +195,7 @@ def getProofStepPosition (fileMap : FileMap) (tacticSubstring: Substring.Raw) : 
 }
 
 def parseTacticBody (fileMap : FileMap) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticSubstring : Substring.Raw) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (tacticString : String) (theorems : List TheoremSignature) : MetaM Result := do
-  let steps := prettifySteps tInfo.stx steps
+  let steps := prettifySteps tInfo.stx steps tacticString
   let position := getProofStepPosition fileMap tacticSubstring
 
   let proofTreeEdges ← getGoalsChange ctx tInfo

@@ -291,3 +291,77 @@ dependsOn: (none)
 theorem spawned : 666 = 665 + 1 := by
   have easy: 4 = 2 + 2 := by rfl
   simp
+
+/--
+info: [step 1]
+tactic: intro hp hq
+goalBefore:
+  type: P → Q → P
+  hyps:
+    P : Prop
+    Q : Prop
+goalsAfter:
+  type: P
+  hyps:
+    P : Prop
+    Q : Prop
+    hp : P
+    hq : Q
+spawnedGoals: (none)
+dependsOn: P, Q
+
+[step 2]
+tactic: exact hp
+goalBefore:
+  type: P
+  hyps:
+    P : Prop
+    Q : Prop
+    hp : P
+    hq : Q
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: hp
+-/
+#guard_msgs in
+#assert_parser in
+theorem test_intro_multi (P Q : Prop) : P → Q → P := by
+  intro hp hq
+  exact hp
+
+/--
+info: [step 1]
+tactic: intros hp hq
+goalBefore:
+  type: P → Q → P
+  hyps:
+    P : Prop
+    Q : Prop
+goalsAfter:
+  type: P
+  hyps:
+    P : Prop
+    Q : Prop
+    hp : P
+    hq : Q
+spawnedGoals: (none)
+dependsOn: P, Q
+
+[step 2]
+tactic: exact hp
+goalBefore:
+  type: P
+  hyps:
+    P : Prop
+    Q : Prop
+    hp : P
+    hq : Q
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: hp
+-/
+#guard_msgs in
+#assert_parser in
+theorem test_intros_multi (P Q : Prop) : P → Q → P := by
+  intros hp hq
+  exact hp
