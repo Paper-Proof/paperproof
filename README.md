@@ -445,7 +445,6 @@ Paperproof is a package that's usually only used during development, so you migh
 
 **Practical:**
 
-- How to add my Lean repo to Github Codespaces: [link](https://lakesare.brick.do/how-to-add-my-lean-repo-to-github-codespaces-A13P6g7aYwgg)
 - Can Paperproof render proof terms: [link](https://paperproof.brick.do/can-paperproof-render-proof-terms-qm1NZZkazb21)
 - Paperproof's Architecture: [link](https://paperproof.brick.do/paperproof-s-architecture-P632P44ezDa9)
 - Anatomy of the _InfoTree_: [link](https://paperproof.brick.do/wip-info-tree-anatomy-Qdgyz0zkybL2), [link](https://antonkov.github.io/posts/How-to-build-a-proof-tree)
@@ -455,6 +454,7 @@ Paperproof is a package that's usually only used during development, so you migh
 - a super quick 1-minute demo of Paperproof: [youtube link](https://youtu.be/xiIQ0toSpxQ)
 - our Lean Together presentation: [youtube link](https://www.youtube.com/watch?v=DWuAGt2RDaM)
 - a full Paperproof tutorial: [youtube link](https://youtu.be/q9w1djIcCvc)
+- a full Paperproof tutorial - More Features (LaTeX, Snapshots, and Single-Tactic Mode): [youtube link](https://www.youtube.com/watch?v=_cXquTAh0tk)
 
 ## Development
 
