@@ -5,7 +5,7 @@
   "scripts": {
     "server": "node server.cjs",
     "watch": "node esbuild.watch.js",
-    "build:standalone": "node esbuild.standalone.js"
+    "build": "cd ../paperproof.xyz && node esbuild.js"
   },
   "main": "index.js",
   "author": "Anton Kovsharov, Evgenia Karunus",

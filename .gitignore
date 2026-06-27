@@ -18,7 +18,6 @@ app/.yarn/
 *.vsix
 
 paperproof.xyz/snapshots/
-paperproof.xyz/public/
 
 # Deployment artifacts
 *.tar.gz

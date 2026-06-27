@@ -6,6 +6,7 @@ import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
 import copyProofStructureForLLM from "src/services/copyProofStructureForLLM";
+import copyAsNaturalProofTree from "src/services/copyAsNaturalProofTree";
 import convertToLatex, { collectTexts, convertTextsToLatex } from "src/services/convertToLatex";
 import SnackbarLatexPrompt from "./SnackbarLatexPrompt";
 
@@ -90,6 +91,13 @@ const ContextMenu = (props: Props) => {
     event.stopPropagation();
     const proofStructure = copyProofStructureForLLM(proofTree);
     navigator.clipboard.writeText(proofStructure);
+    props.setContextMenu(null);
+  }
+
+  const copyNatural = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const natural = copyAsNaturalProofTree(proofTree);
+    navigator.clipboard.writeText(natural);
     props.setContextMenu(null);
   }
 
@@ -271,6 +279,13 @@ const ContextMenu = (props: Props) => {
         <div className="text">Copy for LLM</div>
         <div className="shortcut" style={{ textAlign: 'center' }}>📋</div>
       </MenuItem>
+
+      {/*
+      <MenuItem onClick={copyNatural}>
+        <div className="text">Copy as NaturalProofTree</div>
+        <div className="shortcut" style={{ textAlign: 'center' }}>🗂</div>
+      </MenuItem>
+      */}
 
       <MenuItem onClick={handleSnapshot}>
         <div className="text">Create snapshot</div>

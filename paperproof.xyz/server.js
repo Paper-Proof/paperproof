@@ -1,10 +1,13 @@
 // Very simple server for paperproof.xyz
-require('dotenv').config();
-const express = require('express');
-const crypto = require('crypto');
-const fs = require('fs').promises;
-const path = require('path');
-const cors = require('cors');
+import express from 'express';
+import crypto from 'crypto';
+import { promises as fs } from 'fs';
+import path from 'path';
+import cors from 'cors';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -26,6 +29,7 @@ app.options('*', (req, res) => {
 });
 
 app.use(express.json({ limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const SNAPSHOTS_DIR = './snapshots';
 
@@ -106,42 +110,8 @@ app.post('/api/snapshot', async (req, res) => {
   }
 });
 
-// Serve the built JavaScript file
-app.get('/dist/standaloneRenderer.js', async (req, res) => {
-  try {
-    const jsPath = './public/dist/standaloneRenderer.js';
-    const js = await fs.readFile(jsPath, 'utf8');
-    res.setHeader('Content-Type', 'application/javascript');
-    res.send(js);
-  } catch (error) {
-    console.error('Error serving renderer JS:', error);
-    res.status(500).send('Error loading renderer JS');
-  }
-});
-
-// Serve the built CSS file
-app.get('/dist/standaloneRenderer.css', async (req, res) => {
-  try {
-    const cssPath = './public/dist/standaloneRenderer.css';
-    const css = await fs.readFile(cssPath, 'utf8');
-    res.setHeader('Content-Type', 'text/css');
-    res.send(css);
-  } catch (error) {
-    console.error('Error serving renderer CSS:', error);
-    res.status(500).send('Error loading renderer CSS');
-  }
-});
-
-// Standalone renderer page - serve the built HTML
-app.get('/', async (req, res) => {
-  try {
-    const htmlPath = './public/standalone-renderer.html';
-    const html = await fs.readFile(htmlPath, 'utf8');
-    res.send(html);
-  } catch (error) {
-    console.error('Error serving renderer page:', error);
-    res.status(500).send('Error loading renderer page');
-  }
+app.get('/playground', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'playground.html'));
 });
 
 // Serve favicon files

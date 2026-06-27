@@ -245,11 +245,13 @@ theorem commutativityOfIntersections (s t : Set ℕ) : s ∩ t = t ∩ s := by
   apply Iff.intro
 
   intro h1
-  rw [Set.mem_inter_iff, and_comm] at h1
+  rw [Set.mem_inter_iff] at h1
+  rw [and_comm] at h1
   exact h1
 
   intro h2
-  rw [Set.mem_inter_iff, and_comm] at h2
+  rw [Set.mem_inter_iff] at h2
+  rw [and_comm] at h2
   exact h2
 
 /--

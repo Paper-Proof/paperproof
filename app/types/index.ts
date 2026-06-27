@@ -10,6 +10,7 @@ import {
   ArgumentInfo,
 } from "./LeanProofTree";
 import { LeanInteractiveHyp, LeanInteractiveGoal } from "./LeanInteractiveGoal";
+import { NaturalHyp, NaturalStep, NaturalBox, NaturalProofTree } from "./NaturalProofTree";
 import {
   GoalNode,
   HypNode,
@@ -133,5 +134,9 @@ export {
   AxiomSignature,
   DefinitionSignature,
   AnyTheoremSignature,
-  ArgumentInfo
+  ArgumentInfo,
+  NaturalHyp,
+  NaturalStep,
+  NaturalBox,
+  NaturalProofTree
 };

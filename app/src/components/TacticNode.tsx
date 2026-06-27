@@ -1,4 +1,6 @@
 import React from "react";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import { Arrow, Tactic, AnyTheoremSignature } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
@@ -60,6 +62,15 @@ const TacticNode = (props: TacticNodeProps) => {
 
   const text = prettifyTacticText(props.tactic.text);
 
+  // In LaTeX mode a tactic is prose with inline math in $...$ — render those
+  // fragments with KaTeX and leave the surrounding words as plain text.
+  const renderInlineLatex = (raw: string): React.ReactNode =>
+    raw.split(/\$([^$]*)\$/g).map((part, i) =>
+      i % 2 === 1
+        ? <span key={i} dangerouslySetInnerHTML={{ __html: katex.renderToString(part, { throwOnError: false }) }}/>
+        : <span key={i}>{part}</span>
+    );
+
   const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
 
   const tacticText = FancySubstring.renderTextWithMatches(text, [
@@ -112,13 +123,18 @@ const TacticNode = (props: TacticNodeProps) => {
     >
       <Hint>{props.tactic}</Hint>
       {
-        isSuccess ?
-        <div className="text">
-          <span>🎉</span> <span>{tacticText}</span> <span>🎉</span>
-        </div> :
-        <div className="text">
-          {tacticText}
-        </div>
+        (() => {
+          const inner = global.latexSettings.isActive
+            ? renderInlineLatex(props.tactic.text)
+            : tacticText;
+          return isSuccess ?
+            <div className="text">
+              <span>🎉</span> <span>{inner}</span> <span>🎉</span>
+            </div> :
+            <div className="text">
+              {inner}
+            </div>
+        })()
       }
 
       {theorem && <Theorem theorem={theorem}/>}

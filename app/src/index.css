@@ -23,7 +23,6 @@ body.standalone{
   }
   margin: 0;
   padding: 20px !important;
-  background: #f2ece921;
 }
 
 body.snapshot{
@@ -110,10 +109,10 @@ body.snapshot{
   display: flex;
   justify-content: space-between;
   /* cursor: pointer; */
-  transition: background-color 0.5s ease; 
+  /* transition: background-color 0.5s ease; 
   &.-highlight{
     background-color: rgb(255, 146, 250) !important;
-  }
+  } */
   &:hover button{
     background: none;
     opacity: 0.6;
@@ -392,7 +391,7 @@ table.hypothesis-table + .goals{
   width: max-content;
 }
 
-header, footer{
+.proof-tree header, .proof-tree footer{
   background: rgb(230, 233, 238);
   .title{
     text-transform: uppercase;
@@ -405,7 +404,7 @@ header, footer{
   }
 }
 /* All of this header logic is just to make the paddings look pretty */
-header{
+.proof-tree header{
   padding-left: 10px;
   padding-right: 10px;
   border-top-left-radius: 3px;
@@ -465,7 +464,7 @@ header{
     row-gap: 2px;
   }
 }
-footer{
+.proof-tree footer{
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
 }

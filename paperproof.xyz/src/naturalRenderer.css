@@ -1,0 +1,356 @@
+/* Page-level styles for the /natural standalone renderer page */
+
+:root {
+  --bg: #FBF7EC;
+  --text: #2B2722;
+  --text-muted: #6B6557;
+  --text-faint: #A39C8C;
+  --accent: #C72A6B;
+  --border: #EFE8D6;
+  --border-section: #E7DFCD;
+  --panel-bg: #FFFDF7;
+  --panel-header: #EDEADE;
+  --font-serif: 'Spectral', Georgia, serif;
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html {
+  background: #FBF7EC;
+}
+
+
+body.standalone {
+  padding: 0 !important;
+  width: 100% !important;
+  background: #FBF7EC !important;
+  color: #2B2722;
+  font-family: 'Spectral', Georgia, serif;
+}
+
+.natural-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ── Nav ── */
+
+.natural-nav {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 30px 40px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.natural-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.natural-nav-logo img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+}
+
+.natural-nav-logo span {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.natural-nav-install {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--text);
+  color: var(--bg);
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* ── Hero ── */
+
+.natural-hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 72px 40px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 54px;
+  align-items: start;
+}
+
+.natural-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 22px;
+}
+
+.natural-hero h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 46px;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin: 0 0 22px;
+}
+
+.natural-hero p {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0 0 32px;
+}
+
+/* ── Code example panel ── */
+
+.code-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px -20px rgba(43,39,34,0.22);
+}
+
+.code-panel-tabs {
+  background: #F0EAD8;
+  border-bottom: 1px solid #E4DCC8;
+  padding: 7px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.code-panel-tab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #B6AF9C;
+}
+
+.code-panel-tab.-active {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: 1.5px solid var(--text);
+  padding-bottom: 4px;
+}
+
+.code-panel-body {
+  padding: 20px 22px;
+}
+
+.code-panel-body pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #534e44;
+  white-space: pre-wrap;
+}
+
+.code-comment { color: var(--text-faint); }
+.code-keyword { color: #2B6CB0; }
+.code-name    { color: var(--accent); }
+
+/* ── Try it section ── */
+
+.natural-try {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 60px 40px 80px;
+}
+
+.natural-try h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 46px;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin: 0 0 18px;
+}
+
+.natural-try > p {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 38em;
+  margin: 0 0 40px;
+}
+
+/* ── Workflow steps ── */
+
+.natural-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel-bg);
+}
+
+.natural-step {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 24px;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  border-bottom: 1px solid var(--border);
+}
+
+.natural-step:last-child {
+  border-bottom: none;
+}
+
+.natural-step-n {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.natural-step strong {
+  font-weight: 600;
+}
+
+.natural-step span {
+  color: var(--text-muted);
+}
+
+.natural-copy-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 7px;
+  border: 1px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.natural-copy-btn:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.natural-copy-btn.-copied {
+  background: #2B2722;
+  color: #FBF7EC;
+  border-color: #2B2722;
+}
+
+.natural-try .pp-panel {
+  box-shadow: 0 12px 40px -20px rgba(43,39,34,0.18);
+}
+
+.natural-editor-wrap {
+  margin-bottom: 32px;
+}
+
+.pp-panel.proof-tree-wrap{
+  width: fit-content;
+}
+
+.natural-load-example-btn {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.natural-load-example-btn:hover {
+  color: var(--text);
+}
+
+.natural-error {
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  background: #FFF0F0;
+  border: 1px solid #F6CDCD;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #C0392B;
+}
+
+.natural-placeholder {
+  padding: 48px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--text-faint);
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+.natural-proof-body {
+  padding: 20px;
+  position: relative;
+}
+
+.natural-proof-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  backdrop-filter: grayscale(100%);
+  pointer-events: none;
+}
+
+.natural-print-view {
+  padding: 40px;
+}
+
+.natural-print-exit {
+  display: block;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.natural-print-exit:hover {
+  color: var(--text);
+}
+
+@media print {
+  .natural-print-exit { display: none; }
+  body.standalone { background: none !important; }
+  .natural-print-view { padding: 0; }
+}
+
+.natural-render-error {
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #C0392B;
+}

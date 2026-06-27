@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "baseUrl": "../app",
+    "paths": {
+      "@app/*": ["src/*"]
+    },
+    "typeRoots": ["../app/node_modules/@types"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,29 @@
+/* Shared proof panel chrome - used by both landingPage and naturalRenderer */
+
+.pp-panel {
+  background: #FFFDF7;
+  border: 1px solid #EFE8D6;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.pp-panel-tabs {
+  display: flex;
+  align-items: center;
+  padding-left: 5px;
+  border-bottom: 1px solid #e0dcd2a6;
+  background: #2b272205;
+}
+
+.pp-panel-tab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #B6AF9C;
+  padding: 10px 12px;
+
+  &.-active {
+    color: #2B27229C;
+    background: #2b27220a;
+    font-weight: 600;
+  }
+}

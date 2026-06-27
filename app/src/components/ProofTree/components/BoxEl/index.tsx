@@ -70,7 +70,7 @@ const BoxEl = (props: MyProps) => {
     const isThisRightClick = event.button === 2;
     // Is user just wants to close the context menu, don't zoom in
     const isContextMenuOpen = !!contextMenu
-    if (isUserIsCopypasting || isThisRightClick || isContextMenuOpen) return;
+    if (isUserIsCopypasting || isThisRightClick || isContextMenuOpen || isStandalone) return;
 
     event.stopPropagation();
     localStorage.setItem('zoomedBoxId', props.box.id);
