@@ -18,7 +18,7 @@ tar -czf deployment/paperproof-deploy.tar.gz \
     --exclude='.git' \
     --exclude='*.log' \
     --exclude='snapshots' \
-    --exclude='deployment' \
+    --exclude='deployment/paperproof-deploy.tar.gz' \
     .
 
 echo "🔧 Setting up server dependencies..."
@@ -57,7 +57,7 @@ ssh root@$DROPLET_IP << 'EOF'
     cp /var/www/paperproof.xyz/deployment/nginx.conf /etc/nginx/sites-available/paperproof.xyz
     ln -sf /etc/nginx/sites-available/paperproof.xyz /etc/nginx/sites-enabled/
     rm -f /etc/nginx/sites-enabled/default
-    nginx -t && systemctl restart nginx
+    nginx -t && systemctl reload nginx
     echo "✅ Nginx configured"
 EOF
 
