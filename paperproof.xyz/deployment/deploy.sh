@@ -5,17 +5,11 @@
 
 set -e
 
-DROPLET_IP=${1:-"YOUR_DROPLET_IP"}
+DROPLET_IP=${1:-"128.199.52.81"}
 DOMAIN="paperproof.xyz"
 APP_DIR="/var/www/paperproof.xyz"
 
 echo "📚 Starting paperproof.xyz deployment to $DROPLET_IP"
-
-# Check if we have the droplet IP
-if [ "$DROPLET_IP" = "YOUR_DROPLET_IP" ]; then
-    echo "❌ Please provide the droplet IP as first argument: ./deploy.sh <droplet_ip>"
-    exit 1
-fi
 
 echo "📦 Creating deployment archive..."
 cd ..
@@ -72,7 +66,7 @@ ssh root@$DROPLET_IP << 'EOF'
     cd /var/www/paperproof.xyz
     mkdir -p /home/www-data/.pm2
     chown -R www-data:www-data /home/www-data/.pm2
-    sudo -u www-data HOME=/home/www-data pm2 startOrRestart deployment/ecosystem.config.js --update-env
+    sudo -u www-data HOME=/home/www-data pm2 startOrRestart deployment/ecosystem.config.cjs --update-env
     sudo -u www-data HOME=/home/www-data pm2 save
     pm2 startup systemd -u www-data --hp /home/www-data
     systemctl enable nginx
