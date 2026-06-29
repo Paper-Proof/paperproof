@@ -388,5 +388,8 @@ function LandingPage() {
   );
 }
 
-const container = document.getElementById('root');
-if (container) createRoot(container).render(<LandingPage />);
+export { LandingPage };
+if (typeof document !== 'undefined') {
+  const container = document.getElementById('root');
+  if (container) createRoot(container).render(<LandingPage />);
+}

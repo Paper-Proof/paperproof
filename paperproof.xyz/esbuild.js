@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import path from "path";
 import fs from "fs";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -77,4 +78,26 @@ if (watch) {
     esbuild.build({ ...shared, logLimit: 0, entryPoints: ["src/standaloneRenderer.tsx"], outfile: "public/dist/standaloneRenderer.js" })
       .then(() => console.log("✓ standaloneRenderer")),
   ]);
+
+  // Pre-render landing page so crawlers and AI agents see real content
+  fs.mkdirSync(path.resolve(__dirname, "tmp"), { recursive: true });
+  await esbuild.build({
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    tsconfig: path.resolve(__dirname, "../app/tsconfig.json"),
+    nodePaths: [appNodeModules],
+    alias: {
+      "react":     path.resolve(appNodeModules, "react"),
+      "react-dom": path.resolve(appNodeModules, "react-dom"),
+    },
+    loader: { ".json": "json", ".css": "empty", ".woff": "dataurl", ".woff2": "dataurl", ".ttf": "dataurl" },
+    plugins: [aliasPlugin()],
+    define: { "process.env.NODE_ENV": '"production"' },
+    external: ["stream", "zlib", "url", "http", "events", "crypto", "tls", "https", "net", "buffer", "os", "path", "fs"],
+    entryPoints: ["src/prerender.tsx"],
+    outfile: "tmp/prerender.cjs",
+  });
+  execSync("node tmp/prerender.cjs", { stdio: "inherit", cwd: __dirname });
+  console.log("✓ prerendered index.html");
 }

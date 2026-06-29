@@ -21,3 +21,5 @@ paperproof.xyz/snapshots/
 
 # Deployment artifacts
 *.tar.gz
+
+paperproof.xyz/tmp/
