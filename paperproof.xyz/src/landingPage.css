@@ -581,3 +581,78 @@ div.hypothesis-table {
     color: #B6AF9C;
   }
 }
+
+/* ── Mobile ── */
+
+@media (max-width: 640px) {
+  /* Nav */
+  .lp-root > header {
+    padding: 20px 20px 0 !important;
+    gap: 12px !important;
+  }
+  .lp-root > header nav {
+    gap: 14px !important;
+    font-size: 14px !important;
+  }
+  .lp-root > header nav a:first-child {
+    display: none;
+  }
+  .lp-root > header nav a:last-child {
+    padding: 7px 13px !important;
+    font-size: 13px !important;
+  }
+
+  /* Hero */
+  .lp-hero {
+    flex-direction: column;
+    padding: 36px 20px 30px;
+    gap: 32px;
+    h1 { font-size: 36px; margin-bottom: 18px; }
+    .lp-hero-p { font-size: 17px; margin-bottom: 24px; }
+    .lp-hero-actions { gap: 14px; }
+  }
+
+  .lp-btn { padding: 12px 20px; font-size: 14px; }
+
+  /* Hero proof figure: zoom to fit mobile width */
+  .lp-proof-figure {
+    zoom: 0.72;
+  }
+
+  /* Idea */
+  .lp-idea {
+    padding: 44px 20px 20px;
+    .lp-idea-grid { grid-template-columns: 1fr; gap: 32px; }
+    .lp-idea-compare { grid-template-columns: 1fr; gap: 16px; }
+    .lp-idea-arrow { display: none; }
+  }
+
+  /* Notation */
+  .lp-notation {
+    padding: 44px 20px 20px;
+    .lp-notation-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Install */
+  .lp-install { padding: 44px 20px 16px; }
+  .lp-install-box {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+    gap: 32px;
+    .lp-h2 { font-size: 30px; }
+    .lp-install-paper { display: none; }
+  }
+
+  /* Section headings */
+  .lp-h2 { font-size: 30px; }
+
+  /* Section padding */
+  .lp-section { padding-left: 20px; padding-right: 20px; }
+  .lp-section-divider { padding-top: 32px; }
+
+  /* Footer */
+  .lp-footer {
+    padding: 40px 20px 40px;
+    .lp-footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+}

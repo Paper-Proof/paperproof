@@ -354,3 +354,46 @@ body.standalone {
   font-size: 12px;
   color: #C0392B;
 }
+
+@media (max-width: 640px) {
+  body.standalone header {
+    padding: 20px 16px 0 !important;
+  }
+  body.standalone header nav a:first-child {
+    display: none !important;
+  }
+  body.standalone header nav a:last-child {
+    padding: 7px 13px !important;
+    font-size: 13px !important;
+  }
+
+  .natural-try {
+    padding: 30px 16px 50px;
+  }
+
+  .natural-try h1 {
+    font-size: 30px;
+    margin-bottom: 14px;
+  }
+
+  .natural-try > p {
+    font-size: 16px;
+    margin-bottom: 28px;
+  }
+
+  .natural-step {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .natural-copy-btn {
+    margin-left: 0;
+  }
+
+  .pp-panel.proof-tree-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
