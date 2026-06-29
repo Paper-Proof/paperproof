@@ -1,10 +1,13 @@
 // Very simple server for paperproof.xyz
+try { process.loadEnvFile(new URL('.env', import.meta.url).pathname); } catch {}
 import express from 'express';
 import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
+import { Readable } from 'stream';
+import { llmInstructions, fewShotExamples } from './src/services/llmInstructions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -146,6 +149,107 @@ app.get('/site.webmanifest', (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Streaming image → text extraction (OpenAI gpt-4o, vision-capable)
+app.post('/api/image-to-text-stream', async (req, res) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'OPENAI_API_KEY not configured on server' });
+
+  const { imageDataUrl, additionalText } = req.body;
+  if (!imageDataUrl) return res.status(400).json({ error: 'imageDataUrl is required' });
+
+  const userContent = [
+    { type: 'image_url', image_url: { url: imageDataUrl } },
+    { type: 'text', text:
+      `
+        This is an image with a proof of a mathematical theorem. Please turn this image into text. For mathematical symbols, use unicode.
+        Write
+        STATEMENT: ...
+        PROOF: ...
+        Preserve all mathematical notation exactly. Return only the theorem statement and proof text, no commentary please.
+        ${additionalText ? "Additional context from the user:" + additionalText : ""}
+      `
+    }
+  ];
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        stream: true,
+        messages: [{ role: 'user', content: userContent }],
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    Readable.fromWeb(response.body).pipe(res);
+  } catch (error) {
+    console.error('image-to-text-stream error:', error);
+    if (!res.headersSent) res.status(500).json({ error: 'Failed to contact OpenAI' });
+  }
+});
+
+function buildMessages(proof, previousAttempt) {
+  const messages = [
+    { role: 'system', content: llmInstructions },
+  ];
+  for (const example of fewShotExamples) {
+    messages.push({ role: 'user', content: example.text });
+    messages.push({ role: 'assistant', content: example.json });
+  }
+  messages.push({ role: 'user', content: proof });
+  if (previousAttempt?.json && previousAttempt?.error) {
+    messages.push({ role: 'assistant', content: previousAttempt.json });
+    messages.push({ role: 'user', content: `The JSON you produced has this error: ${previousAttempt.error}\n\nPlease fix it and return the corrected JSON only.` });
+  }
+  return messages;
+}
+
+// Pipes DeepSeek SSE directly to the client
+app.post('/api/natural-to-proof-stream', async (req, res) => {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'DEEPSEEK_API_KEY not configured on server' });
+
+  const { proof, previousAttempt } = req.body;
+  if (!proof?.trim()) return res.status(400).json({ error: 'proof is required' });
+
+  const messages = buildMessages(proof, previousAttempt);
+
+  try {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'deepseek-v4-flash',
+        thinking: { type: 'enabled' },
+        stream: true,
+        messages,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    Readable.fromWeb(response.body).pipe(res);
+  } catch (error) {
+    console.error('natural-to-proof-stream error:', error);
+    if (!res.headersSent) res.status(500).json({ error: 'Failed to contact DeepSeek' });
+  }
 });
 
 // LaTeX conversion proxy — keeps the OpenAI key server-side

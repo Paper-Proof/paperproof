@@ -23,3 +23,6 @@ paperproof.xyz/snapshots/
 *.tar.gz
 
 paperproof.xyz/tmp/
+
+# Local secrets
+paperproof.xyz/.env

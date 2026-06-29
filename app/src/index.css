@@ -184,6 +184,9 @@ body{
 /*______________________ ARROWS ______________________*/
 .proof-tree{
   position: relative;
+  background: #FFFDF7 !important;
+  border: 1px solid #EFE8D6 !important;
+  border-radius: 14px !important;
 }
 .perfect-arrow{
   z-index: 0;
@@ -208,10 +211,10 @@ body{
 /*______________________ PROOF-TREE: colors ______________________*/
 /* This would be really easy to achieve with opacities, however various nodes goalUsernames must *cover* tactic borders to make them look good, which means they must be solid-color. */
 .box{
-  --color: color-mix(in srgb, rgba(132, 147, 171), white calc(90% - var(--level) * 7%));
-  background: var(--color);
-  /* This is necessary because otherwise the border-right will get swallowed up a bit (becomes too thin) in some tactic nodes */
-  .tactic{ background-color: var(--color); }
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23583b1624' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+#box-1 {
+  background-image: none;
 }
 .box > .goal-username{
   background: color-mix(in srgb, rgba(132, 147, 171), white calc(80% - var(--level) * 7%));
@@ -288,7 +291,7 @@ body{
   padding-top: 7px; padding-bottom: 7px;
 
   color: #72787c;
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23583b1624' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   &.-position-matches{
     font-weight: bold;
     color: #363d59;
@@ -318,7 +321,7 @@ body{
     color: #363d59;
     letter-spacing: 2px;
     background: rgba(82, 95, 98, 0.049);
-    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23c7ccce' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23583b1624' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   &.-sorried, &.-success, &.-ellipsis{
     /* increase padding by 1px, looks better this way */
@@ -392,23 +395,24 @@ table.hypothesis-table + .goals{
 }
 
 .proof-tree header, .proof-tree footer{
-  background: rgb(230, 233, 238);
+  background: #F3F1E8;
   .title{
     text-transform: uppercase;
     font-size: 10px;
+    letter-spacing: 0.2em;
     padding: 4px 10px;
-
     width: 100%;
     text-align: center;
-    color: rgb(156, 151, 151);
+    color: rgb(163, 156, 140);
+    font-family: "JetBrains Mono", monospace;
   }
 }
 /* All of this header logic is just to make the paddings look pretty */
 .proof-tree header{
   padding-left: 10px;
   padding-right: 10px;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
   width: 0;
   min-width: 100%;
 
@@ -424,7 +428,7 @@ table.hypothesis-table + .goals{
       position: absolute;
       top: 100%; left: 0;
       width: 100%;
-      background: rgb(230, 233, 238);
+      background: #F3F1E8;
     }
     &+.box-insides{
       padding-top: 0;
@@ -465,8 +469,8 @@ table.hypothesis-table + .goals{
   }
 }
 .proof-tree footer{
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
 }
 
 .hypothesis-table{

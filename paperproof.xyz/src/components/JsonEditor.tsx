@@ -111,7 +111,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
         beforeMount={handleEditorWillMount}
         onMount={(editor) => { editorRef.current = editor; }}
         onValidate={handleValidation}
-        theme="solarized-light"
+        theme="paperproof"
         options={{
           minimap: { enabled: false },
           fontSize: 12,
