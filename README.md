@@ -8,14 +8,14 @@ A new proof interface for Lean 4.
   <img width="900" alt="Paperproof vscode" src="https://github.com/user-attachments/assets/08c4438a-c940-4dc4-92e8-cd82be4af32a">
 </div>
 
-<div align="center">
+<!-- <div align="center">
   <b>Try Paperproof online</b><br/>
 
   <a href="https://codespaces.new/Paper-Proof/paperproof">
     <img width="200" src="https://github.com/codespaces/badge.svg"/>
   </a>
     
-</div>
+</div> -->
 <br/>
 
 Paperproof will inspect how the hypotheses and goals were changing throughout the Lean 4 proof, and display this history - making it equivalent to how we think of a mathematical proof on paper.
