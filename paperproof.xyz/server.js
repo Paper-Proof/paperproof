@@ -1,5 +1,12 @@
 // Very simple server for paperproof.xyz
-try { process.loadEnvFile(new URL('.env', import.meta.url).pathname); } catch {}
+try {
+  const { readFileSync } = await import('fs');
+  const envPath = new URL('.env', import.meta.url).pathname;
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+    const m = line.match(/^([^#=]+)=(.*)$/);
+    if (m) process.env[m[1].trim()] = m[2].trim();
+  }
+} catch {}
 import express from 'express';
 import crypto from 'crypto';
 import { promises as fs } from 'fs';
