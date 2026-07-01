@@ -23,11 +23,11 @@ const step = {
   properties: {
     tactic: { type: "string" },
     dependsOn: { type: "array", items: { type: "string" } },
-    newHyps: { type: "array", minItems: 1, items: { $ref: "#/definitions/hyp" } },
+    newHyps: { type: "array", minItems: 1, items: { $ref: "#/$defs/hyp" } },
     newGoal: { type: "string" },
     closed: { type: "boolean" },
-    newSubgoals: { type: "array", minItems: 1, items: { $ref: "#/definitions/box" } },
-    haveBoxes: { type: "array", minItems: 1, items: { $ref: "#/definitions/box" } },
+    newSubgoals: { type: "array", minItems: 1, items: { $ref: "#/$defs/box" } },
+    haveBoxes: { type: "array", minItems: 1, items: { $ref: "#/$defs/box" } },
   },
 };
 
@@ -37,8 +37,8 @@ const box = {
   additionalProperties: false,
   properties: {
     goal: { type: "string" },
-    newHyps: { type: "array", items: { $ref: "#/definitions/hyp" } },
-    tactics: { type: "array", items: { $ref: "#/definitions/step" } },
+    newHyps: { type: "array", items: { $ref: "#/$defs/hyp" } },
+    tactics: { type: "array", items: { $ref: "#/$defs/step" } },
   },
 };
 
@@ -49,12 +49,12 @@ const rootBox = {
   properties: {
     goal: { type: "string" },
     format: { type: "string", enum: ["unicode", "latex"] },
-    newHyps: { type: "array", items: { $ref: "#/definitions/hyp" } },
-    tactics: { type: "array", items: { $ref: "#/definitions/step" } },
+    newHyps: { type: "array", items: { $ref: "#/$defs/hyp" } },
+    tactics: { type: "array", items: { $ref: "#/$defs/step" } },
   },
 };
 
 export const proofSchema = {
-  $ref: "#/definitions/rootBox",
-  definitions: { hyp, step, box, rootBox },
+  $ref: "#/$defs/rootBox",
+  $defs: { hyp, step, box, rootBox },
 };
