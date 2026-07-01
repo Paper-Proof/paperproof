@@ -1,60 +1,54 @@
-const hyp = {
-  type: "object",
-  required: ["name", "type"],
-  additionalProperties: false,
-  properties: {
-    name: { type: "string" },
-    type: { type: "string" },
-    from: { type: "string" },
-  },
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+const NaturalHypSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  from: z.string().optional(),
+});
+
+// NaturalBox and NaturalStep are mutually recursive — z.lazy() breaks the cycle.
+type NaturalBox = {
+  goal: string;
+  newHyps: z.infer<typeof NaturalHypSchema>[];
+  tactics: NaturalStep[];
 };
 
-const step = {
-  type: "object",
-  required: ["tactic"],
-  additionalProperties: false,
-  anyOf: [
-    { required: ["newHyps"] },
-    { required: ["newGoal"] },
-    { required: ["closed"] },
-    { required: ["newSubgoals"] },
-    { required: ["haveBoxes"] },
-  ],
-  properties: {
-    tactic: { type: "string" },
-    dependsOn: { type: "array", items: { type: "string" } },
-    newHyps: { type: "array", minItems: 1, items: { $ref: "#/$defs/hyp" } },
-    newGoal: { type: "string" },
-    closed: { type: "boolean" },
-    newSubgoals: { type: "array", minItems: 1, items: { $ref: "#/$defs/box" } },
-    haveBoxes: { type: "array", minItems: 1, items: { $ref: "#/$defs/box" } },
-  },
+type NaturalStep = {
+  tactic: string;
+  dependsOn?: string[];
+  newHyps?: z.infer<typeof NaturalHypSchema>[];
+  newGoal?: string;
+  closed?: true;
+  newSubgoals?: NaturalBox[];
+  haveBoxes?: NaturalBox[];
 };
 
-const box = {
-  type: "object",
-  required: ["goal", "tactics"],
-  additionalProperties: false,
-  properties: {
-    goal: { type: "string" },
-    newHyps: { type: "array", items: { $ref: "#/$defs/hyp" } },
-    tactics: { type: "array", items: { $ref: "#/$defs/step" } },
-  },
-};
+const NaturalBoxSchema: z.ZodType<NaturalBox> = z.lazy(() =>
+  z.object({
+    goal: z.string(),
+    newHyps: z.array(NaturalHypSchema),
+    tactics: z.array(NaturalStepSchema),
+  })
+);
 
-const rootBox = {
-  type: "object",
-  required: ["goal", "tactics", "format"],
-  additionalProperties: false,
-  properties: {
-    goal: { type: "string" },
-    format: { type: "string", enum: ["unicode", "latex"] },
-    newHyps: { type: "array", items: { $ref: "#/$defs/hyp" } },
-    tactics: { type: "array", items: { $ref: "#/$defs/step" } },
-  },
-};
+const NaturalStepSchema: z.ZodType<NaturalStep> = z.lazy(() =>
+  z.object({
+    tactic: z.string(),
+    dependsOn: z.array(z.string()).optional(),
+    newHyps: z.array(NaturalHypSchema).optional(),
+    newGoal: z.string().optional(),
+    closed: z.literal(true).optional(),
+    newSubgoals: z.array(NaturalBoxSchema).optional(),
+    haveBoxes: z.array(NaturalBoxSchema).optional(),
+  })
+);
 
-export const proofSchema = {
-  $ref: "#/$defs/rootBox",
-  $defs: { hyp, step, box, rootBox },
-};
+export const NaturalProofTreeSchema = z.object({
+  format: z.enum(["unicode", "latex"]),
+  goal: z.string(),
+  newHyps: z.array(NaturalHypSchema),
+  tactics: z.array(NaturalStepSchema),
+});
+
+export const proofJsonSchema = zodToJsonSchema(NaturalProofTreeSchema, { name: "NaturalProofTree" });

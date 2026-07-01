@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Editor, useMonaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import { proofSchema } from '../services/proofSchema';
+import { proofJsonSchema } from '../services/proofSchema';
 
 interface JsonEditorProps {
   value: string;
@@ -36,7 +36,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
   const handleEditorWillMount = (monaco: any) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
-      schemas: [{ uri: 'http://myschema/userProofTree', fileMatch: ['*'], schema: proofSchema }],
+      schemas: [{ uri: 'http://myschema/userProofTree', fileMatch: ['*'], schema: proofJsonSchema }],
     });
   };
 

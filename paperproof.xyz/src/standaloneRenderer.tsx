@@ -11,8 +11,7 @@ import PerfectArrow from "@app/components/PerfectArrow";
 import JsonEditor from "./components/JsonEditor";
 import { collectTexts } from "@app/services/convertToLatex";
 import { llmInstructions, fewShotExamples } from "./services/llmInstructions";
-import { proofSchema } from "./services/proofSchema";
-import Ajv from "ajv";
+import { NaturalProofTreeSchema } from "./services/proofSchema";
 import { StandaloneGlobalContext, useStandaloneGlobalContext } from "./proofContext";
 
 import BoxEl from "@app/components/ProofTree/components/BoxEl";
@@ -60,17 +59,11 @@ const streamSSE = async (
   }
 };
 
-const ajv = new Ajv({ allErrors: true });
-const validateProof = ajv.compile(proofSchema);
-
 function tryValidateJson(jsonValue: string): string | null {
   if (!jsonValue.trim()) return 'Empty JSON';
   try {
-    const tree = JSON.parse(jsonValue);
-    if (!validateProof(tree)) {
-      const err = validateProof.errors![0];
-      return `${err.instancePath || '(root)'} ${err.message}`;
-    }
+    const result = NaturalProofTreeSchema.safeParse(JSON.parse(jsonValue));
+    if (!result.success) return result.error.errors[0]?.message ?? 'Invalid JSON';
     return null;
   } catch (err) {
     return err instanceof Error ? err.message : 'Unknown error';
@@ -168,25 +161,6 @@ function StandaloneRenderer() {
     return { ...DEFAULT_LATEX_SETTINGS, isActive: true, map };
   };
 
-  const assertStepsDoSomething = (box: any) => {
-    for (const step of box.tactics ?? []) {
-      const hasDelta =
-        (Array.isArray(step.newHyps) && step.newHyps.length > 0) ||
-        typeof step.newGoal === "string" ||
-        step.closed === true ||
-        (Array.isArray(step.newSubgoals) && step.newSubgoals.length > 0) ||
-        (Array.isArray(step.haveBoxes) && step.haveBoxes.length > 0);
-      if (!hasDelta) {
-        throw new Error(
-          `Step "${step.tactic}" does nothing. Every step needs at least one of: ` +
-          `newHyps, newGoal, closed, newSubgoals, haveBoxes.`
-        );
-      }
-      (step.newSubgoals ?? []).forEach(assertStepsDoSomething);
-      (step.haveBoxes ?? []).forEach(assertStepsDoSomething);
-    }
-  };
-
   const validateAndCompile = (jsonValue: string) => {
     if (!jsonValue.trim()) {
       setConvertedProofTree(null);
@@ -196,21 +170,9 @@ function StandaloneRenderer() {
     }
 
     try {
-      const naturalProofTree: NaturalProofTree = JSON.parse(jsonValue);
-
-      if (Array.isArray(naturalProofTree) || typeof naturalProofTree !== 'object' || naturalProofTree === null) {
-        throw new Error('Root must be a box object (with "goal", "newHyps", "tactics")');
-      }
-      if (typeof naturalProofTree.goal !== 'string') {
-        throw new Error('Box is missing a "goal" string');
-      }
-      if (!Array.isArray(naturalProofTree.tactics)) {
-        throw new Error('Box is missing a "tactics" array');
-      }
-      if (naturalProofTree.format !== "unicode" && naturalProofTree.format !== "latex") {
-        throw new Error('Root box must declare "format": "unicode" or "latex"');
-      }
-      assertStepsDoSomething(naturalProofTree);
+      const parsed = NaturalProofTreeSchema.safeParse(JSON.parse(jsonValue));
+      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message ?? 'Invalid JSON');
+      const naturalProofTree: NaturalProofTree = parsed.data as NaturalProofTree;
 
       const converted: ConvertedProofTree = naturalToConverted(naturalProofTree);
       converted.boxes.forEach((box) => {
