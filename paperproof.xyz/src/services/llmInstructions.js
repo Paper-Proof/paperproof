@@ -69,7 +69,24 @@ ___________
 
 "dependsOn" on a tactic means: this tactic requires these already-established hypotheses as inputs to justify the step. These hypotheses stay in scope - they may be cited again later. Use it when a tactic combines two or more independent facts, or when it invokes a specific named fact without consuming it.
 
-Practical test: if you're deriving a new hypothesis from one parent and the parent is "done," use "from". If a tactic is explicitly invoking one or more named hypotheses that remain relevant after this step, use "dependsOn".`;
+Practical test: if you're deriving a new hypothesis from one parent and the parent is "done," use "from". If a tactic is explicitly invoking one or more named hypotheses that remain relevant after this step, use "dependsOn".
+
+___________
+
+LATEX FORMAT
+
+Use "format": "unicode" by default. Only switch to "format": "latex" if the user explicitly asks for it.
+
+In LaTeX mode, goals and hypothesis types are rendered as full display-mode KaTeX - write them as raw LaTeX with no surrounding $ delimiters:
+
+  "goal": "\\\\max\\\\{c^\\\\top x : Ax \\\\leq b\\\\} \\\\leq \\\\min\\\\{y^\\\\top b : y^\\\\top A = c^\\\\top,\\\\ y \\\\geq 0\\\\}"
+  "type": "c^\\\\top x = y^\\\\top Ax"
+
+Tactic strings are prose with inline math in $...$ delimiters - text outside $ is plain, text inside $ is rendered as KaTeX:
+
+  "tactic": "rewrite $c^\\\\top x$ as $y^\\\\top Ax$, using $y^\\\\top A = c^\\\\top$"
+
+Because this is JSON, every backslash must be doubled: \\leq becomes \\\\leq, \\top becomes \\\\top, \\frac{a}{b} becomes \\\\frac{a}{b}, etc.`;
 
 export const fewShotExamples = [
   {
