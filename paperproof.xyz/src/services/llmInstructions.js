@@ -33,37 +33,35 @@ ___________
 
 FORMAT INSTRUCTIONS
 
-// Root object
-{
-  "format": "unicode",
-  "goal": "...",          // the statement to prove
-  "newHyps": [...],       // hypotheses given before any tactics
-  "tactics": [...]
+type Root = {
+  format: "unicode" | "latex";
+  goal: string;
+  newHyps: Hyp[];
+  tactics: Tactic[];
 }
 
-// Tactic object
-{
-  "tactic": "...",
-  "newHyps": [...],              // (optional) new hypotheses produced by this step
-  "newGoal": "...",              // (optional) updated goal - use when goal changes but does NOT split
-  "newSubgoals": [...],          // (optional) use when this step splits the goal into multiple goals
-  "dependsOn": ["name", ...],    // (optional) see below
-  "closed": true                 // (optional) this step closes the current goal
+type Hyp = {
+  name: string;
+  type: string;
+  from?: string;           // (optional) see below
 }
 
-// Subgoal object (inside newSubgoals)
-{
-  "goal": "...",
-  "newHyps": [...],       // hypotheses introduced at the start of this subgoal
-  "tactics": [...]
+type Tactic = {
+  tactic: string;
+  newHyps?: Hyp[];         // new hypotheses produced by this step
+  newGoal?: string;        // updated goal - use when goal changes but does NOT split
+  newSubgoals?: Subgoal[]; // use when this step splits the goal into multiple subgoals
+  dependsOn?: string[];    // (optional) see below
+  closed?: true;           // this step closes the current goal
 }
 
-// Hypothesis object
-{
-  "name": "...",
-  "type": "...",
-  "from": "..."           // (optional) see below
+type Subgoal = {
+  goal: string;
+  newHyps: Hyp[];
+  tactics: Tactic[];
 }
+
+Each Tactic must have at least one of: newHyps, newGoal, newSubgoals, closed.
 
 ___________
 

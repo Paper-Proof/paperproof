@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Editor, useMonaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { proofSchema } from '../services/proofSchema';
 
 interface JsonEditorProps {
   value: string;
@@ -35,63 +36,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
   const handleEditorWillMount = (monaco: any) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
-      schemas: [{
-        uri: 'http://myschema/userProofTree',
-        fileMatch: ['*'],
-        schema: {
-          $ref: "#/definitions/rootBox",
-          definitions: {
-            hyp: {
-              type: "object",
-              required: ["name", "type"],
-              properties: {
-                name: { type: "string" },
-                type: { type: "string" },
-                from: { type: "string" }
-              }
-            },
-            step: {
-              type: "object",
-              required: ["tactic"],
-              anyOf: [
-                { required: ["newHyps"] },
-                { required: ["newGoal"] },
-                { required: ["closed"] },
-                { required: ["newSubgoals"] },
-                { required: ["haveBoxes"] }
-              ],
-              properties: {
-                tactic: { type: "string" },
-                dependsOn: { type: "array", items: { type: "string" } },
-                newHyps: { type: "array", minItems: 1, items: { $ref: "#/definitions/hyp" } },
-                newGoal: { type: "string" },
-                closed: { type: "boolean" },
-                newSubgoals: { type: "array", minItems: 1, items: { $ref: "#/definitions/box" } },
-                haveBoxes: { type: "array", minItems: 1, items: { $ref: "#/definitions/box" } }
-              }
-            },
-            box: {
-              type: "object",
-              required: ["goal", "tactics"],
-              properties: {
-                goal: { type: "string" },
-                newHyps: { type: "array", items: { $ref: "#/definitions/hyp" } },
-                tactics: { type: "array", items: { $ref: "#/definitions/step" } }
-              }
-            },
-            rootBox: {
-              type: "object",
-              required: ["goal", "tactics", "format"],
-              properties: {
-                goal: { type: "string" },
-                format: { type: "string", enum: ["unicode", "latex"] },
-                newHyps: { type: "array", items: { $ref: "#/definitions/hyp" } },
-                tactics: { type: "array", items: { $ref: "#/definitions/step" } }
-              }
-            }
-          }
-        }
-      }]
+      schemas: [{ uri: 'http://myschema/userProofTree', fileMatch: ['*'], schema: proofSchema }],
     });
   };
 

@@ -11,6 +11,8 @@ import PerfectArrow from "@app/components/PerfectArrow";
 import JsonEditor from "./components/JsonEditor";
 import { collectTexts } from "@app/services/convertToLatex";
 import { llmInstructions, fewShotExamples } from "./services/llmInstructions";
+import { proofSchema } from "./services/proofSchema";
+import Ajv from "ajv";
 import { StandaloneGlobalContext, useStandaloneGlobalContext } from "./proofContext";
 
 import BoxEl from "@app/components/ProofTree/components/BoxEl";
@@ -58,45 +60,17 @@ const streamSSE = async (
   }
 };
 
+const ajv = new Ajv({ allErrors: true });
+const validateProof = ajv.compile(proofSchema);
+
 function tryValidateJson(jsonValue: string): string | null {
   if (!jsonValue.trim()) return 'Empty JSON';
   try {
     const tree = JSON.parse(jsonValue);
-    if (Array.isArray(tree) || typeof tree !== 'object' || tree === null)
-      throw new Error('Root must be a box object (with "goal", "newHyps", "tactics")');
-    if (typeof tree.goal !== 'string')
-      throw new Error('Box is missing a "goal" string');
-    if (!Array.isArray(tree.tactics))
-      throw new Error('Box is missing a "tactics" array');
-    if (tree.format !== 'unicode' && tree.format !== 'latex')
-      throw new Error('Root box must declare "format": "unicode" or "latex"');
-    const checkHyps = (hyps: any[], context: string) => {
-      for (const hyp of hyps) {
-        if (typeof hyp.name !== 'string' || !hyp.name)
-          throw new Error(`A hypothesis in ${context} is missing a "name" string`);
-        if (typeof hyp.type !== 'string' || !hyp.type)
-          throw new Error(`Hypothesis "${hyp.name}" in ${context} is missing a "type" string`);
-      }
-    };
-    const check = (box: any) => {
-      checkHyps(box.newHyps ?? [], `box "${box.goal}"`);
-      for (const step of box.tactics ?? []) {
-        const hasDelta =
-          (Array.isArray(step.newHyps) && step.newHyps.length > 0) ||
-          typeof step.newGoal === 'string' ||
-          step.closed === true ||
-          (Array.isArray(step.newSubgoals) && step.newSubgoals.length > 0) ||
-          (Array.isArray(step.haveBoxes) && step.haveBoxes.length > 0);
-        if (!hasDelta)
-          throw new Error(
-            `Step "${step.tactic}" does nothing - every step needs at least one of: newHyps, newGoal, closed, newSubgoals, haveBoxes.`
-          );
-        checkHyps(step.newHyps ?? [], `step "${step.tactic}"`);
-        (step.newSubgoals ?? []).forEach(check);
-        (step.haveBoxes ?? []).forEach(check);
-      }
-    };
-    check(tree);
+    if (!validateProof(tree)) {
+      const err = validateProof.errors![0];
+      return `${err.instancePath || '(root)'} ${err.message}`;
+    }
     return null;
   } catch (err) {
     return err instanceof Error ? err.message : 'Unknown error';
