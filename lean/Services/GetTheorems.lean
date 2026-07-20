@@ -1,12 +1,14 @@
-import Lean
+module
 
-import Services.GetTacticSubstring
+public import Lean
+
+public import Services.GetTacticSubstring
 
 open Lean Elab Server
 
 namespace Paperproof.Services
 
-structure ArgumentInfo where
+public structure ArgumentInfo where
   name : String
   type : String
   deriving Inhabited, FromJson, ToJson
@@ -23,7 +25,7 @@ instance : BEq DeclarationInfo where
 instance : Hashable DeclarationInfo where
   hash a := hash a.name
 
-structure TheoremSignature where
+public structure TheoremSignature where
   name              : String
   instanceArgs      : List ArgumentInfo := [] -- []
   implicitArgs      : List ArgumentInfo := [] -- {}
@@ -170,7 +172,7 @@ def findTheoremsLikeHover (tree : Elab.InfoTree) (tacticStartPos tacticStopPos :
   pure theoremSignatures
 
 
-def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : MetaM (List TheoremSignature) := do
+public def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : ContextInfo) : MetaM (List TheoremSignature) := do
   let some goalMVar := tacticInfo.goalsBefore.head?
     | throwError "noGoals"
   let some goalDecl := ctx.mctx.findDecl? goalMVar

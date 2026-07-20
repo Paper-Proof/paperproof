@@ -1,8 +1,10 @@
-import Lean
-import Lean.Meta.Basic
-import Lean.Elab.Tactic
+module
 
-import Services.GetTacticSubstring
+public import Lean
+public import Lean.Meta.Basic
+public import Lean.Elab.Tactic
+
+public import Services.GetTacticSubstring
 
 open Lean Elab Meta Server RequestM
 
@@ -55,7 +57,7 @@ def isTacticRwRule (tacticInfo: TacticInfo) : Bool :=
   let string : String := tacticInfo.stx.formatStx.pretty
   string.startsWith "[(Tactic.rwRule"
 
-def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos.Raw) : RequestM String := do
+public def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos.Raw) : RequestM String := do
   if (isTacticRwRule tacticInfo) then
     let .some tacticSubstring := getTacticSubstring tacticInfo | return ""
     let closestRwTacticName := getClosestRw text hoverPos

@@ -1,10 +1,12 @@
-import Lean
+module
+
+public import Lean
 
 open Lean Server RequestM
 
 namespace Paperproof.Services
 
-def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Position) : RequestM Unit := do
+public def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Position) : RequestM Unit := do
 
   -- old: snap.beginPos
   if let some beginPosition := snap.stx.getPos? then

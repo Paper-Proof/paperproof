@@ -1,36 +1,38 @@
-import Lean
-import Lean.Meta.Basic
-import Lean.Elab.Tactic
+module
 
-import Services.BetterParser
-import Services.CheckIfUserIsStillTyping
-import Services.GoalsAt
-import Services.PrettifyRwTactic
-import Services.ShouldRenderSingleSequent
+public import Lean
+public import Lean.Meta.Basic
+public import Lean.Elab.Tactic
+
+public meta import Services.BetterParser
+public meta import Services.CheckIfUserIsStillTyping
+public meta import Services.GoalsAt
+public meta import Services.PrettifyRwTactic
+public meta import Services.ShouldRenderSingleSequent
 
 open Lean Elab Meta Server RequestM
 
 namespace Paperproof
 
-def VERSION := 4
+meta def VERSION := 4
 
-inductive Mode where
+public meta inductive Mode where
   | single_tactic
   | tree
   deriving FromJson, ToJson
 
-structure InputParams where
+public meta structure InputParams where
   pos : Lsp.Position
   mode: Mode
   deriving FromJson, ToJson
 
-structure OutputParams where
+public meta structure OutputParams where
   steps  : List Paperproof.Services.ProofStep
   version: Nat
   deriving Inhabited, FromJson, ToJson
 
 @[server_rpc_method]
-def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams) := do
+public meta def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams) := do
   withWaitFindSnapAtPos params.pos fun snap => do
     let fileMap : FileMap := (← readDoc).meta.text
     Paperproof.Services.checkIfUserIsStillTyping snap params.pos

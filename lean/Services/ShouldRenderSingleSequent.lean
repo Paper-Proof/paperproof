@@ -1,10 +1,12 @@
-import Lean
+module
+
+public import Lean
 
 open Lean Elab Server
 
 namespace Paperproof.Services
 
-def shouldRenderSingleSequent (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos.Raw) : RequestM Bool := do
+public def shouldRenderSingleSequent (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos.Raw) : RequestM Bool := do
   let .some tacticSubstring := tacticInfo.stx.getSubstring? | throwThe RequestError ⟨.invalidParams, "couldntFindTacticSubstring"⟩
 
   let file : String := Lean.FileMap.source text

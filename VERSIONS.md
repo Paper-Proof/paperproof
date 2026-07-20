@@ -25,8 +25,10 @@ To determine what Paperproof version you need, do the following:
 
 | Lean version (min) | Lean version (max) | Git tag | VSCode Extension |
 |---|---|---|---|
-| **v4.27.0** | **v4.29.0** | `main` | `v2.7.0` |
+| **v4.27.0** | **v4.32.0** | `main` | `v2.7.0` |
 | needs testing | **v4.25.0** | `v2.7.0` | `v2.7.0` |
+
+Since `main`, the Paperproof Lean library uses Lean's **module system** (`module` / `public import`). This is what lets it be imported by projects that themselves use the module system (e.g. Mathlib, Carleson) — a `module` file cannot import a non-`module` library. The module-ized library is still importable by legacy (non-`module`) projects too, so no user action is needed either way.
 | needs testing | **v4.12.0** | `v2.0.0` | `v2.0.0` |
 | needs testing | **v4.0.0** | `v1.0.0` | `v1.0.0` |
 

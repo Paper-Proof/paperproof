@@ -1,15 +1,17 @@
-import Lean
-import Lean.Meta.Basic
-import Lean.Meta.CollectMVars
+module
 
-import Services.GetTheorems
-import Services.GetTacticSubstring
+public import Lean
+public import Lean.Meta.Basic
+public import Lean.Meta.CollectMVars
+
+public import Services.GetTheorems
+public import Services.GetTacticSubstring
 
 open Lean Elab Server
 
 namespace Paperproof.Services
 
-structure Hypothesis where
+public structure Hypothesis where
   username : String
   type : String
   value : Option String
@@ -18,7 +20,7 @@ structure Hypothesis where
   isProof : String
   deriving Inhabited, ToJson, FromJson
 
-structure GoalInfo where
+public structure GoalInfo where
   username : String
   type : String
   hyps : List Hypothesis
@@ -26,18 +28,18 @@ structure GoalInfo where
   id : MVarId
   deriving Inhabited, ToJson, FromJson
 
-instance : BEq GoalInfo where
+public instance : BEq GoalInfo where
   beq g1 g2 := g1.id == g2.id
 
-instance : Hashable GoalInfo where
+public instance : Hashable GoalInfo where
   hash g := hash g.id
 
-structure ProofStepPosition where
+public structure ProofStepPosition where
   start: Lsp.Position
   stop: Lsp.Position
   deriving Inhabited, ToJson, FromJson
 
-structure ProofStep where
+public structure ProofStep where
   tacticString    : String
   goalBefore      : GoalInfo
   goalsAfter      : List GoalInfo
@@ -121,7 +123,7 @@ def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (Li
       return none
     return some id
 
-structure Result where
+public structure Result where
   steps : List ProofStep
   allGoals : Std.HashSet GoalInfo
 
