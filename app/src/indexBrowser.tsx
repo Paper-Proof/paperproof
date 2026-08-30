@@ -233,8 +233,6 @@ function Main() {
         <div className={`
           proof-tree
           ${settings.isSingleTacticMode ? '-isSingleTacticModeON' : ''}
-          ${settings.isCompactMode     ? '-isCompactModeON'     : ''}
-          ${settings.isCompactTactics  ? '-isCompactTacticsON'  : '-isCompactTacticsOFF'}
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
           ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}

@@ -11,7 +11,6 @@ interface TableCellProps {
   rowIndex: number;
   columnIndex: number;
   tabledCells: TabledCell[];
-  shouldTacticHaveSelfRespect: boolean;
 }
 const TableCell = (props: TableCellProps) => {
   const tabledCellsOnThisRow = props.tabledCells.filter((tabledHyp) => tabledHyp.row === props.rowIndex);
@@ -26,7 +25,7 @@ const TableCell = (props: TableCellProps) => {
     return <td colSpan={colSpan}>
       {'hypNode' in cell ?
         <HypothesisNode hypNode={cell.hypNode}/> :
-        <TacticNodeForHypothesis cell={cell} colSpan={colSpan} shouldTacticHaveSelfRespect={props.shouldTacticHaveSelfRespect}/>
+        <TacticNodeForHypothesis cell={cell} colSpan={colSpan}/>
       }
     </td>;
   } else {

@@ -382,8 +382,6 @@ function StandaloneRenderer() {
           setDeletedHypothesisNames,
           settings: {
             isSingleTacticMode: false,
-            isCompactMode     : false,
-            isCompactTactics  : false,
             isHiddenGoalNames : false,
             isGreenHypotheses : false,
             areHypsHighlighted: false,
@@ -404,7 +402,7 @@ function StandaloneRenderer() {
           setLatexSettings,
         }}
       >
-        <div className={`proof-tree -isCompactTacticsOFF -isGreenHypothesesOFF${latexSettings.isActive ? ' -isLatexModeON' : ''}`}>
+        <div className={`proof-tree -isGreenHypothesesOFF${latexSettings.isActive ? ' -isLatexModeON' : ''}`}>
           <StandaloneProofTree />
           {perfectArrows.map((arrow, index) =>
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>

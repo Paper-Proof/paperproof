@@ -27,7 +27,6 @@ const Table = (props: TableProps) => {
               <TableCell
                 key={columnIndex}
                 columnIndex={columnIndex}
-                shouldTacticHaveSelfRespect={columns.length === 1 && rows.length === 2}
                 rowIndex={rowIndex}
                 tabledCells={tabledCells}
               />

@@ -63,11 +63,9 @@ theorem combs (p q r : Prop) (hp : p)
 --------------------------- OPTIONS ---------------------------
 
 -- 1. "Zoom in", "Zoom out"
--- 2. "Compact Horizontally"
--- 3. "Compact Tactics" (won't do anything here, but useful for mathlib)
--- 4. "Hide Goal Names"
--- 5. "Always Green Hypotheses"
--- 6. "Collapse box"
+-- 2. "Hide Goal Names"
+-- 3. "Always Green Hypotheses"
+-- 4. "Collapse box"
 theorem append_assoc {α : Type} (a b c : List α) : (a ++ b) ++ c = a ++ (b ++ c) := by
   induction a with
   | nil => simp

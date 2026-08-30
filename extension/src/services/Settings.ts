@@ -33,8 +33,6 @@ const updateSettingsFromExtension = (event: vscode.ConfigurationChangeEvent, sha
     const config = vscode.workspace.getConfiguration('paperproof');
     const settings = {
       isSingleTacticMode: config.get('isSingleTacticMode'),
-      isCompactMode     : config.get('isCompactMode'),
-      isCompactTactics  : config.get('isCompactTactics'),
       isHiddenGoalNames : config.get('isHiddenGoalNames'),
       isGreenHypotheses : config.get('isGreenHypotheses'),
       areHypsHighlighted: config.get('areHypsHighlighted'),
@@ -51,8 +49,6 @@ const getSettings = () => {
   const config = vscode.workspace.getConfiguration('paperproof');
   return {
     isSingleTacticMode: config.get('isSingleTacticMode'),
-    isCompactMode     : config.get('isCompactMode'),
-    isCompactTactics  : config.get('isCompactTactics'),
     isHiddenGoalNames : config.get('isHiddenGoalNames'),
     isGreenHypotheses : config.get('isGreenHypotheses'),
     areHypsHighlighted: config.get('areHypsHighlighted'),

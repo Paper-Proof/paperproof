@@ -7,7 +7,6 @@ import { useGlobalContext } from "src/indexBrowser";
 interface Props {
   cell: TabledTactic;
   colSpan: number;
-  shouldTacticHaveSelfRespect: boolean
 }
 const TacticNodeForHypothesis = (props: Props) => {
   const tactic = props.cell.tactic;
@@ -81,7 +80,6 @@ const TacticNodeForHypothesis = (props: Props) => {
         className={`
           -hypothesis-tactic
           ${backgroundColor ? '-highlight' : ''}
-          ${props.shouldTacticHaveSelfRespect ? '-with-self-respect' : ''}
         `}
         tactic={props.cell.tactic}
         shardId={props.cell.shardId}

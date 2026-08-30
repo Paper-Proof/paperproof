@@ -41,8 +41,6 @@ export type ProofResponse = ValidProofResponse | ErroryProofResponse;
 
 export interface Settings {
   isSingleTacticMode: boolean;
-  isCompactMode     : boolean;
-  isCompactTactics  : boolean;
   isHiddenGoalNames : boolean;
   isGreenHypotheses : boolean;
   areHypsHighlighted: boolean;

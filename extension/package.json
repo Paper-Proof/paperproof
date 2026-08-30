@@ -58,11 +58,6 @@
             "development"
           ]
         },
-        "paperproof.isCompactMode": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable compact mode for proof display"
-        },
         "paperproof.areHypsHighlighted": {
           "type": "boolean",
           "default": false,
@@ -72,11 +67,6 @@
           "type": "boolean",
           "default": false,
           "description": "Switch between a proof-tree mode and a single-tactic mode"
-        },
-        "paperproof.isCompactTactics": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable compact tactics display"
         },
         "paperproof.isHiddenGoalNames": {
           "type": "boolean",

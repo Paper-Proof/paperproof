@@ -238,23 +238,6 @@ const ContextMenu = (props: Props) => {
         </div>
       </MenuItem>
       
-      {
-        !settings.isSingleTacticMode &&
-        <>
-          <Divider/>
-
-          <MenuItem onClick={handleSettingToggle("isCompactMode")}>
-            <div className="text">Compact horizontally</div>
-            <Switch checked={settings.isCompactMode} size="small"/>
-          </MenuItem>
-
-          <MenuItem onClick={handleSettingToggle("isCompactTactics")}>
-            <div className="text">Compact tactics</div>
-            <Switch checked={settings.isCompactTactics} size="small"/>
-          </MenuItem>
-        </>
-      }
-
       <Divider/>
 
       <MenuItem onClick={handleSettingToggle("isHiddenGoalNames")}>
