@@ -16,7 +16,13 @@
   white-space: nowrap;
 }
 
-body.standalone{
+/*
+  [Claude comment]
+  Outside of vscode - /playground and snapshot pages - there's no editor to
+  supply --vscode-editor-font-family. Snapshots predating the JSON format inline
+  their own copy of this stylesheet, so these rules can't reach them.
+*/
+body.standalone, body.snapshot{
   .proof-tree{
     font-family: monospace; --vscode-editor-font-family: monospace;
     *{ font-family: monospace !important; }
@@ -26,37 +32,6 @@ body.standalone{
   /* Keep the plain top-left document flow - centering is a live-panel thing */
   display: block;
   #root{ margin: 0; display: block; }
-}
-
-body.snapshot{
-  .proof-tree{
-    font-family: monospace; --vscode-editor-font-family: monospace;
-    *{ font-family: monospace !important; }
-  }
-  margin: 0;
-  padding: 20px !important;
-  /* Existing snapshots were rendered top-left - don't reflow them */
-  display: block;
-  #root{ margin: 0; display: block; }
-
-  .proof-tree {
-    transform: none !important;
-  }
-
-  /* Disable interactive elements in snapshot */
-  button{ pointer-events: none; }
-  button.hide-boxes{ display: none; }
-  .MuiMenu-root{ display: none !important; }
-
-  /* A snapshot shouldn't advertise where the cursor happened to be */
-  .tactic.-position-matches{
-    color: #72787c;
-  }
-
-  /* Nothing is hoverable in a snapshot, so draw every arrow up front */
-  .tactic .perfect-arrow{
-    display: block;
-  }
 }
 
 
@@ -107,7 +82,7 @@ body.snapshot{
   /* font-family: var(--vscode-editor-font-family); */
 }
 
-:not(.snapshot) .proof-tree.-we-are-on-ellipsis-tactic{
+.proof-tree.-we-are-on-ellipsis-tactic{
   .hypothesis.-highlighted, .goal.-highlighted{ border-color: rgb(186 22 94 / 80%); }
 }
 

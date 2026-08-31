@@ -64,22 +64,22 @@ async function loadCSS() {
   }
 }
 
-// Generate complete HTML with CSS
-// Generate complete HTML with CSS
-function generateSnapshotHTML(proofTreeHTML, css) {
+// [Claude comment] A frozen outerHTML dump with the stylesheet of the day inlined.
+// Still generated when an old extension posts `proofTreeHTML`.
+function generateLegacySnapshotHTML(proofTreeHTML, css) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snapshot</title>
-  
+
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
-  
+
   <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
   </style>
@@ -97,25 +97,70 @@ function generateSnapshotHTML(proofTreeHTML, css) {
 </html>`;
 }
 
+// [Claude comment] Without this a payload could close the <script> tag and become
+// markup. Escaping "<" prevents it; JSON parsers read < the same as "<".
+function toInlineJSON(value) {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
+// [Claude comment] Built fresh per request, so the bundle it links to is always
+// today's - the stored file holds only the proof.
+function generateSnapshotHTML(payload) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paperproof snapshot</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/dist/snapshotRenderer.css">
+</head>
+<body class="snapshot">
+  <div id="root"></div>
+  <script>window.PAPERPROOF_SNAPSHOT = ${toInlineJSON(payload)};</script>
+  <script src="/dist/snapshotRenderer.js"></script>
+</body>
+</html>`;
+}
+
+function isProofTree(proofTree) {
+  return !!proofTree &&
+    typeof proofTree === 'object' &&
+    Array.isArray(proofTree.boxes) &&
+    Array.isArray(proofTree.tactics);
+}
+
 // Create snapshot
 app.post('/api/snapshot', async (req, res) => {
   try {
     await ensureDirectories();
-    
-    const { proofTreeHTML } = req.body;
-    
-    if (!proofTreeHTML) {
-      return res.status(400).json({ error: 'Missing proofTreeHTML' });
-    }
-    
-    const css = await loadCSS();
-    const completeHTML = generateSnapshotHTML(proofTreeHTML, css);
-    
+
     const id = crypto.randomBytes(8).toString('hex');
-    const filePath = path.join(SNAPSHOTS_DIR, `${id}.html`);
-    
-    await fs.writeFile(filePath, completeHTML);
-    
+
+    // [Claude comment] Extensions published before the JSON format still send rendered HTML
+    if (req.body?.proofTreeHTML) {
+      const css = await loadCSS();
+      const html = generateLegacySnapshotHTML(req.body.proofTreeHTML, css);
+      await fs.writeFile(path.join(SNAPSHOTS_DIR, `${id}.html`), html);
+      console.log(`Created snapshot (legacy HTML): ${id}`);
+      return res.json({ id });
+    }
+
+    if (!isProofTree(req.body?.proofTree)) {
+      return res.status(400).json({ error: 'Missing proofTree' });
+    }
+
+    await fs.writeFile(path.join(SNAPSHOTS_DIR, `${id}.json`), JSON.stringify(req.body));
+
     console.log(`Created snapshot: ${id}`);
     res.json({ id });
   } catch (error) {
@@ -294,14 +339,26 @@ app.post('/api/latex', async (req, res) => {
 
 // Serve snapshot
 app.get('/:id', async (req, res) => {
-  try {
-    const filePath = path.join(SNAPSHOTS_DIR, `${req.params.id}.html`); // FIXED: was just `${id}.html`
-    const html = await fs.readFile(filePath, 'utf8');
-    res.send(html);
-  } catch (error) {
-    console.error('Snapshot not found:', req.params.id);
-    res.status(404).send('Snapshot not found');
+  const { id } = req.params;
+
+  // [Claude comment] Express decodes params after routing, so without this an
+  // id of "..%2f.." would reach path.join() and walk out of SNAPSHOTS_DIR
+  if (!/^[0-9a-f]{16}$/.test(id)) {
+    return res.status(404).send('Snapshot not found');
   }
+
+  try {
+    const payload = await fs.readFile(path.join(SNAPSHOTS_DIR, `${id}.json`), 'utf8');
+    return res.send(generateSnapshotHTML(JSON.parse(payload)));
+  } catch {}
+
+  try {
+    const html = await fs.readFile(path.join(SNAPSHOTS_DIR, `${id}.html`), 'utf8');
+    return res.send(html);
+  } catch {}
+
+  console.error('Snapshot not found:', id);
+  res.status(404).send('Snapshot not found');
 });
 
 

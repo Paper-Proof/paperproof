@@ -24,6 +24,7 @@ import {
   HypLayer
 } from "./ConvertedProofTree";
 import { ContextMenuType } from "./Mui";
+import { SnapshotPayload, SnapshotState } from "./Snapshot";
 
 // SERVER REQUEST/RESPONSE
 export interface ValidProofResponse {
@@ -137,5 +138,9 @@ export {
   NaturalHyp,
   NaturalStep,
   NaturalBox,
-  NaturalProofTree
+  NaturalProofTree,
+  SnapshotPayload,
+  SnapshotState
 };
+
+export { SNAPSHOT_VERSION } from "./Snapshot";

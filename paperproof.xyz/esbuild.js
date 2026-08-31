@@ -64,20 +64,29 @@ function aliasPlugin() {
 
 const watch = process.argv.includes("--watch");
 
+// [Claude comment] Snapshot pages get their own bundle - reusing the playground's
+// would ship all of monaco-editor to readers who only need the proof tree.
+const bundles = [
+  { name: "landingPage",        entry: "src/landingPage.tsx" },
+  { name: "standaloneRenderer", entry: "src/standaloneRenderer.tsx", logLimit: 0 },
+  { name: "snapshotRenderer",   entry: "src/snapshotRenderer.tsx" },
+];
+
+const optionsFor = ({ name, entry, logLimit }) => ({
+  ...shared,
+  ...(logLimit === undefined ? {} : { logLimit }),
+  entryPoints: [entry],
+  outfile: `public/dist/${name}.js`,
+});
+
 if (watch) {
-  const [ctx1, ctx2] = await Promise.all([
-    esbuild.context({ ...shared, entryPoints: ["src/landingPage.tsx"], outfile: "public/dist/landingPage.js" }),
-    esbuild.context({ ...shared, logLimit: 0, entryPoints: ["src/standaloneRenderer.tsx"], outfile: "public/dist/standaloneRenderer.js" }),
-  ]);
-  await Promise.all([ctx1.watch(), ctx2.watch()]);
+  const contexts = await Promise.all(bundles.map((bundle) => esbuild.context(optionsFor(bundle))));
+  await Promise.all(contexts.map((ctx) => ctx.watch()));
   console.log("watching...");
 } else {
-  await Promise.all([
-    esbuild.build({ ...shared, entryPoints: ["src/landingPage.tsx"], outfile: "public/dist/landingPage.js" })
-      .then(() => console.log("✓ landingPage")),
-    esbuild.build({ ...shared, logLimit: 0, entryPoints: ["src/standaloneRenderer.tsx"], outfile: "public/dist/standaloneRenderer.js" })
-      .then(() => console.log("✓ standaloneRenderer")),
-  ]);
+  await Promise.all(bundles.map((bundle) =>
+    esbuild.build(optionsFor(bundle)).then(() => console.log(`✓ ${bundle.name}`))
+  ));
 
   // Pre-render landing page so crawlers and AI agents see real content
   fs.mkdirSync(path.resolve(__dirname, "tmp"), { recursive: true });

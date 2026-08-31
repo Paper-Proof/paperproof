@@ -1,20 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from 'react-dom/client';
-import { ConvertedProofTree, LatexSettings, DEFAULT_LATEX_SETTINGS, NaturalProofTree, Arrow } from "types";
+import { ConvertedProofTree, LatexSettings, DEFAULT_LATEX_SETTINGS, NaturalProofTree, Settings } from "types";
 import "@app/index.css";
+import "@app/css/theorem.css";
 import "./naturalRenderer.css";
 import "./proofPanel.css";
 import hypsToTables from "@app/services/hypsToTables";
 import naturalToConverted from "@app/services/naturalToConverted";
-import createHypArrows from "@app/services/createHypArrows";
-import PerfectArrow from "@app/components/PerfectArrow";
 import JsonEditor from "./components/JsonEditor";
 import { collectTexts } from "@app/services/convertToLatex";
 import { llmInstructions, fewShotExamples } from "./services/llmInstructions";
 import { NaturalProofTreeSchema } from "./services/proofSchema";
-import { StandaloneGlobalContext, useStandaloneGlobalContext } from "./proofContext";
 
-import BoxEl from "@app/components/ProofTree/components/BoxEl";
+import ProofTreeView, { DEFAULT_STANDALONE_SETTINGS } from "./components/ProofTreeView";
+import ProofTreeErrorBoundary from "./components/ProofTreeErrorBoundary";
 import Nav from "./components/Nav";
 
 const LS_KEY = 'paperproof-natural-json';
@@ -96,40 +95,6 @@ Thus q divides 2·3·5·7·11···p, and so q does not divide (2·3·5·7·11·
   },
 ];
 
-// Error boundary so a renderer crash never wipes the editor
-class ProofTreeErrorBoundary extends React.Component<
-  { children: React.ReactNode; onError: () => void },
-  { hasError: boolean; message: string }
-> {
-  constructor(props: { children: React.ReactNode; onError: () => void }) {
-    super(props);
-    this.state = { hasError: false, message: '' };
-  }
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, message: error.message };
-  }
-  componentDidCatch() {
-    this.props.onError();
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="natural-render-error">
-          Renderer error: {this.state.message}
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-const StandaloneProofTree = () => {
-  const { proofTree } = useStandaloneGlobalContext();
-  const rootBox = proofTree.boxes.find((box) => box.parentId === null);
-  if (!rootBox) return null;
-  return <BoxEl box={rootBox} />;
-};
-
 function StandaloneRenderer() {
   const [jsonInput, setJsonInput] = useState<string>(
     () => localStorage.getItem(LS_KEY) || ""
@@ -143,12 +108,7 @@ function StandaloneRenderer() {
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
   const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
   const [latexSettings, setLatexSettings] = useState<LatexSettings>(DEFAULT_LATEX_SETTINGS);
-  const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
-
-  React.useLayoutEffect(() => {
-    if (!convertedProofTree) { setPerfectArrows([]); return; }
-    setPerfectArrows(createHypArrows(convertedProofTree));
-  }, [convertedProofTree, latexSettings]);
+  const [settings, setSettings] = useState<Settings>(DEFAULT_STANDALONE_SETTINGS);
 
   const latexSettingsForFormat = (
     converted: ConvertedProofTree,
@@ -211,8 +171,6 @@ function StandaloneRenderer() {
     setIsEditing(true);
     setTimeout(() => validateAndCompile(newValue), 300);
   };
-
-  const dummyCreateSnapshot = async () => "snapshot-id";
 
   const [nlInput, setNlInput] = useState('');
   const [droppedImage, setDroppedImage] = useState<string | null>(null); // base64 data URL
@@ -279,8 +237,6 @@ function StandaloneRenderer() {
     if (!el || isMouseInThinkingRef.current) return;
     el.scrollTop = el.scrollHeight;
   }, [thinkingText]);
-
-  const MAX_ATTEMPTS = 3;
 
   const convertNlToJson = async () => {
     if (!nlInput.trim() && !droppedImage) return;
@@ -370,45 +326,14 @@ function StandaloneRenderer() {
 
   const proofTreeContent = convertedProofTree && (
     <ProofTreeErrorBoundary key={renderKey} onError={() => setTreeHasError(true)}>
-      <StandaloneGlobalContext.Provider
-        value={{
-          UIVersion: 1,
-          refreshUI: () => {},
-          collapsedBoxIds,
-          setCollapsedBoxIds,
-          searchedHypIds: [],
-          setSearchedHypIds: () => {},
-          deletedHypothesisNames,
-          setDeletedHypothesisNames,
-          settings: {
-            isSingleTacticMode: false,
-            isHiddenGoalNames : false,
-            isGreenHypotheses : false,
-            areHypsHighlighted: false,
-          },
-          setSettings: () => {},
-          proofTree: convertedProofTree,
-          highlights: { hypIds: [], goalId: null },
-          position: { line: 0, column: 0 },
-          setConverted: () => {},
-          createSnapshot: dummyCreateSnapshot,
-          setSnackbarMessage: () => {},
-          setSnackbarOpen: () => {},
-          isStandalone: true,
-          fontSize: 12,
-          setFontSize: () => {},
-          fetchFullProofTree: async () => convertedProofTree!,
-          latexSettings,
-          setLatexSettings,
-        }}
-      >
-        <div className={`proof-tree -isGreenHypothesesOFF${latexSettings.isActive ? ' -isLatexModeON' : ''}`}>
-          <StandaloneProofTree />
-          {perfectArrows.map((arrow, index) =>
-            <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
-          )}
-        </div>
-      </StandaloneGlobalContext.Provider>
+      <ProofTreeView
+        proofTree={convertedProofTree}
+        highlights={null}
+        settings={settings}                             setSettings={setSettings}
+        collapsedBoxIds={collapsedBoxIds}               setCollapsedBoxIds={setCollapsedBoxIds}
+        deletedHypothesisNames={deletedHypothesisNames} setDeletedHypothesisNames={setDeletedHypothesisNames}
+        latexSettings={latexSettings}                   setLatexSettings={setLatexSettings}
+      />
     </ProofTreeErrorBoundary>
   );
 

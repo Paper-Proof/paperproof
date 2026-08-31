@@ -1,0 +1,11 @@
+.natural-render-error,
+.snapshot-message {
+  padding: 12px 16px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #6B6557;
+}
+
+.natural-render-error {
+  color: #C0392B;
+}
