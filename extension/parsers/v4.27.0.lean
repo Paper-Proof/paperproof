@@ -325,8 +325,13 @@ def getUnassignedGoals (goals : List MVarId) (mctx : MetavarContext) : MetaM (Li
   goals.filterMapM fun id => do
     if let none := mctx.findDecl? id then
       return none
-    if mctx.eAssignment.contains id ||
-       mctx.dAssignment.contains id then
+    if let some assignment := mctx.eAssignment.find? id then
+      -- [Claude comment] an erroring tactic gets its goal assigned a *synthetic* sorry, which would
+      -- otherwise be indistinguishable from the tactic having closed the goal.
+      unless assignment.hasSyntheticSorry do
+        return none
+      return some id
+    if mctx.dAssignment.contains id then
       return none
     return some id
 
@@ -365,15 +370,49 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List 
       ) :: result
   return result
 
-def prettifySteps (stx : Syntax) (steps : List ProofStep) (tacticString : String) : List ProofStep := Id.run do
+/--
+  By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
+-/
+def prettifyTacticString (tacticString: String) : String :=
+  ((tacticString.splitOn "\n").head?.getD tacticString).trimAscii.toString
+
+def lspPos? (fileMap : FileMap) (stx : Syntax) : Option Lsp.Position :=
+  stx.getPos?.map (Lean.FileMap.utf8PosToLspPos fileMap)
+
+def isSamePosition (p₁ p₂ : Lsp.Position) : Bool :=
+  p₁.line == p₂.line && p₁.character == p₂.character
+
+/--
+  Rewriting tactics (`rw`, `rewrite`, `simp_rw`, `nth_rw`, ...) create a separate `TacticInfo` for
+  every rewrite rule, and the syntax of such a `TacticInfo` is the rule together with its trailing
+  comma. So the steps of `simp_rw [c𝓑, r𝓑]` are named `c𝓑,` and `r𝓑` - here we rename them into
+  `simp_rw [c𝓑]` and `simp_rw [r𝓑]`.
+  We recognize these steps by their position (a step could also come from a nested proof, as in
+  `rw [show a = b from by exact h]` - such steps should keep their own name).
+-/
+def prettifyRwSteps (fileMap : FileMap) (stx : Syntax) (steps : List ProofStep) : List ProofStep := Id.run do
+  let .some ruleSeq := stx.getArgs.find? (·.getKind == ``Lean.Parser.Tactic.rwRuleSeq) | return steps
+  -- Everything the user wrote before the "[", e.g. "rw", "simp_rw", "nth_rw 2"
+  let .some tacticStart := stx.getPos?                                                 | return steps
+  let .some ruleSeqStart := ruleSeq.getPos?                                            | return steps
+  let tacticName := prettifyTacticString (Substring.Raw.toString ⟨fileMap.source, tacticStart, ruleSeqStart⟩)
+
+  let ruleStarts := ruleSeq[1].getArgs.filterMap fun rule =>
+    if rule.getKind == ``Lean.Parser.Tactic.rwRule then lspPos? fileMap rule else none
+  -- `rw` puts the final `rfl` on the "]" token
+  let rbracketStart := lspPos? fileMap ruleSeq[2]
+
+  return steps.map fun step =>
+    if ruleStarts.any (isSamePosition step.position.start) then
+      let rule := (step.tacticString.trimAscii.toString.dropEndWhile (· == ',')).toString
+      { step with tacticString := s!"{tacticName} [{rule}]" }
+    else if rbracketStart.any (isSamePosition step.position.start) then
+      { step with tacticString := "rfl" }
+    else
+      step
+
+def prettifySteps (fileMap : FileMap) (stx : Syntax) (steps : List ProofStep) (tacticString : String) : List ProofStep := Id.run do
   match stx with
-  | `(tactic| rw [$_,*] $(_)?)
-  | `(tactic| rewrite [$_,*] $(_)?) =>
-    let prettify (tStr : String) :=
-      let res := (tStr.trimAscii.toString.dropEndWhile (· == ',')).toString
-      -- rw puts final rfl on the "]" token
-      if res == "]" then "rfl" else res
-    return steps.map fun a => { a with tacticString := s!"rw [{prettify a.tacticString}]" }
   | `(tactic| intro $_ $_ $_*) =>
     -- intro with 2+ names generates one child TacticInfo per name; merge into a single step
     if steps.isEmpty then return steps
@@ -381,7 +420,7 @@ def prettifySteps (stx : Syntax) (steps : List ProofStep) (tacticString : String
       tacticString        := tacticString,
       goalsAfter          := steps.getLast!.goalsAfter,
       tacticDependsOn     := (steps.flatMap (·.tacticDependsOn)).eraseDups }]
-  | _ => return steps
+  | _ => return prettifyRwSteps fileMap stx steps
 
 -- Comparator for names, e.g. so that _uniq.34 and _uniq.102 go in the right order.
 -- That's not completely right because it doesn't compare prefixes but
@@ -392,19 +431,13 @@ def nameNumLt (n1 n2 : Name) : Bool :=
   | .num _ _,  _ => true
   | _, _ => false
 
-/--
-  By default, `.getSubstring()` captures empty lines and comments after the tactic - this function removes them.
--/
-def prettifyTacticString (tacticString: String) : String :=
-  ((tacticString.splitOn "\n").head?.getD tacticString).trimAscii.toString
-
 def getProofStepPosition (fileMap : FileMap) (tacticSubstring: Substring.Raw) : ProofStepPosition := {
   start := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.startPos,
   stop  := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.stopPos
 }
 
 def parseTacticBody (fileMap : FileMap) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticSubstring : Substring.Raw) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (tacticString : String) (theorems : List TheoremSignature) : MetaM Result := do
-  let steps := prettifySteps tInfo.stx steps tacticString
+  let steps := prettifySteps fileMap tInfo.stx steps tacticString
   let position := getProofStepPosition fileMap tacticSubstring
 
   let proofTreeEdges ← getGoalsChange ctx tInfo

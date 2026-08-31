@@ -147,7 +147,7 @@ export class ShadowDoc {
       }
     }
 
-    // Claude: there's one command per snapshot, so every position inside a proof answers
+    // [Claude comment] there's one command per snapshot, so every position inside a proof answers
     // with the same tree - a cursor goal that belongs to the cached tree means we're still
     // in the proof it came from, and the (expensive) reparse can be skipped.
     if (this.treeCache && this.treeCache.version === this.syncedVersion &&

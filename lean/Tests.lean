@@ -2,6 +2,7 @@ import Lean
 import Lean.Elab.Command
 import Services.BetterParser
 import Mathlib.Data.Set.Basic
+import Mathlib.Tactic.SimpRw
 import Paperproof
 
 open Lean Elab Command 
@@ -367,3 +368,93 @@ dependsOn: hp
 theorem test_intros_multi (P Q : Prop) : P → Q → P := by
   intros hp hq
   exact hp
+
+/--
+info: [step 1]
+tactic: simp_rw [h1]
+goalBefore:
+  type: a + 0 = c
+  hyps:
+    a : ℕ
+    b : ℕ
+    c : ℕ
+    h1 : a = b
+    h2 : b = c
+goalsAfter:
+  type: b + 0 = c
+  hyps:
+    a : ℕ
+    b : ℕ
+    c : ℕ
+    h1 : a = b
+    h2 : b = c
+spawnedGoals: (none)
+dependsOn: a, c, b, h1
+
+[step 2]
+tactic: simp_rw [h2]
+goalBefore:
+  type: b + 0 = c
+  hyps:
+    a : ℕ
+    b : ℕ
+    c : ℕ
+    h1 : a = b
+    h2 : b = c
+goalsAfter:
+  type: c + 0 = c
+  hyps:
+    a : ℕ
+    b : ℕ
+    c : ℕ
+    h1 : a = b
+    h2 : b = c
+spawnedGoals: (none)
+dependsOn: b, c, h2
+
+[step 3]
+tactic: simp_rw [Nat.add_zero]
+goalBefore:
+  type: c + 0 = c
+  hyps:
+    a : ℕ
+    b : ℕ
+    c : ℕ
+    h1 : a = b
+    h2 : b = c
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: c
+-/
+#guard_msgs in
+#assert_parser in
+theorem test_simp_rw (a b c : ℕ) (h1 : a = b) (h2 : b = c) : a + 0 = c := by
+  simp_rw [h1, h2, Nat.add_zero]
+
+private theorem test_foo (a b : ℕ) : a = b → a ≤ b := fun h => h ▸ Nat.le_refl a
+
+/--
+info: [step 1]
+tactic: rw [hb]
+goalBefore:
+  type: a ≤ b
+  hyps:
+    a : ℕ
+    b : ℕ
+    h : a = b
+    hb : b = a
+goalsAfter:
+  type: a ≤ b
+  hyps:
+    a : ℕ
+    b : ℕ
+    h : a = a
+    hb : b = a
+spawnedGoals: (none)
+dependsOn: a, b, hb, h
+-/
+#guard_msgs(info, drop error) in
+#assert_parser in
+example (a b : ℕ) (h : a = b) (hb : b = a) : a ≤ b := by
+  rw [hb] at h
+  exact (test_foo a b).1 h
