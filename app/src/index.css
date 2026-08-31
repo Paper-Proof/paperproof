@@ -53,8 +53,9 @@ body.snapshot{
     color: #72787c;
   }
 
-  .perfect-arrow{
-    display: none !important;
+  /* Nothing is hoverable in a snapshot, so draw every arrow up front */
+  .tactic .perfect-arrow{
+    display: block;
   }
 }
 

@@ -86,6 +86,10 @@ function generateSnapshotHTML(proofTreeHTML, css) {
   <style>
     ${css}
   </style>
+  <style>
+    /* standaloneRenderer.css is the /playground bundle - undo its page-level styles */
+    html { background: none; }
+  </style>
 </head>
 <body class="snapshot">
   ${proofTreeHTML}

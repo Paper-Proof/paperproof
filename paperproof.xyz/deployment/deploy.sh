@@ -13,12 +13,13 @@ echo "📚 Starting paperproof.xyz deployment to $DROPLET_IP"
 
 echo "📦 Creating deployment archive..."
 cd ..
-tar -czf deployment/paperproof-deploy.tar.gz \
+# Built outside the tree - tar aborts if the archive grows inside the directory it's reading
+ARCHIVE=$(mktemp -t paperproof-deploy-XXXXXX.tar.gz)
+tar -czf "$ARCHIVE" \
     --exclude='node_modules' \
     --exclude='.git' \
     --exclude='*.log' \
     --exclude='snapshots' \
-    --exclude='deployment/paperproof-deploy.tar.gz' \
     .
 
 echo "🔧 Setting up server dependencies..."
@@ -41,7 +42,7 @@ ssh root@$DROPLET_IP << 'EOF'
 EOF
 
 echo "📤 Uploading application..."
-scp deployment/paperproof-deploy.tar.gz root@$DROPLET_IP:/tmp/
+scp "$ARCHIVE" root@$DROPLET_IP:/tmp/paperproof-deploy.tar.gz
 
 echo "⚙️ Installing application..."
 ssh root@$DROPLET_IP << 'EOF'
@@ -74,7 +75,7 @@ ssh root@$DROPLET_IP << 'EOF'
 EOF
 
 echo "🧹 Cleaning up..."
-rm deployment/paperproof-deploy.tar.gz
+rm -f "$ARCHIVE"
 
 echo "🎉 Paperproof.xyz deployment complete!"
 echo ""
