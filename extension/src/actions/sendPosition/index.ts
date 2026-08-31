@@ -33,7 +33,14 @@ const enclosingDeclName = (document: vscode.TextDocument, line: number): string 
 };
 
 const sendPosition = async (shared: Shared, editor: vscode.TextEditor | undefined, token: vscode.CancellationToken) => {
-  if (!editor || shouldIgnoreEvent(editor)) { return; };
+  if (!editor || shouldIgnoreEvent(editor)) {
+    // The request for the previous cursor position is already cancelled by now
+    // (`fetchInfoTree` cancels before it calls us), so nothing will ever arrive to turn
+    // the loading icon off. That's what selecting a range of text used to do: click
+    // starts a request, dragging cancels it, and the icon span forever.
+    shared.webviewPanel?.webview.postMessage({ type: 'from_extension:stop_loading' });
+    return;
+  };
 
   let tdp = {
     textDocument: { uri: editor.document.uri.toString() },

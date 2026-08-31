@@ -76,6 +76,9 @@ function Main() {
 
   const [loadingAfterClick, setLoadingAfterClick] = useState<Boolean>(false);
   const [loadingName, setLoadingName] = useState<string | null>(null);
+  // Most proofs load instantly - naming what we're loading is only worth the visual
+  // noise once the wait is long enough to wonder what's happening.
+  const [isLoadingSlow, setIsLoadingSlow] = useState<boolean>(false);
 
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
   const [UIVersion, setUIVersion] = useState<number>(1);
@@ -159,12 +162,20 @@ function Main() {
       } else if (message.type === 'from_extension:start_loading') {
         setLoadingAfterClick(true)
         setLoadingName(message.data?.name ?? null)
+      } else if (message.type === 'from_extension:stop_loading') {
+        setLoadingAfterClick(false)
       }
     };
 
     addEventListener('message', updateFromVscode);
     return () => removeEventListener('message', updateFromVscode);
   }, [settings]);
+
+  React.useEffect(() => {
+    if (!loadingAfterClick) { setIsLoadingSlow(false); return; }
+    const timer = setTimeout(() => setIsLoadingSlow(true), 2000);
+    return () => clearTimeout(timer);
+  }, [loadingAfterClick]);
 
   React.useLayoutEffect(() => {
     if (!converted) return;
@@ -260,9 +271,12 @@ function Main() {
       loadingAfterClick &&
       <>
         <div className="coin-loading-icon"><div></div></div>
-        <div style={{ position: 'fixed', bottom: 12, right: 44, fontSize: 13, opacity: 0.7, whiteSpace: 'nowrap' }}>
-          {loadingName ? <>Loading proof of <b>{loadingName}</b>…</> : <>Loading proof…</>}
-        </div>
+        {
+          isLoadingSlow &&
+          <div className="loading-proof-name" style={{ position: 'fixed', bottom: 12, right: 44, fontSize: 13, whiteSpace: 'nowrap' }}>
+            {loadingName ? <>Loading proof of <b>{loadingName}</b></> : <>Loading proof</>}
+          </div>
+        }
       </>
     }
     <JumpToCurrent converted={converted} position={position} UIVersion={UIVersion}/>

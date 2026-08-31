@@ -21,6 +21,17 @@
   border-radius: 50%;
   animation: coin-loading-icon 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
+/* Shown 2s into a load (see `isLoadingSlow`), so it arrives while the user is already
+   looking at the spinning coin - fading in keeps it from snapping into view. */
+.loading-proof-name {
+  opacity: 0.7;
+  animation: loading-proof-name 200ms ease-in;
+}
+@keyframes loading-proof-name {
+  from { opacity: 0; }
+  to   { opacity: 0.7; }
+}
+
 @keyframes coin-loading-icon {
   0%, 100% {
     animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
