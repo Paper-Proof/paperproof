@@ -12,12 +12,21 @@ const offScreenTargets = (direction: "up" | "down") =>
     .map((el) => ({ el, rect: el.getBoundingClientRect() }))
     .filter(({ rect }) => direction === "up" ? rect.bottom <= 0 : rect.top >= window.innerHeight);
 
+const isInView = (rect: DOMRect) =>
+  rect.bottom > 0 && rect.top < window.innerHeight &&
+  rect.right > 0 && rect.left < window.innerWidth;
+
+const scrollToTarget = (el: Element) => {
+  el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start' });
+};
+
 interface Props {
   // We never scroll the user around on their behalf, so we recheck what's visible
   // whenever anything could have moved
   converted: unknown;
   position: Position;
   UIVersion: number;
+  isFollowingCursor: boolean;
 }
 
 const JumpToCurrent = (props: Props) => {
@@ -47,12 +56,33 @@ const JumpToCurrent = (props: Props) => {
   const boldedTactics = React.useRef<string | null>(null);
   React.useEffect(() => {
     const els = Array.from(document.querySelectorAll('.tactic.-position-matches'));
-    // Element ids are stable across rerenders, so typing inside one tactic won't reflash
-    const key = els.map((el) => el.id).sort().join('|');
+    // [Claude comment] keyed on the cursor rather than on which tactics matched, so that
+    // moving around inside one tactic flashes it again instead of staying silent.
+    const key = [props.position.line, props.position.character, ...els.map((el) => el.id).sort()].join('|');
     if (key === boldedTactics.current) return;
     boldedTactics.current = key;
     els.forEach(flashElement);
   }, [props.converted, props.position, props.UIVersion]);
+
+  // "Follow the current tactic": do the jump for the user when what they clicked on is
+  // off-screen. Only when nothing current is in view, so a visible tactic never moves.
+  const followedCursor = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!props.isFollowingCursor) { followedCursor.current = null; return; }
+
+    const targets = Array.from(document.querySelectorAll(CURRENT_SELECTOR))
+      .map((el) => ({ el, rect: el.getBoundingClientRect() }));
+    if (targets.length === 0) return;
+
+    const key = [props.position.line, props.position.character, ...targets.map(({ el }) => el.id).sort()].join('|');
+    if (key === followedCursor.current) return;
+    followedCursor.current = key;
+
+    if (targets.some(({ rect }) => isInView(rect))) return;
+    // Nearest to the viewport, so we travel the shorter distance
+    const nearest = targets.reduce((a, b) => Math.abs(a.rect.top) < Math.abs(b.rect.top) ? a : b);
+    scrollToTarget(nearest.el);
+  }, [props.converted, props.position, props.UIVersion, props.isFollowingCursor]);
 
   const jumpTo = (direction: "up" | "down") => {
     const targets = offScreenTargets(direction);
@@ -63,7 +93,7 @@ const JumpToCurrent = (props: Props) => {
       (a.rect.bottom > b.rect.bottom ? a : b) :
       (a.rect.top < b.rect.top ? a : b)
     );
-    nearest.el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start' });
+    scrollToTarget(nearest.el);
     flashElement(nearest.el);
   };
 

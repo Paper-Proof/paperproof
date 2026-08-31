@@ -279,7 +279,7 @@ function Main() {
         }
       </>
     }
-    <JumpToCurrent converted={converted} position={position} UIVersion={UIVersion}/>
+    <JumpToCurrent converted={converted} position={position} UIVersion={UIVersion} isFollowingCursor={settings.isFollowingCursor}/>
   </>
 }
 

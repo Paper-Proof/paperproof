@@ -108,7 +108,7 @@ body.snapshot{
 }
 
 :not(.snapshot) .proof-tree.-we-are-on-ellipsis-tactic{
-  .hypothesis.-highlighted, .goal.-highlighted{ border-color: #72787C; }
+  .hypothesis.-highlighted, .goal.-highlighted{ border-color: rgb(186 22 94 / 80%); }
 }
 
 /* This is for folding/unfolding `have`s */
@@ -217,7 +217,9 @@ body{
 */
 body{
   margin: 0;
-  padding: 20px;
+  /* [Claude comment] not just removed: vscode injects `body { padding: 0 20px }` into every
+     webview, so the zero has to be stated to win over it. */
+  padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
   display: flex;
@@ -560,6 +562,11 @@ table.hypothesis-table + .goals{
   /* Tactic nodes overlap their neighbours (negative margins) - lift the ring above them */
   position: relative;
   z-index: 5;
+
+  /* Being positioned makes us the arrows' containing block - see flashElement.ts */
+  > .perfect-arrow{
+    translate: var(--flash-dx, 0px) var(--flash-dy, 0px);
+  }
 }
 
 /*______________________ "JUMP TO CURRENT" ARROWS ______________________*/

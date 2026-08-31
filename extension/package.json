@@ -78,6 +78,11 @@
           "default": true,
           "description": "Use green color for hypotheses"
         },
+        "paperproof.isFollowingCursor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scroll to the tactic under the cursor whenever it is out of view"
+        },
         "paperproof.fontSize": {
           "type": "number",
           "default": 13,

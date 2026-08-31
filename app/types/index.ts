@@ -44,6 +44,7 @@ export interface Settings {
   isHiddenGoalNames : boolean;
   isGreenHypotheses : boolean;
   areHypsHighlighted: boolean;
+  isFollowingCursor : boolean;
   fontSize          : number;
 }
 

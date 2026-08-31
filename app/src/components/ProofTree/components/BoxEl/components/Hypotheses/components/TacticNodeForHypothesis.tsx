@@ -55,6 +55,7 @@ const TacticNodeForHypothesis = (props: Props) => {
 
   const onClick = (event: React.MouseEvent) => {
     if (global.settings.isSingleTacticMode) return
+    if (!hasChildrenBoxes) return
     if (isBoxHidden) {
       showAllChildrenBoxes(event)
     } else {

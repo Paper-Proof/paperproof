@@ -253,6 +253,11 @@ const ContextMenu = (props: Props) => {
         <Switch checked={settings.isGreenHypotheses} size="small"/>
       </MenuItem>
 
+      <MenuItem onClick={handleSettingToggle("isFollowingCursor")}>
+        <div className="text">Follow the current tactic</div>
+        <Switch checked={settings.isFollowingCursor} size="small"/>
+      </MenuItem>
+
       {
         settings.isSingleTacticMode &&
         <MenuItem onClick={handleSettingToggle("areHypsHighlighted")}>
