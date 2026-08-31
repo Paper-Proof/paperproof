@@ -13,6 +13,7 @@ import hypsToTables from "./services/hypsToTables";
 import createHypArrows from './services/createHypArrows';
 import PerfectArrow from "./components/PerfectArrow";
 import JumpToCurrent from "./components/JumpToCurrent";
+import BackgroundContextMenu from "./components/BackgroundContextMenu";
 
 import Snackbar from '@mui/material/Snackbar';
 import getStatement from "./services/getStatement";
@@ -241,6 +242,7 @@ function Main() {
             <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
           )}
         </div>
+        <BackgroundContextMenu/>
       </GlobalContext.Provider>
     }
     {

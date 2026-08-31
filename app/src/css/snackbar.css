@@ -96,5 +96,10 @@
     span.command-name{
       color: #4791b8;
     }
+
+    a{
+      color: #4791b8;
+      text-underline-offset: 2px;
+    }
   }
 }

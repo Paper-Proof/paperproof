@@ -29,12 +29,6 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   const isSearched = global.searchedHypIds.find((searchedId) => props.hypNode.id === searchedId);
   const isHypHidden = name && global.deletedHypothesisNames.includes(name);
 
-  const handleCopy = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    if (props.hypNode.text) navigator.clipboard.writeText(props.hypNode.text);
-    setContextMenu(null);
-  };
-
   const handleHideHypothesis = (event: React.MouseEvent) => {
     event.stopPropagation();
     if (!name) return;
@@ -79,7 +73,6 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
                 : undefined
             }
           >
-            <MenuItem onClick={handleCopy}>Copy</MenuItem>
             <MenuItem onClick={handleHideHypothesis}>
               {isHypHidden ? "Show hypothesis" : "Hide hypothesis"}
             </MenuItem>

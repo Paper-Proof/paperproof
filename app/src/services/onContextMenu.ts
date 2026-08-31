@@ -2,7 +2,7 @@ import { ContextMenuType } from "types";
 
 // Copypasted from mui docs
 // (see https://mui.com/material-ui/react-menu/#context-menu code example)
-const onContextMenu = (event: React.MouseEvent, contextMenu: ContextMenuType, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuType>>) => {
+const onContextMenu = (event: React.MouseEvent | MouseEvent, contextMenu: ContextMenuType, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuType>>) => {
   event.preventDefault();
   event.stopPropagation();
   setContextMenu(

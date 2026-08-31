@@ -5,7 +5,6 @@ import { Divider, Switch } from "@mui/material";
 import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
-import copyProofStructureForLLM from "src/services/copyProofStructureForLLM";
 import copyAsNaturalProofTree from "src/services/copyAsNaturalProofTree";
 import convertToLatex, { collectTexts, convertTextsToLatex } from "src/services/convertToLatex";
 import SnackbarLatexPrompt from "./SnackbarLatexPrompt";
@@ -56,6 +55,7 @@ const ContextMenu = (props: Props) => {
         <span>Created a snapshot!<br/>The link is already in your clipboard.</span>
       </div>);
       setSnackbarOpen(true);
+      setTimeout(() => setSnackbarOpen(false), 3000);
     } catch (error) {
       console.error('Failed to create snapshot:', error);
       setSnackbarMessage(`Couldn't create a snapshot! This is probably because you are in Github Codespaces. It should work locally!`);
@@ -89,15 +89,18 @@ const ContextMenu = (props: Props) => {
 
   const copyForLLM = (event: React.MouseEvent) => {
     event.stopPropagation();
-    const proofStructure = copyProofStructureForLLM(proofTree);
-    navigator.clipboard.writeText(proofStructure);
-    props.setContextMenu(null);
-  }
-
-  const copyNatural = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    const natural = copyAsNaturalProofTree(proofTree);
-    navigator.clipboard.writeText(natural);
+    navigator.clipboard.writeText(copyAsNaturalProofTree(proofTree));
+    setSnackbarMessage(<div style={{ display: 'flex', alignItems: 'center' }}>
+      <span style={{ paddingRight: 10 }}>📋</span>
+      <span>
+        Copied a proof!<br/>
+        <i className="explanation">
+          PSA: there also exists a <a href="https://github.com/Paper-Proof/paperproof-mcp" target="_blank" rel="noopener noreferrer">paperproof-mcp</a>.
+        </i>
+      </span>
+    </div>);
+    setSnackbarOpen(true);
+    setTimeout(() => setSnackbarOpen(false), 3000);
     props.setContextMenu(null);
   }
 
@@ -263,12 +266,6 @@ const ContextMenu = (props: Props) => {
         <div className="shortcut" style={{ textAlign: 'center' }}>📋</div>
       </MenuItem>
 
-      {/*
-      <MenuItem onClick={copyNatural}>
-        <div className="text">Copy as NaturalProofTree</div>
-        <div className="shortcut" style={{ textAlign: 'center' }}>🗂</div>
-      </MenuItem>
-      */}
 
       <MenuItem onClick={handleSnapshot}>
         <div className="text">Create snapshot</div>
