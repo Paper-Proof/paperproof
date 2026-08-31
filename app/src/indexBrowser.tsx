@@ -12,9 +12,9 @@ import getHighlights from "./services/getHighlights";
 import hypsToTables from "./services/hypsToTables";
 import createHypArrows from './services/createHypArrows';
 import PerfectArrow from "./components/PerfectArrow";
+import JumpToCurrent from "./components/JumpToCurrent";
 
 import Snackbar from '@mui/material/Snackbar';
-import zoomOnNavigation from "./services/zoomOnNavigation";
 import getStatement from "./services/getStatement";
 import zoomManually from "./services/zoomManually";
 import handleExtensionErrors, { versionErrorEl } from "./services/handleExtensionErrors";
@@ -176,12 +176,9 @@ function Main() {
 
     const newPerfectArrows = createHypArrows(converted.proofTree);
     setPerfectArrows(newPerfectArrows);
-
-    zoomOnNavigation(converted.proofTree, converted.highlights?.goalId);
   }, [converted, UIVersion]);
 
   React.useEffect(() => {
-    localStorage.removeItem('zoomedBoxId');
     setCollapsedBoxIds([]);
   }, [converted?.statement])
 
@@ -265,6 +262,7 @@ function Main() {
       loadingAfterClick &&
       <div className="coin-loading-icon"><div></div></div>
     }
+    <JumpToCurrent converted={converted} position={position} UIVersion={UIVersion}/>
   </>
 }
 

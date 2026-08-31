@@ -32,6 +32,24 @@ interface TacticNodeProps {
 const TacticNode = (props: TacticNodeProps) => {
   const global = useGlobalContext();
 
+  const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
+  // Stays above the early returns below - a tactic switching to the "..." branch
+  // must not change how many hooks we call
+  const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
+  const thisEl = React.useRef<HTMLInputElement>(null);
+
+  React.useLayoutEffect(() => {
+    if (!props.tactic) {
+      setPerfectArrows((old) => old.length === 0 ? old : []);
+      return;
+    }
+    const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
+      .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, hypId))
+      .map((hypId) => createArrow(`hypothesis-${hypId}`, thisEl.current))
+      .filter((arrow) : arrow is Arrow => arrow !== null);
+    setPerfectArrows(newPerfectArrows);
+  }, [props.tactic, global.UIVersion]);
+
   const isSorriedAndWriting = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
   const isFake = global.settings.isSingleTacticMode && global.proofTree.tactics.find((t) => t.text === "fake");
   // console.log(props.tactic)
@@ -43,18 +61,6 @@ const TacticNode = (props: TacticNodeProps) => {
   if (!props.tactic){
     return;
   }
-  
-  const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
-  const thisEl = React.useRef<HTMLInputElement>(null);
-
-  React.useLayoutEffect(() => {
-    if (!props.tactic) return;
-    const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
-      .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, hypId))
-      .map((hypId) => createArrow(`hypothesis-${hypId}`, thisEl.current))
-      .filter((arrow) : arrow is Arrow => arrow !== null);
-    setPerfectArrows(newPerfectArrows);
-  }, [props.tactic, global.UIVersion]);
 
   const isSorried = props.tactic.text.includes("sorry") || props.tactic.text === "done";
   const isSuccess = props.tactic.successGoalId && !isSorried;
@@ -70,8 +76,6 @@ const TacticNode = (props: TacticNodeProps) => {
         ? <span key={i} dangerouslySetInnerHTML={{ __html: katex.renderToString(part, { throwOnError: false }) }}/>
         : <span key={i}>{part}</span>
     );
-
-  const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
 
   const tacticText = FancySubstring.renderTextWithMatches(text, [
     {

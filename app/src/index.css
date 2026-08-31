@@ -23,6 +23,9 @@ body.standalone{
   }
   margin: 0;
   padding: 20px !important;
+  /* Keep the plain top-left document flow - centering is a live-panel thing */
+  display: block;
+  #root{ margin: 0; display: block; }
 }
 
 body.snapshot{
@@ -32,6 +35,9 @@ body.snapshot{
   }
   margin: 0;
   padding: 20px !important;
+  /* Existing snapshots were rendered top-left - don't reflow them */
+  display: block;
+  #root{ margin: 0; display: block; }
 
   .proof-tree {
     transform: none !important;
@@ -42,8 +48,8 @@ body.snapshot{
   button.hide-boxes{ display: none; }
   .MuiMenu-root{ display: none !important; }
 
+  /* A snapshot shouldn't advertise where the cursor happened to be */
   .tactic.-position-matches{
-    font-weight: normal;
     color: #72787c;
   }
 
@@ -109,10 +115,6 @@ body.snapshot{
   display: flex;
   justify-content: space-between;
   /* cursor: pointer; */
-  /* transition: background-color 0.5s ease; 
-  &.-highlight{
-    background-color: rgb(255, 146, 250) !important;
-  } */
   &:hover button{
     background: none;
     opacity: 0.6;
@@ -122,16 +124,47 @@ body.snapshot{
   button{
     background: transparent;
     border: none;
-    color: #6c8a97;
-    
+    color: #a4dabc;
+
     padding: 0;
     padding-left: 10px;
-  }
-  .show-boxes{
-    margin-top: -6px;
+
+    /*
+      The button stretches to the row's full height (it's a flex item of
+      `.tactic.-hypothesis-tactic`), so centering inside it centers the glyph on the
+      text. That gets the *box* centered; the `top` nudges below are purely optical,
+      since `⛶` and `▬` sit differently inside their em boxes.
+    */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: opacity 0.15s ease;
   }
   .hide-boxes{
-    margin-top: -2px;
+    position: relative;
+    top: -1px;
+    left: 3px;
+  }
+  .show-boxes{
+    color: #85c09f;
+
+    /*
+      No `top` nudge and no `font-weight` here, unlike `.hide-boxes` - both existed
+      to compensate for the "⛶" glyph. An SVG is centered on its own viewBox, and
+      its weight is `stroke-width`.
+    */
+    svg{
+      width: 14px;
+      height: 14px;
+      position: relative;
+      left: 3px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 }
 
@@ -171,10 +204,28 @@ body{
   }
 }
 
-/*______________________ BODY: widths for zooming ______________________*/
+/*______________________ BODY: centering the proof ______________________*/
+/*
+  The proof sits in the middle of the screen whenever it's smaller than the screen -
+  horizontally, vertically, or both - and scrolls normally when it isn't.
+
+  ___Why `margin: auto` on #root instead of `justify-content: center` on body?
+     Because a centered flex item that overflows its container becomes unreachable -
+     you can't scroll to its left/top edge. `margin: auto` collapses to 0 once the
+     content outgrows the viewport, so every edge stays scrollable.
+*/
 body{
-  padding: 70vh 70vw;
-  width: fit-content;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+
+  #root{
+    margin: auto;
+    display: flex;
+  }
+
   .proof-tree{
     width: max-content;
     transform-origin: 0% 0% 0px;
@@ -293,8 +344,7 @@ body{
   color: #72787c;
   background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23583b1624' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   &.-position-matches{
-    font-weight: bold;
-    color: #363d59;
+    color: rgb(186 22 94 / 80%);
   }
   &.-success{
     /* center text */
@@ -489,6 +539,75 @@ table.hypothesis-table + .goals{
 }
 #box-1 > .box-insides > .goals{
   min-width: 200px;
+}
+
+/*______________________ JUMP FLASH ______________________*/
+/*
+  One soft pulse that hugs the node. It peaks at 25% (~500ms), which is about when
+  a smooth scroll settles, so the ring is brightest right as you arrive - and then
+  takes the remaining 1.5s to fade out.
+  Only `box-shadow` is animated: goals/hypotheses/tactics all have their own
+  backgrounds, and animating those would make them blink empty.
+*/
+@keyframes jump-flash{
+  0%   { box-shadow: 0 0 0 0   #9d034700; }
+  25%  { box-shadow: 0 0 0 3px #9d0347cc; }
+  100% { box-shadow: 0 0 0 0   #9d034700; }
+}
+.-just-jumped-to{
+  animation: jump-flash 2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Tactic nodes overlap their neighbours (negative margins) - lift the ring above them */
+  position: relative;
+  z-index: 5;
+}
+
+/*______________________ "JUMP TO CURRENT" ARROWS ______________________*/
+/* Each arrow only appears while something you're currently on is off-screen that way */
+
+.tactic, .goal{
+  scroll-margin-left: 15px;
+}
+
+.jump-to-current{
+  position: fixed;
+  top: 12px; right: 12px;
+  /* Below MUI's menus (1300) and snackbars (1400) */
+  z-index: 1100;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  button{
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: #9d0347cc;
+    color: #e5e5dc;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(88, 59, 22, 0.12);
+    transition: opacity 0.15s ease;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* `stroke-width` is what makes these bold - font-weight does nothing to an
+       arrow glyph, because fonts don't ship a bold cut of "↑" to switch to. */
+    svg{
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    &:hover{ opacity: 0.8; }
+  }
 }
 
 /*______________________ DEVELOPMENT ______________________*/

@@ -2,8 +2,6 @@ import React from "react";
 
 import { ConvertedProofTree, Box, Tactic, ContextMenuType, Highlights, TypeGoalNode } from "types";
 import Hypotheses from "./components/Hypotheses";
-
-import zoomToBox from 'src/services/zoomToBox';
 import TacticNode from "src/components/TacticNode";
 
 import { useGlobalContext } from "src/indexBrowser";
@@ -62,21 +60,6 @@ const BoxEl = (props: MyProps) => {
 
   const childrenBoxes = proofTree.boxes.filter((box) => box.parentId === props.box.id);
 
-  const onClick = (event: React.MouseEvent<HTMLElement>) => {
-    const selection = window.getSelection();
-    // If user just wants to copypaste some text, don't zoom in
-    const isUserIsCopypasting = selection && selection.toString().length > 0;
-    // Is user just wants to open a context menu, don't zoom in
-    const isThisRightClick = event.button === 2;
-    // Is user just wants to close the context menu, don't zoom in
-    const isContextMenuOpen = !!contextMenu
-    if (isUserIsCopypasting || isThisRightClick || isContextMenuOpen || isStandalone) return;
-
-    event.stopPropagation();
-    localStorage.setItem('zoomedBoxId', props.box.id);
-    zoomToBox(props.box.id);
-  }
-
   const { collapsedBoxIds } = useGlobalContext();
   const isCollapsed = collapsedBoxIds.find((id) => props.box.id === id);
   
@@ -100,7 +83,7 @@ const BoxEl = (props: MyProps) => {
       }
     })
     if (byBoxes.length > 0) {
-      return byBoxes.map((byBox) => <BoxEl box={byBox}/>)
+      return byBoxes.map((byBox) => <BoxEl key={byBox.id} box={byBox}/>)
     }
   }
 
@@ -109,7 +92,6 @@ const BoxEl = (props: MyProps) => {
   return <section
     className={`box ${isBoxSorried(proofTree, props.box, highlights) ? '-sorried' : ''}`}
     id={`box-${props.box.id}`}
-    onClick={onClick}
     onContextMenu={isStandalone ? undefined : (event) => onContextMenu(event, contextMenu, setContextMenu)}
   >
     {!isStandalone && <ContextMenu box={props.box} contextMenu={contextMenu} setContextMenu={setContextMenu}/>}
