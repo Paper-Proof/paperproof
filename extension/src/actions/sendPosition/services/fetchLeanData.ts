@@ -1,29 +1,27 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
-import { ProofState } from "../../../types";
-import vscodeRequest from "../../../services/vscodeRequest";
+import { ProofState, Shared } from "../../../types";
+import { getShadowDoc } from "../../../services/noInstall/shadowDoc";
 
-const fetchLeanData = async (log: vscode.OutputChannel, client: any, tdp: TextDocumentPositionParams) : Promise<ProofState> => {
-  const uri = tdp.textDocument.uri;
+// Paperproof is serverless: the parser is injected into a hidden shadow document,
+// so no `require paperproof` in the lakefile is needed. Both the tree and the goal
+// come from that shadow - asking the real file for goals would hand us ids from a
+// different elaboration, which nothing in the tree could match.
+const fetchLeanData = async (
+  shared: Shared,
+  client: any,
+  editor: vscode.TextEditor,
+  tdp: TextDocumentPositionParams
+): Promise<ProofState> => {
+  const singleTactic = !!vscode.workspace.getConfiguration("paperproof").get("isSingleTacticMode");
 
-  const config = vscode.workspace.getConfiguration('paperproof');
-  const mode = config.get('isSingleTacticMode') ? 'single_tactic' : 'tree';
-if (mode === 'single_tactic') {
-    const proofTreeResponse = await vscodeRequest(log, "Paperproof.getSnapshotData", client, uri, tdp, { pos: tdp.position, mode });
-    return {
-      goal:  null,
-      proofTree: proofTreeResponse.steps,
-      version: proofTreeResponse.version ?? undefined
-    };
-  } else {
-    const proofTreeResponse = await vscodeRequest(log, "Paperproof.getSnapshotData", client, uri, tdp, { pos: tdp.position, mode });
-    const goalsResponse = await vscodeRequest(log, "Lean.Widget.getInteractiveGoals", client, uri, tdp, tdp);
-    return {
-      goal: (goalsResponse && goalsResponse.goals[0]) || null,
-      proofTree: proofTreeResponse.steps,
-      version: proofTreeResponse.version ?? undefined
-    };
+  const shadow = getShadowDoc(shared.context, shared.log, client, editor.document);
+  if (!shadow) {
+    throw new Error("noLeanProject: no lean-toolchain found above this file.");
   }
+  const result = await shadow.query(editor.selection.active, singleTactic);
+
+  return { goal: result?.goal ?? null, proofTree: result?.steps ?? [], version: 4 };
 };
 
 export default fetchLeanData;

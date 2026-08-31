@@ -3,6 +3,7 @@ import toggleWebviewPanel from "./actions/toggleWebviewPanel";
 import sendPosition from "./actions/sendPosition";
 import { Shared } from "./types";
 import Settings from "./services/Settings";
+import { disposeShadowDoc, disposeAllShadowDocs } from "./services/noInstall/shadowDoc";
 
 export function activate(context: vscode.ExtensionContext) {
   const shared : Shared = {
@@ -31,11 +32,28 @@ export function activate(context: vscode.ExtensionContext) {
     sendPosition(shared, textEditor, cancellationToken.token);
   };
 
+  // Cursor moves (clicks) -> re-query immediately. In no-install mode this hits
+  // an already-elaborated shadow document, so it stays fast.
   vscode.window.onDidChangeActiveTextEditor((textEditor) => {
     fetchInfoTree(textEditor);
   });
   vscode.window.onDidChangeTextEditorSelection((event) => {
     fetchInfoTree(event.textEditor);
+  });
+
+  // Edits -> the shadow goes stale; debounce a refresh so we re-elaborate once
+  // the user pauses, not on every keystroke (this is the "hybrid" boundary).
+  let editDebounce: ReturnType<typeof setTimeout> | null = null;
+  vscode.workspace.onDidChangeTextDocument((event) => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || event.document !== editor.document) { return; }
+    if (editDebounce) { clearTimeout(editDebounce); }
+    editDebounce = setTimeout(() => fetchInfoTree(editor), 300);
+  });
+
+  // Clean up the shadow document when its source file is closed.
+  vscode.workspace.onDidCloseTextDocument((doc) => {
+    disposeShadowDoc(doc.uri.toString());
   });
 
   context.subscriptions.push(
@@ -46,4 +64,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {
+  disposeAllShadowDocs();
+}

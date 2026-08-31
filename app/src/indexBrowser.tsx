@@ -18,7 +18,7 @@ import BackgroundContextMenu from "./components/BackgroundContextMenu";
 import Snackbar from '@mui/material/Snackbar';
 import getStatement from "./services/getStatement";
 import zoomManually from "./services/zoomManually";
-import handleExtensionErrors, { versionErrorEl } from "./services/handleExtensionErrors";
+import handleExtensionErrors from "./services/handleExtensionErrors";
 import areWeOnEllipsisTactic from "./services/areWeOnEllipsisTactic";
 import { createSnapshot } from "./services/createSnapshot";
 
@@ -75,6 +75,7 @@ function Main() {
   const [converted, setConverted] = useState<Converted | null>(null);
 
   const [loadingAfterClick, setLoadingAfterClick] = useState<Boolean>(false);
+  const [loadingName, setLoadingName] = useState<string | null>(null);
 
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
   const [UIVersion, setUIVersion] = useState<number>(1);
@@ -115,15 +116,7 @@ function Main() {
       handleExtensionErrors(proofResponse, setSnackbarMessage, setSnackbarOpen)
       return;
     }
-    // 2. If extension version mismatch - set snackbar; don't create a tree
-    const leanRpcVersion = proofResponse.version ?? 1;
-    const desiredVersion = 4;
-    if (leanRpcVersion !== desiredVersion) {
-      setSnackbarMessage(versionErrorEl(desiredVersion, leanRpcVersion))
-      setSnackbarOpen(true);
-      return;
-    }
-    // 3. If everything's good - hide all snackbars, create a tree
+    // 2. If everything's good - hide all snackbars, create a tree
     setSnackbarOpen(false);
 
     // ___Why don't we memoize these functions/avoid rerenders?
@@ -165,6 +158,7 @@ function Main() {
         setPosition(message.data);
       } else if (message.type === 'from_extension:start_loading') {
         setLoadingAfterClick(true)
+        setLoadingName(message.data?.name ?? null)
       }
     };
 
@@ -246,7 +240,9 @@ function Main() {
       </GlobalContext.Provider>
     }
     {
-      !converted && !snackbarOpen &&
+      // Once they've clicked, the loading indicator sits in this same corner - and
+      // the snackbar would cover it
+      !converted && !snackbarOpen && !loadingAfterClick &&
       <Snackbar
         open
         autoHideDuration={null}
@@ -262,7 +258,12 @@ function Main() {
     />
     {
       loadingAfterClick &&
-      <div className="coin-loading-icon"><div></div></div>
+      <>
+        <div className="coin-loading-icon"><div></div></div>
+        <div style={{ position: 'fixed', bottom: 12, right: 44, fontSize: 13, opacity: 0.7, whiteSpace: 'nowrap' }}>
+          {loadingName ? <>Loading proof of <b>{loadingName}</b>…</> : <>Loading proof…</>}
+        </div>
+      </>
     }
     <JumpToCurrent converted={converted} position={position} UIVersion={UIVersion}/>
   </>
