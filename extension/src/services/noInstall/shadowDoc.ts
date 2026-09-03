@@ -44,7 +44,6 @@ const RPC_TIMEOUT_MS = 45_000;
 export interface ShadowQueryResult {
   steps: any;
   goal: any;
-  version: number;
 }
 
 /** The parser measures tactic positions against the shadow's FileMap, so they sit
@@ -152,7 +151,7 @@ export class ShadowDoc {
     // in the proof it came from, and the (expensive) reparse can be skipped.
     if (this.treeCache && this.treeCache.version === this.syncedVersion &&
         goal?.mvarId && this.treeCache.goalIds.has(goal.mvarId)) {
-      return { steps: this.treeCache.steps, goal, version: 4 };
+      return { steps: this.treeCache.steps, goal };
     }
 
     const result = await this.callRpc(TREE_METHOD, mapped, goal);
@@ -177,7 +176,7 @@ export class ShadowDoc {
   private async refresh(): Promise<void> {
     const sourceText = this.source.getText();
     const sourceVersion = this.source.version;
-    const { candidates } = candidateParsers(this.context, this.projectRoot);
+    const { candidates, projectVersion } = candidateParsers(this.context, this.projectRoot);
     const ordered = this.workingParser ? [this.workingParser] : candidates;
 
     let lastErr: unknown = null;
@@ -197,10 +196,13 @@ export class ShadowDoc {
         throw err;
       }
     }
-    throw new Error(
-      `noInstall: no bundled parser compiled against this project's Lean ` +
+    // [Claude comment] The cause goes to the log, not into the message - the webview
+    // matches error strings exactly, so they stay bare codes.
+    this.log.appendLine(
+      `no-install: no bundled parser compiled against this project's Lean ` +
         `(${lastErr instanceof Error ? lastErr.message : lastErr}).`
     );
+    throw Object.assign(new Error("noParserForLeanVersion"), { meta: { leanVersion: projectVersion } });
   }
 
   /** Wait until the injected parser registers its RPC method, telling a genuine
@@ -298,7 +300,7 @@ export class ShadowDoc {
       const data = typeof resStr === "string" ? JSON.parse(resStr) : resStr; // compressed JSON string
       const steps = data?.steps ?? [];
       if (!steps.length) { throw new Error("zeroProofSteps"); } // term-mode proof, or not in a theorem
-      return { steps: unmapSteps(this.injection!, steps), goal, version: 4 };
+      return { steps: unmapSteps(this.injection!, steps), goal };
     } catch (err) {
       if (hasMark((err as Error).message || String(err), SILENT_NO_PROOF_MARKS)) { return null; }
       throw err;

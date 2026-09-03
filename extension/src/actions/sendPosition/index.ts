@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
-import { Shared } from "../../types";
+import { ProofError, Shared } from "../../types";
 import getErrorMessage from "../../services/getErrorMessage";
 import fetchLeanData from "./services/fetchLeanData";
 import shouldIgnoreEvent from "./services/shouldIgnoreEvent";
@@ -13,9 +13,8 @@ const getResponseOrError = async (shared: Shared, editor: vscode.TextEditor, tdp
     shared.log.appendLine("🎉 Sent everything");
     return body;
   } catch (error) {
-    const message = getErrorMessage(error);
-    const body = { error: message };
-    shared.log.appendLine(`❌ Error: "${message}"`);
+    const body: ProofError = { error: getErrorMessage(error), meta: (error as ProofError).meta };
+    shared.log.appendLine(`❌ Error: "${body.error}"`);
     return body;
   }
 };

@@ -17,11 +17,11 @@ const fetchLeanData = async (
 
   const shadow = getShadowDoc(shared.context, shared.log, client, editor.document);
   if (!shadow) {
-    throw new Error("noLeanProject: no lean-toolchain found above this file.");
+    throw new Error("noLeanProject");
   }
   const result = await shadow.query(editor.selection.active, singleTactic);
 
-  return { goal: result?.goal ?? null, proofTree: result?.steps ?? [], version: 4 };
+  return { goal: result?.goal ?? null, proofTree: result?.steps ?? [] };
 };
 
 export default fetchLeanData;

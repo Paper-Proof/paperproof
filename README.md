@@ -307,44 +307,19 @@ theorem casesRandom (C: Prop)
 
 ## Installation
 
-If you're on a recent Lean version (**v4.27.0** or bigger) then it's really easy, follow the steps below. Otherwise, consult [VERSIONS.md](https://github.com/Paper-Proof/paperproof/blob/main/VERSIONS.md).
-
 1. Install the "Paperproof" vscode extension ([link](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof)).
 
-2. In your `lakefile.toml`, write:
-   
-   ```lean
-   [[require]]
-   name = "Paperproof"
-   git = "https://github.com/Paper-Proof/paperproof.git"
-   subDir = "lean"
-   rev = "main"
-   ```
-
-4. Then, in your terminal, run:
-
-   ```shell
-   lake update Paperproof
-   ```
-
-5. In a Lean file with your theorems, write:
-
-   ```lean
-   import Paperproof
-   ```
-
-6. **You're done!**
+2. **You're done!**
 
    Now, click on the paperproof icon (after you installed the Paperproof extension, it should appear in all `.lean` files), this will open a Paperproof panel within vscode.
 
    <img width="200" src="https://github.com/Paper-Proof/paperproof/assets/7578559/fd077fbe-36a3-4e94-9fa8-b7a38ffd1eea"/>
 
-   You can click on any theorem now (well, only tactic-based proofs, those starting with `by`, are supported now) - you should see your proof tree rendered.
+   You can click on any theorem now (well, only on tactic-based proofs, those starting with `by`) - you should see your proof tree rendered.
 
-> [!TIP]
-> If you get a build error when you try to build the paperproof package, please copypaste the error message and create the corresponding issue in Paperproof.
-> Lean updates its metaprogramming api frequently - we try to go along with it, and it's helpful when incompatibilities are discovered on time.   
-> The quickfix for any Paperproof build error is to use the Lean version mentioned in [Paperproof's lean-toolchain](https://github.com/Paper-Proof/paperproof/blob/main/lean-toolchain).
+## Updating
+
+Paperproof lives entirely in the vscode extension, so updating it means updating the extension - which vscode does automatically. You can check for new updates with **`cmd+shift+p` => "Extensions: Show Extension Updates"**.
 
 ## Tutorial
 
@@ -424,15 +399,6 @@ Below, you will see a table with the main features of Paperproof.
   </tbody>
   </table>
 </details>
-
-## Updating
-
-To update Paperproof, you only need to rerun `lake update Paperproof`. This will fetch the newest version of the Paperproof Lean library from this github repo, and build it.
-
-Vscode extensions are automatically updated, however you can check for new updates with  
-**`cmd+shift+p` => "Extensions: Show Extension Updates"**.
-
-Paperproof is a package that's usually only used during development, so you might want to remove it from your `lakefile.lean` when you're pushing to production. In order to do that, just remove the Paperproof require from `lakefile.lean`, and run `lake update Paperproof`. This will clean up `lake-manifest.json` and `lake-packages` for you.
 
 ## About Paperproof
 
