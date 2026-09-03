@@ -458,3 +458,55 @@ dependsOn: a, b, hb, h
 example (a b : ℕ) (h : a = b) (hb : b = a) : a ≤ b := by
   rw [hb] at h
   exact (test_foo a b).1 h
+
+/--
+info: [step 1]
+tactic: simpa only [Nat.add_zero] using h
+goalBefore:
+  type: n + 0 = 5
+  hyps:
+    n : ℕ
+    h : n = 5
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: n, h
+-/
+#guard_msgs(info, drop error) in
+#assert_parser in
+theorem test_simpa (n : ℕ) (h : n = 5) : n + 0 = 5 := by
+  simpa only [Nat.add_zero] using h
+
+/--
+info: [step 1]
+tactic: simpa only [Nat.add_zero] using (by exact hab : a = b)
+goalBefore:
+  type: a + 0 = b
+  hyps:
+    a : ℕ
+    b : ℕ
+    hab : a = b
+goalsAfter: (none)
+spawnedGoals:
+  type: a = b
+  hyps:
+    a : ℕ
+    b : ℕ
+    hab : a = b
+dependsOn: a, b, hab
+
+[step 2]
+tactic: exact hab
+goalBefore:
+  type: a = b
+  hyps:
+    a : ℕ
+    b : ℕ
+    hab : a = b
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: hab
+-/
+#guard_msgs(info, drop error) in
+#assert_parser in
+theorem test_simpa_nested_by (a b : ℕ) (hab : a = b) : a + 0 = b := by
+  simpa only [Nat.add_zero] using (by exact hab : a = b)

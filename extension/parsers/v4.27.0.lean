@@ -436,9 +436,30 @@ def getProofStepPosition (fileMap : FileMap) (tacticSubstring: Substring.Raw) : 
   stop  := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.stopPos
 }
 
+/--
+  [Claude comment]
+
+  `simpa` runs `simp` and then closes the goal by assigning it directly, so only the
+  `simp` half leaves a `TacticInfo` behind. Its step claims the same `goalBefore` as
+  `simpa` itself, which suppresses `simpa`'s own (closing) step below - leaving the
+  simp-normalized goal looking unsolved. So we drop the expansion and let `simpa`
+  stand as one closing step.
+
+  The expansion is recognized by its position: it starts where `simpa` itself starts,
+  whereas a nested proof (`simpa using foo (by positivity)`) starts further in and is kept.
+-/
+def dropSimpaExpansion (position : ProofStepPosition) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo)
+    : List ProofStep × Std.HashSet GoalInfo :=
+  let (expansion, kept) := steps.partition (isSamePosition ·.position.start position.start)
+  -- The goals the expansion introduced go too, otherwise they resurface as `spawnedGoals`
+  (kept, (expansion.flatMap stepGoalsAfter).foldl Std.HashSet.erase allGoals)
+
 def parseTacticBody (fileMap : FileMap) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticSubstring : Substring.Raw) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (tacticString : String) (theorems : List TheoremSignature) : MetaM Result := do
-  let steps := prettifySteps fileMap tInfo.stx steps tacticString
   let position := getProofStepPosition fileMap tacticSubstring
+  let (steps, allGoals) := if tInfo.stx.getKind == ``Lean.Parser.Tactic.simpa
+    then dropSimpaExpansion position steps allGoals
+    else (steps, allGoals)
+  let steps := prettifySteps fileMap tInfo.stx steps tacticString
 
   let proofTreeEdges ← getGoalsChange ctx tInfo
   let currentGoals := proofTreeEdges.map (fun ⟨ _, g₁, gs ⟩ => g₁ :: gs)  |>.flatten
