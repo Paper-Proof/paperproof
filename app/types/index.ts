@@ -42,6 +42,7 @@ export interface Settings {
   isGreenHypotheses : boolean;
   areHypsHighlighted: boolean;
   isFollowingCursor : boolean;
+  isUnlimitedWidth  : boolean;
   fontSize          : number;
 }
 

@@ -248,6 +248,11 @@ const ContextMenu = (props: Props) => {
         <Switch checked={settings.isHiddenGoalNames} size="small"/>
       </MenuItem>
 
+      <MenuItem onClick={handleSettingToggle("isUnlimitedWidth")}>
+        <div className="text">Wider Nodes</div>
+        <Switch checked={settings.isUnlimitedWidth} size="small"/>
+      </MenuItem>
+
       <MenuItem onClick={handleSettingToggle("isGreenHypotheses")}>
         <div className="text">Make all hypotheses green</div>
         <Switch checked={settings.isGreenHypotheses} size="small"/>

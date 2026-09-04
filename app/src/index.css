@@ -382,6 +382,17 @@ body{
   }
 }
 
+.proof-tree.-isUnlimitedWidthON{
+  .goals .goal,
+  .goals .tactic,
+  .hypothesis-table .hypothesis{
+    max-width: none;
+  }
+  .box .box-insides .hypothesis-table:first-child tr:nth-child(2) div.hypothesis{
+    max-width: none !important;
+  }
+}
+
 /*______________________ PROOF-TREE: paddings ______________________*/
 
 /* This is the easiest way to acommodate for our nice negative-margin <tactic>s */

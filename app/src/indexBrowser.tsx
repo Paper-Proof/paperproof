@@ -244,6 +244,7 @@ function Main() {
           proof-tree
           ${settings.isSingleTacticMode ? '-isSingleTacticModeON' : ''}
           ${settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
+          ${settings.isUnlimitedWidth ? '-isUnlimitedWidthON' : ''}
           ${settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
           ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
           ${latexSettings.isActive ? '-isLatexModeON' : ''}

@@ -14,6 +14,7 @@ export const DEFAULT_STANDALONE_SETTINGS: Settings = {
   isGreenHypotheses : false,
   areHypsHighlighted: false,
   isFollowingCursor : false,
+  isUnlimitedWidth  : false,
   fontSize          : 12,
 };
 
@@ -85,6 +86,7 @@ const ProofTreeView = (props: Props) => {
           proof-tree
           ${props.settings.isSingleTacticMode ? '-isSingleTacticModeON' : ''}
           ${props.settings.isHiddenGoalNames ? '-isHiddenGoalNamesON' : ''}
+          ${props.settings.isUnlimitedWidth ? '-isUnlimitedWidthON' : ''}
           ${props.settings.isGreenHypotheses ? ''                     : '-isGreenHypothesesOFF'}
           ${areWeOnEllipsisTactic(props.proofTree, props.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
           ${props.latexSettings.isActive ? '-isLatexModeON' : ''}

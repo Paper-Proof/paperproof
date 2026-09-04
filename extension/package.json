@@ -83,7 +83,12 @@
           "default": true,
           "description": "Scroll to the tactic under the cursor whenever it is out of view"
         },
-        "paperproof.fontSize": {
+        "paperproof.isUnlimitedWidth": {
+          "type": "boolean",
+          "default": false,
+          "description": "Let goals, tactics and hypotheses grow as wide as their content"
+        },
+    "paperproof.fontSize": {
           "type": "number",
           "default": 13,
           "description": "Font size for goals and hypotheses"
