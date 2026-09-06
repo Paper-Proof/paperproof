@@ -42,20 +42,15 @@ excluded from the deploy archive. Never `rm -rf` the app directory; extract over
 
 ## Deploy
 
-`deployment/deploy.sh` provisions a *fresh* droplet: it runs `apt upgrade -y` and
-reinstalls node/pm2/nginx/certbot. Don't use it to ship a code change.
-
-For a code change, build locally and copy only what moved:
-
 ```bash
-npm run build
-scp server.js public/dist/* root@<ip>:/var/www/paperproof.xyz/...   # mind the two dirs
-ssh root@<ip> 'cd /var/www/paperproof.xyz && chown -R www-data:www-data server.js public/dist && \
-  sudo -u www-data HOME=/home/www-data pm2 restart paperproof-server --update-env'
+deployment/push.sh          # ship a code change
 ```
 
-Static assets need no restart; only `server.js` does. Back up what you replace
-first — there's no git checkout on the droplet.
+Builds, uploads `server.js` + `public/`, restarts pm2, and checks the live
+bundles match what it just built. Never touches `snapshots/`.
+
+`deployment/deploy.sh` is a different thing — it provisions a *fresh* droplet
+(`apt upgrade -y`, reinstalls node/pm2/nginx/certbot). Don't use it to ship code.
 
 On the droplet: app in `/var/www/paperproof.xyz` (pm2 app `paperproof-server`,
 `cwd` pinned by `deployment/ecosystem.config.cjs` because `SNAPSHOTS_DIR` is
