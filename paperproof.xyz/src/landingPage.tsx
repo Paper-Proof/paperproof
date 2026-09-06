@@ -338,14 +338,13 @@ function LandingPage() {
           <div>
             <div className="lp-label" style={{ marginBottom: 18 }}>Get started</div>
             <h2 className="lp-h2">See your next proof<br />in two minutes.</h2>
-            <p className="lp-install-p">Install the Paperproof VSCode extension &amp; Lean library, open any <span className="lp-install-lean">.lean</span> file of yours, and see your proof render as you type.</p>
+            <p className="lp-install-p">Install the Paperproof VSCode extension, open any <span className="lp-install-lean">.lean</span> file of yours, and see your proof render as you type.</p>
             <a href="https://github.com/Paper-Proof/paperproof#installation" target="_blank" rel="noopener noreferrer" className="lp-btn -light">Read installation instructions →</a>
           </div>
           <div className="lp-install-steps">
             {[
               { n: "01", title: "Install Paperproof VSCode extension", desc: "" },
-              { n: "02", title: "Install Paperproof Lean library", desc: "" },
-              { n: "03", title: "Open the panel", desc: <>Click on Paperproof icon and start proving.</> },
+              { n: "02", title: "Open the panel", desc: <>Click on Paperproof icon and start proving.</> },
             ].map(({ n, title, desc }) => (
               <div key={n} className="lp-install-step">
                 <span className="lp-install-step-n">{n}</span>
