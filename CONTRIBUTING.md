@@ -105,40 +105,6 @@ The 3 folders you'll be working on is:
 
 If you want to test the results of your changes, you can go to `Examples.lean`, or to `/_examples/...` for some more test cases.
 
-# Version management
-
-Like mentioned above, Paperproof VSCode extension and Paperproof Lean library are deployed separately; and, correspondingly, users download them separately.  
-The **lean library version** and **vscode extension version** should be compatible.  
-
-To ensure such compatibility, we have
-
-- **lean library version**: `.version` field from `/lean/Paperproof.lean`, and
-- **vscode extension version**: `desiredVersion` constant in `/app/indexBrowser.lean`
-
-that must *exactly match*.  
-
-If they don't match, we tell the user to update their **lean library version**.  
-**Vscode extension version** is always ahead of the game, because VSCode automatically updates the extensions as soon as they are published.
-
-___
-
-There are some other mentions of versioning which have nothing to do with this matching:
-
-- `GlobalContextType.UIVersion` - this is just how we determine when we should rerender the dependency arrows in the ui
-- `/extension/package.json version` - this is automatically incremented when we publish vscode extension
-- `/app/package.json version`, `/lean/lake-manifest.json version` - NOT USED
-- `leanExtension.packageJSON.version` - we check the **vscode-lean4**'s extension version if connecting to their api errors out (this usually means **vscode-lean4** updated their api, and **paperproof** is not yet up to date)
-
-___
-
-Additionally, there is a version of Lean that's used for building the Paperproof library.
-There are two Lean versions mentioned in this repo:
-- `/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof` In particular, our `/Examples.lean` and `_/examples.lean` always use it. This file doesn't affect the users of Paperproof, it's just for Paperproof developers so that we can test stuff.
-- `/lean/lean-toolchain` - this contains a Lean version that's used when you open `code paperproof/lean`.
-
-When someone uses Paperproof as a dependency, their project will be FORCEFULLY UPGRADED up to `/lean/lean-toolchain` Lean version (see https://github.com/Paper-Proof/paperproof/issues/69). That's why we keep the LOWEST Lean version we support in `/lean/lean-toolchain`.
-For example, if Paperproof compiles in [`leanprover/lean4:v4.27.0`, `leanprover/lean4:v4.28.0`, `leanprover/lean4:v4.29.0`] (and doesn't compile for any other Lean versions), we must put `leanprover/lean4:v4.27.0` into our `/lean/lean-toolchain`.
-
 <div align="center">
 <img width="60px" src="https://github.com/Paper-Proof/paperproof/assets/7578559/58f24cf2-4336-4376-8738-6463e3802ba0">
 </div>
