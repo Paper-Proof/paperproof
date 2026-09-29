@@ -3,6 +3,7 @@ import Lean.Elab.Command
 import Services.BetterParser
 import Mathlib.Data.Set.Basic
 import Mathlib.Tactic.SimpRw
+import Mathlib.Order.Filter.Defs
 import Paperproof
 
 open Lean Elab Command 
@@ -510,3 +511,70 @@ dependsOn: hab
 #assert_parser in
 theorem test_simpa_nested_by (a b : ℕ) (hab : a = b) : a + 0 = b := by
   simpa only [Nat.add_zero] using (by exact hab : a = b)
+
+/--
+info: [step 1]
+tactic: filter_upwards [h] with y hy
+goalBefore:
+  type: ∀ᶠ (x : ℕ) in l, f x + 1 = g x + 1
+  hyps:
+    f : ℕ → ℕ
+    g : ℕ → ℕ
+    l : Filter ℕ
+    h : ∀ᶠ (x : ℕ) in l, f x = g x
+goalsAfter:
+  type: f y + 1 = g y + 1
+  hyps:
+    f : ℕ → ℕ
+    g : ℕ → ℕ
+    l : Filter ℕ
+    h : ∀ᶠ (x : ℕ) in l, f x = g x
+    y : ℕ
+    hy : f y = g y
+spawnedGoals: (none)
+dependsOn: l, f, g, h
+
+[step 2]
+tactic: rw [hy]
+goalBefore:
+  type: f y + 1 = g y + 1
+  hyps:
+    f : ℕ → ℕ
+    g : ℕ → ℕ
+    l : Filter ℕ
+    h : ∀ᶠ (x : ℕ) in l, f x = g x
+    y : ℕ
+    hy : f y = g y
+goalsAfter:
+  type: g y + 1 = g y + 1
+  hyps:
+    f : ℕ → ℕ
+    g : ℕ → ℕ
+    l : Filter ℕ
+    h : ∀ᶠ (x : ℕ) in l, f x = g x
+    y : ℕ
+    hy : f y = g y
+spawnedGoals: (none)
+dependsOn: f, y, g, hy
+
+[step 3]
+tactic: rfl
+goalBefore:
+  type: g y + 1 = g y + 1
+  hyps:
+    f : ℕ → ℕ
+    g : ℕ → ℕ
+    l : Filter ℕ
+    h : ∀ᶠ (x : ℕ) in l, f x = g x
+    y : ℕ
+    hy : f y = g y
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: g, y
+-/
+#guard_msgs in
+#assert_parser in
+theorem filter_upwards_with (f g : ℕ → ℕ) (l : Filter ℕ) (h : ∀ᶠ x in l, f x = g x) :
+    ∀ᶠ x in l, f x + 1 = g x + 1 := by
+  filter_upwards [h] with y hy
+  rw [hy]

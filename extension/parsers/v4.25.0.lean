@@ -403,6 +403,20 @@ def getProofStepPosition (fileMap : FileMap) (tacticSubstring: Substring) : Proo
   stop  := Lean.FileMap.utf8PosToLspPos fileMap tacticSubstring.stopPos
 }
 
+/--
+  [Claude comment]
+
+  Tactics like `filter_upwards [h] with y hy` run a synthetic `intro y hy`, which has no source
+  substring, so it never reaches `prettifySteps` to have its per-name child steps merged. The
+  children whose syntax is user-written (`hy`) would then surface as a dangling step whose
+  `goalBefore` has no in-edge (rendered as a stray have box). The enclosing user-written tactic
+  already covers this goal change, so we drop these steps together with their goals.
+-/
+def dropSyntheticIntroSteps (stx : Syntax) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo)
+    : List ProofStep × Std.HashSet GoalInfo :=
+  if stx.getKind != ``Lean.Parser.Tactic.intro then (steps, allGoals) else
+  ([], (steps.flatMap (fun s => s.goalBefore :: stepGoalsAfter s)).foldl Std.HashSet.erase allGoals)
+
 def parseTacticBody (fileMap : FileMap) (ctx : ContextInfo) (tInfo : TacticInfo) (tacticSubstring : Substring) (steps : List ProofStep) (allGoals : Std.HashSet GoalInfo) (tacticString : String) (theorems : List TheoremSignature) : MetaM Result := do
   let steps := prettifySteps tInfo.stx steps tacticString
   let position := getProofStepPosition fileMap tacticSubstring
@@ -443,7 +457,9 @@ public def BetterParser_Tree (fileMap : FileMap) (infoTree : InfoTree) : MetaM (
     -- 3. Parse tactic
     let .some ctx := info.updateContext? ctx              | panic! "unexpected context node"
     let .ofTacticInfo tInfo := info                       | return { steps, allGoals }
-    let .some tacticSubstring := getTacticSubstring tInfo | return { steps, allGoals }
+    let .some tacticSubstring := getTacticSubstring tInfo
+      | let (steps, allGoals) := dropSyntheticIntroSteps tInfo.stx steps allGoals
+        return { steps, allGoals }
     let tacticString := prettifyTacticString (Substring.toString tacticSubstring)
     parseTacticBody fileMap ctx tInfo tacticSubstring steps allGoals tacticString []
   )
