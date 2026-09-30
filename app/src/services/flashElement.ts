@@ -1,3 +1,5 @@
+import getZoom from './getZoom';
+
 const FLASH_CLASS = '-just-jumped-to';
 const FLASH_MS = 2000;
 
@@ -11,7 +13,7 @@ const setArrowOffset = (el: HTMLElement) => {
   const tree = el.closest('.proof-tree') as HTMLElement | null;
   if (!tree) return;
 
-  const zoom = parseFloat(getComputedStyle(tree).transform.split(',')[3]) || 1;
+  const zoom = getZoom(tree);
   const treeRect = tree.getBoundingClientRect();
   const elRect = el.getBoundingClientRect();
 

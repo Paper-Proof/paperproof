@@ -1,5 +1,6 @@
 import { Arrow, Point } from 'types';
 import distance from './distance';
+import getZoom from './getZoom';
 
 const createArrow = (from: string | HTMLElement | null, to: string | HTMLElement | null) : Arrow | null => {
   const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
@@ -7,7 +8,7 @@ const createArrow = (from: string | HTMLElement | null, to: string | HTMLElement
   const toEl = typeof to === 'string' ? document.getElementById(to) : to;
   if (!proofTreeEl || !fromEl || !toEl) return null;
 
-  const currentZoom = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
+  const currentZoom = getZoom(proofTreeEl);
 
   const pointFrom : Point = {
     x: distance('left', fromEl, proofTreeEl)/currentZoom + fromEl.offsetWidth/2,

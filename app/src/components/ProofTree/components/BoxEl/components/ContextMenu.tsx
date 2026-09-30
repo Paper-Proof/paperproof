@@ -5,6 +5,7 @@ import { Divider, Switch } from "@mui/material";
 import { useGlobalContext } from "src/indexBrowser";
 import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
+import getZoom from "src/services/getZoom";
 import copyAsNaturalProofTree from "src/services/copyAsNaturalProofTree";
 import convertToLatex, { collectTexts, convertTextsToLatex } from "src/services/convertToLatex";
 import SnackbarLatexPrompt from "./SnackbarLatexPrompt";
@@ -83,7 +84,7 @@ const ContextMenu = (props: Props) => {
     if (!props.contextMenu) return;
     const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
     if (!proofTreeEl) return;
-    const currentScale = parseFloat(getComputedStyle(proofTreeEl).transform.split(',')[3]) || 1;
+    const currentScale = getZoom(proofTreeEl);
     setZoom(Math.round(currentScale * 10) * 10);
   }, [props.contextMenu]);
 
