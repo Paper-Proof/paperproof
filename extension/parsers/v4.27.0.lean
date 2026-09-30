@@ -339,6 +339,76 @@ public structure Result where
   steps : List ProofStep
   allGoals : Std.HashSet GoalInfo
 
+/--
+  [Claude comment]
+
+  Tactics like `split_ifs` split one condition at a time - a binary tree of `by_cases` - but
+  only the leaves of that tree survive as `goalsAfter`. Drawn as one step with 2ⁿ goals, every
+  leaf lists all n new hypotheses, so `h : ‖f x‖ₑ ≤ b` from the first split repeats in half
+  of the boxes. The intermediate goals are still in `mctxAfter`, so we recover the tree:
+  returns `(node, children)` edges from `root` down to `leaves`. Chains with a single child
+  (the `intro` and `simp` steps between two splits) are collapsed to their last goal, which
+  is the one that already has the new hypothesis and the simplified target.
+-/
+partial def splitTreeEdges (mctx : MetavarContext) (root : MVarId) (leaves : List MVarId) : List (MVarId × List MVarId) :=
+  let directChildren (m : MVarId) : List MVarId :=
+    match mctx.eAssignment.find? m with
+    | none   => []
+    | some e => (e.collectMVars {}).result.toList.map fun c =>
+      match mctx.getDelayedMVarAssignmentCore? c with
+      | some d => d.mvarIdPending
+      | none   => c
+  let rec reaches (m : MVarId) : Bool := leaves.contains m || (directChildren m).any reaches
+  let relevantChildren (m : MVarId) : List MVarId := (directChildren m).filter reaches |>.eraseDups
+  let rec collapse (m : MVarId) : MVarId :=
+    if leaves.contains m then m else
+    match relevantChildren m with
+    | [c] => collapse c
+    | _   => m
+  let rec edges (m : MVarId) : List (MVarId × List MVarId) :=
+    if leaves.contains m then [] else
+    let kids := (relevantChildren m).map collapse
+    (m, kids) :: kids.flatMap edges
+  -- The root keeps its own id (it's the tactic's `goalBefore`), but takes its children from
+  -- the first real split - otherwise a chain right below the root becomes a no-op step
+  match edges (collapse root) with
+  | (_, kids) :: rest => (root, kids) :: rest
+  | []                => []
+
+/--
+  [Claude comment]
+
+  We only rebuild the tree when it removes repetition: some new hypothesis is shared by
+  several leaves but not by all of them. Otherwise (`constructor`, `rcases h with a | b`, ...)
+  the flat `goalBefore → goalsAfter` step is already the right picture.
+-/
+def hasSharedBranchHyps (mctx : MetavarContext) (root : MVarId) (leaves : List MVarId) : Bool := Id.run do
+  let some rootDecl := mctx.findDecl? root | return false
+  let leafHyps := leaves.map fun l =>
+    (mctx.findDecl? l).map (fun d => d.lctx.getFVarIds.toList.filter (!rootDecl.lctx.contains ·)) |>.getD []
+  let allNew := leafHyps.flatten.eraseDups
+  return allNew.any fun fvar =>
+    let count := leafHyps.countP (·.contains fvar)
+    2 ≤ count && count < leaves.length
+
+/--
+  [Claude comment]
+
+  The `(goal, children)` edges to draw for one tactic: the recovered split tree when it helps,
+  otherwise the single flat edge `root → leaves`. We also fall back to the flat edge if the
+  tree isn't a clean tree over exactly `leaves` - better a repetitive picture than a goal
+  that silently disappears (or gets drawn twice).
+-/
+def goalEdges (mctx : MetavarContext) (root : MVarId) (leaves : List MVarId) : List (MVarId × List MVarId) :=
+  let flat := [(root, leaves)]
+  if !hasSharedBranchHyps mctx root leaves then flat else
+  let edges := splitTreeEdges mctx root leaves
+  let nodes := edges.map (·.1)
+  let reachedLeaves := edges.flatMap (·.2) |>.filter leaves.contains
+  let isCleanTree := nodes.eraseDups.length == nodes.length &&
+    reachedLeaves.length == leaves.length && leaves.all reachedLeaves.contains
+  if isCleanTree then edges else flat
+
 def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List String × GoalInfo × List GoalInfo)) := do
   -- We want to filter out `focus` like tactics which don't do any assignments
   -- therefore we check all goals on whether they were assigned during the tactic
@@ -363,11 +433,14 @@ def getGoalsChange (ctx : ContextInfo) (tInfo : TacticInfo) : MetaM (List (List 
       let tacticDependsOn ← ctx.runMetaM goalDecl.lctx
           (findHypsUsedByTactic goalBefore goalDecl tInfo.mctxAfter)
 
-      result := (
-        tacticDependsOn,
-        ← printGoalInfo printCtx goalBefore,
-        ← goalsAfter.filter assignedMVars.contains |>.mapM (printGoalInfo printCtx)
-      ) :: result
+      let leaves := goalsAfter.filter assignedMVars.contains
+      let edges ← goalEdges tInfo.mctxAfter goalBefore leaves |>.mapM fun (node, kids) => do
+        return (
+          if node == goalBefore then tacticDependsOn else [],
+          ← printGoalInfo printCtx node,
+          ← kids.mapM (printGoalInfo printCtx)
+        )
+      result := edges ++ result
   return result
 
 /--

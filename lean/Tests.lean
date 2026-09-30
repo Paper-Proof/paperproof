@@ -578,3 +578,441 @@ theorem filter_upwards_with (f g : ℕ → ℕ) (l : Filter ℕ) (h : ∀ᶠ x i
     ∀ᶠ x in l, f x + 1 = g x + 1 := by
   filter_upwards [h] with y hy
   rw [hy]
+
+/--
+info: [step 1]
+tactic: split_ifs
+goalBefore:
+  type: (if (if n ≤ b then n else 0) ≤ a then if n ≤ b then n else 0 else 0) = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+goalsAfter:
+  type: (if n ≤ a then n else 0) = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝ : n ≤ b
+  ============================
+  type: (if 0 ≤ a then 0 else 0) = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝ : ¬n ≤ b
+spawnedGoals: (none)
+dependsOn: n, b, a
+
+[step 2]
+tactic: split_ifs
+goalBefore:
+  type: (if n ≤ a then n else 0) = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝ : n ≤ b
+goalsAfter:
+  type: n = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : n ≤ b
+    h✝ : n ≤ a
+  ============================
+  type: 0 = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : n ≤ b
+    h✝ : ¬n ≤ a
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 3]
+tactic: split_ifs
+goalBefore:
+  type: n = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : n ≤ b
+    h✝ : n ≤ a
+goalsAfter:
+  type: n = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : n ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+  ============================
+  type: n = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : n ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 4]
+tactic: split_ifs
+goalBefore:
+  type: 0 = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : n ≤ b
+    h✝ : ¬n ≤ a
+goalsAfter:
+  type: 0 = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : ¬n ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+  ============================
+  type: 0 = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : ¬n ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 5]
+tactic: split_ifs
+goalBefore:
+  type: (if 0 ≤ a then 0 else 0) = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝ : ¬n ≤ b
+goalsAfter:
+  type: 0 = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : ¬n ≤ b
+    h✝ : 0 ≤ a
+  ============================
+  type: 0 = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : ¬n ≤ b
+    h✝ : ¬0 ≤ a
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 6]
+tactic: split_ifs
+goalBefore:
+  type: 0 = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : ¬n ≤ b
+    h✝ : 0 ≤ a
+goalsAfter:
+  type: 0 = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : 0 ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+  ============================
+  type: 0 = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : 0 ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 7]
+tactic: split_ifs
+goalBefore:
+  type: 0 = if n ≤ a ∧ n ≤ b then n else 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝¹ : ¬n ≤ b
+    h✝ : ¬0 ≤ a
+goalsAfter:
+  type: 0 = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : ¬0 ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+  ============================
+  type: 0 = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : ¬0 ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 8]
+tactic: sorry
+goalBefore:
+  type: n = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : n ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: n
+
+[step 9]
+tactic: sorry
+goalBefore:
+  type: n = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : n ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: n
+
+[step 10]
+tactic: sorry
+goalBefore:
+  type: 0 = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : ¬n ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: n
+
+[step 11]
+tactic: sorry
+goalBefore:
+  type: 0 = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : n ≤ b
+    h✝¹ : ¬n ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 12]
+tactic: sorry
+goalBefore:
+  type: 0 = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : 0 ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: n
+
+[step 13]
+tactic: sorry
+goalBefore:
+  type: 0 = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : 0 ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 14]
+tactic: sorry
+goalBefore:
+  type: 0 = n
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : ¬0 ≤ a
+    h✝ : n ≤ a ∧ n ≤ b
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: n
+
+[step 15]
+tactic: sorry
+goalBefore:
+  type: 0 = 0
+  hyps:
+    a : ℕ
+    b : ℕ
+    n : ℕ
+    h✝² : ¬n ≤ b
+    h✝¹ : ¬0 ≤ a
+    h✝ : ¬(n ≤ a ∧ n ≤ b)
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: (none)
+-/
+#guard_msgs(info, drop warning) in
+#assert_parser in
+theorem test_split_ifs_tree (a b n : ℕ) :
+    (if (if n ≤ b then n else 0) ≤ a then (if n ≤ b then n else 0) else 0) =
+      (if n ≤ a ∧ n ≤ b then n else 0) := by
+  split_ifs
+  all_goals sorry
+
+/--
+info: [step 1]
+tactic: rcases h with ⟨x, hx | hx⟩ | hr
+goalBefore:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    h : (∃ x, p x ∨ q x) ∨ r 0
+goalsAfter:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    x : ℕ
+    h✝ : p x ∨ q x
+  ============================
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    hr : r 0
+spawnedGoals: (none)
+dependsOn: h
+
+[step 2]
+tactic: rcases h with ⟨x, hx | hx⟩ | hr
+goalBefore:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    x : ℕ
+    h✝ : p x ∨ q x
+goalsAfter:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    x : ℕ
+    hx : p x
+  ============================
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    x : ℕ
+    hx : q x
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 3]
+tactic: trivial
+goalBefore:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    x : ℕ
+    hx : p x
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 4]
+tactic: trivial
+goalBefore:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    x : ℕ
+    hx : q x
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: (none)
+
+[step 5]
+tactic: trivial
+goalBefore:
+  type: True
+  hyps:
+    p : ℕ → Prop
+    q : ℕ → Prop
+    r : ℕ → Prop
+    hr : r 0
+goalsAfter: (none)
+spawnedGoals: (none)
+dependsOn: (none)
+-/
+#guard_msgs in
+#assert_parser in
+theorem test_rcases_nested_tree (p q r : ℕ → Prop) (h : (∃ x, p x ∨ q x) ∨ r 0) : True := by
+  rcases h with ⟨x, hx | hx⟩ | hr
+  all_goals trivial
