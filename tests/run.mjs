@@ -9,6 +9,16 @@ import { spawn, spawnSync } from "child_process";
 import { fileURLToPath, pathToFileURL } from "url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const appAlias = {
+  name: "app-alias",
+  setup(build) {
+    build.onResolve({ filter: /^@app\// }, (a) => {
+      const base = path.join(repo, "app/src", a.path.slice("@app/".length));
+      for (const suffix of [".ts", ".tsx", "/index.ts", "/index.tsx", ""]) if (fs.existsSync(base + suffix) && fs.statSync(base + suffix).isFile()) return { path: base + suffix };
+      return { path: base };
+    });
+  },
+};
 const args = process.argv.slice(2);
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 const screenshotsDir = opt("--screenshots") ?? opt("--compare");
@@ -59,16 +69,7 @@ async function loadLib() {
     bundle: true, platform: "node", format: "esm", logLevel: "warning",
     outfile: path.join(tmp, "lib.mjs"),
     tsconfig: path.join(repo, "app/tsconfig.json"),
-    plugins: [{
-      name: "app-alias",
-      setup(build) {
-        build.onResolve({ filter: /^@app\// }, (a) => {
-          const base = path.join(repo, "app/src", a.path.slice("@app/".length));
-          for (const suffix of [".ts", ".tsx", "/index.ts", ""]) if (fs.existsSync(base + suffix) && fs.statSync(base + suffix).isFile()) return { path: base + suffix };
-          return { path: base };
-        });
-      },
-    }],
+    plugins: [appAlias],
   });
   return import(pathToFileURL(path.join(tmp, "lib.mjs")).href);
 }
@@ -78,18 +79,41 @@ async function screenshots() {
   fs.mkdirSync(outDir, { recursive: true });
   const { snapshotPayload } = lib;
 
+  const { default: esbuild } = await import(pathToFileURL(path.join(repo, "paperproof.xyz/node_modules/esbuild/lib/main.js")).href);
+  const appNodeModules = path.join(repo, "app/node_modules");
+  await esbuild.build({
+    entryPoints: [path.join(repo, "tests/vscode.tsx")],
+    bundle: true, platform: "browser", logLevel: "warning",
+    outdir: tmp,
+    tsconfig: path.join(repo, "app/tsconfig.json"),
+    nodePaths: [appNodeModules],
+    alias: { react: path.join(appNodeModules, "react"), "react-dom": path.join(appNodeModules, "react-dom") },
+    loader: { ".css": "css", ".woff": "dataurl", ".woff2": "dataurl", ".ttf": "dataurl" },
+    define: { "process.env.NODE_ENV": '"production"' },
+    plugins: [appAlias, {
+      name: "proof-context",
+      setup(build) { build.onResolve({ filter: /^src\/indexBrowser$/ }, () => ({ path: path.join(repo, "embed/src/proofContext.tsx") })); },
+    }],
+  });
+
   const dist = (f) => pathToFileURL(path.join(repo, "paperproof.xyz/public/dist", f)).href;
   const inline = (x) => JSON.stringify(x).replace(/</g, "\\u003c");
   const still = "<style>*, *::before, *::after { animation: none !important; transition: none !important; }</style>";
-  const snapshotPage = (payload, bodyClass, extraStyle = "") => `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<link rel="stylesheet" href="${dist("snapshotRenderer.css")}"><style>${extraStyle}</style>${still}</head>
-<body class="${bodyClass}"><div id="root"></div>
+  const snapshotPage = (payload) => `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<style>body { margin: 0; padding: 20px; background: white; }</style>
+<script src="${dist("paperproof-embed.js")}"></script></head>
+<body><paperproof-proof kind="snapshot" fit="none" theme="cyan"><script type="application/json">${inline(payload)}</script></paperproof-proof></body></html>`;
+  const vscodePage = (payload) => `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<link rel="stylesheet" href="${pathToFileURL(path.join(tmp, "vscode.css")).href}">
+<style>body { --vscode-editor-font-family: monospace; --vscode-editor-background: #fff; }</style>${still}</head>
+<body class="vscode-light"><div id="root"></div>
 <script>window.PAPERPROOF_SNAPSHOT = ${inline(payload)};</script>
-<script src="${dist("snapshotRenderer.js")}"></script></body></html>`;
+<script src="${pathToFileURL(path.join(tmp, "vscode.js")).href}"></script></body></html>`;
   const playgroundPage = (proof) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <script>localStorage.setItem("paperproof-natural-json", ${inline(JSON.stringify(proof))});</script>
 <link rel="stylesheet" href="${dist("standaloneRenderer.css")}">${still}</head>
-<body class="standalone"><div id="root"></div><script src="${dist("standaloneRenderer.js")}"></script></body></html>`;
+<body class="standalone"><div id="root"></div>
+<script src="${dist("paperproof-embed.js")}"></script><script src="${dist("standaloneRenderer.js")}"></script></body></html>`;
 
   const embedPage = (proof) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <script src="${pathToFileURL(path.join(repo, "embed/dist/paperproof-embed.js")).href}"></script></head>
@@ -99,10 +123,9 @@ async function screenshots() {
   for (const file of proofFiles) {
     const proof = JSON.parse(fs.readFileSync(path.join(repo, "tests/proofs", file), "utf8"));
     const name = file.replace(/\.json$/, "");
-    pages.push([`${name}.snapshot`, snapshotPage(snapshotPayload(proof), "snapshot")]);
-    pages.push([`${name}.snapshot-wider`, snapshotPage(snapshotPayload(proof, { isUnlimitedWidth: true }), "snapshot")]);
-    pages.push([`${name}.vscode`, snapshotPage(snapshotPayload(proof), "vscode-light",
-      "body { --vscode-editor-font-family: monospace; --vscode-editor-background: #fff; }")]);
+    pages.push([`${name}.snapshot`, snapshotPage(snapshotPayload(proof))]);
+    pages.push([`${name}.snapshot-wider`, snapshotPage(snapshotPayload(proof, { isUnlimitedWidth: true }))]);
+    pages.push([`${name}.vscode`, vscodePage(snapshotPayload(proof))]);
     pages.push([`${name}.playground`, playgroundPage(proof)]);
     if (hasEmbed) pages.push([`${name}.embed`, embedPage(proof)]);
   }

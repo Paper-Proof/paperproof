@@ -118,16 +118,11 @@ function generateSnapshotHTML(payload) {
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="/dist/snapshotRenderer.css">
+  <style>body { margin: 0; padding: 20px; background: white; }</style>
+  <script src="/dist/paperproof-embed.js"></script>
 </head>
-<body class="snapshot">
-  <div id="root"></div>
-  <script>window.PAPERPROOF_SNAPSHOT = ${toInlineJSON(payload)};</script>
-  <script src="/dist/snapshotRenderer.js"></script>
+<body>
+  <paperproof-proof kind="snapshot" fit="none" theme="cyan"><script type="application/json">${toInlineJSON(payload)}</script></paperproof-proof>
 </body>
 </html>`;
 }

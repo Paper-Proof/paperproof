@@ -352,19 +352,10 @@ body.standalone {
   to   { opacity: 1; transform: none; }
 }
 
-.natural-proof-body .tactic .perfect-arrow {
-  display: block;
-}
-
-.natural-proof-body .hypothesis-table .hypothesis {
-  max-width: none;
-}
-
 .natural-tree-wrap {
   animation: ppTreeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   margin-bottom: 20px;
   position: relative;
-  width: fit-content;
 }
 
 

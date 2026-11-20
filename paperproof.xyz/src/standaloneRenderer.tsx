@@ -1,19 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from 'react-dom/client';
-import { ConvertedProofTree, LatexSettings, DEFAULT_LATEX_SETTINGS, NaturalProofTree, Settings } from "types";
+import { NaturalProofTree } from "types";
 import "@app/index.css";
 import "@app/css/theorem.css";
 import "./naturalRenderer.css";
 import "./proofPanel.css";
-import hypsToTables from "@app/services/hypsToTables";
-import naturalToConverted from "@app/services/naturalToConverted";
 import JsonEditor from "./components/JsonEditor";
-import { collectTexts } from "@app/services/convertToLatex";
 import { llmInstructions, fewShotExamples } from "@app/format/llmInstructions.js";
 import { NaturalProofTreeSchema } from "@app/format";
 
-import ProofTreeView, { DEFAULT_STANDALONE_SETTINGS } from "../../embed/src/ProofTreeView";
-import ProofTreeErrorBoundary from "../../embed/src/ProofTreeErrorBoundary";
 import Nav from "./components/Nav";
 
 const LS_KEY = 'paperproof-natural-json';
@@ -95,35 +90,24 @@ Thus q divides 2·3·5·7·11···p, and so q does not divide (2·3·5·7·11·
   },
 ];
 
+const EmbeddedProof = ({ proof }: { proof: NaturalProofTree }) => {
+  const ref = useRef<HTMLElement & { proof?: unknown }>(null);
+  useEffect(() => { if (ref.current) ref.current.proof = proof; }, [proof]);
+  return <paperproof-proof ref={ref}/>;
+};
+
 function StandaloneRenderer() {
   const [jsonInput, setJsonInput] = useState<string>(
     () => localStorage.getItem(LS_KEY) || ""
   );
-  const [convertedProofTree, setConvertedProofTree] = useState<ConvertedProofTree | null>(null);
+  const [proof, setProof] = useState<NaturalProofTree | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [renderKey, setRenderKey] = useState<number>(0);
-  const [treeHasError, setTreeHasError] = useState<boolean>(false);
   const [isPrintView, setIsPrintView] = useState<boolean>(false);
-  const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
-  const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
-  const [latexSettings, setLatexSettings] = useState<LatexSettings>(DEFAULT_LATEX_SETTINGS);
-  const [settings, setSettings] = useState<Settings>(DEFAULT_STANDALONE_SETTINGS);
-
-  const latexSettingsForFormat = (
-    converted: ConvertedProofTree,
-    format: NaturalProofTree["format"]
-  ): LatexSettings => {
-    if (format !== "latex") return DEFAULT_LATEX_SETTINGS;
-    const { stable, changing } = collectTexts(converted);
-    const map: Record<string, string> = {};
-    for (const text of [...stable, ...changing]) map[text] = text;
-    return { ...DEFAULT_LATEX_SETTINGS, isActive: true, map };
-  };
 
   const validateAndCompile = (jsonValue: string) => {
     if (!jsonValue.trim()) {
-      setConvertedProofTree(null);
+      setProof(null);
       setError(null);
       setIsEditing(false);
       return;
@@ -132,26 +116,17 @@ function StandaloneRenderer() {
     try {
       const parsed = NaturalProofTreeSchema.safeParse(JSON.parse(jsonValue));
       if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Invalid JSON');
-      const naturalProofTree: NaturalProofTree = parsed.data as NaturalProofTree;
 
-      const converted: ConvertedProofTree = naturalToConverted(naturalProofTree);
-      converted.boxes.forEach((box) => {
-        box.hypTables = hypsToTables(box.hypLayers, converted, false);
-      });
-
-      // Success - save and render; only reset the error boundary if it previously crashed
       localStorage.setItem(LS_KEY, jsonValue);
       setError(null);
       setIsEditing(false);
-      setConvertedProofTree(converted);
-      setLatexSettings(latexSettingsForFormat(converted, naturalProofTree.format));
-      if (treeHasError) { setRenderKey(k => k + 1); setTreeHasError(false); }
+      setProof(parsed.data);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError('Error: ' + errorMessage);
       setIsEditing(false);
-      // Keep the last valid tree visible - don't clear convertedProofTree
+      // Keep the last valid tree visible - don't clear proof
     }
   };
 
@@ -322,20 +297,9 @@ function StandaloneRenderer() {
   }, [isPrintView]);
 
   // Glass overlay: shown while the user is mid-edit or the current JSON has an error
-  const showOverlay = isEditing || (!!error && !!convertedProofTree);
+  const showOverlay = isEditing || (!!error && !!proof);
 
-  const proofTreeContent = convertedProofTree && (
-    <ProofTreeErrorBoundary key={renderKey} onError={() => setTreeHasError(true)}>
-      <ProofTreeView
-        proofTree={convertedProofTree}
-        highlights={null}
-        settings={settings}                             setSettings={setSettings}
-        collapsedBoxIds={collapsedBoxIds}               setCollapsedBoxIds={setCollapsedBoxIds}
-        deletedHypothesisNames={deletedHypothesisNames} setDeletedHypothesisNames={setDeletedHypothesisNames}
-        latexSettings={latexSettings}                   setLatexSettings={setLatexSettings}
-      />
-    </ProofTreeErrorBoundary>
-  );
+  const proofTreeContent = proof && <EmbeddedProof proof={proof}/>;
 
   if (isPrintView) {
     return (
@@ -426,7 +390,7 @@ Paperproof does the same for entire proofs - a structured, unambiguous diagram t
         <div className="natural-right">
           {nlError && <div className="natural-error">{nlError}</div>}
 
-          {convertedProofTree && (
+          {proof && (
             <div className="natural-tree-wrap">
               <div className="natural-proof-body">
                 {showOverlay && <div className="natural-proof-overlay" />}
@@ -436,7 +400,7 @@ Paperproof does the same for entire proofs - a structured, unambiguous diagram t
             </div>
           )}
 
-          {(jsonInput || convertedProofTree) && <div className="pp-panel natural-editor-wrap">
+          {(jsonInput || proof) && <div className="pp-panel natural-editor-wrap">
             <div className={`pp-panel-tabs${isJsonOpen ? '' : ' -no-border'}`}>
               <span className="pp-panel-tab -active">≡ proof.json ×</span>
               <div className="natural-tabs-right">

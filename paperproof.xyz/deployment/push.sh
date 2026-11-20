@@ -15,7 +15,7 @@ npm run build
 
 echo "📤 Uploading..."
 scp server.js          root@$DROPLET:$APP/server.js
-scp public/index.html  root@$DROPLET:$APP/public/index.html
+scp public/*.html      root@$DROPLET:$APP/public/
 scp public/dist/*      root@$DROPLET:$APP/public/dist/
 
 echo "♻️  Restarting..."
@@ -26,7 +26,7 @@ echo "🔍 Verifying..."
 sleep 3
 curl -fsS $SITE/api/health > /dev/null
 
-for f in landingPage.js snapshotRenderer.js standaloneRenderer.js; do
+for f in landingPage.js standaloneRenderer.js paperproof-embed.js; do
   # [Claude comment] Nothing bumps a version number, so a stale asset is invisible unless compared.
   [ "$(md5sum public/dist/$f | cut -d' ' -f1)" = "$(curl -fsS $SITE/dist/$f | md5sum | cut -d' ' -f1)" ] \
     || { echo "❌ $f does not match what's live"; exit 1; }

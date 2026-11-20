@@ -6,7 +6,8 @@ Landing page, `/playground`, and the snapshots the VSCode extension creates.
 
 ```bash
 npm install
-npm run build      # bundles src/ into public/dist
+(cd ../embed && npm install)
+npm run build      # bundles src/ and the embed into public/dist
 npm run dev        # nodemon on :3001
 ```
 

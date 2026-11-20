@@ -53,16 +53,15 @@ function aliasPlugin() {
         }
         return { path: base };
       });
-
-      // src/indexBrowser → shared proof context (used by BoxEl internals)
-      build.onResolve({ filter: /^src\/indexBrowser$/ }, () => ({
-        path: path.resolve(__dirname, "../embed/src/proofContext.tsx"),
-      }));
     },
   };
 }
 
 const watch = process.argv.includes("--watch");
+
+execSync("node build.mjs", { cwd: path.resolve(__dirname, "../embed"), stdio: ["ignore", "ignore", "inherit"] });
+fs.mkdirSync(path.resolve(__dirname, "public/dist"), { recursive: true });
+fs.copyFileSync(path.resolve(__dirname, "../embed/dist/paperproof-embed.js"), path.resolve(__dirname, "public/dist/paperproof-embed.js"));
 
 const { llmInstructions, fewShotExamples } = await import("../app/src/format/llmInstructions.js");
 fs.mkdirSync(path.resolve(__dirname, "public/dist"), { recursive: true });
@@ -73,7 +72,6 @@ fs.writeFileSync(path.resolve(__dirname, "public/dist/llm-instructions.json"), J
 const bundles = [
   { name: "landingPage",        entry: "src/landingPage.tsx" },
   { name: "standaloneRenderer", entry: "src/standaloneRenderer.tsx", logLimit: 0 },
-  { name: "snapshotRenderer",   entry: "src/snapshotRenderer.tsx" },
 ];
 
 const optionsFor = ({ name, entry, logLimit }) => ({
