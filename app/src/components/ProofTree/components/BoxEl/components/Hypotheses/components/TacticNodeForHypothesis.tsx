@@ -13,7 +13,7 @@ const TacticNodeForHypothesis = (props: Props) => {
   const tactic = props.cell.tactic;
   // TODO Evgenia: this is where we stopped - we likely want to move all of this to <TacticNode/>
   const global = useGlobalContext();
-  const { collapsedBoxIds, setCollapsedBoxIds, refreshUI } = global;
+  const { collapsedBoxIds, setCollapsedBoxIds, refreshUI, proofTreeRef } = global;
 
   if (tactic.text === "init") return null
 
@@ -22,9 +22,8 @@ const TacticNodeForHypothesis = (props: Props) => {
 
   // Collapsing/expanding moves everything below this tactic, so flash it
   const flashThisTactic = () => {
-    const el = document.getElementById(
-      props.cell.shardId ? `tactic-${tactic.id}-${props.cell.shardId}` : `tactic-${tactic.id}`
-    );
+    const id = props.cell.shardId ? `tactic-${tactic.id}-${props.cell.shardId}` : `tactic-${tactic.id}`;
+    const el = proofTreeRef.current?.querySelector(`#${CSS.escape(id)}`);
     if (el) flashElement(el);
   }
 

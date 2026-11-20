@@ -45,7 +45,7 @@ const TacticNode = (props: TacticNodeProps) => {
     }
     const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
       .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, hypId))
-      .map((hypId) => createArrow(`hypothesis-${hypId}`, thisEl.current))
+      .map((hypId) => createArrow(thisEl.current?.closest<HTMLElement>(".proof-tree") ?? null, `hypothesis-${hypId}`, thisEl.current))
       .filter((arrow) : arrow is Arrow => arrow !== null);
     setPerfectArrows(newPerfectArrows);
   }, [props.tactic, global.UIVersion]);

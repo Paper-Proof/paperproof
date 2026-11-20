@@ -2,13 +2,18 @@ import { Arrow, Point } from 'types';
 import distance from './distance';
 import getZoom from './getZoom';
 
-const createArrow = (from: string | HTMLElement | null, to: string | HTMLElement | null) : Arrow | null => {
-  const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
-  const fromEl = typeof from === 'string' ? document.getElementById(from) : from;
-  const toEl = typeof to === 'string' ? document.getElementById(to) : to;
-  if (!proofTreeEl || !fromEl || !toEl) return null;
+const createArrow = (proofTreeEl: HTMLElement | null, from: string | HTMLElement | null, to: string | HTMLElement | null) : Arrow | null => {
+  if (!proofTreeEl) return null;
+  const find = (x: string | HTMLElement | null) =>
+    typeof x === 'string' ? proofTreeEl.querySelector<HTMLElement>(`#${CSS.escape(x)}`) : x;
+  const fromEl = find(from);
+  const toEl = find(to);
+  if (!fromEl || !toEl) return null;
 
-  const currentZoom = getZoom(proofTreeEl);
+  const zoom = getZoom(proofTreeEl);
+  const scale = proofTreeEl.getBoundingClientRect().width / parseFloat(getComputedStyle(proofTreeEl).width);
+  if (!scale) return null;
+  const currentZoom = Math.abs(scale - zoom) < 0.001 ? zoom : scale;
 
   const pointFrom : Point = {
     x: distance('left', fromEl, proofTreeEl)/currentZoom + fromEl.offsetWidth/2,

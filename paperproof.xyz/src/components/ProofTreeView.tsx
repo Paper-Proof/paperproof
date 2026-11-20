@@ -43,11 +43,12 @@ const RootBox = () => {
 const ProofTreeView = (props: Props) => {
   const [UIVersion, setUIVersion] = React.useState<number>(1);
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
+  const proofTreeRef = React.useRef<HTMLDivElement>(null);
 
   const refreshUI = React.useCallback(() => setUIVersion((version) => version + 1), []);
 
   React.useLayoutEffect(() => {
-    setPerfectArrows(createHypArrows(props.proofTree));
+    setPerfectArrows(createHypArrows(props.proofTree, proofTreeRef.current));
   }, [props.proofTree, props.latexSettings, UIVersion]);
 
   // [Claude comment] Arrows are measured off the DOM, so they're wrong until the
@@ -75,6 +76,7 @@ const ProofTreeView = (props: Props) => {
         setSnackbarMessage: () => {},
         setSnackbarOpen: () => {},
         isStandalone: true,
+        proofTreeRef,
         fetchFullProofTree: async () => props.proofTree,
         latexSettings: props.latexSettings, setLatexSettings: props.setLatexSettings,
       }}
@@ -89,6 +91,7 @@ const ProofTreeView = (props: Props) => {
           ${areWeOnEllipsisTactic(props.proofTree, props.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
           ${props.latexSettings.isActive ? '-isLatexModeON' : ''}
         `}
+        ref={proofTreeRef}
         style={{ '--box-font-size': `${props.settings.fontSize}px` } as React.CSSProperties}
       >
         <RootBox/>

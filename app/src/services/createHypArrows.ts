@@ -1,7 +1,7 @@
 import { Arrow, ConvertedProofTree, Point } from 'types';
 import createArrow from './createArrow';
 
-const createHypArrows = (proofTree : ConvertedProofTree) : Arrow[] => {
+const createHypArrows = (proofTree : ConvertedProofTree, proofTreeEl : HTMLElement | null) : Arrow[] => {
   let perfectArrows: Arrow[] = [];
 
   proofTree.boxes.forEach((box) => {
@@ -10,7 +10,7 @@ const createHypArrows = (proofTree : ConvertedProofTree) : Arrow[] => {
         if (!tabledTactic.arrowFrom) return
         const fromId = `hypothesis-${tabledTactic.arrowFrom}`;
         const toId = `tactic-${tabledTactic.tactic.id}-${tabledTactic.shardId}`;
-        const arrow = createArrow(fromId, toId);
+        const arrow = createArrow(proofTreeEl, fromId, toId);
         if (arrow) {
           perfectArrows.push(arrow);
         }

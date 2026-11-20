@@ -47,6 +47,7 @@ export interface GlobalContextType {
   setSnackbarMessage: (message: String | React.ReactNode | null) => void;
   setSnackbarOpen: (open: boolean) => void;
   isStandalone: boolean;
+  proofTreeRef: React.RefObject<HTMLDivElement | null>;
   fetchFullProofTree: () => Promise<ConvertedProofTree>;
   latexSettings: LatexSettings;
   setLatexSettings: (x: LatexSettings) => void;
@@ -79,6 +80,7 @@ function Main() {
   const [isLoadingSlow, setIsLoadingSlow] = useState<boolean>(false);
 
   const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
+  const proofTreeRef = React.useRef<HTMLDivElement>(null);
   const [UIVersion, setUIVersion] = useState<number>(1);
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
@@ -177,7 +179,7 @@ function Main() {
   React.useLayoutEffect(() => {
     if (!converted) return;
 
-    const newPerfectArrows = createHypArrows(converted.proofTree);
+    const newPerfectArrows = createHypArrows(converted.proofTree, proofTreeRef.current);
     setPerfectArrows(newPerfectArrows);
   }, [converted, UIVersion]);
 
@@ -193,9 +195,9 @@ function Main() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.altKey && (event.key === "≠" || event.key === "=")) {
         event.stopPropagation();
-        zoomManually("in");
+        zoomManually(proofTreeRef.current, "in");
       } else if (event.altKey && (event.key === "–" || event.key === "-")) {
-        zoomManually("out");
+        zoomManually(proofTreeRef.current, "out");
       }
     };
 
@@ -231,6 +233,7 @@ function Main() {
           setSnackbarMessage,
           setSnackbarOpen,
           isStandalone: false,
+          proofTreeRef,
           fetchFullProofTree,
           latexSettings,
           setLatexSettings,
@@ -245,6 +248,7 @@ function Main() {
           ${converted && areWeOnEllipsisTactic(converted.proofTree, converted.highlights) ? '-we-are-on-ellipsis-tactic' : ''}
           ${latexSettings.isActive ? '-isLatexModeON' : ''}
         `}
+        ref={proofTreeRef}
         style={{ '--box-font-size': `${settings.fontSize}px` } as React.CSSProperties}>
           <ProofTree/>
           {perfectArrows.map((arrow, index) =>

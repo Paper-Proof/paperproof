@@ -28,6 +28,7 @@ const ContextMenu = (props: Props) => {
     setSnackbarOpen,
     fetchFullProofTree,
     latexSettings, setLatexSettings,
+    proofTreeRef,
   } = useGlobalContext();
 
   type BooleanSettingKey = { [K in keyof Settings]: Settings[K] extends boolean ? K : never }[keyof Settings];
@@ -82,7 +83,7 @@ const ContextMenu = (props: Props) => {
 
   React.useEffect(() => {
     if (!props.contextMenu) return;
-    const proofTreeEl = document.getElementsByClassName("proof-tree")[0] as HTMLElement;
+    const proofTreeEl = proofTreeRef.current;
     if (!proofTreeEl) return;
     const currentScale = getZoom(proofTreeEl);
     setZoom(Math.round(currentScale * 10) * 10);
@@ -227,9 +228,9 @@ const ContextMenu = (props: Props) => {
       <MenuItem disableRipple className="-zoom-control">
         <div className="text">Zoom</div>
         <div className="zoom-buttons">
-          <button onClick={(e) => { e.stopPropagation(); zoomManually("out"); setZoom(z => z - 10); }}>−</button>
+          <button onClick={(e) => { e.stopPropagation(); zoomManually(proofTreeRef.current, "out"); setZoom(z => z - 10); }}>−</button>
           <span className="zoom-value">{zoom}%</span>
-          <button onClick={(e) => { e.stopPropagation(); zoomManually("in"); setZoom(z => z + 10); }}>+</button>
+          <button onClick={(e) => { e.stopPropagation(); zoomManually(proofTreeRef.current, "in"); setZoom(z => z + 10); }}>+</button>
         </div>
       </MenuItem>
 

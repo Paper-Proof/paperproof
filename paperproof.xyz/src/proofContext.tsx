@@ -25,6 +25,7 @@ export interface StandaloneGlobalContextType {
   setSnackbarMessage: (message: any) => void;
   setSnackbarOpen: (open: boolean) => void;
   isStandalone: boolean;
+  proofTreeRef: React.RefObject<HTMLDivElement | null>;
   fetchFullProofTree: () => Promise<ConvertedProofTree>;
   latexSettings: LatexSettings;
   setLatexSettings: (x: LatexSettings) => void;
