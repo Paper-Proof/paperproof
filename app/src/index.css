@@ -16,17 +16,12 @@
   white-space: nowrap;
 }
 
-/*
-  [Claude comment]
-  Outside of vscode - /playground and snapshot pages - there's no editor to
-  supply --vscode-editor-font-family. Snapshots predating the JSON format inline
-  their own copy of this stylesheet, so these rules can't reach them.
-*/
+/* Outside of vscode: a page without vscode's body classes, or a shadow root */
+body:not([class*="vscode-"]) .proof-tree, :host .proof-tree{
+  font-family: monospace; --vscode-editor-font-family: monospace;
+  *{ font-family: monospace !important; }
+}
 body.standalone, body.snapshot{
-  .proof-tree{
-    font-family: monospace; --vscode-editor-font-family: monospace;
-    *{ font-family: monospace !important; }
-  }
   margin: 0;
   padding: 20px !important;
   /* Keep the plain top-left document flow - centering is a live-panel thing */
@@ -149,6 +144,12 @@ body.standalone, body.snapshot{
 body *{
   box-sizing: border-box;
 }
+:where(.proof-tree, .proof-tree *){
+  box-sizing: border-box;
+}
+:where(.proof-tree){
+  width: max-content;
+}
 .hypothesis span.name{
   color: #d0005b;
 }
@@ -202,10 +203,6 @@ body{
   #root{
     margin: auto;
     display: flex;
-  }
-
-  .proof-tree{
-    width: max-content;
   }
 }
 
