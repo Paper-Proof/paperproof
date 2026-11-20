@@ -1,0 +1,220 @@
+{
+ "format": "unicode",
+ "goal": "(b) There is a vector c s.t. δ := max{cᵀx : x ∈ P} < ∞ and F = {x ∈ P : cᵀx = δ}.",
+ "newHyps": [
+  {
+   "name": "F_in_P",
+   "type": "F ⊆ P"
+  },
+  {
+   "name": "c",
+   "type": "(c) There is a sub-system A′x ≤ b′ of Ax ≤ b such that F = {x ∈ P : A′x = b′} ≠ ∅."
+  }
+ ],
+ "tactics": [
+  {
+   "tactic": "restate",
+   "newGoal": "∃ c, δ, max{cᵀx : x ∈ P} = δ ∧ F = {x ∈ P : cᵀx = δ}"
+  },
+  {
+   "tactic": "restate",
+   "newHyps": [
+    {
+     "name": "c",
+     "type": "∃ (A′, b′), A′x ≤ b′ is a subsystem of Ax ≤ b ∧ F = {x ∈ P : A′x = b′} ∧ F ≠ ∅",
+     "from": "c"
+    }
+   ]
+  },
+  {
+   "tactic": "restate",
+   "newHyps": [
+    {
+     "name": "A'b'",
+     "type": "A′x ≤ b′ is a subsystem of Ax ≤ b",
+     "from": "c"
+    },
+    {
+     "name": "F_definition",
+     "type": "F = {x ∈ P : A′x = b′}",
+     "from": "c"
+    },
+    {
+     "name": "F_not_empty",
+     "type": "F ≠ ∅",
+     "from": "c"
+    }
+   ]
+  },
+  {
+   "tactic": "use c := Σ rows of A′, use δ := Σ entries of b′",
+   "newGoal": "max{cᵀx : x ∈ P} = δ ∧ F = {x ∈ P : cᵀx = δ}",
+   "newHyps": [
+    {
+     "name": "sum_of_A'b'_inequalities",
+     "type": "c := Σ rows of A′; δ := Σ entries of b′"
+    }
+   ]
+  },
+  {
+   "tactic": "split ∧",
+   "newSubgoals": [
+    {
+     "goal": "max{cᵀx : x ∈ P} = δ",
+     "newHyps": [],
+     "tactics": [
+      {
+       "tactic": "unfold max",
+       "newSubgoals": [
+        {
+         "goal": "∀ x ∈ P, cᵀx ≤ δ",
+         "newHyps": [],
+         "tactics": [
+          {
+           "tactic": "if a₁ ≤ b₁; a₂ ≤ b₂ then a₁ + a₂ ≤ b₁ + b₂",
+           "dependsOn": [
+            "A'b'"
+           ],
+           "closed": true
+          }
+         ]
+        },
+        {
+         "goal": "∃ y ∈ P, cᵀy = δ",
+         "newHyps": [],
+         "tactics": [
+          {
+           "tactic": "F is not empty",
+           "dependsOn": [
+            "F_not_empty",
+            "F_definition"
+           ],
+           "newHyps": [
+            {
+             "name": "h",
+             "type": "∃ y ∈ P, A′y = b′"
+            }
+           ]
+          },
+          {
+           "tactic": "restate",
+           "newHyps": [
+            {
+             "name": "y",
+             "type": "y ∈ P",
+             "from": "h"
+            },
+            {
+             "name": "h",
+             "type": "A′y = b′",
+             "from": "h"
+            }
+           ]
+          },
+          {
+           "tactic": "use y",
+           "newGoal": "cᵀy = δ"
+          },
+          {
+           "tactic": "if a₁ = b₁; a₂ = b₂ then a₁ + a₂ = b₁ + b₂",
+           "dependsOn": [
+            "h"
+           ],
+           "closed": true
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "goal": "F = {x ∈ P : cᵀx = δ}",
+     "newHyps": [],
+     "tactics": [
+      {
+       "tactic": "double inclusion",
+       "newSubgoals": [
+        {
+         "goal": "F ⊆ {x ∈ P : cᵀx = δ}",
+         "newHyps": [],
+         "tactics": [
+          {
+           "tactic": "introduce x",
+           "newHyps": [
+            {
+             "name": "h",
+             "type": "x ∈ F"
+            }
+           ],
+           "newGoal": "x ∈ {x ∈ P : cᵀx = δ}"
+          },
+          {
+           "tactic": "simplify",
+           "newGoal": "cᵀx = δ"
+          },
+          {
+           "tactic": "F_definition",
+           "newHyps": [
+            {
+             "name": "h",
+             "type": "A′x = b′",
+             "from": "h"
+            }
+           ]
+          },
+          {
+           "tactic": "if a₁ = b₁; a₂ = b₂ then a₁ + a₂ = b₁ + b₂",
+           "dependsOn": [
+            "h"
+           ],
+           "closed": true
+          }
+         ]
+        },
+        {
+         "goal": "{x ∈ P : cᵀx = δ} ⊆ F",
+         "newHyps": [],
+         "tactics": [
+          {
+           "tactic": "introduce x",
+           "newHyps": [
+            {
+             "name": "h",
+             "type": "x ∈ {x ∈ P : cᵀx = δ}"
+            }
+           ],
+           "newGoal": "x ∈ F"
+          },
+          {
+           "tactic": "F_definition",
+           "newGoal": "A′x = b′"
+          },
+          {
+           "tactic": "simplify",
+           "newHyps": [
+            {
+             "name": "h",
+             "type": "cᵀx = δ",
+             "from": "h"
+            }
+           ]
+          },
+          {
+           "tactic": "if a₁ ≤ b₁; a₂ ≤ b₂; a₁ + a₂ = b₁ + b₂ then a₁ = b₁; a₂ = b₂",
+           "dependsOn": [
+            "h",
+            "A'b'"
+           ],
+           "closed": true
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,85 @@
+{
+ "format": "unicode",
+ "goal": "¬ (1/λ = Ω(1/√λ))",
+ "newHyps": [],
+ "tactics": [
+  {
+   "tactic": "assume the opposite",
+   "newHyps": [
+    {
+     "name": "h",
+     "type": "1/λ = Ω(1/√λ)"
+    }
+   ],
+   "newGoal": "False"
+  },
+  {
+   "tactic": "definition of Ω",
+   "newHyps": [
+    {
+     "name": "h₁",
+     "type": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/λ ≥ c · (1/√λ)",
+     "from": "h"
+    }
+   ]
+  },
+  {
+   "tactic": "isolate c",
+   "newHyps": [
+    {
+     "name": "h₂",
+     "type": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/√λ ≥ c",
+     "from": "h₁"
+    }
+   ]
+  },
+  {
+   "tactic": "unfold",
+   "newHyps": [
+    {
+     "name": "c",
+     "type": "ℝ",
+     "from": "h₂"
+    },
+    {
+     "name": "hc",
+     "type": "c > 0",
+     "from": "h₂"
+    },
+    {
+     "name": "h₃",
+     "type": "∃ λ₀, ∀ λ ≥ λ₀, 1/√λ ≥ c",
+     "from": "h₂"
+    }
+   ]
+  },
+  {
+   "tactic": "Rule 1",
+   "newHyps": [
+    {
+     "name": "h₄",
+     "type": "lim 1/√λ ≥ c",
+     "from": "h₃"
+    }
+   ]
+  },
+  {
+   "tactic": "compute the limit",
+   "newHyps": [
+    {
+     "name": "h₅",
+     "type": "0 ≥ c",
+     "from": "h₄"
+    }
+   ]
+  },
+  {
+   "tactic": "contradiction",
+   "dependsOn": [
+    "hc",
+    "h₅"
+   ],
+   "closed": true
+  }
+ ]
+}

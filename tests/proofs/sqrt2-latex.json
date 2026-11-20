@@ -1,0 +1,59 @@
+{
+ "format": "latex",
+ "goal": "\\sqrt{2} \\notin \\mathbb{Q}",
+ "newHyps": [],
+ "tactics": [
+  {
+   "tactic": "assume the opposite",
+   "newHyps": [
+    {
+     "name": "h",
+     "type": "\\sqrt{2} = \\frac{p}{q},\\ \\gcd(p, q) = 1"
+    }
+   ],
+   "newGoal": "\\bot"
+  },
+  {
+   "tactic": "square both sides of $h$",
+   "newHyps": [
+    {
+     "name": "h2",
+     "type": "p^2 = 2q^2",
+     "from": "h"
+    }
+   ]
+  },
+  {
+   "tactic": "$p^2$ is even, so $p$ is even",
+   "newHyps": [
+    {
+     "name": "hp",
+     "type": "2 \\mid p",
+     "from": "h2"
+    }
+   ]
+  },
+  {
+   "tactic": "substitute $p = 2k$",
+   "dependsOn": [
+    "h2",
+    "hp"
+   ],
+   "newHyps": [
+    {
+     "name": "hq",
+     "type": "2 \\mid q"
+    }
+   ]
+  },
+  {
+   "tactic": "both even, but $\\gcd(p,q) = 1$",
+   "dependsOn": [
+    "hp",
+    "hq",
+    "h"
+   ],
+   "closed": true
+  }
+ ]
+}

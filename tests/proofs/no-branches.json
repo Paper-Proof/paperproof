@@ -1,0 +1,38 @@
+{
+ "format": "unicode",
+ "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)",
+ "newHyps": [],
+ "tactics": [
+  {
+   "tactic": "use c := 1, λ₀ := 3",
+   "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"
+  },
+  {
+   "tactic": "introduce λ",
+   "newHyps": [
+    {
+     "name": "hλ",
+     "type": "λ ≥ 3"
+    }
+   ],
+   "newGoal": "1/(λ − 2) ≥ 1/λ"
+  },
+  {
+   "tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ",
+   "newHyps": [
+    {
+     "name": "h",
+     "type": "0 < λ − 2 ≤ λ",
+     "from": "hλ"
+    }
+   ]
+  },
+  {
+   "tactic": "reciprocals of positive numbers reverse ≤",
+   "dependsOn": [
+    "h"
+   ],
+   "closed": true
+  }
+ ]
+}

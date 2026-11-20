@@ -1,0 +1,55 @@
+{
+ "format": "unicode",
+ "goal": "Q ∨ P",
+ "newHyps": [
+  {
+   "name": "h",
+   "type": "P ∨ Q"
+  }
+ ],
+ "tactics": [
+  {
+   "tactic": "split h",
+   "newSubgoals": [
+    {
+     "goal": "Q ∨ P",
+     "newHyps": [
+      {
+       "name": "p",
+       "type": "P",
+       "from": "h"
+      }
+     ],
+     "tactics": [
+      {
+       "tactic": "right",
+       "dependsOn": [
+        "p"
+       ],
+       "closed": true
+      }
+     ]
+    },
+    {
+     "goal": "Q ∨ P",
+     "newHyps": [
+      {
+       "name": "q",
+       "type": "Q",
+       "from": "h"
+      }
+     ],
+     "tactics": [
+      {
+       "tactic": "left",
+       "dependsOn": [
+        "q"
+       ],
+       "closed": true
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

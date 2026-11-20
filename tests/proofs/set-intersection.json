@@ -1,0 +1,86 @@
+{
+ "format": "unicode",
+ "goal": "s ∩ t = t ∩ s",
+ "newHyps": [],
+ "tactics": [
+  {
+   "tactic": "double inclusion",
+   "newSubgoals": [
+    {
+     "goal": "s ∩ t ⊆ t ∩ s",
+     "newHyps": [],
+     "tactics": [
+      {
+       "tactic": "introduce x",
+       "newHyps": [
+        {
+         "name": "h",
+         "type": "x ∈ s ∩ t"
+        }
+       ],
+       "newGoal": "x ∈ t ∩ s"
+      },
+      {
+       "tactic": "definition of ∩",
+       "newHyps": [
+        {
+         "name": "h",
+         "type": "x ∈ s ∧ x ∈ t",
+         "from": "h"
+        }
+       ]
+      },
+      {
+       "tactic": "definition of ∩",
+       "newGoal": "x ∈ t ∧ x ∈ s"
+      },
+      {
+       "tactic": "commutativity of ∧",
+       "dependsOn": [
+        "h"
+       ],
+       "closed": true
+      }
+     ]
+    },
+    {
+     "goal": "t ∩ s ⊆ s ∩ t",
+     "newHyps": [],
+     "tactics": [
+      {
+       "tactic": "introduce x",
+       "newHyps": [
+        {
+         "name": "h",
+         "type": "x ∈ t ∩ s"
+        }
+       ],
+       "newGoal": "x ∈ s ∩ t"
+      },
+      {
+       "tactic": "definition of ∩",
+       "newHyps": [
+        {
+         "name": "h",
+         "type": "x ∈ t ∧ x ∈ s",
+         "from": "h"
+        }
+       ]
+      },
+      {
+       "tactic": "definition of ∩",
+       "newGoal": "x ∈ s ∧ x ∈ t"
+      },
+      {
+       "tactic": "commutativity of ∧",
+       "dependsOn": [
+        "h"
+       ],
+       "closed": true
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

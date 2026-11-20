@@ -1,0 +1,106 @@
+{
+ "format": "unicode",
+ "goal": "√2 ∉ ℚ",
+ "newHyps": [],
+ "tactics": [
+  {
+   "tactic": "assume the opposite",
+   "newGoal": "contradiction",
+   "newHyps": [
+    {
+     "name": "h",
+     "type": "√2 ∈ ℚ"
+    }
+   ]
+  },
+  {
+   "tactic": "write √2 = p/q in lowest terms",
+   "newHyps": [
+    {
+     "name": "p",
+     "type": "ℤ",
+     "from": "h"
+    },
+    {
+     "name": "q",
+     "type": "ℤ, q ≠ 0",
+     "from": "h"
+    },
+    {
+     "name": "eq",
+     "type": "√2 = p/q",
+     "from": "h"
+    },
+    {
+     "name": "coprime",
+     "type": "gcd(p, q) = 1",
+     "from": "h"
+    }
+   ]
+  },
+  {
+   "tactic": "square both sides",
+   "newHyps": [
+    {
+     "name": "eq",
+     "type": "p² = 2q²",
+     "from": "eq"
+    }
+   ]
+  },
+  {
+   "tactic": "Theorem: if p² = 2q² then 2 | p",
+   "newHyps": [
+    {
+     "name": "p_even",
+     "type": "2 | p",
+     "from": "eq"
+    }
+   ]
+  },
+  {
+   "tactic": "definition of even",
+   "newHyps": [
+    {
+     "name": "k",
+     "type": "ℤ",
+     "from": "p_even"
+    },
+    {
+     "name": "p_eq",
+     "type": "p = 2k",
+     "from": "p_even"
+    }
+   ]
+  },
+  {
+   "tactic": "p = 2k, so p² = 4k², and since p² = 2q², we get q² = 2k²",
+   "newHyps": [
+    {
+     "name": "eq",
+     "type": "q² = 2k²",
+     "from": "p_eq"
+    }
+   ]
+  },
+  {
+   "tactic": "Theorem: if 2 | q² then 2 | q",
+   "newHyps": [
+    {
+     "name": "q_even",
+     "type": "2 | q",
+     "from": "eq"
+    }
+   ]
+  },
+  {
+   "tactic": "contradiction",
+   "dependsOn": [
+    "p_even",
+    "q_even",
+    "coprime"
+   ],
+   "closed": true
+  }
+ ]
+}

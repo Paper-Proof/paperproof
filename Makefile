@@ -12,3 +12,6 @@ xyz.production:
 	cd paperproof.xyz/deployment && ./deploy.sh 128.199.52.81
 xyz.local:
 	cd paperproof.xyz && node esbuild.js --watch & cd paperproof.xyz && node server.js
+
+test:
+	node tests/run.mjs

@@ -1,0 +1,71 @@
+{
+ "format": "unicode",
+ "goal": "a + b ≤ 2 · max(a, b)",
+ "newHyps": [
+  {
+   "name": "a",
+   "type": "ℝ"
+  },
+  {
+   "name": "b",
+   "type": "ℝ"
+  }
+ ],
+ "tactics": [
+  {
+   "tactic": "have",
+   "haveBoxes": [
+    {
+     "goal": "a ≤ max(a, b)",
+     "newHyps": [],
+     "tactics": [
+      {
+       "tactic": "le_max_left",
+       "closed": true
+      }
+     ]
+    },
+    {
+     "goal": "b ≤ max(a, b)",
+     "newHyps": [],
+     "tactics": [
+      {
+       "tactic": "le_max_right",
+       "closed": true
+      }
+     ]
+    }
+   ],
+   "newHyps": [
+    {
+     "name": "ha",
+     "type": "a ≤ max(a, b)"
+    },
+    {
+     "name": "hb",
+     "type": "b ≤ max(a, b)"
+    }
+   ]
+  },
+  {
+   "tactic": "add ha and hb",
+   "dependsOn": [
+    "ha",
+    "hb"
+   ],
+   "newHyps": [
+    {
+     "name": "h",
+     "type": "a + b ≤ max(a, b) + max(a, b)"
+    }
+   ]
+  },
+  {
+   "tactic": "h, since max(a, b) + max(a, b) = 2 · max(a, b)",
+   "dependsOn": [
+    "h"
+   ],
+   "closed": true
+  }
+ ]
+}
