@@ -13,8 +13,6 @@ export interface StandaloneGlobalContextType {
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
-  searchedHypIds: string[];
-  setSearchedHypIds: (x: string[]) => void;
   deletedHypothesisNames: string[];
   setDeletedHypothesisNames: (x: string[]) => void;
   settings: Settings;

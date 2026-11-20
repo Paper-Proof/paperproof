@@ -5,7 +5,6 @@ import Hint from "../../Hint";
 import { ContextMenuType, HypNode } from "types";
 import { useGlobalContext } from "src/indexBrowser";
 import prettifyHypothesisUsername from "src/services/prettifyHypothesisUsername";
-import Search from "src/components/Search";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import onContextMenu from "src/services/onContextMenu";
@@ -26,7 +25,6 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
 
   const latexString = latexSettings.isActive && props.hypNode.text ? latexSettings.map[props.hypNode.text] : undefined;
 
-  const isSearched = global.searchedHypIds.find((searchedId) => props.hypNode.id === searchedId);
   const isHypHidden = name && global.deletedHypothesisNames.includes(name);
 
   const handleHideHypothesis = (event: React.MouseEvent) => {
@@ -48,47 +46,44 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
   };
 
   return(
-    <Search hypNode={props.hypNode}>
-      <div
-        id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
-        className={`
-          hypothesis
-          -hint
-          ${DependsOnUI.shouldHighlightHypothesis(global, props.hypNode) ? "-highlighted" : ""}
-          ${props.hypNode.isProof}
-          ${isSearched ? '-is-searched' : ''}
-          ${isHypHidden ? '-hidden' : ''}
-        `}
-        onClick={(e) => isHypHidden ? handleHideHypothesis(e) : () => {}}
-        onContextMenu={global.isStandalone ? undefined : (event) => onContextMenu(event, contextMenu, setContextMenu)}
-      >
-        {!global.isStandalone && (
-          <Menu
-            open={contextMenu !== null}
-            onClose={handleCloseMenu}
-            anchorReference="anchorPosition"
-            anchorPosition={
-              contextMenu !== null
-                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                : undefined
-            }
-          >
-            <MenuItem onClick={handleHideHypothesis}>
-              {isHypHidden ? "Show hypothesis" : "Hide hypothesis"}
-            </MenuItem>
-          </Menu>
-        )}
+    <div
+      id={withId ? `hypothesis-${props.hypNode.id}` : undefined}
+      className={`
+        hypothesis
+        -hint
+        ${DependsOnUI.shouldHighlightHypothesis(global, props.hypNode) ? "-highlighted" : ""}
+        ${props.hypNode.isProof}
+        ${isHypHidden ? '-hidden' : ''}
+      `}
+      onClick={(e) => isHypHidden ? handleHideHypothesis(e) : () => {}}
+      onContextMenu={global.isStandalone ? undefined : (event) => onContextMenu(event, contextMenu, setContextMenu)}
+    >
+      {!global.isStandalone && (
+        <Menu
+          open={contextMenu !== null}
+          onClose={handleCloseMenu}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            contextMenu !== null
+              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+              : undefined
+          }
+        >
+          <MenuItem onClick={handleHideHypothesis}>
+            {isHypHidden ? "Show hypothesis" : "Hide hypothesis"}
+          </MenuItem>
+        </Menu>
+      )}
 
-        <Hint>{props.hypNode}</Hint>
-        {name && <span className="name">{name}</span>}
-        {!isHypHidden && name && ": "}
-        {!isHypHidden && props.hypNode.text && (
-          latexString
-            ? <span className="text" dangerouslySetInnerHTML={{ __html: katex.renderToString(`\\displaystyle ${latexString}`, { throwOnError: false }) }}/>
-            : <span className="text">{fancySubstringHypotheses(props.hypNode.text, global)}</span>
-        )}
-      </div>
-    </Search>
+      <Hint>{props.hypNode}</Hint>
+      {name && <span className="name">{name}</span>}
+      {!isHypHidden && name && ": "}
+      {!isHypHidden && props.hypNode.text && (
+        latexString
+          ? <span className="text" dangerouslySetInnerHTML={{ __html: katex.renderToString(`\\displaystyle ${latexString}`, { throwOnError: false }) }}/>
+          : <span className="text">{fancySubstringHypotheses(props.hypNode.text, global)}</span>
+      )}
+    </div>
   )
 };
 

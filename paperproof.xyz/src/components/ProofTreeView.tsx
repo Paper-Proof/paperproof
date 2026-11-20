@@ -42,7 +42,6 @@ const RootBox = () => {
 // Fully controlled; all it adds is the arrow layer.
 const ProofTreeView = (props: Props) => {
   const [UIVersion, setUIVersion] = React.useState<number>(1);
-  const [searchedHypIds, setSearchedHypIds] = React.useState<string[]>([]);
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
 
   const refreshUI = React.useCallback(() => setUIVersion((version) => version + 1), []);
@@ -64,7 +63,6 @@ const ProofTreeView = (props: Props) => {
       value={{
         UIVersion, refreshUI,
         collapsedBoxIds: props.collapsedBoxIds, setCollapsedBoxIds: props.setCollapsedBoxIds,
-        searchedHypIds,                         setSearchedHypIds,
         deletedHypothesisNames: props.deletedHypothesisNames, setDeletedHypothesisNames: props.setDeletedHypothesisNames,
         settings: props.settings,               setSettings: props.setSettings,
 

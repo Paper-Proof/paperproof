@@ -35,8 +35,6 @@ export interface GlobalContextType {
   refreshUI: () => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
-  searchedHypIds: string[];
-  setSearchedHypIds: (x: string[]) => void;
   deletedHypothesisNames: string[];
   setDeletedHypothesisNames: (x: string[]) => void;
   settings: Settings;
@@ -84,7 +82,6 @@ function Main() {
   const [UIVersion, setUIVersion] = useState<number>(1);
 
   const [collapsedBoxIds, setCollapsedBoxIds] = useState<string[]>([]);
-  const [searchedHypIds, setSearchedHypIds] = useState<string[]>([]);
   const [deletedHypothesisNames, setDeletedHypothesisNames] = useState<string[]>([]);
 
   const [settings, setSettings] = useState(window.initialSettings);
@@ -216,7 +213,6 @@ function Main() {
         value={{
           UIVersion, refreshUI,
           collapsedBoxIds, setCollapsedBoxIds,
-          searchedHypIds,  setSearchedHypIds,
           deletedHypothesisNames, setDeletedHypothesisNames,
           settings,        setSettings: updateSettings,
 
