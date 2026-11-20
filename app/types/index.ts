@@ -66,10 +66,10 @@ export interface PaperproofWindow extends Window {
 }
 
 export type PaperproofAcquireVsCodeApi = () => {
-  postMessage: (message: {
-    type: 'from_webview:update_settings';
-    data: Settings;
-  }) => void;
+  postMessage: (message:
+    | { type: 'from_webview:update_settings'; data: Settings }
+    | { type: 'from_webview:request_full_proof_tree' }
+  ) => void;
   getState: () => unknown;
   setState: (newState: unknown) => void;
 };
