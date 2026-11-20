@@ -31,22 +31,27 @@ if (hasEmbed) step("embed build", process.execPath, ["build.mjs"], "embed");
 step("type check app/", path.join(repo, "app/node_modules/.bin/tsc"), ["--noEmit", "-p", "."], "app");
 
 const proofFiles = fs.readdirSync(path.join(repo, "tests/proofs")).filter((f) => f.endsWith(".json")).sort();
-if (hasEmbed) step(`validate ${proofFiles.length} proofs`, process.execPath,
-  ["embed/dist/cli.cjs", "validate", ...proofFiles.map((f) => `tests/proofs/${f}`)], ".");
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "paperproof-tests-"));
+const lib = await loadLib();
+
+process.stdout.write(`validate ${proofFiles.length} proofs … `);
+const invalid = proofFiles.map((file) => {
+  const result = lib.validate(JSON.parse(fs.readFileSync(path.join(repo, "tests/proofs", file), "utf8")));
+  return result.problems.length ? `${file}\n${lib.formatProblems(result.problems).replace(/^/gm, "  ")}` : null;
+}).filter(Boolean);
+if (invalid.length === 0) console.log("ok");
+else { failed = true; console.log(`FAILED\n${invalid.join("\n").replace(/^/gm, "  ")}`); }
 
 if (screenshotsDir && !failed) await screenshots();
+if (!compareDir || !failed) fs.rmSync(tmp, { recursive: true, force: true });
 process.exitCode = failed ? 1 : 0;
 
-async function screenshots() {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "paperproof-tests-"));
-  const outDir = compareDir ? path.join(tmp, "now") : path.resolve(screenshotsDir);
-  fs.mkdirSync(outDir, { recursive: true });
-
+async function loadLib() {
   const { default: esbuild } = await import(pathToFileURL(path.join(repo, "paperproof.xyz/node_modules/esbuild/lib/main.js")).href);
   await esbuild.build({
-    entryPoints: [path.join(repo, "tests/payload.ts")],
+    entryPoints: [path.join(repo, "tests/lib.ts")],
     bundle: true, platform: "node", format: "esm", logLevel: "warning",
-    outfile: path.join(tmp, "payload.mjs"),
+    outfile: path.join(tmp, "lib.mjs"),
     tsconfig: path.join(repo, "app/tsconfig.json"),
     plugins: [{
       name: "app-alias",
@@ -59,7 +64,13 @@ async function screenshots() {
       },
     }],
   });
-  const { snapshotPayload } = await import(pathToFileURL(path.join(tmp, "payload.mjs")).href);
+  return import(pathToFileURL(path.join(tmp, "lib.mjs")).href);
+}
+
+async function screenshots() {
+  const outDir = compareDir ? path.join(tmp, "now") : path.resolve(screenshotsDir);
+  fs.mkdirSync(outDir, { recursive: true });
+  const { snapshotPayload } = lib;
 
   const dist = (f) => pathToFileURL(path.join(repo, "paperproof.xyz/public/dist", f)).href;
   const inline = (x) => JSON.stringify(x).replace(/</g, "\\u003c");
@@ -116,5 +127,4 @@ async function screenshots() {
       console.log(`compare with ${compareDir} … ${changed.length} changed (screenshots and diffs in ${tmp})\n${changed.map((c) => `  ${c}`).join("\n")}`);
     }
   }
-  if (!compareDir || !failed) fs.rmSync(tmp, { recursive: true, force: true });
 }

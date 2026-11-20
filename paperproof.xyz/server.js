@@ -14,10 +14,10 @@ import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { Readable } from 'stream';
-import { llmInstructions, fewShotExamples } from './src/services/llmInstructions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const { llmInstructions, fewShotExamples } = JSON.parse(await fs.readFile(path.join(__dirname, 'public/dist/llm-instructions.json'), 'utf8'));
 
 const app = express();
 

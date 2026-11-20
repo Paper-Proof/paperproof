@@ -9,8 +9,8 @@ import hypsToTables from "@app/services/hypsToTables";
 import naturalToConverted from "@app/services/naturalToConverted";
 import JsonEditor from "./components/JsonEditor";
 import { collectTexts } from "@app/services/convertToLatex";
-import { llmInstructions, fewShotExamples } from "./services/llmInstructions";
-import { NaturalProofTreeSchema } from "./services/proofSchema";
+import { llmInstructions, fewShotExamples } from "@app/format/llmInstructions.js";
+import { NaturalProofTreeSchema } from "@app/format";
 
 import ProofTreeView, { DEFAULT_STANDALONE_SETTINGS } from "./components/ProofTreeView";
 import ProofTreeErrorBoundary from "./components/ProofTreeErrorBoundary";
@@ -62,7 +62,7 @@ function tryValidateJson(jsonValue: string): string | null {
   if (!jsonValue.trim()) return 'Empty JSON';
   try {
     const result = NaturalProofTreeSchema.safeParse(JSON.parse(jsonValue));
-    if (!result.success) return result.error.errors[0]?.message ?? 'Invalid JSON';
+    if (!result.success) return result.error.issues[0]?.message ?? 'Invalid JSON';
     return null;
   } catch (err) {
     return err instanceof Error ? err.message : 'Unknown error';
@@ -131,7 +131,7 @@ function StandaloneRenderer() {
 
     try {
       const parsed = NaturalProofTreeSchema.safeParse(JSON.parse(jsonValue));
-      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message ?? 'Invalid JSON');
+      if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Invalid JSON');
       const naturalProofTree: NaturalProofTree = parsed.data as NaturalProofTree;
 
       const converted: ConvertedProofTree = naturalToConverted(naturalProofTree);

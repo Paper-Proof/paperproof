@@ -64,6 +64,10 @@ function aliasPlugin() {
 
 const watch = process.argv.includes("--watch");
 
+const { llmInstructions, fewShotExamples } = await import("../app/src/format/llmInstructions.js");
+fs.mkdirSync(path.resolve(__dirname, "public/dist"), { recursive: true });
+fs.writeFileSync(path.resolve(__dirname, "public/dist/llm-instructions.json"), JSON.stringify({ llmInstructions, fewShotExamples }));
+
 // [Claude comment] Snapshot pages get their own bundle - reusing the playground's
 // would ship all of monaco-editor to readers who only need the proof tree.
 const bundles = [

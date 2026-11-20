@@ -30,3 +30,5 @@ export const snapshotPayload = (proof: NaturalProofTree, settings: Partial<Setti
     latexSettings,
   };
 };
+
+export { validate, formatProblems } from "@app/format";
