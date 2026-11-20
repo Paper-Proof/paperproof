@@ -6,8 +6,8 @@ import "@app/css/theorem.css";
 import "./snapshotPage.css";
 import hypsToTables from "@app/services/hypsToTables";
 
-import ProofTreeView from "./components/ProofTreeView";
-import ProofTreeErrorBoundary from "./components/ProofTreeErrorBoundary";
+import ProofTreeView from "../../embed/src/ProofTreeView";
+import ProofTreeErrorBoundary from "../../embed/src/ProofTreeErrorBoundary";
 
 declare const window: Window & { PAPERPROOF_SNAPSHOT?: SnapshotPayload };
 

@@ -6,7 +6,7 @@ import PerfectArrow from "@app/components/PerfectArrow";
 import createHypArrows from "@app/services/createHypArrows";
 import areWeOnEllipsisTactic from "@app/services/areWeOnEllipsisTactic";
 
-import { StandaloneGlobalContext, useStandaloneGlobalContext } from "../proofContext";
+import { StandaloneGlobalContext, useStandaloneGlobalContext } from "./proofContext";
 
 export const DEFAULT_STANDALONE_SETTINGS: Settings = {
   isSingleTacticMode: false,
@@ -38,8 +38,6 @@ const RootBox = () => {
   return <BoxEl box={rootBox}/>;
 };
 
-// [Claude comment] The tree outside of vscode - /playground and snapshot pages.
-// Fully controlled; all it adds is the arrow layer.
 const ProofTreeView = (props: Props) => {
   const [UIVersion, setUIVersion] = React.useState<number>(1);
   const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
@@ -53,6 +51,18 @@ const ProofTreeView = (props: Props) => {
 
   // [Claude comment] Arrows are measured off the DOM, so they're wrong until the
   // webfonts land and the text reflows.
+  React.useEffect(() => {
+    const tree = proofTreeRef.current;
+    if (!tree) return;
+    let size = "";
+    const observer = new ResizeObserver(() => {
+      const now = `${tree.offsetWidth}x${tree.offsetHeight}`;
+      if (now !== size) { size = now; refreshUI(); }
+    });
+    observer.observe(tree);
+    return () => observer.disconnect();
+  }, [refreshUI]);
+
   React.useEffect(() => {
     let isStale = false;
     document.fonts.ready.then(() => { if (!isStale) refreshUI(); });

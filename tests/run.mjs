@@ -27,7 +27,13 @@ const step = (label, cmd, cmdArgs, cwd) => {
 step("extension webview build", process.execPath, ["esbuild.prod.js"], "app");
 step("paperproof.xyz build", process.execPath, ["esbuild.js"], "paperproof.xyz");
 const hasEmbed = fs.existsSync(path.join(repo, "embed/build.mjs"));
-if (hasEmbed) step("embed build", process.execPath, ["build.mjs"], "embed");
+if (hasEmbed) {
+  step("embed build", process.execPath, ["build.mjs"], "embed");
+  process.stdout.write("/embed/skill is up to date … ");
+  const stale = spawnSync("git", ["status", "--porcelain", "--", "embed/skill"], { cwd: repo, encoding: "utf8" }).stdout.trim();
+  if (!stale) console.log("ok");
+  else { failed = true; console.log(`FAILED: the build changed it - commit it\n${stale.replace(/^/gm, "  ")}`); }
+}
 step("type check app/", path.join(repo, "app/node_modules/.bin/tsc"), ["--noEmit", "-p", "."], "app");
 
 const proofFiles = fs.readdirSync(path.join(repo, "tests/proofs")).filter((f) => f.endsWith(".json")).sort();
@@ -85,6 +91,10 @@ async function screenshots() {
 <link rel="stylesheet" href="${dist("standaloneRenderer.css")}">${still}</head>
 <body class="standalone"><div id="root"></div><script src="${dist("standaloneRenderer.js")}"></script></body></html>`;
 
+  const embedPage = (proof) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<script src="${pathToFileURL(path.join(repo, "embed/dist/paperproof-embed.js")).href}"></script></head>
+<body style="margin: 20px; background: #fff"><paperproof-proof><script type="application/json">${JSON.stringify(proof).replace(/<\//g, "<\\/")}</script></paperproof-proof></body></html>`;
+
   const pages = [];
   for (const file of proofFiles) {
     const proof = JSON.parse(fs.readFileSync(path.join(repo, "tests/proofs", file), "utf8"));
@@ -94,6 +104,7 @@ async function screenshots() {
     pages.push([`${name}.vscode`, snapshotPage(snapshotPayload(proof), "vscode-light",
       "body { --vscode-editor-font-family: monospace; --vscode-editor-background: #fff; }")]);
     pages.push([`${name}.playground`, playgroundPage(proof)]);
+    if (hasEmbed) pages.push([`${name}.embed`, embedPage(proof)]);
   }
 
   const chrome = process.env.CHROME_PATH ?? ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]

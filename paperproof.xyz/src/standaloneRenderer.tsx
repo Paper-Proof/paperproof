@@ -12,8 +12,8 @@ import { collectTexts } from "@app/services/convertToLatex";
 import { llmInstructions, fewShotExamples } from "@app/format/llmInstructions.js";
 import { NaturalProofTreeSchema } from "@app/format";
 
-import ProofTreeView, { DEFAULT_STANDALONE_SETTINGS } from "./components/ProofTreeView";
-import ProofTreeErrorBoundary from "./components/ProofTreeErrorBoundary";
+import ProofTreeView, { DEFAULT_STANDALONE_SETTINGS } from "../../embed/src/ProofTreeView";
+import ProofTreeErrorBoundary from "../../embed/src/ProofTreeErrorBoundary";
 import Nav from "./components/Nav";
 
 const LS_KEY = 'paperproof-natural-json';

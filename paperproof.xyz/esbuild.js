@@ -56,7 +56,7 @@ function aliasPlugin() {
 
       // src/indexBrowser → shared proof context (used by BoxEl internals)
       build.onResolve({ filter: /^src\/indexBrowser$/ }, () => ({
-        path: path.resolve(__dirname, "src/proofContext.tsx"),
+        path: path.resolve(__dirname, "../embed/src/proofContext.tsx"),
       }));
     },
   };

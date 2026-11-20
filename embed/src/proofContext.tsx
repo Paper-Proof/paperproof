@@ -1,13 +1,7 @@
 import React from "react";
 import { ConvertedProofTree, Highlights, LatexSettings, Position, Settings } from "types";
 
-/**
- * [Claude comment]
- * `/app` imports its context from `src/indexBrowser`, which calls
- * `acquireVsCodeApi()` at module scope and would throw in a normal browser tab.
- * `esbuild.js` redirects that import here, so this must mirror the same context
- * minus anything that talks to vscode.
- */
+// Stands in for src/indexBrowser's context (build.mjs redirects the import), which calls acquireVsCodeApi() and throws outside vscode
 export interface StandaloneGlobalContextType {
   UIVersion: number;
   refreshUI: () => void;

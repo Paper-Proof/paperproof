@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paperproof embed demo</title>
+<script src="../dist/paperproof-embed.js"></script>
+<style>body{font:16px/1.6 Georgia,serif;max-width:46rem;margin:2rem auto;padding:0 16px;color:#2b2722;background:#faf8f2} h2{margin-top:2.5rem}</style>
+</head><body>
+<h1>&lt;paperproof-proof&gt; demo</h1>
+<h2>Unicode</h2>
+<p>If P ∨ Q, then Q ∨ P.</p>
+<paperproof-proof>
+  <script type="application/json">{"format": "unicode", "goal": "Q ∨ P", "newHyps": [{"name": "h", "type": "P ∨ Q"}], "tactics": [{"tactic": "split h", "newSubgoals": [{"goal": "Q ∨ P", "newHyps": [{"name": "p", "type": "P", "from": "h"}], "tactics": [{"tactic": "right", "dependsOn": ["p"], "closed": true}]}, {"goal": "Q ∨ P", "newHyps": [{"name": "q", "type": "Q", "from": "h"}], "tactics": [{"tactic": "left", "dependsOn": ["q"], "closed": true}]}]}]}</script>
+</paperproof-proof>
+<h2>LaTeX</h2>
+<p>√2 is irrational (KaTeX loads from jsDelivr).</p>
+<paperproof-proof>
+  <script type="application/json">{"format": "latex", "goal": "\\sqrt{2} \\notin \\mathbb{Q}", "newHyps": [], "tactics": [{"tactic": "assume the opposite", "newHyps": [{"name": "h", "type": "\\sqrt{2} = \\frac{p}{q},\\ \\gcd(p, q) = 1"}], "newGoal": "\\bot"}, {"tactic": "square both sides of $h$", "newHyps": [{"name": "h2", "type": "p^2 = 2q^2", "from": "h"}]}, {"tactic": "$p^2$ is even, so $p$ is even", "newHyps": [{"name": "hp", "type": "2 \\mid p", "from": "h2"}]}, {"tactic": "substitute $p = 2k$", "dependsOn": ["h2", "hp"], "newHyps": [{"name": "hq", "type": "2 \\mid q"}]}, {"tactic": "both even, but $\\gcd(p,q) = 1$", "dependsOn": ["hp", "hq", "h"], "closed": true}]}</script>
+</paperproof-proof>
+<h2>A broken proof</h2>
+<p>An unknown name in <code>dependsOn</code> and a step that changes nothing are listed under the tree.</p>
+<paperproof-proof>
+  <script type="application/json">{"format": "unicode", "goal": "A ∧ B", "newHyps": [{"name": "ha", "type": "A"}], "tactics": [{"tactic": "split ∧", "newSubgoals": [{"goal": "A", "newHyps": [], "tactics": [{"tactic": "exact", "dependsOn": ["hA"], "closed": true}]}, {"goal": "B", "newHyps": [], "tactics": [{"tactic": "think hard"}]}]}]}</script>
+</paperproof-proof>
+<h2>A wide proof, scaled to the column</h2>
+<paperproof-proof>
+  <script type="application/json">{"format": "unicode", "goal": "(b) There is a vector c s.t. δ := max{cᵀx : x ∈ P} < ∞ and F = {x ∈ P : cᵀx = δ}.", "newHyps": [{"name": "F_in_P", "type": "F ⊆ P"}, {"name": "c", "type": "(c) There is a sub-system A′x ≤ b′ of Ax ≤ b such that F = {x ∈ P : A′x = b′} ≠ ∅."}], "tactics": [{"tactic": "restate", "newGoal": "∃ c, δ, max{cᵀx : x ∈ P} = δ ∧ F = {x ∈ P : cᵀx = δ}"}, {"tactic": "restate", "newHyps": [{"name": "c", "type": "∃ (A′, b′), A′x ≤ b′ is a subsystem of Ax ≤ b ∧ F = {x ∈ P : A′x = b′} ∧ F ≠ ∅", "from": "c"}]}, {"tactic": "restate", "newHyps": [{"name": "A'b'", "type": "A′x ≤ b′ is a subsystem of Ax ≤ b", "from": "c"}, {"name": "F_definition", "type": "F = {x ∈ P : A′x = b′}", "from": "c"}, {"name": "F_not_empty", "type": "F ≠ ∅", "from": "c"}]}, {"tactic": "use c := Σ rows of A′, use δ := Σ entries of b′", "newGoal": "max{cᵀx : x ∈ P} = δ ∧ F = {x ∈ P : cᵀx = δ}", "newHyps": [{"name": "sum_of_A'b'_inequalities", "type": "c := Σ rows of A′; δ := Σ entries of b′"}]}, {"tactic": "split ∧", "newSubgoals": [{"goal": "max{cᵀx : x ∈ P} = δ", "newHyps": [], "tactics": [{"tactic": "unfold max", "newSubgoals": [{"goal": "∀ x ∈ P, cᵀx ≤ δ", "newHyps": [], "tactics": [{"tactic": "if a₁ ≤ b₁; a₂ ≤ b₂ then a₁ + a₂ ≤ b₁ + b₂", "dependsOn": ["A'b'"], "closed": true}]}, {"goal": "∃ y ∈ P, cᵀy = δ", "newHyps": [], "tactics": [{"tactic": "F is not empty", "dependsOn": ["F_not_empty", "F_definition"], "newHyps": [{"name": "h", "type": "∃ y ∈ P, A′y = b′"}]}, {"tactic": "restate", "newHyps": [{"name": "y", "type": "y ∈ P", "from": "h"}, {"name": "h", "type": "A′y = b′", "from": "h"}]}, {"tactic": "use y", "newGoal": "cᵀy = δ"}, {"tactic": "if a₁ = b₁; a₂ = b₂ then a₁ + a₂ = b₁ + b₂", "dependsOn": ["h"], "closed": true}]}]}]}, {"goal": "F = {x ∈ P : cᵀx = δ}", "newHyps": [], "tactics": [{"tactic": "double inclusion", "newSubgoals": [{"goal": "F ⊆ {x ∈ P : cᵀx = δ}", "newHyps": [], "tactics": [{"tactic": "introduce x", "newHyps": [{"name": "h", "type": "x ∈ F"}], "newGoal": "x ∈ {x ∈ P : cᵀx = δ}"}, {"tactic": "simplify", "newGoal": "cᵀx = δ"}, {"tactic": "F_definition", "newHyps": [{"name": "h", "type": "A′x = b′", "from": "h"}]}, {"tactic": "if a₁ = b₁; a₂ = b₂ then a₁ + a₂ = b₁ + b₂", "dependsOn": ["h"], "closed": true}]}, {"goal": "{x ∈ P : cᵀx = δ} ⊆ F", "newHyps": [], "tactics": [{"tactic": "introduce x", "newHyps": [{"name": "h", "type": "x ∈ {x ∈ P : cᵀx = δ}"}], "newGoal": "x ∈ F"}, {"tactic": "F_definition", "newGoal": "A′x = b′"}, {"tactic": "simplify", "newHyps": [{"name": "h", "type": "cᵀx = δ", "from": "h"}]}, {"tactic": "if a₁ ≤ b₁; a₂ ≤ b₂; a₁ + a₂ = b₁ + b₂ then a₁ = b₁; a₂ = b₂", "dependsOn": ["h", "A'b'"], "closed": true}]}]}]}]}]}</script>
+</paperproof-proof>
+<h2>Themes</h2>
+<h3><code>theme="sand"</code></h3>
+<paperproof-proof theme="sand">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="cyan"</code></h3>
+<paperproof-proof theme="cyan">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="check"</code></h3>
+<paperproof-proof theme="check">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="square"</code></h3>
+<paperproof-proof theme="square">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="check-goal"</code></h3>
+<paperproof-proof theme="check-goal">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="slate"</code></h3>
+<paperproof-proof theme="slate">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="clay"</code></h3>
+<paperproof-proof theme="clay">
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+<h3><code>theme="check" dark-bars</code></h3>
+<paperproof-proof theme="check" dark-bars>
+  <script type="application/json">{"format": "unicode", "goal": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/(λ − 2) ≥ c · (1/λ)", "newHyps": [], "tactics": [{"tactic": "use c := 1, λ₀ := 3", "newGoal": "∀ λ ≥ 3, 1/(λ − 2) ≥ 1/λ"}, {"tactic": "introduce λ", "newHyps": [{"name": "hλ", "type": "λ ≥ 3"}], "newGoal": "1/(λ − 2) ≥ 1/λ"}, {"tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ", "newHyps": [{"name": "h", "type": "0 < λ − 2 ≤ λ", "from": "hλ"}]}, {"tactic": "reciprocals of positive numbers reverse ≤", "dependsOn": ["h"], "closed": true}]}</script>
+</paperproof-proof>
+</body></html>

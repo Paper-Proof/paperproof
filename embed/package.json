@@ -1,0 +1,16 @@
+{
+  "name": "@paperproof/embed",
+  "version": "0.1.0",
+  "description": "Render Paperproof proof trees in any web page, from JSON that an LLM can write and check",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Paper-Proof/paperproof", "directory": "embed" },
+  "type": "module",
+  "main": "dist/paperproof-embed.js",
+  "jsdelivr": "dist/paperproof-embed.js",
+  "unpkg": "dist/paperproof-embed.js",
+  "bin": { "paperproof-embed": "dist/cli.cjs" },
+  "files": ["dist", "skill"],
+  "scripts": { "build": "node build.mjs" },
+  "keywords": ["paperproof", "proof", "proof-tree", "web-component", "llm"],
+  "devDependencies": { "esbuild": "0.19.12" }
+}

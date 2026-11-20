@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  position: relative;
+  break-inside: avoid;
+  container-type: inline-size;
+  color: #3a505a;
+  font-weight: 500;
+}
+:host([fit="scroll"]) {
+  overflow-x: auto;
+}
+:host([fit="none"]) {
+  container-type: normal;
+}
+.pp-wrap {
+  width: max-content;
+}
+.pp-root.-natural .proof-tree:not(.-isUnlimitedWidthON) #box-1 {
+  min-width: calc(100cqw - 2px);
+}
+.pp-root.-measuring .proof-tree {
+  zoom: 1 !important;
+}
+.pp-root.-measuring #box-1 {
+  min-width: 0 !important;
+}
+.pp-root.-natural .tactic .perfect-arrow {
+  display: block;
+}
+.pp-root.-natural .hypothesis-table .hypothesis {
+  max-width: none;
+}
+.pp-menu {
+  position: absolute;
+  z-index: 1000;
+  padding: 4px 0;
+  background: #fff;
+  border: 1px solid #e3dccb;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(88, 59, 22, 0.15);
+  button {
+    display: block;
+    width: 100%;
+    padding: 6px 14px;
+    border: 0;
+    background: none;
+    text-align: left;
+    white-space: nowrap;
+    font: 12px/16px system-ui, sans-serif;
+    color: #3d3a33;
+    cursor: pointer;
+    &:hover { background: #f3f1e8; }
+  }
+  .pp-menu-mark {
+    display: inline-block;
+    width: 1.1em;
+    margin-left: -0.3em;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid #ece6da;
+    margin: 4px 0;
+  }
+}
+.pp-problems, .pp-error, .natural-render-error {
+  font: 12px/1.45 monospace;
+  color: #C0392B;
+  background: #FFF0F0;
+  border: 1px solid #F6CDCD;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+}
+
+.pp-root:not(.-theme-cyan) .tactic.-success .text > span:first-child,
+.pp-root:not(.-theme-cyan) .tactic.-success .text > span:last-child {
+  display: none;
+}
+.pp-root:is(.-theme-check, .-theme-square, .-theme-check-goal) .tactic.-success {
+  background: transparent;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23583b1624' stroke-width='3' stroke-dasharray='4%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+.pp-root.-theme-check .tactic.-success .text > span:nth-child(2)::before {
+  content: "✓";
+  margin-right: 6px;
+  color: #3e9a66;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 0;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+.pp-root.-theme-square .tactic.-success .text > span:nth-child(2)::after {
+  content: "";
+  display: inline-block;
+  width: .6em;
+  height: .6em;
+  margin-left: .6em;
+  background: #2a2622;
+  vertical-align: -0.02em;
+}
+.pp-root.-theme-check-goal .tactic.-success + .goal::after {
+  content: "✓";
+  position: absolute;
+  top: -9px;
+  right: -7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #5fb184;
+  color: #fff;
+  font: 700 11px/18px system-ui, sans-serif;
+  text-align: center;
+}
+.pp-root.-theme-slate .tactic.-success {
+  background-color: rgb(100 130 170 / 10%);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23d2dbe7' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+.pp-root.-theme-sand .tactic.-success {
+  background-color: rgb(160 130 90 / 10%);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23e3d8c8' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+.pp-root.-theme-clay .tactic.-success {
+  background-color: rgb(181 83 47 / 9%);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23ecd0c3' stroke-width='3' stroke-dasharray='4%2c 5' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+.pp-root.-dark-bars .proof-tree header,
+.pp-root.-dark-bars .proof-tree header div.row-2,
+.pp-root.-dark-bars .proof-tree footer {
+  background: #CFCABEDB;
+}
+.pp-root.-dark-bars .proof-tree :is(header, footer) .title {
+  color: rgb(94, 90, 84);
+  font-weight: bolder;
+}
