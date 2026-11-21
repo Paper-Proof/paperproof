@@ -1,66 +1,33 @@
 # paperproof
 
-Render Paperproof proof trees in any web page, from JSON that a person or an LLM
-writes. The format is `NaturalProofTree`, the one `/playground` uses.
+Show a proof as a [Paperproof](https://paperproof.xyz) tree on your own web page: goals, hypotheses, and arrows showing which step uses what.
+
+<img src="examples/sqrt2-irrational.png" width="752" alt="√2 is irrational, as a Paperproof tree">
+
+## Putting a proof on a page
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.0/dist/paperproof-embed.js"></script>
 
 <paperproof-proof>
   <script type="application/json">
-    {"format": "unicode", "goal": "Q ∨ P", "newHyps": [{"name": "h", "type": "P ∨ Q"}], "tactics": [ … ]}
+    { the proof, as JSON }
   </script>
 </paperproof-proof>
 ```
 
-| attribute | |
+## Where the JSON comes from
+
+- **A Lean proof:** in the [Paperproof VS Code extension](https://marketplace.visualstudio.com/items?itemName=paperproof.paperproof), right-click the proof and choose *Copy for LLM*.
+- **An AI agent:** tell it to run `npx paperproof instructions`, which explains the format and how to check its work.
+
+## Changing how it looks
+
+| | |
 |---|---|
-| `fit="scroll"` | keep a wide tree at full size, with its own horizontal scrollbar; by default it is scaled down to the column, on screen and in print |
-| `fit="none"` | keep a wide tree at full size and let it run past the column, so the page scrolls |
-| `font-size="13"` | text size in px (default 12) |
-| `unlimited-width` | don't cap nodes at 200px, so no text wraps |
-| `theme="sand"` | how a step that closes a goal looks: `sand` (default), `cyan` (the extension's), `check`, `square`, `check-goal`, `slate`, `clay` |
-| `dark-bars` | darker HYPOTHESES and THEOREM bars, with any theme |
-| `src="proof.json"` | load the JSON from a file instead of the inline `<script>` (needs http) |
-| `kind="snapshot"` | the JSON is a snapshot payload from the VS Code extension rather than a `NaturalProofTree` |
+| `theme="cyan"` | how a step that finishes a goal looks: `sand` (default), `cyan`, `check`, `square`, `check-goal`, `slate`, `clay` |
+| `dark-bars` | darker HYPOTHESES and THEOREM bars |
+| `unlimited-width` | long formulas stay on one line instead of wrapping |
+| `fit="none"` | a tree wider than the page stays full size and the page scrolls, instead of the tree shrinking to fit |
 
-Right-click a tree to pick a theme or switch the dark bars on or off. The browser keeps the
-choice for every tree on the site, and it overrides `theme` and `dark-bars`.
-
-`element.proof = json` replaces the proof. Each tree renders in its own shadow root,
-so the page's CSS doesn't reach it and its CSS doesn't reach the page.
-
-Pages that must work offline (or from `file://`) can copy `dist/paperproof-embed.js`
-next to them. LaTeX-format proofs load KaTeX from jsDelivr.
-
-Problems in a proof (an unknown `from`/`dependsOn` name, a step that changes nothing)
-are listed in red under the tree; `window.Paperproof.validate(json)` returns the same list.
-
-## CLI
-
-```bash
-npx paperproof validate page.html proofs/*.json   # exit code 1 on errors
-npx paperproof render page.html --index 0 --out proof.png
-npx paperproof schema         # JSON Schema of the format
-npx paperproof instructions   # how to write proofs, for LLMs
-```
-
-`validate` reads `.json` files as one proof each and finds every `<paperproof-proof>`
-block in any other file. `render` needs Chrome (`CHROME_PATH` if it isn't found).
-
-## For LLMs
-
-`skill/paperproof-notation/SKILL.md` is an Agent Skill: the format, the embed snippet
-and the write → validate → render loop. `dist/llms.txt` is the same text. Both are
-generated from `app/src/format/llmInstructions.js`.
-
-## Build
-
-```bash
-npm install
-node build.mjs     # → dist/paperproof-embed.js, dist/cli.cjs, dist/schema.json, dist/llms.txt, skill/
-```
-
-The renderer and the format come from `app/` (React from `app/node_modules`); the
-published package has no dependencies. `examples/demo.html` shows a unicode proof, a
-LaTeX proof, a broken proof, a wide one, and every theme.
+Readers can also right-click a tree to try the themes; their browser remembers the choice.
