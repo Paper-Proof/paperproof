@@ -15,7 +15,7 @@ hypothesis each new hypothesis or step comes from.
 2. Put it into the page:
 
    ```html
-   <script src="https://cdn.jsdelivr.net/npm/@paperproof/embed@0.1.0/dist/paperproof-embed.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.0/dist/paperproof-embed.js"></script>
 
    <paperproof-proof>
      <script type="application/json">
@@ -43,7 +43,7 @@ hypothesis each new hypothesis or step comes from.
 3. Check every proof on the page:
 
    ```bash
-   npx @paperproof/embed validate page.html
+   npx paperproof validate page.html
    ```
 
    Fix every error. An error means part of the proof is not drawn: a `from` or
@@ -56,12 +56,12 @@ hypothesis each new hypothesis or step comes from.
 4. Look at the result:
 
    ```bash
-   npx @paperproof/embed render page.html --index 0 --out proof.png
+   npx paperproof render page.html --index 0 --out proof.png
    ```
 
    and view the PNG (needs Chrome; set `CHROME_PATH` if it is not found).
 
-`npx @paperproof/embed schema` prints the JSON Schema of the format.
+`npx paperproof schema` prints the JSON Schema of the format.
 
 ## The format
 

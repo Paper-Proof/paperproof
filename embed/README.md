@@ -1,10 +1,10 @@
-# @paperproof/embed
+# paperproof
 
 Render Paperproof proof trees in any web page, from JSON that a person or an LLM
 writes. The format is `NaturalProofTree`, the one `/playground` uses.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@paperproof/embed@0.1.0/dist/paperproof-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.0/dist/paperproof-embed.js"></script>
 
 <paperproof-proof>
   <script type="application/json">
@@ -39,10 +39,10 @@ are listed in red under the tree; `window.Paperproof.validate(json)` returns the
 ## CLI
 
 ```bash
-npx @paperproof/embed validate page.html proofs/*.json   # exit code 1 on errors
-npx @paperproof/embed render page.html --index 0 --out proof.png
-npx @paperproof/embed schema         # JSON Schema of the format
-npx @paperproof/embed instructions   # how to write proofs, for LLMs
+npx paperproof validate page.html proofs/*.json   # exit code 1 on errors
+npx paperproof render page.html --index 0 --out proof.png
+npx paperproof schema         # JSON Schema of the format
+npx paperproof instructions   # how to write proofs, for LLMs
 ```
 
 `validate` reads `.json` files as one proof each and finds every `<paperproof-proof>`

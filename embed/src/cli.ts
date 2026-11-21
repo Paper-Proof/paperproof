@@ -7,7 +7,7 @@ import { validate, formatProblems, naturalProofTreeJsonSchema } from "@app/forma
 
 declare const PP_VERSION: string;
 
-const USAGE = `paperproof-embed ${PP_VERSION}
+const USAGE = `paperproof ${PP_VERSION}
 
   validate <file>...          check proofs; a .json file is one proof, any other file
                               (.html, .md, ...) is searched for <paperproof-proof> blocks
