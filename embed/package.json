@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Render Paperproof proof trees in any web page, from JSON that an LLM can write and check",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/Paper-Proof/paperproof", "directory": "embed" },
+  "repository": { "type": "git", "url": "git+https://github.com/Paper-Proof/paperproof.git", "directory": "embed" },
   "type": "module",
   "main": "dist/paperproof-embed.js",
   "jsdelivr": "dist/paperproof-embed.js",

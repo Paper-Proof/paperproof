@@ -90,6 +90,8 @@ const skill = fs.readFileSync(path.join(__dirname, "src/skill.template.md"), "ut
 fs.mkdirSync(path.join(__dirname, "skill/paperproof-notation"), { recursive: true });
 fs.writeFileSync(path.join(__dirname, "skill/paperproof-notation/SKILL.md"), skill);
 fs.writeFileSync(path.join(__dirname, "dist/llms.txt"), skill.replace(/^---[\s\S]*?---\n+/, ""));
+const readme = path.join(__dirname, "README.md");
+fs.writeFileSync(readme, fs.readFileSync(readme, "utf8").replace(/paperproof@\d+\.\d+\.\d+/g, `paperproof@${pkg.version}`));
 fs.writeFileSync(path.join(__dirname, "dist/schema.json"),
   execFileSync(process.execPath, [path.join(__dirname, "dist/cli.cjs"), "schema"], { encoding: "utf8" }));
 
