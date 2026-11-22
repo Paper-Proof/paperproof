@@ -1,6 +1,6 @@
 {
   "name": "paperproof",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Render Paperproof proof trees in any web page, from JSON that an LLM can write and check",
   "license": "MIT",
   "repository": {

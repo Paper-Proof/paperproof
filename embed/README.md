@@ -7,7 +7,7 @@ Proof trees for your own web pages
 ## Putting a proof on a page
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.1/dist/paperproof-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.2/dist/paperproof-embed.js"></script>
 
 <paperproof-proof>
   <script type="application/json">
