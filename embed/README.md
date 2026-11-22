@@ -4,10 +4,12 @@
 Proof trees for your own web pages
 </h2>
 
-## Putting a proof on a page
+## Usage
+
+### HTML
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.2/dist/paperproof-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.3/dist/paperproof-embed.js"></script>
 
 <paperproof-proof>
   <script type="application/json">
@@ -16,7 +18,16 @@ Proof trees for your own web pages
 </paperproof-proof>
 ```
 
+### React (soon-to-come)
+
+```jsx
+import { Paperproof } from "paperproof/react";
+import "paperproof/react.css";
+
+<Paperproof proof={proof}/>
+```
+
 ## Where the JSON comes from
 
-- **A Lean proof:** in the Paperproof VS Code extension, right-click the proof and choose *Copy for LLM*.
-- **An AI agent:** tell it to run `npx paperproof instructions`, which explains the format and how to check its work.
+- **Existing Lean proof:** in the Paperproof VSCode extension, right-click the proof and choose "Copy for LLM".
+- **Your LLM agent:** tell him to run `npx paperproof instructions`, and he'll convert any natural-language proof into Paperproof format.

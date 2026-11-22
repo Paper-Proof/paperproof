@@ -1,7 +1,7 @@
 {
   "name": "paperproof",
   "version": "0.1.2",
-  "description": "Render Paperproof proof trees in any web page, from JSON that an LLM can write and check",
+  "description": "Render Paperproof proof trees on any web page",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -25,9 +25,10 @@
   "keywords": [
     "paperproof",
     "proof",
-    "proof-tree",
-    "web-component",
-    "llm"
+    "mathematics",
+    "lean",
+    "lean4",
+    "react"
   ],
   "devDependencies": {
     "esbuild": "0.19.12"
