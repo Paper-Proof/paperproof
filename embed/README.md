@@ -7,7 +7,7 @@ Show a proof as a [Paperproof](https://paperproof.xyz) tree on your own web page
 ## Putting a proof on a page
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.0/dist/paperproof-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/paperproof@0.1.1/dist/paperproof-embed.js"></script>
 
 <paperproof-proof>
   <script type="application/json">
