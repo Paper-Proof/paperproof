@@ -16,11 +16,9 @@ xyz.local:
 test:
 	node tests/run.mjs
 
-# Run `make embed.publish` to publish the next patch version to npm (BUMP=minor for a minor one).
-BUMP ?= patch
 embed.publish:
 	cd embed && \
 	npm whoami && \
-	npm version $(BUMP) --no-git-tag-version && \
+	{ ! npm view paperproof@$$(node -p 'require("./package.json").version') version >/dev/null 2>&1 || npm version patch --no-git-tag-version; } && \
 	npm run build && \
 	npm publish
