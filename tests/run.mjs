@@ -121,7 +121,7 @@ async function screenshots() {
 <script>localStorage.setItem("paperproof-natural-json", ${inline(JSON.stringify(proof))});</script>
 <link rel="stylesheet" href="${dist("standaloneRenderer.css")}">${still}</head>
 <body class="standalone"><div id="root"></div>
-<script src="${dist("paperproof-embed.js")}"></script><script src="${dist("standaloneRenderer.js")}"></script></body></html>`;
+<script src="${dist("standaloneRenderer.js")}"></script></body></html>`;
 
   const embedPage = (proof) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <script src="${pathToFileURL(path.join(repo, "embed/dist/paperproof-embed.js")).href}"></script></head>

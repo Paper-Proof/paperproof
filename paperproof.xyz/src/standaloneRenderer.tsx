@@ -5,6 +5,7 @@ import "@app/index.css";
 import "@app/css/theorem.css";
 import "./naturalRenderer.css";
 import "./proofPanel.css";
+import { Paperproof } from "../../embed/dist/react.js";
 import JsonEditor from "./components/JsonEditor";
 import { llmInstructions, fewShotExamples } from "@app/format/llmInstructions.js";
 import { NaturalProofTreeSchema } from "@app/format";
@@ -89,12 +90,6 @@ Thus q divides 2·3·5·7·11···p, and so q does not divide (2·3·5·7·11·
     json: `{"format":"unicode","goal":"set of prime numbers is infinite","newHyps":[],"tactics":[{"tactic":"assume the opposite","newGoal":"contradiction","newHyps":[{"name":"h_finite","type":"set of prime numbers is finite"}]},{"tactic":"multiply all prime numbers, add 1","newHyps":[{"name":"N","type":"2 * 3 * 5 * ... * p + 1","from":"h_finite"}]},{"tactic":"because N is bigger than all prime numbers, it must be composite","newHyps":[{"name":"one","type":"N > 1","from":"N"},{"name":"N_is_composite","type":"N is composite","from":"N"}]},{"tactic":"Theorem: every integer > 1 has a prime divisor","dependsOn":["one","N_is_composite"],"newHyps":[{"name":"q_exists","type":"∃ q, (q is prime) ∧ (q | N)"}]},{"tactic":"unfold","newHyps":[{"name":"q","type":"ℕ","from":"q_exists"},{"name":"q_is_prime","type":"q is prime","from":"q_exists"},{"name":"q_divides_N","type":"q | N","from":"q_exists"}]},{"tactic":"q is prime, and we multiplied all prime numbers","newHyps":[{"name":"q_is_one_of_primes","type":"q is one of 2, 3, 5, 7, ..., p","from":"q_is_prime"}]},{"tactic":"if q is one of [a,b,c], then q can divide a*b*c","newHyps":[{"name":"q_divides","type":"q | 2 * 3 * 5 * 7 * ... * p","from":"q_is_one_of_primes"}]},{"tactic":"Theorem: if q | m then q ∤ m + 1","newHyps":[{"name":"q_doesnt_divide_N","type":"q ∤ (2 * 3 * 5 * 7 * ... * p) + 1","from":"q_divides"}]},{"tactic":"definition of N","newHyps":[{"name":"q_doesnt_divide_N","type":"q ∤ N","from":"q_doesnt_divide_N"}]},{"tactic":"contradiction","dependsOn":["q_doesnt_divide_N","q_divides_N"],"closed":true}]}`,
   },
 ];
-
-const EmbeddedProof = ({ proof }: { proof: NaturalProofTree }) => {
-  const ref = useRef<HTMLElement & { proof?: unknown }>(null);
-  useEffect(() => { if (ref.current) ref.current.proof = proof; }, [proof]);
-  return <paperproof-proof ref={ref}/>;
-};
 
 function StandaloneRenderer() {
   const [jsonInput, setJsonInput] = useState<string>(
@@ -299,7 +294,7 @@ function StandaloneRenderer() {
   // Glass overlay: shown while the user is mid-edit or the current JSON has an error
   const showOverlay = isEditing || (!!error && !!proof);
 
-  const proofTreeContent = proof && <EmbeddedProof proof={proof}/>;
+  const proofTreeContent = proof && <Paperproof proof={proof} fit="none"/>;
 
   if (isPrintView) {
     return (
