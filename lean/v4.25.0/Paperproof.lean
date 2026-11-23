@@ -1,16 +1,13 @@
--- Paperproof parser (GetTacticSubstring + GetTheorems + BetterParser) plus the
--- ppMcpGetProof RPC runner, hand-maintained for Lean 4.25. Namespaced
--- PaperproofMcp.Services so it never clashes with a real `import Paperproof`.
+-- The extension injects this file into the user's Lean file too, see /extension/src/services/noInstall/injection.ts
 import Lean
 import Lean.Meta.Basic
 import Lean.Meta.CollectMVars
 import Lean.Server.Requests
--- Services/GetTacticSubstring.lean
 
 
 open Lean Elab
 
-namespace PaperproofMcp.Services
+namespace Paperproof.Services
 
 /--
   InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
@@ -25,14 +22,13 @@ public def getTacticSubstring (tInfo : TacticInfo) : Option Substring :=
   | .some substring => substring
   | .none => none
 
-end PaperproofMcp.Services
--- Services/GetTheorems.lean
+end Paperproof.Services
 
 
 
 open Lean Elab Server
 
-namespace PaperproofMcp.Services
+namespace Paperproof.Services
 
 public structure ArgumentInfo where
   name : String
@@ -209,14 +205,13 @@ public def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : Co
   ctx.runMetaM goalDecl.lctx do
     findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
 
-end PaperproofMcp.Services
--- Services/BetterParser.lean
+end Paperproof.Services
 
 
 
 open Lean Elab Server
 
-namespace PaperproofMcp.Services
+namespace Paperproof.Services
 
 public structure Hypothesis where
   username : String
@@ -548,18 +543,19 @@ public def BetterParser_SingleTactic (fileMap: FileMap) (infoTree: InfoTree) (ct
   let theorems ← GetTheorems infoTree tInfo ctx
   parseTacticBody fileMap ctx tInfo tacticSubstring steps allGoals tacticString theorems
 
-end PaperproofMcp.Services
+end Paperproof.Services
 
--- paperproof-mcp runner
-structure PPUsedThm where
+namespace Paperproof
+
+structure TheoremUsedInProof where
   name : String
   kind : String
   signature : String
   deriving Lean.ToJson
 
 open Lean Elab Command Meta in
-def ppCollectUsedTheorems (trees : List Lean.Elab.InfoTree) (selfName : Name)
-    : MetaM (List PPUsedThm) := do
+def findTheoremsUsedInProof (trees : List Lean.Elab.InfoTree) (selfName : Name)
+    : MetaM (List TheoremUsedInProof) := do
   let env ← getEnv
   let r ← IO.mkRef ({} : Std.HashSet Name)
   for t in trees do
@@ -610,29 +606,38 @@ def ppCollectUsedTheorems (trees : List Lean.Elab.InfoTree) (selfName : Name)
               pure s!"{typeStr} := {bodyStr}") <|> pure typeStr
           | _ => pure typeStr
         else pure typeStr
-      return some { name := nm.toString, kind, signature : PPUsedThm }
+      return some { name := nm.toString, kind, signature : TheoremUsedInProof }
     | none => return none)
 
-public structure PPInput where
+public structure RpcParams where
   pos : Lean.Lsp.Position
   includeTheorems : Bool
   deriving Lean.FromJson, Lean.ToJson
+
+open Lean Server RequestM in
+/-- Accepts a snapshot, and returns the proof in the format that `<Paperproof proof={proof}/>` expects (see https://www.npmjs.com/package/paperproof). -/
+public def getProof (snapshot : Snapshots.Snapshot) : RequestM (Option Json) := do
+  let fileMap := (← readDoc).meta.text
+  let some parsedTree ← RequestM.runTermElabM snapshot (liftM <| Paperproof.Services.BetterParser_Tree fileMap snapshot.infoTree)
+    | return none
+  if parsedTree.steps.isEmpty then return none
+  return toJson parsedTree.steps
 
 -- The RPC runner: called by position, `withWaitFindSnapAtPos` resolves the
 -- position to the enclosing proof's snapshot, then we parse its infoTree. Must
 -- be `public` or the module system mangles its name and the RPC can't find it.
 open Lean Elab Server RequestM in
 @[server_rpc_method]
-public def ppMcpGetProof (params : PPInput) : RequestM (RequestTask String) :=
+public def getProofAt (params : RpcParams) : RequestM (RequestTask String) :=
   withWaitFindSnapAtPos params.pos fun snap => do
     let fileMap := (← readDoc).meta.text
     let some parsed ← RequestM.runTermElabM snap
-        (liftM <| PaperproofMcp.Services.BetterParser_Tree fileMap snap.infoTree)
+        (liftM <| Paperproof.Services.BetterParser_Tree fileMap snap.infoTree)
       | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
     let rawId := snap.stx.find? (·.isOfKind ``Lean.Parser.Command.declId)
       |>.map (·[0].getId) |>.getD Name.anonymous
     let thms ← if params.includeTheorems then
-        RequestM.runTermElabM snap (liftM <| ppCollectUsedTheorems [snap.infoTree] rawId)
+        RequestM.runTermElabM snap (liftM <| findTheoremsUsedInProof [snap.infoTree] rawId)
       else pure []
     let out := Lean.Json.mkObj [
       ("name", Lean.toJson rawId.toString),
@@ -641,3 +646,4 @@ public def ppMcpGetProof (params : PPInput) : RequestM (RequestTask String) :=
     ]
     return out.compress
 
+end Paperproof

@@ -24,7 +24,7 @@
     ```
 -/
 import Lean
-import Services.BetterParser
+import Paperproof
 
 open Lean Elab Paperproof.Services
 

@@ -1,35 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as vscode from "vscode";
-
-export interface ParserCandidate {
-  version: string;
-  source: string;
-}
-
-const parsersDir = (context: vscode.ExtensionContext): string =>
-  path.join(context.extensionUri.fsPath, "parsers");
-
-const availableVersions = (context: vscode.ExtensionContext): string[] => {
-  const dir = parsersDir(context);
-  if (!fs.existsSync(dir)) { return []; }
-  return fs
-    .readdirSync(dir)
-    .filter((f) => /^v\d+\.\d+\.\d+.*\.lean$/.test(f))
-    .map((f) => f.replace(/^v/, "").replace(/\.lean$/, ""))
-    .sort();
-};
-
-const versionKey = (v: string): number[] =>
-  v.split("-")[0].split(".").map((x) => parseInt(x, 10));
-
-const cmpKey = (a: number[], b: number[]): number => {
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const d = (a[i] ?? 0) - (b[i] ?? 0);
-    if (d !== 0) { return d; }
-  }
-  return 0;
-};
+import v4_25_0 from "../../../../lean/v4.25.0/Paperproof.lean";
+import v4_27_0 from "../../../../lean/v4.27.0/Paperproof.lean";
 
 export const findProjectRoot = (filePath: string): string | null => {
   let current = path.dirname(filePath);
@@ -48,43 +20,6 @@ export const readToolchainVersion = (projectRoot: string): string | null => {
   return m ? m[1] : null;
 };
 
-export interface CandidateResult {
-  projectVersion: string | null;
-  candidates: ParserCandidate[];
-}
-
-export const candidateParsers = (
-  context: vscode.ExtensionContext,
-  projectRoot: string
-): CandidateResult => {
-  const versions = availableVersions(context);
-  if (versions.length === 0) {
-    throw new Error("No Lean parsers are bundled with the extension.");
-  }
-  const pv = readToolchainVersion(projectRoot);
-
-  let chosen: string[];
-  if (pv && versions.includes(pv)) {
-    chosen = [pv];
-  } else if (pv) {
-    const floors = versions
-      .filter((v) => cmpKey(versionKey(v), versionKey(pv)) < 0)
-      .sort((a, b) => cmpKey(versionKey(b), versionKey(a)));
-    const ceils = versions
-      .filter((v) => cmpKey(versionKey(v), versionKey(pv)) > 0)
-      .sort((a, b) => cmpKey(versionKey(a), versionKey(b)));
-    const sameRelease = versions.filter((v) => cmpKey(versionKey(v), versionKey(pv)) === 0);
-    chosen = [...sameRelease, ...(floors[0] ? [floors[0]] : []), ...(ceils[0] ? [ceils[0]] : [])];
-  } else {
-    chosen = [versions.slice().sort((a, b) => cmpKey(versionKey(a), versionKey(b))).pop()!];
-  }
-
-  const dir = parsersDir(context);
-  return {
-    projectVersion: pv,
-    candidates: chosen.map((v) => ({
-      version: v,
-      source: fs.readFileSync(path.join(dir, `v${v}.lean`), "utf-8"),
-    })),
-  };
-};
+// the same rule as /lean/lakefile.lean
+export const parserFor = (leanVersion: string | null): string =>
+  leanVersion && Number(leanVersion.split(".")[1]) < 27 ? v4_25_0 : v4_27_0;

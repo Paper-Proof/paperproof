@@ -1,16 +1,13 @@
--- Paperproof parser (GetTacticSubstring + GetTheorems + BetterParser) plus the
--- ppMcpGetProof RPC runner, hand-maintained for Lean 4.27. Namespaced
--- PaperproofMcp.Services so it never clashes with a real `import Paperproof`.
+-- The extension injects this file into the user's Lean file too, see /extension/src/services/noInstall/injection.ts
 import Lean
 import Lean.Meta.Basic
 import Lean.Meta.CollectMVars
 import Lean.Server.Requests
--- Services/GetTacticSubstring.lean
 
 
 open Lean Elab
 
-namespace PaperproofMcp.Services
+namespace Paperproof.Services
 
 /--
   InfoTree has a lot of non-user-written intermediate `TacticInfo`s, this function returns `none` for those.
@@ -25,14 +22,13 @@ public def getTacticSubstring (tInfo : TacticInfo) : Option Substring.Raw :=
   | .some substring => substring
   | .none => none
 
-end PaperproofMcp.Services
--- Services/GetTheorems.lean
+end Paperproof.Services
 
 
 
 open Lean Elab Server
 
-namespace PaperproofMcp.Services
+namespace Paperproof.Services
 
 public structure ArgumentInfo where
   name : String
@@ -209,14 +205,13 @@ public def GetTheorems (infoTree : InfoTree) (tacticInfo : TacticInfo) (ctx : Co
   ctx.runMetaM goalDecl.lctx do
     findTheoremsLikeHover infoTree tacticSubstring.startPos tacticSubstring.stopPos ctx goalDecl
 
-end PaperproofMcp.Services
--- Services/BetterParser.lean
+end Paperproof.Services
 
 
 
 open Lean Elab Server
 
-namespace PaperproofMcp.Services
+namespace Paperproof.Services
 
 public structure Hypothesis where
   username : String
@@ -602,20 +597,27 @@ public def BetterParser_SingleTactic (fileMap: FileMap) (infoTree: InfoTree) (ct
   let theorems ← GetTheorems infoTree tInfo ctx
   parseTacticBody fileMap ctx tInfo tacticSubstring steps allGoals tacticString theorems
 
-end PaperproofMcp.Services
--- Services/GoalsAt.lean + ShouldRenderSingleSequent.lean + PrettifyRwTactic.lean +
--- CheckIfUserIsStillTyping.lean — the extra services needed for single-tactic mode.
-namespace PaperproofMcp.Services
+end Paperproof.Services
+namespace Paperproof.Services
 open Lean Elab Meta Server RequestM
 
--- DIRECT copy of Lean's `InfoTree.goalsAt?`, plus the `!isClosingBracketInRewriteSequence`
--- adjustment so a cursor on `]` shows the whole rewrite sequence, not a lone `]`.
+/-
+  This is a DIRECT copypaste of Lean's `InfoTree.goalsAt?`, with one adjustment - we add the `!isClosingBracketInRewriteSequence` condition.
+  ___Is it ok to edit this function?
+     It's important to keep this function as close to the Lean's `InfoTree.goalsAt?` as possible, because users expect Paperproof to function similarly to InfoView.
+  ___Why do we need `!isClosingBracketInRewriteSequence` condition?
+     Without this condition, placing cursor after `rw [Set.mem_inter_iff, and_comm]|` results in Paperproof parsing `]` as a single tactic, which is useless - it's basically equivalent to `rw [rfl]`, and typically it doesn't show any interesting before/after changes.
+     What the users do want to see upon placing their cursor on/after `]` is a full rewrite sequence.
+-/
 public partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.Pos.Raw) : List GoalsAtResult :=
   let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
     if let Info.ofTacticInfo ti := i then
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
+        -- dbg_trace trailSize
+        -- show info at EOF even if strictly outside token + trail
         let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
+        -- include at least one trailing character (see also `priority` below)
         if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
           let isClosingBracketInRewriteSequence := ti.stx.getAtomVal == "]"
           if (gs.isEmpty || (hoverPos ≥ tailPos && gs.all (·.indented))) && !isClosingBracketInRewriteSequence then
@@ -623,7 +625,12 @@ public partial def goalsAt? (t : InfoTree) (text : FileMap) (hoverPos : String.P
               ctxInfo := ctx
               tacticInfo := ti
               useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
+              -- consider every position unindented after an empty `by` to support "hanging" `by` uses
+              -- indented :=
               indented := (text.toPosition pos).column > (text.toPosition hoverPos).column && !isEmptyBy ti.stx
+              -- use goals just before cursor as fall-back only
+              -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
+              -- as there is no state on `)`
               priority := if hoverPos.byteIdx == tailPos.byteIdx + trailSize then 0 else 1
             }]
     return gs
@@ -633,8 +640,10 @@ where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do
       if let `(by $_) := i.stx then
-        return false
+        return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
       if let (some pos', some tailPos') := (i.pos?, i.tailPos?) then
+        -- ignore preceding nested infos
+        -- ignore nested infos of the same tactic, e.g. from expansion
         if tailPos' > hoverPos && (pos', tailPos') != (pos, tailPos) then
           return true
       cs.any (hasNestedTactic pos tailPos)
@@ -642,6 +651,7 @@ where
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
   isEmptyBy (stx : Syntax) : Bool :=
+    -- there are multiple `by` kinds with the same structure
     stx.getNumArgs == 2 && stx[0].isToken "by" && stx[1].getNumArgs == 1 && stx[1][0].isMissing
 
 public def shouldRenderSingleSequent (tacticInfo : TacticInfo) (text : FileMap) (hoverPos : String.Pos.Raw) : RequestM Bool := do
@@ -654,28 +664,33 @@ public def shouldRenderSingleSequent (tacticInfo : TacticInfo) (text : FileMap) 
   let isBy := tacticSubstring.toString.trimAscii.toString == "by"
   return isNotOnTactic || isBy
 
-inductive PpRwState
+inductive GetClosestRwState
   | start
   | tacticStringWillOccurSoon
   | tacticStringStarted
 
+/--
+  EXAMPLE
+  `rw_mod_cast [Set.mem_inter_iff, and_com|m]` //=> `"rw_mod_cast"`
+  `nth_rw 2 [Na|t.add_comm]` //=> `"nth_rw"`
+-/
 def getClosestRw (text: Lean.FileMap) (hoverPos: String.Pos.Raw) : Id String := do
   let mut currentPosition : String.Pos.Raw := hoverPos
   let text : String := Lean.FileMap.source text
-  let mut state : PpRwState := PpRwState.start
+  let mut state : GetClosestRwState := GetClosestRwState.start
   let mut rwList : List Char := []
   while currentPosition != 0 do
     currentPosition := currentPosition.prev text
     let currentChar := currentPosition.get text
     match state with
-    | PpRwState.start =>
+    | GetClosestRwState.start =>
       if currentChar.toString == "[" then
-        state := PpRwState.tacticStringWillOccurSoon
-    | PpRwState.tacticStringWillOccurSoon =>
+        state := GetClosestRwState.tacticStringWillOccurSoon
+    | GetClosestRwState.tacticStringWillOccurSoon =>
       if !currentChar.isWhitespace && !currentChar.isDigit then
-        state := PpRwState.tacticStringStarted
+        state := GetClosestRwState.tacticStringStarted
         rwList := currentChar :: rwList
-    | PpRwState.tacticStringStarted =>
+    | GetClosestRwState.tacticStringStarted =>
       if !currentChar.isWhitespace then
         rwList := currentChar :: rwList
       else
@@ -697,35 +712,57 @@ public def prettifyRwTactic (tacticInfo : TacticInfo) (text : FileMap) (hoverPos
     pure ""
 
 public def checkIfUserIsStillTyping (snap : Snapshots.Snapshot) (hoverPos : Lsp.Position) : RequestM Unit := do
+
+  -- old: snap.beginPos
   if let some beginPosition := snap.stx.getPos? then
     let doc ← readDoc
     let text := doc.meta.text
     let snapBegins := text.utf8PosToLspPos beginPosition
+
+    -- We won't get error messages for this,
+    -- but if we have the following arrangement, then there is some syntax error:
+    --
+    --   snapBegins: (101, 0)
+    --   hoverPos: (93, 4)
+    --
+    --    hover            snapBegins
+    -- ─────┼──────────────────┼───────
+    --      93                101
     let isSyntaxError := hoverPos.line < snapBegins.line
+
     if isSyntaxError then
       throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
+
     for (msg : Message) in MessageLog.toList snap.msgLog do
       let messageHappened := text.leanPosToLspPos msg.pos
       if messageHappened.line >= snapBegins.line then
+        -- Happens in these cases:
+        -- .data equals "unknown tactic"
+        -- .data equals "expected '(' or term"
+        -- .data equals "unknown identifier 'm'"
+        -- .data equals "tactic 'apply' failed, failed to unify..."
         let isError := match msg.severity with
           | MessageSeverity.error => true
           | _ => false
+        -- Everything's fine, we'll get a nice InfoTree
         let isSorried := (← msg.data.toString).startsWith "unsolved goals"
+
         if isError && !isSorried then
           throwThe RequestError ⟨.invalidParams, "stillTyping"⟩
 
-end PaperproofMcp.Services
+end Paperproof.Services
 
--- paperproof-mcp runner
-structure PPUsedThm where
+namespace Paperproof
+
+structure TheoremUsedInProof where
   name : String
   kind : String
   signature : String
   deriving Lean.ToJson
 
 open Lean Elab Command Meta in
-def ppCollectUsedTheorems (trees : List Lean.Elab.InfoTree) (selfName : Name)
-    : MetaM (List PPUsedThm) := do
+def findTheoremsUsedInProof (trees : List Lean.Elab.InfoTree) (selfName : Name)
+    : MetaM (List TheoremUsedInProof) := do
   let env ← getEnv
   let r ← IO.mkRef ({} : Std.HashSet Name)
   for t in trees do
@@ -776,29 +813,38 @@ def ppCollectUsedTheorems (trees : List Lean.Elab.InfoTree) (selfName : Name)
               pure s!"{typeStr} := {bodyStr}") <|> pure typeStr
           | _ => pure typeStr
         else pure typeStr
-      return some { name := nm.toString, kind, signature : PPUsedThm }
+      return some { name := nm.toString, kind, signature : TheoremUsedInProof }
     | none => return none)
 
-public structure PPInput where
+public structure RpcParams where
   pos : Lean.Lsp.Position
   includeTheorems : Bool
   deriving Lean.FromJson, Lean.ToJson
+
+open Lean Server RequestM in
+/-- Accepts a snapshot, and returns the proof in the format that `<Paperproof proof={proof}/>` expects (see https://www.npmjs.com/package/paperproof). -/
+public def getProof (snapshot : Snapshots.Snapshot) : RequestM (Option Json) := do
+  let fileMap := (← readDoc).meta.text
+  let some parsedTree ← RequestM.runTermElabM snapshot (liftM <| Paperproof.Services.BetterParser_Tree fileMap snapshot.infoTree)
+    | return none
+  if parsedTree.steps.isEmpty then return none
+  return toJson parsedTree.steps
 
 -- The RPC runner: called by position, `withWaitFindSnapAtPos` resolves the
 -- position to the enclosing proof's snapshot, then we parse its infoTree. Must
 -- be `public` or the module system mangles its name and the RPC can't find it.
 open Lean Elab Server RequestM in
 @[server_rpc_method]
-public def ppMcpGetProof (params : PPInput) : RequestM (RequestTask String) :=
+public def getProofAt (params : RpcParams) : RequestM (RequestTask String) :=
   withWaitFindSnapAtPos params.pos fun snap => do
     let fileMap := (← readDoc).meta.text
     let some parsed ← RequestM.runTermElabM snap
-        (liftM <| PaperproofMcp.Services.BetterParser_Tree fileMap snap.infoTree)
+        (liftM <| Paperproof.Services.BetterParser_Tree fileMap snap.infoTree)
       | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
     let rawId := snap.stx.find? (·.isOfKind ``Lean.Parser.Command.declId)
       |>.map (·[0].getId) |>.getD Name.anonymous
     let thms ← if params.includeTheorems then
-        RequestM.runTermElabM snap (liftM <| ppCollectUsedTheorems [snap.infoTree] rawId)
+        RequestM.runTermElabM snap (liftM <| findTheoremsUsedInProof [snap.infoTree] rawId)
       else pure []
     let out := Lean.Json.mkObj [
       ("name", Lean.toJson rawId.toString),
@@ -807,25 +853,24 @@ public def ppMcpGetProof (params : PPInput) : RequestM (RequestTask String) :=
     ]
     return out.compress
 
--- Single-tactic mode: mirrors the library's `getSnapshotData` `.single_tactic`
--- branch — one step for the tactic under the cursor (or a lone sequent when the
--- cursor is between tactics).
+-- Single-tactic mode: one step for the tactic under the cursor (or a lone sequent
+-- when the cursor is between tactics).
 open Lean Elab Server RequestM in
 @[server_rpc_method]
-public def ppMcpGetSingleTactic (params : PPInput) : RequestM (RequestTask String) :=
+public def getTacticAt (params : RpcParams) : RequestM (RequestTask String) :=
   withWaitFindSnapAtPos params.pos fun snap => do
     let fileMap := (← readDoc).meta.text
-    PaperproofMcp.Services.checkIfUserIsStillTyping snap params.pos
+    Paperproof.Services.checkIfUserIsStillTyping snap params.pos
     let hoverPos : String.Pos.Raw := fileMap.lspPosToUtf8Pos params.pos
-    let some goalsAtResult := (PaperproofMcp.Services.goalsAt? snap.infoTree fileMap hoverPos).head?
+    let some goalsAtResult := (Paperproof.Services.goalsAt? snap.infoTree fileMap hoverPos).head?
       | throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
     let tacticInfo := goalsAtResult.tacticInfo
-    if ← PaperproofMcp.Services.shouldRenderSingleSequent tacticInfo fileMap hoverPos then
+    if ← Paperproof.Services.shouldRenderSingleSequent tacticInfo fileMap hoverPos then
       let some mvarId := tacticInfo.goalsAfter.head?
         | throwThe RequestError ⟨.invalidParams, "noGoalsAfter"⟩
       let goal ← liftM <| goalsAtResult.ctxInfo.runMetaM {}
-        (PaperproofMcp.Services.printGoalInfo goalsAtResult.ctxInfo mvarId)
-      let fakeStep : PaperproofMcp.Services.ProofStep := {
+        (Paperproof.Services.printGoalInfo goalsAtResult.ctxInfo mvarId)
+      let fakeStep : Paperproof.Services.ProofStep := {
         tacticString    := "fake"
         goalBefore      := goal
         goalsAfter      := [goal]
@@ -841,10 +886,10 @@ public def ppMcpGetSingleTactic (params : PPInput) : RequestM (RequestTask Strin
       ]
       return out.compress
     else
-      let forcedTacticString : String ← PaperproofMcp.Services.prettifyRwTactic tacticInfo fileMap hoverPos
+      let forcedTacticString : String ← Paperproof.Services.prettifyRwTactic tacticInfo fileMap hoverPos
       let info : Info := Elab.Info.ofTacticInfo tacticInfo
       let parsedTree ← RequestM.runTermElabM snap
-        (liftM <| PaperproofMcp.Services.BetterParser_SingleTactic fileMap snap.infoTree goalsAtResult.ctxInfo info [] ∅ forcedTacticString)
+        (liftM <| Paperproof.Services.BetterParser_SingleTactic fileMap snap.infoTree goalsAtResult.ctxInfo info [] ∅ forcedTacticString)
       let out := Lean.Json.mkObj [
         ("name", Lean.toJson ""),
         ("steps", Lean.toJson parsedTree.steps),
@@ -852,3 +897,4 @@ public def ppMcpGetSingleTactic (params : PPInput) : RequestM (RequestTask Strin
       ]
       return out.compress
 
+end Paperproof

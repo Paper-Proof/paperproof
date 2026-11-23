@@ -1,6 +1,5 @@
 import Lean
 import Lean.Elab.Command
-import Services.BetterParser
 import Mathlib.Data.Set.Basic
 import Mathlib.Tactic.SimpRw
 import Mathlib.Order.Filter.Defs

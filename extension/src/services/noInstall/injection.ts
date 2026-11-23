@@ -81,7 +81,8 @@ export interface Injection {
 export const buildInjection = (sourceText: string, parserSource: string): Injection => {
   const lines = sourceText.split("\n");
   const module = usesModuleSystem(lines);
-  const { imports: parserImports, body } = parserImportsAndBody(parserSource);
+  // renamed, so that it doesn't clash with Paperproof imported by the project, e.g. via lean4game's GameServer
+  const { imports: parserImports, body } = parserImportsAndBody(parserSource.replace(/\bPaperproof\b/g, "PaperproofExtension"));
 
   let block: string;
   if (module) {

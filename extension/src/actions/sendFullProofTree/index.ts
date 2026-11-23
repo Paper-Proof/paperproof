@@ -10,7 +10,7 @@ const sendFullProofTree = async (shared: Shared) => {
 
   try {
     const leanClient = await getLeanClient(shared);
-    const shadow = getShadowDoc(shared.context, shared.log, leanClient, editor.document);
+    const shadow = getShadowDoc(shared.log, leanClient, editor.document);
     if (!shadow) {
       throw new Error("noLeanProject");
     }

@@ -56,7 +56,9 @@ and restart vscode (literally - quit it fully, and open it again).
 
 ### Reloading `/lean`
 
-If you change something in the `/lean` folder, then go to the file where you're checking your code (usually it's `Examples.lean`), and run **Cmd+Shift+P** `> Lean 4: Refresh File Dependencies`.
+If you change something in the `/lean` folder:
+- for the extension to see it, reload `/extension` as described above (the extension bundles the `/lean` files);
+- for `/lean/Tests.lean` to see it, run **Cmd+Shift+P** `> Lean 4: Refresh File Dependencies` there.
 
 # Tests
 

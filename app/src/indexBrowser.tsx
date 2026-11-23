@@ -85,7 +85,7 @@ function Main() {
     // ___Why don't we memoize these functions/avoid rerenders?
     //    These seem like expensive operations, however they aren't!
     //    The entire converter()+hypsToTables() process takes from 2ms to 5ms.
-    //    The delay we see in the UI is coming from "Making getSnapshotData request" vscode rpc.
+    //    The delay we see in the UI is coming from the `getProofAt` vscode rpc.
     const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
     convertedProofTree.boxes.forEach((box) => {
       box.hypTables = hypsToTables(box.hypLayers, convertedProofTree, settings.isSingleTacticMode)

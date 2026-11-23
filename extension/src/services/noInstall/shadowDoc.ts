@@ -10,10 +10,10 @@ import * as vscode from "vscode";
 
 import vscodeRequest from "../vscodeRequest";
 import { buildInjection, mapPosition, Injection } from "./injection";
-import { candidateParsers, findProjectRoot, ParserCandidate } from "./parserVersions";
+import { findProjectRoot, parserFor, readToolchainVersion } from "./parserVersions";
 
-const TREE_METHOD = "ppMcpGetProof";
-const SINGLE_TACTIC_METHOD = "ppMcpGetSingleTactic";
+const TREE_METHOD = "PaperproofExtension.getProofAt";
+const SINGLE_TACTIC_METHOD = "PaperproofExtension.getTacticAt";
 
 // "no tactic-mode proof here" — a definitive answer, not an error.
 const NO_PROOF_MARKS = ["noParsedTree", "no snapshot found", "zeroProofSteps"];
@@ -90,13 +90,11 @@ export class ShadowDoc {
   private doc: vscode.TextDocument | null = null;
   private injection: Injection | null = null;
   private syncedVersion = -1; // source TextDocument.version last mirrored
-  private workingParser: ParserCandidate | null = null;
   private refreshing: Promise<void> | null = null;
   private noSingleTactic = false; // set once a bundle proves to lack the single-tactic method
   private treeCache: { version: number; goalIds: Set<string>; steps: any } | null = null;
 
   private constructor(
-    private readonly context: vscode.ExtensionContext,
     private readonly log: vscode.OutputChannel,
     private readonly leanClient: any,
     private readonly source: vscode.TextDocument,
@@ -114,14 +112,13 @@ export class ShadowDoc {
   }
 
   static create(
-    context: vscode.ExtensionContext,
     log: vscode.OutputChannel,
     leanClient: any,
     source: vscode.TextDocument
   ): ShadowDoc | null {
     const root = findProjectRoot(source.uri.fsPath);
     if (!root) { return null; }
-    return new ShadowDoc(context, log, leanClient, source, root);
+    return new ShadowDoc(log, leanClient, source, root);
   }
 
   /** Query the proof at `position` (in the real file's coordinates). Returns the
@@ -176,33 +173,18 @@ export class ShadowDoc {
   private async refresh(): Promise<void> {
     const sourceText = this.source.getText();
     const sourceVersion = this.source.version;
-    const { candidates, projectVersion } = candidateParsers(this.context, this.projectRoot);
-    const ordered = this.workingParser ? [this.workingParser] : candidates;
-
-    let lastErr: unknown = null;
-    for (const cand of ordered) {
-      const injection = buildInjection(sourceText, cand.source);
-      await this.writeShadow(injection.shadowText);
-      this.injection = injection;
-      try {
-        await this.waitForParser(injection);
-        this.workingParser = cand;
-        this.syncedVersion = sourceVersion;
-        return;
-      } catch (err) {
-        lastErr = err;
-        this.workingParser = null;
-        if ((err as Error).message === "parserCompileError") { continue; }
-        throw err;
-      }
+    const leanVersion = readToolchainVersion(this.projectRoot);
+    const injection = buildInjection(sourceText, parserFor(leanVersion));
+    await this.writeShadow(injection.shadowText);
+    this.injection = injection;
+    try {
+      await this.waitForParser(injection);
+    } catch (err) {
+      if ((err as Error).message !== "parserCompileError") { throw err; }
+      this.log.appendLine("no-install: the bundled parser didn't compile against this project's Lean.");
+      throw Object.assign(new Error("noParserForLeanVersion"), { meta: { leanVersion } });
     }
-    // [Claude comment] The cause goes to the log, not into the message - the webview
-    // matches error strings exactly, so they stay bare codes.
-    this.log.appendLine(
-      `no-install: no bundled parser compiled against this project's Lean ` +
-        `(${lastErr instanceof Error ? lastErr.message : lastErr}).`
-    );
-    throw Object.assign(new Error("noParserForLeanVersion"), { meta: { leanVersion: projectVersion } });
+    this.syncedVersion = sourceVersion;
   }
 
   /** Wait until the injected parser registers its RPC method, telling a genuine
@@ -336,7 +318,6 @@ export class ShadowDoc {
 const registry = new Map<string, ShadowDoc>();
 
 export const getShadowDoc = (
-  context: vscode.ExtensionContext,
   log: vscode.OutputChannel,
   leanClient: any,
   source: vscode.TextDocument
@@ -344,7 +325,7 @@ export const getShadowDoc = (
   const key = source.uri.toString();
   let shadow = registry.get(key);
   if (!shadow) {
-    shadow = ShadowDoc.create(context, log, leanClient, source) ?? undefined;
+    shadow = ShadowDoc.create(log, leanClient, source) ?? undefined;
     if (!shadow) { return null; }
     registry.set(key, shadow);
   }

@@ -15,7 +15,7 @@ const fetchLeanData = async (
 ): Promise<ProofState> => {
   const singleTactic = !!vscode.workspace.getConfiguration("paperproof").get("isSingleTacticMode");
 
-  const shadow = getShadowDoc(shared.context, shared.log, client, editor.document);
+  const shadow = getShadowDoc(shared.log, client, editor.document);
   if (!shadow) {
     throw new Error("noLeanProject");
   }

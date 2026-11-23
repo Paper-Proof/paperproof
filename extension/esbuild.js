@@ -16,6 +16,7 @@ async function main() {
     platform: 'node',
     outfile: 'dist/extension.js',
     external: ['vscode'],
+    loader: { '.lean': 'text' },
     logLevel: 'warning',
     plugins: [
       /* add to the end of plugins array */
