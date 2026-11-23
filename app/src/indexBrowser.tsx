@@ -193,7 +193,6 @@ function Main() {
           }),
           setSnackbarMessage,
           setSnackbarOpen,
-          isStandalone: false,
           proofTreeRef,
           fetchFullProofTree,
           latexSettings,

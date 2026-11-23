@@ -16,6 +16,7 @@ let ctx = await esbuild.context({
   plugins: [],
   logLevel: "info",
   logLimit: 0,
+  define: { IS_VSCODE: "true" },
   external: ['stream', 'zlib', 'url', 'http', 'events', 'crypto', 'tls', 'https', 'net', 'buffer', 'os', 'path', 'fs'],
 });
 

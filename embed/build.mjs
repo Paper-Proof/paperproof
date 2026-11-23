@@ -39,6 +39,7 @@ const shared = {
   loader: { ".css": "css", ".woff": "dataurl", ".woff2": "dataurl", ".ttf": "dataurl" },
   define: {
     "process.env.NODE_ENV": '"production"',
+    IS_VSCODE: "false",
     PP_VERSION: JSON.stringify(pkg.version),
     KATEX_VERSION: JSON.stringify(katexVersion),
   },

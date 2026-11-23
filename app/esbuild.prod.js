@@ -18,6 +18,7 @@ await esbuild.build({
   logLimit: 0,
   define: {
     "process.env.NODE_ENV": '"production"',
+    IS_VSCODE: "true",
   },
   minify: true,
   external: ['stream', 'zlib', 'url', 'http', 'events', 'crypto', 'tls', 'https', 'net', 'buffer', 'os', 'path', 'fs'],

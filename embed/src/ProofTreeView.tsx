@@ -8,7 +8,7 @@ import areWeOnEllipsisTactic from "@app/services/areWeOnEllipsisTactic";
 
 import { GlobalContext, useGlobalContext } from "@app/globalContext";
 
-export const DEFAULT_STANDALONE_SETTINGS: Settings = {
+export const DEFAULT_SETTINGS: Settings = {
   isSingleTacticMode: false,
   isHiddenGoalNames : false,
   isGreenHypotheses : false,
@@ -85,7 +85,6 @@ const ProofTreeView = (props: Props) => {
         createSnapshot: async () => "",
         setSnackbarMessage: () => {},
         setSnackbarOpen: () => {},
-        isStandalone: true,
         proofTreeRef,
         fetchFullProofTree: async () => props.proofTree,
         latexSettings: props.latexSettings, setLatexSettings: props.setLatexSettings,

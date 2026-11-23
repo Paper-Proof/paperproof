@@ -5,7 +5,7 @@ import hypsToTables from "@app/services/hypsToTables";
 import naturalToConverted from "@app/services/naturalToConverted";
 import { collectTexts } from "@app/services/convertToLatex";
 import { validate, formatProblems, Problem } from "@app/format";
-import ProofTreeView, { DEFAULT_STANDALONE_SETTINGS } from "./ProofTreeView";
+import ProofTreeView, { DEFAULT_SETTINGS } from "./ProofTreeView";
 import ProofTreeErrorBoundary from "./ProofTreeErrorBoundary";
 import "@app/index.css";
 import "@app/css/theorem.css";
@@ -234,8 +234,8 @@ class PaperproofProofElement extends HTMLElement {
         return;
       }
       view = viewOfNatural(result.tree, {
-        ...DEFAULT_STANDALONE_SETTINGS,
-        fontSize: Number(this.getAttribute("font-size")) || DEFAULT_STANDALONE_SETTINGS.fontSize,
+        ...DEFAULT_SETTINGS,
+        fontSize: Number(this.getAttribute("font-size")) || DEFAULT_SETTINGS.fontSize,
         isUnlimitedWidth: this.hasAttribute("unlimited-width"),
       });
     }

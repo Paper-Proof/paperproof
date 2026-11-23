@@ -1,6 +1,10 @@
 import React from "react";
 import { ConvertedProofTree, Highlights, LatexSettings, Position, Settings } from "types";
 
+declare global {
+  const IS_VSCODE: boolean;
+}
+
 export interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
@@ -17,7 +21,6 @@ export interface GlobalContextType {
   createSnapshot: () => Promise<string>;
   setSnackbarMessage: (message: String | React.ReactNode | null) => void;
   setSnackbarOpen: (open: boolean) => void;
-  isStandalone: boolean;
   proofTreeRef: React.RefObject<HTMLDivElement | null>;
   fetchFullProofTree: () => Promise<ConvertedProofTree>;
   latexSettings: LatexSettings;

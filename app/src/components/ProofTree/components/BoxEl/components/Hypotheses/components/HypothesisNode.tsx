@@ -56,9 +56,9 @@ const HypothesisNode = ({ withId = true, ...props }: HypothesisProps) => {
         ${isHypHidden ? '-hidden' : ''}
       `}
       onClick={(e) => isHypHidden ? handleHideHypothesis(e) : () => {}}
-      onContextMenu={global.isStandalone ? undefined : (event) => onContextMenu(event, contextMenu, setContextMenu)}
+      onContextMenu={IS_VSCODE ? (event) => onContextMenu(event, contextMenu, setContextMenu) : undefined}
     >
-      {!global.isStandalone && (
+      {IS_VSCODE && (
         <Menu
           open={contextMenu !== null}
           onClose={handleCloseMenu}

@@ -89,7 +89,7 @@ async function screenshots() {
     nodePaths: [appNodeModules],
     alias: { react: path.join(appNodeModules, "react"), "react-dom": path.join(appNodeModules, "react-dom") },
     loader: { ".css": "css", ".woff": "dataurl", ".woff2": "dataurl", ".ttf": "dataurl" },
-    define: { "process.env.NODE_ENV": '"production"' },
+    define: { "process.env.NODE_ENV": '"production"', IS_VSCODE: "false" },
     plugins: [appAlias],
   });
 
