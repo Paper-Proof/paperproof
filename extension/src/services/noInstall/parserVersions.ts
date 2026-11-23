@@ -1,8 +1,3 @@
-// Picks which bundled parser to inject, based on the project's lean-toolchain.
-// Port of paperproof-mcp's candidate_parsers: exact match wins; otherwise try
-// [nearest floor, nearest ceil] (an older-Lean parser usually still compiles on
-// a newer Lean, so floor is tried first, ceil is the backup).
-
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -36,11 +31,9 @@ const cmpKey = (a: number[], b: number[]): number => {
   return 0;
 };
 
-/** Find the project root (nearest ancestor with a lean-toolchain) for a file. */
 export const findProjectRoot = (filePath: string): string | null => {
   let current = path.dirname(filePath);
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  for (;;) {
     if (fs.existsSync(path.join(current, "lean-toolchain"))) { return current; }
     const parent = path.dirname(current);
     if (parent === current) { return null; }
@@ -80,7 +73,8 @@ export const candidateParsers = (
     const ceils = versions
       .filter((v) => cmpKey(versionKey(v), versionKey(pv)) > 0)
       .sort((a, b) => cmpKey(versionKey(a), versionKey(b)));
-    chosen = [...(floors[0] ? [floors[0]] : []), ...(ceils[0] ? [ceils[0]] : [])];
+    const sameRelease = versions.filter((v) => cmpKey(versionKey(v), versionKey(pv)) === 0);
+    chosen = [...sameRelease, ...(floors[0] ? [floors[0]] : []), ...(ceils[0] ? [ceils[0]] : [])];
   } else {
     chosen = [versions.slice().sort((a, b) => cmpKey(versionKey(a), versionKey(b))).pop()!];
   }
