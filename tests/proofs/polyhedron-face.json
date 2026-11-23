@@ -18,31 +18,33 @@
   },
   {
    "tactic": "restate",
+   "dependsOn": [
+    "c"
+   ],
    "newHyps": [
     {
      "name": "c",
-     "type": "∃ (A′, b′), A′x ≤ b′ is a subsystem of Ax ≤ b ∧ F = {x ∈ P : A′x = b′} ∧ F ≠ ∅",
-     "from": "c"
+     "type": "∃ (A′, b′), A′x ≤ b′ is a subsystem of Ax ≤ b ∧ F = {x ∈ P : A′x = b′} ∧ F ≠ ∅"
     }
    ]
   },
   {
    "tactic": "restate",
+   "dependsOn": [
+    "c"
+   ],
    "newHyps": [
     {
      "name": "A'b'",
-     "type": "A′x ≤ b′ is a subsystem of Ax ≤ b",
-     "from": "c"
+     "type": "A′x ≤ b′ is a subsystem of Ax ≤ b"
     },
     {
      "name": "F_definition",
-     "type": "F = {x ∈ P : A′x = b′}",
-     "from": "c"
+     "type": "F = {x ∈ P : A′x = b′}"
     },
     {
      "name": "F_not_empty",
-     "type": "F ≠ ∅",
-     "from": "c"
+     "type": "F ≠ ∅"
     }
    ]
   },
@@ -98,16 +100,17 @@
           },
           {
            "tactic": "restate",
+           "dependsOn": [
+            "h"
+           ],
            "newHyps": [
             {
              "name": "y",
-             "type": "y ∈ P",
-             "from": "h"
+             "type": "y ∈ P"
             },
             {
              "name": "h",
-             "type": "A′y = b′",
-             "from": "h"
+             "type": "A′y = b′"
             }
            ]
           },
@@ -155,11 +158,13 @@
           },
           {
            "tactic": "F_definition",
+           "dependsOn": [
+            "h"
+           ],
            "newHyps": [
             {
              "name": "h",
-             "type": "A′x = b′",
-             "from": "h"
+             "type": "A′x = b′"
             }
            ]
           },
@@ -192,11 +197,13 @@
           },
           {
            "tactic": "simplify",
+           "dependsOn": [
+            "h"
+           ],
            "newHyps": [
             {
              "name": "h",
-             "type": "cᵀx = δ",
-             "from": "h"
+             "type": "cᵀx = δ"
             }
            ]
           },

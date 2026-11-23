@@ -15,21 +15,25 @@
   },
   {
    "tactic": "square both sides of $h$",
+   "dependsOn": [
+    "h"
+   ],
    "newHyps": [
     {
      "name": "h2",
-     "type": "p^2 = 2q^2",
-     "from": "h"
+     "type": "p^2 = 2q^2"
     }
    ]
   },
   {
    "tactic": "$p^2$ is even, so $p$ is even",
+   "dependsOn": [
+    "h2"
+   ],
    "newHyps": [
     {
      "name": "hp",
-     "type": "2 \\mid p",
-     "from": "h2"
+     "type": "2 \\mid p"
     }
    ]
   },

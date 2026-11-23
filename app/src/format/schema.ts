@@ -7,7 +7,6 @@ z.config(en());
 const Hyp: z.ZodMiniType<NaturalHyp> = z.object({
   name: z.string(),
   type: z.string(),
-  from: z.optional(z.string()),
 });
 
 const Step: z.ZodMiniType<NaturalStep> = z.object({

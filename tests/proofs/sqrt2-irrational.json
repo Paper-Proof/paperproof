@@ -15,81 +15,89 @@
   },
   {
    "tactic": "write √2 = p/q in lowest terms",
+   "dependsOn": [
+    "h"
+   ],
    "newHyps": [
     {
      "name": "p",
-     "type": "ℤ",
-     "from": "h"
+     "type": "ℤ"
     },
     {
      "name": "q",
-     "type": "ℤ, q ≠ 0",
-     "from": "h"
+     "type": "ℤ, q ≠ 0"
     },
     {
      "name": "eq",
-     "type": "√2 = p/q",
-     "from": "h"
+     "type": "√2 = p/q"
     },
     {
      "name": "coprime",
-     "type": "gcd(p, q) = 1",
-     "from": "h"
+     "type": "gcd(p, q) = 1"
     }
    ]
   },
   {
    "tactic": "square both sides",
+   "dependsOn": [
+    "eq"
+   ],
    "newHyps": [
     {
      "name": "eq",
-     "type": "p² = 2q²",
-     "from": "eq"
+     "type": "p² = 2q²"
     }
    ]
   },
   {
    "tactic": "Theorem: if p² = 2q² then 2 | p",
+   "dependsOn": [
+    "eq"
+   ],
    "newHyps": [
     {
      "name": "p_even",
-     "type": "2 | p",
-     "from": "eq"
+     "type": "2 | p"
     }
    ]
   },
   {
    "tactic": "definition of even",
+   "dependsOn": [
+    "p_even"
+   ],
    "newHyps": [
     {
      "name": "k",
-     "type": "ℤ",
-     "from": "p_even"
+     "type": "ℤ"
     },
     {
      "name": "p_eq",
-     "type": "p = 2k",
-     "from": "p_even"
+     "type": "p = 2k"
     }
    ]
   },
   {
    "tactic": "p = 2k, so p² = 4k², and since p² = 2q², we get q² = 2k²",
+   "dependsOn": [
+    "p_eq"
+   ],
    "newHyps": [
     {
      "name": "eq",
-     "type": "q² = 2k²",
-     "from": "p_eq"
+     "type": "q² = 2k²"
     }
    ]
   },
   {
    "tactic": "Theorem: if 2 | q² then 2 | q",
+   "dependsOn": [
+    "eq"
+   ],
    "newHyps": [
     {
      "name": "q_even",
-     "type": "2 | q",
-     "from": "eq"
+     "type": "2 | q"
     }
    ]
   },

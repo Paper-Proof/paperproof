@@ -19,11 +19,13 @@
   },
   {
    "tactic": "λ ≥ 3 gives 0 < λ − 2 ≤ λ",
+   "dependsOn": [
+    "hλ"
+   ],
    "newHyps": [
     {
      "name": "h",
-     "type": "0 < λ − 2 ≤ λ",
-     "from": "hλ"
+     "type": "0 < λ − 2 ≤ λ"
     }
    ]
   },

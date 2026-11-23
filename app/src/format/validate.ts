@@ -65,9 +65,6 @@ export const validate = (input: unknown): ValidationResult => {
     const seen = new Set<string>();
     hyps.forEach((hyp, i) => {
       const hypPath = `${path}[${i}]`;
-      if (hyp.from !== undefined && !scope.has(hyp.from)) {
-        error(`${hypPath}.from`, `"${hyp.from}" is not a hypothesis in scope, so no arrow is drawn (${inScope(scope)})`);
-      }
       if (seen.has(hyp.name)) {
         warning(`${hypPath}.name`, `"${hyp.name}" is introduced twice in the same step; later references will point at this second one`);
       }

@@ -15,6 +15,11 @@ const createArrow = (proofTreeEl: HTMLElement | null, from: string | HTMLElement
   if (!scale) return null;
   const currentZoom = Math.abs(scale - zoom) < 0.001 ? zoom : scale;
 
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect = toEl.getBoundingClientRect();
+  const isTouching = toRect.top >= fromRect.top && toRect.top <= fromRect.bottom + 1 && toRect.left < fromRect.right && fromRect.left < toRect.right;
+  if (isTouching) return null;
+
   const pointFrom : Point = {
     x: distance('left', fromEl, proofTreeEl)/currentZoom + fromEl.offsetWidth/2,
     // "- 1" is here to make the start of the arrow closer to the hypothesis node (it's prettier like this)

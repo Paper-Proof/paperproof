@@ -22,11 +22,13 @@
       },
       {
        "tactic": "definition of ∩",
+       "dependsOn": [
+        "h"
+       ],
        "newHyps": [
         {
          "name": "h",
-         "type": "x ∈ s ∧ x ∈ t",
-         "from": "h"
+         "type": "x ∈ s ∧ x ∈ t"
         }
        ]
       },
@@ -59,11 +61,13 @@
       },
       {
        "tactic": "definition of ∩",
+       "dependsOn": [
+        "h"
+       ],
        "newHyps": [
         {
          "name": "h",
-         "type": "x ∈ t ∧ x ∈ s",
-         "from": "h"
+         "type": "x ∈ t ∧ x ∈ s"
         }
        ]
       },

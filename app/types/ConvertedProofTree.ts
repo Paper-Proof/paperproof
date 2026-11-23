@@ -28,7 +28,6 @@ export interface TabledTactic {
   columnFrom: number;
   columnTo: number;
   row: number;
-  arrowFrom: string | null;
   shardId: string;
 }
 export type TabledCell = TabledHyp | TabledTactic;

@@ -3,7 +3,8 @@ import { getArrow } from "perfect-arrows"
 
 interface PerfectArrowProps {
   p1: { x: number, y: number },
-  p2: { x: number, y: number }
+  p2: { x: number, y: number },
+  className?: string
 }
 
 const PerfectArrow = (props: PerfectArrowProps) => {
@@ -26,7 +27,7 @@ const PerfectArrow = (props: PerfectArrowProps) => {
   
   return (
     <svg
-      className="perfect-arrow"
+      className={`perfect-arrow ${props.className ?? ""}`}
       viewBox={`${minX} ${minY} ${width} ${height}`}
       style={{ 
         position: "absolute",

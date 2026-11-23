@@ -15,61 +15,69 @@
   },
   {
    "tactic": "definition of Ω",
+   "dependsOn": [
+    "h"
+   ],
    "newHyps": [
     {
      "name": "h₁",
-     "type": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/λ ≥ c · (1/√λ)",
-     "from": "h"
+     "type": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/λ ≥ c · (1/√λ)"
     }
    ]
   },
   {
    "tactic": "isolate c",
+   "dependsOn": [
+    "h₁"
+   ],
    "newHyps": [
     {
      "name": "h₂",
-     "type": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/√λ ≥ c",
-     "from": "h₁"
+     "type": "∃ c > 0, ∃ λ₀, ∀ λ ≥ λ₀, 1/√λ ≥ c"
     }
    ]
   },
   {
    "tactic": "unfold",
+   "dependsOn": [
+    "h₂"
+   ],
    "newHyps": [
     {
      "name": "c",
-     "type": "ℝ",
-     "from": "h₂"
+     "type": "ℝ"
     },
     {
      "name": "hc",
-     "type": "c > 0",
-     "from": "h₂"
+     "type": "c > 0"
     },
     {
      "name": "h₃",
-     "type": "∃ λ₀, ∀ λ ≥ λ₀, 1/√λ ≥ c",
-     "from": "h₂"
+     "type": "∃ λ₀, ∀ λ ≥ λ₀, 1/√λ ≥ c"
     }
    ]
   },
   {
    "tactic": "Rule 1",
+   "dependsOn": [
+    "h₃"
+   ],
    "newHyps": [
     {
      "name": "h₄",
-     "type": "lim 1/√λ ≥ c",
-     "from": "h₃"
+     "type": "lim 1/√λ ≥ c"
     }
    ]
   },
   {
    "tactic": "compute the limit",
+   "dependsOn": [
+    "h₄"
+   ],
    "newHyps": [
     {
      "name": "h₅",
-     "type": "0 ≥ c",
-     "from": "h₄"
+     "type": "0 ≥ c"
     }
    ]
   },

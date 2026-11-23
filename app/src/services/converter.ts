@@ -1,4 +1,5 @@
 import { LeanProofTree, LeanHypothesis, LeanTactic, LeanGoal, ConvertedProofTree, Tactic, HypNode, Box, fakePosition } from "types";
+import addParents from "./addParents";
 
 let boxId: number;
 let tacticId: number;
@@ -43,6 +44,13 @@ const weirdSituation = (
   });
 };
 
+const toHypNode = (hyp: LeanHypothesis): HypNode => ({
+  text: hyp.type,
+  name: hyp.username,
+  id: hyp.id,
+  isProof: hyp.isProof,
+});
+
 const drawNewHypothesisLayer = (
   pretty: ConvertedProofTree,
   hypsBefore: LeanHypothesis[],
@@ -54,7 +62,6 @@ const drawNewHypothesisLayer = (
   const hypsAfterMatched: LeanHypothesis[] = [];
   const hypsBeforeMatched: LeanHypothesis[] = [];
 
-  // 1. Draw hypotheses that are clearly connected to a particular previous hypothesis
   hypsAfter.forEach((hypAfter) => {
     const hypBeforeById = hypsBefore.find((hyp) => hyp.id === hypAfter.id);
     const hypBeforeByName = hypsBefore.find(
@@ -68,150 +75,34 @@ const drawNewHypothesisLayer = (
     if (hypBeforeById) {
       hypsAfterMatched.push(hypAfter);
       hypsBeforeMatched.push(hypBeforeById);
-
-      if (
-        hypAfter.username === hypBeforeById.username &&
-        hypAfter.type === hypBeforeById.type
-      ) {
-        // do nothing!
-      } else if (
-        hypAfter.username === hypBeforeById.username &&
-        hypAfter.type !== hypBeforeById.type
-      ) {
-        weirdSituation(pretty, hypAfter);
-      } else if (
-        hypAfter.username !== hypBeforeById.username &&
-        hypAfter.type === hypBeforeById.type
-      ) {
-        weirdSituation(pretty, hypAfter);
-      } else if (
-        hypAfter.username !== hypBeforeById.username &&
-        hypAfter.type !== hypBeforeById.type
-      ) {
+      if (hypAfter.username !== hypBeforeById.username || hypAfter.type !== hypBeforeById.type) {
         weirdSituation(pretty, hypAfter);
       }
     } else if (hypBeforeByName) {
       hypsAfterMatched.push(hypAfter);
       hypsBeforeMatched.push(hypBeforeByName);
-
-      if (
-        hypAfter.id === hypBeforeByName.id &&
-        hypAfter.type === hypBeforeByName.type
-      ) {
-        // do nothing!
-      } else if (
-        hypAfter.id === hypBeforeByName.id &&
-        hypAfter.type !== hypBeforeByName.type
-      ) {
-        weirdSituation(pretty, hypAfter);
-      } else if (
-        hypAfter.id !== hypBeforeByName.id &&
-        hypAfter.type === hypBeforeByName.type
-      ) {
-        // don't create any new nodes or arrows, just add `hypAfter.id` to equivalentIds
+      if (hypAfter.type === hypBeforeByName.type) {
         addToEquivalentIds(pretty, hypBeforeByName.id, hypAfter.id);
-      } else if (
-        hypAfter.id !== hypBeforeByName.id &&
-        hypAfter.type !== hypBeforeByName.type
-      ) {
-        // draw a new node, draw an arrow
-        prettyHypNodes.push({
-          text: hypAfter.type,
-          name: hypAfter.username,
-          id: hypAfter.id,
-          isProof: hypAfter.isProof,
-        });
-
-        prettyHypArrows.push({
-          fromId: hypBeforeByName.id,
-          toIds: [hypAfter.id],
-          shardId: "temporary",
-        });
+      } else {
+        prettyHypNodes.push(toHypNode(hypAfter));
+        prettyHypArrows.push({ fromId: hypBeforeByName.id, toIds: [hypAfter.id], shardId: "temporary" });
       }
     }
   });
 
-  // 2. Draw hypotheses that disappeared and appeared out of nowhere
   const hypsBeforeThatDisappeared = hypsBefore.filter(
     (hyp) => !hypsBeforeMatched.some((matchedHyp) => matchedHyp.id === hyp.id)
   );
   const hypsAfterThatAppeared = hypsAfter.filter(
     (hyp) => !hypsAfterMatched.some((matchedHyp) => matchedHyp.id === hyp.id)
   );
-
-  // - if 0 hypotheses disappeared, and 0 hypotheses appeared, do nothing!
-  if (
-    hypsBeforeThatDisappeared.length === 0 &&
-    hypsAfterThatAppeared.length === 0
-  ) {
-    // done :-)
-  }
-  // - if 0 hypotheses disappeared, and X hypotheses appeared, draw { null → id } arrows [many nulls!]
-  else if (
-    hypsBeforeThatDisappeared.length === 0 &&
-    hypsAfterThatAppeared.length > 0
-  ) {
-    hypsAfterThatAppeared.forEach((hypAfter) => {
-      prettyHypNodes.push({
-        text: hypAfter.type,
-        name: hypAfter.username,
-        id: hypAfter.id,
-        isProof: hypAfter.isProof,
-      });
+  if (hypsAfterThatAppeared.length > 0) {
+    prettyHypNodes.push(...hypsAfterThatAppeared.map(toHypNode));
+    prettyHypArrows.push({
+      fromId: hypsBeforeThatDisappeared[0]?.id ?? null,
+      toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
+      shardId: "temporary",
     });
-    if (hypsAfterThatAppeared.length > 0) {
-      prettyHypArrows.push({
-        fromId: null,
-        toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
-        shardId: "temporary",
-      });
-    }
-  }
-  // - if X hypotheses disappeared, and 0 hypotheses appeared - don't draw anything
-  else if (
-    hypsBeforeThatDisappeared.length > 0 &&
-    hypsAfterThatAppeared.length === 0
-  ) {
-    // Don't draw anything, this will be indicated by opacities
-  }
-  // - if X hypotheses disappeared, and X hypotheses appeared, draw { everything → everything } arrows
-  else if (
-    hypsBeforeThatDisappeared.length > 0 &&
-    hypsAfterThatAppeared.length > 0
-  ) {
-    // The 2nd part of this `else if` doesn't ever happen as far as we're aware -
-    // When we actually stumble upon a tactic that does that, we'll see how good our handling of this is.
-    if (
-      hypsBeforeThatDisappeared.length > 1 &&
-      hypsAfterThatAppeared.length > 0
-    ) {
-      // TODO: add `if this.env === "development"` and uncomment this.
-      // alert("FINALLY; We have stumbled upon the mysterious tactic that makes 2 hypotheses join into 1 hypothesis");
-    }
-
-    // `branchingHypBefore` is taken to be the 1st hyp, but we could have taken any hypothesis.
-    // Theoretically, there is only ever 1 hypothesis here.
-    const branchingHypBefore = hypsBeforeThatDisappeared[0];
-
-    // 1. One hypBefore branched.
-    hypsAfterThatAppeared.forEach((hypAfter) => {
-      prettyHypNodes.push({
-        text: hypAfter.type,
-        name: hypAfter.username,
-        id: hypAfter.id,
-        isProof: hypAfter.isProof,
-      });
-    });
-    if (hypsAfterThatAppeared.length > 0) {
-      prettyHypArrows.push({
-        fromId: branchingHypBefore.id,
-        toIds: hypsAfterThatAppeared.map((hypAfter) => hypAfter.id),
-        shardId: "temporary",
-      });
-    }
-
-    // 2. And other hypBefores just disappeared!
-    // Which we don't display, this will just be shown by hypothesis opacities
   }
 
   return [prettyHypNodes, prettyHypArrows];
@@ -373,12 +264,7 @@ const drawInitialGoal = (
   const tacticId = newTacticId();
 
   const initialGoal: LeanGoal = leanProofTree[0].goalBefore;
-  const hypNodes = initialGoal.hyps.map((hyp: LeanHypothesis) => ({
-    text: hyp.type,
-    name: hyp.username,
-    id: hyp.id,
-    isProof: hyp.isProof,
-  }));
+  const hypNodes = initialGoal.hyps.map(toHypNode);
   const initialBox = {
     id: newBoxId(),
     parentId: null,
@@ -468,7 +354,7 @@ const filterBacktrackingSteps = (steps: LeanTactic[]): LeanTactic[] => {
   return result;
 };
 
-const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
+const converter = (leanProofTree: LeanProofTree, isSingleTacticMode = false): ConvertedProofTree => {
   boxId = 1;
   tacticId = 1;
 
@@ -489,6 +375,7 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
   });
 
   postprocess(convertedProofTree);
+  if (!isSingleTacticMode) addParents(convertedProofTree);
 
   return convertedProofTree;
 };

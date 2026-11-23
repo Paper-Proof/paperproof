@@ -15,26 +15,29 @@
   },
   {
    "tactic": "multiply all prime numbers, add 1",
+   "dependsOn": [
+    "h_finite"
+   ],
    "newHyps": [
     {
      "name": "N",
-     "type": "2 * 3 * 5 * ... * p + 1",
-     "from": "h_finite"
+     "type": "2 * 3 * 5 * ... * p + 1"
     }
    ]
   },
   {
    "tactic": "because N is bigger than all prime numbers, it must be composite",
+   "dependsOn": [
+    "N"
+   ],
    "newHyps": [
     {
      "name": "one",
-     "type": "N > 1",
-     "from": "N"
+     "type": "N > 1"
     },
     {
      "name": "N_is_composite",
-     "type": "N is composite",
-     "from": "N"
+     "type": "N is composite"
     }
    ]
   },
@@ -53,61 +56,69 @@
   },
   {
    "tactic": "unfold",
+   "dependsOn": [
+    "q_exists"
+   ],
    "newHyps": [
     {
      "name": "q",
-     "type": "ℕ",
-     "from": "q_exists"
+     "type": "ℕ"
     },
     {
      "name": "q_is_prime",
-     "type": "q is prime",
-     "from": "q_exists"
+     "type": "q is prime"
     },
     {
      "name": "q_divides_N",
-     "type": "q | N",
-     "from": "q_exists"
+     "type": "q | N"
     }
    ]
   },
   {
    "tactic": "q is prime, and we multiplied all prime numbers",
+   "dependsOn": [
+    "q_is_prime"
+   ],
    "newHyps": [
     {
      "name": "q_is_one_of_primes",
-     "type": "q is one of 2, 3, 5, 7, ..., p",
-     "from": "q_is_prime"
+     "type": "q is one of 2, 3, 5, 7, ..., p"
     }
    ]
   },
   {
    "tactic": "if q is one of [a,b,c], then q can divide a*b*c ",
+   "dependsOn": [
+    "q_is_one_of_primes"
+   ],
    "newHyps": [
     {
      "name": "q_divides",
-     "type": "q | 2 * 3 * 5 * 7 * ... * p",
-     "from": "q_is_one_of_primes"
+     "type": "q | 2 * 3 * 5 * 7 * ... * p"
     }
    ]
   },
   {
    "tactic": "Proposition 4.7.3",
+   "dependsOn": [
+    "q_divides"
+   ],
    "newHyps": [
     {
      "name": "q_doesnt_divide_N",
-     "type": "q ∤ (2 * 3 * 5 * 7 * ... * p) + 1",
-     "from": "q_divides"
+     "type": "q ∤ (2 * 3 * 5 * 7 * ... * p) + 1"
     }
    ]
   },
   {
    "tactic": "definition of N",
+   "dependsOn": [
+    "q_doesnt_divide_N"
+   ],
    "newHyps": [
     {
      "name": "q_doesnt_divide_N",
-     "type": "q ∤ N",
-     "from": "q_doesnt_divide_N"
+     "type": "q ∤ N"
     }
    ]
   },

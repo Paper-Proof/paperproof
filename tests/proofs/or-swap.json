@@ -10,14 +10,16 @@
  "tactics": [
   {
    "tactic": "split h",
+   "dependsOn": [
+    "h"
+   ],
    "newSubgoals": [
     {
      "goal": "Q ∨ P",
      "newHyps": [
       {
        "name": "p",
-       "type": "P",
-       "from": "h"
+       "type": "P"
       }
      ],
      "tactics": [
@@ -35,8 +37,7 @@
      "newHyps": [
       {
        "name": "q",
-       "type": "Q",
-       "from": "h"
+       "type": "Q"
       }
      ],
      "tactics": [

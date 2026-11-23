@@ -1,9 +1,7 @@
 import React from "react";
-import { Arrow, ConvertedProofTree, Highlights, LatexSettings, Position, Settings, fakePosition } from "types";
+import { ConvertedProofTree, Highlights, LatexSettings, Position, Settings, fakePosition } from "types";
 
 import BoxEl from "@app/components/ProofTree/components/BoxEl";
-import PerfectArrow from "@app/components/PerfectArrow";
-import createHypArrows from "@app/services/createHypArrows";
 import areWeOnEllipsisTactic from "@app/services/areWeOnEllipsisTactic";
 
 import { GlobalContext, useGlobalContext } from "@app/globalContext";
@@ -41,14 +39,9 @@ const RootBox = () => {
 
 const ProofTreeView = (props: Props) => {
   const [UIVersion, setUIVersion] = React.useState<number>(1);
-  const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
   const proofTreeRef = React.useRef<HTMLDivElement>(null);
 
   const refreshUI = React.useCallback(() => setUIVersion((version) => version + 1), []);
-
-  React.useLayoutEffect(() => {
-    setPerfectArrows(createHypArrows(props.proofTree, proofTreeRef.current));
-  }, [props.proofTree, props.latexSettings, UIVersion]);
 
   // [Claude comment] Arrows are measured off the DOM, so they're wrong until the
   // webfonts land and the text reflows.
@@ -104,9 +97,6 @@ const ProofTreeView = (props: Props) => {
         style={{ '--box-font-size': `${props.settings.fontSize}px` } as React.CSSProperties}
       >
         <RootBox/>
-        {perfectArrows.map((arrow, index) =>
-          <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
-        )}
       </div>
     </GlobalContext.Provider>
   );

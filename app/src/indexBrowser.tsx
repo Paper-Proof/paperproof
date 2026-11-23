@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, Arrow, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition, LatexSettings, DEFAULT_LATEX_SETTINGS } from "types";
+import { ProofResponse, PaperproofWindow, ConvertedProofTree, Highlights, PaperproofAcquireVsCodeApi, Settings, Position, fakePosition, LatexSettings, DEFAULT_LATEX_SETTINGS } from "types";
 import "./index.css";
 import "./css/coin-loading-icon.css";
 import "./css/theorem.css";
@@ -10,8 +10,6 @@ import ProofTree from "./components/ProofTree";
 import converter from "./services/converter";
 import getHighlights from "./services/getHighlights";
 import hypsToTables from "./services/hypsToTables";
-import createHypArrows from './services/createHypArrows';
-import PerfectArrow from "./components/PerfectArrow";
 import JumpToCurrent from "./components/JumpToCurrent";
 import BackgroundContextMenu from "./components/BackgroundContextMenu";
 
@@ -40,7 +38,6 @@ function Main() {
   // noise once the wait is long enough to wonder what's happening.
   const [isLoadingSlow, setIsLoadingSlow] = useState<boolean>(false);
 
-  const [perfectArrows, setPerfectArrows] = useState<Arrow[]>([]);
   const proofTreeRef = React.useRef<HTMLDivElement>(null);
   const [UIVersion, setUIVersion] = useState<number>(1);
 
@@ -86,7 +83,7 @@ function Main() {
     //    These seem like expensive operations, however they aren't!
     //    The entire converter()+hypsToTables() process takes from 2ms to 5ms.
     //    The delay we see in the UI is coming from the `getProofAt` vscode rpc.
-    const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree);
+    const convertedProofTree : ConvertedProofTree = converter(proofResponse.proofTree, settings.isSingleTacticMode);
     convertedProofTree.boxes.forEach((box) => {
       box.hypTables = hypsToTables(box.hypLayers, convertedProofTree, settings.isSingleTacticMode)
     });
@@ -136,13 +133,6 @@ function Main() {
     const timer = setTimeout(() => setIsLoadingSlow(true), 2000);
     return () => clearTimeout(timer);
   }, [loadingAfterClick]);
-
-  React.useLayoutEffect(() => {
-    if (!converted) return;
-
-    const newPerfectArrows = createHypArrows(converted.proofTree, proofTreeRef.current);
-    setPerfectArrows(newPerfectArrows);
-  }, [converted, UIVersion]);
 
   React.useEffect(() => {
     setCollapsedBoxIds([]);
@@ -211,9 +201,6 @@ function Main() {
         ref={proofTreeRef}
         style={{ '--box-font-size': `${settings.fontSize}px` } as React.CSSProperties}>
           <ProofTree/>
-          {perfectArrows.map((arrow, index) =>
-            <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
-          )}
         </div>
         <BackgroundContextMenu/>
       </GlobalContext.Provider>

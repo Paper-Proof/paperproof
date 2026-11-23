@@ -7,7 +7,7 @@ description: Write mathematical proofs as Paperproof proof trees (JSON) and embe
 
 A Paperproof tree shows a proof as boxes: each box has a goal, the hypotheses
 available in it, and the steps that transform the goal. Arrows show which
-hypothesis each new hypothesis or step comes from.
+hypotheses each step uses.
 
 ## Workflow
 
@@ -46,7 +46,7 @@ hypothesis each new hypothesis or step comes from.
    npx paperproof validate page.html
    ```
 
-   Fix every error. An error means part of the proof is not drawn: a `from` or
+   Fix every error. An error means part of the proof is not drawn: a
    `dependsOn` name that is not in scope gets no arrow, and a step without any
    effect is invalid. Warnings mean the tree probably does not show what you
    meant: an unclosed goal, steps after a goal was closed, or several goal
@@ -110,7 +110,6 @@ type Root = {
 type Hyp = {
   name: string;
   type: string;
-  from?: string;           // (optional) see below
 }
 
 type Tactic = {
@@ -118,7 +117,7 @@ type Tactic = {
   newHyps?: Hyp[];         // new hypotheses produced by this step
   newGoal?: string;        // updated goal - use when goal changes but does NOT split
   newSubgoals?: Subgoal[]; // use when this step splits the goal into multiple subgoals
-  dependsOn?: string[];    // (optional) see below
+  dependsOn?: string[];    // hypotheses this step uses
   closed?: true;           // this step closes the current goal
 }
 
@@ -129,14 +128,6 @@ type Subgoal = {
 }
 
 Each Tactic must have at least one of: newHyps, newGoal, newSubgoals, closed.
-
-___________
-
-"from" on a hypothesis means: this hypothesis was derived from exactly one parent hypothesis, and after this derivation the parent plays no further role in the proof - the child takes over. Use it whether the derivation is structural (unpacking an existential, destructuring a conjunction) or inferential (e.g. you have `h: p is prime` and in one step conclude `h2: p ≥ 2` by the definition of primality - `h` won't be referenced again, `h2` is what carries the proof forward - use `"from": "h"` on `h2`). The parent is not cited again after this point.
-
-"dependsOn" on a tactic means: this tactic requires these already-established hypotheses as inputs to justify the step. These hypotheses stay in scope - they may be cited again later. Use it when a tactic combines two or more independent facts, or when it invokes a specific named fact without consuming it.
-
-Practical test: if you're deriving a new hypothesis from one parent and the parent is "done," use "from". If a tactic is explicitly invoking one or more named hypotheses that remain relevant after this step, use "dependsOn".
 
 ___________
 
@@ -178,14 +169,16 @@ Case 2 (q: Q): Q ∨ P holds by taking the left disjunct.
   "tactics": [
     {
       "tactic": "split h",
+      "dependsOn": [
+        "h"
+      ],
       "newSubgoals": [
         {
           "goal": "Q ∨ P",
           "newHyps": [
             {
               "name": "p",
-              "type": "P",
-              "from": "h"
+              "type": "P"
             }
           ],
           "tactics": [
@@ -203,8 +196,7 @@ Case 2 (q: Q): Q ∨ P holds by taking the left disjunct.
           "newHyps": [
             {
               "name": "q",
-              "type": "Q",
-              "from": "h"
+              "type": "Q"
             }
           ],
           "tactics": [
@@ -254,11 +246,13 @@ Immediate from the definition of intersection and commutativity of conjunction.
             },
             {
               "tactic": "definition of ∩",
+              "dependsOn": [
+                "h"
+              ],
               "newHyps": [
                 {
                   "name": "h",
-                  "type": "x ∈ s ∧ x ∈ t",
-                  "from": "h"
+                  "type": "x ∈ s ∧ x ∈ t"
                 }
               ]
             },
@@ -291,11 +285,13 @@ Immediate from the definition of intersection and commutativity of conjunction.
             },
             {
               "tactic": "definition of ∩",
+              "dependsOn": [
+                "h"
+              ],
               "newHyps": [
                 {
                   "name": "h",
-                  "type": "x ∈ t ∧ x ∈ s",
-                  "from": "h"
+                  "type": "x ∈ t ∧ x ∈ s"
                 }
               ]
             },

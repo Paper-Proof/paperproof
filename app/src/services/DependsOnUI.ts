@@ -1,10 +1,12 @@
 import { GlobalContextType } from "src/globalContext";
 import getHypById from "./getHypById";
-import { HypNode } from "types";
+import { HypNode, Tactic } from "types";
 import FancySubstring from "./FancySubstring";
 
-const shouldDrawArrowToHypothesis = (global: GlobalContextType, hypId: string): boolean => {
+const shouldDrawArrowToHypothesis = (global: GlobalContextType, tactic: Tactic, hypId: string): boolean => {
   if (global.settings.isSingleTacticMode) {
+    return false;
+  } else if (tactic.hypArrows.some((hypArrow) => hypArrow.fromId === hypId)) {
     return false;
   } else {
     const hyp = getHypById(global.proofTree, hypId);

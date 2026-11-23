@@ -1,10 +1,6 @@
 import { ConvertedProofTree, Box, Tactic, HypNode, NaturalHyp, NaturalBox, fakePosition } from "types";
+import addParents from "./addParents";
 
-// This is the inverse of `copyAsNaturalProofTree`. Because the NaturalProofTree format
-// already contains the hypothesis arrows explicitly (`from`) and the box structure
-// (nesting), we can build a `ConvertedProofTree` directly — no diffing, no
-// id-aliasing. That's why we skip `converter()` entirely: its hard job is
-// recovering exactly what we're handed.
 const naturalToConverted = (root: NaturalBox): ConvertedProofTree => {
   const boxes: Box[] = [];
   const tactics: Tactic[] = [];
@@ -37,9 +33,6 @@ const naturalToConverted = (root: NaturalBox): ConvertedProofTree => {
       .map((n) => scope.get(n))
       .filter((id): id is string => !!id);
 
-  // Build one hypLayer in `box` from `nhyps`, tagged with `tactic`.
-  // Arrows are grouped by source WITHIN this layer (matching converter's behaviour),
-  // but always get fresh shard ids — separate calls never merge.
   const registerHypLayer = (
     box: Box,
     scope: Map<string, string>,
@@ -49,30 +42,16 @@ const naturalToConverted = (root: NaturalBox): ConvertedProofTree => {
     if (nhyps.length === 0) return;
 
     const hypNodes: HypNode[] = [];
-    const layerArrows = new Map<string | null, string[]>();
-
     for (const h of nhyps) {
-      // Resolve `from` BEFORE binding this hyp's name, so a self-rewrite
-      // ({name:"h1", from:"h1"}) points at the OLD h1, not itself.
-      const fromId = h.from ? (scope.get(h.from) ?? null) : null;
       const id = newNodeId();
       hypNodes.push({ text: h.type, name: h.name, id, isProof: "proof" });
-
-      const toIds = layerArrows.get(fromId) ?? [];
-      toIds.push(id);
-      layerArrows.set(fromId, toIds);
-
       scope.set(h.name, id);
     }
 
-    for (const [fromId, toIds] of layerArrows) {
-      tactic.hypArrows.push({ fromId, toIds, shardId: String(tactic.hypArrows.length) });
-    }
+    tactic.hypArrows.push({ fromId: null, toIds: hypNodes.map((h) => h.id), shardId: String(tactic.hypArrows.length) });
     box.hypLayers.push({ tacticId: tactic.id, hypNodes });
   };
 
-  // entry?: the tactic that introduces this box's `newHyps` (the branching tactic
-  // for a subgoal). Root/have boxes have no entry tactic → we mint an "init" one.
   const walkBox = (
     nbox: NaturalBox,
     parentId: Box["parentId"],
@@ -115,8 +94,6 @@ const naturalToConverted = (root: NaturalBox): ConvertedProofTree => {
         }
       } else if (step.newSubgoals && step.newSubgoals.length > 0) {
         for (const sg of step.newSubgoals) {
-          // The branching tactic introduces each subgoal's entry hyps, so we pass
-          // it as the entry tactic — its hypArrows accumulate across all branches.
           const childBox = walkBox(sg, box.id, scope, { tactic });
           tactic.goalArrows.push({ fromId: currentGoalId, toId: childBox.goalNodes[0].id });
         }
@@ -126,7 +103,6 @@ const naturalToConverted = (root: NaturalBox): ConvertedProofTree => {
         tactic.goalArrows.push({ fromId: currentGoalId, toId: nextGoalId });
         currentGoalId = nextGoalId;
       }
-      // else: a hyp-only step — renders inside the hyp table, no goal arrow.
     }
 
     return box;
@@ -134,7 +110,7 @@ const naturalToConverted = (root: NaturalBox): ConvertedProofTree => {
 
   walkBox(root, null, new Map());
 
-  return { boxes, tactics, equivalentIds: {} };
+  return addParents({ boxes, tactics, equivalentIds: {} });
 };
 
 export default naturalToConverted;

@@ -7,7 +7,7 @@ description: Write mathematical proofs as Paperproof proof trees (JSON) and embe
 
 A Paperproof tree shows a proof as boxes: each box has a goal, the hypotheses
 available in it, and the steps that transform the goal. Arrows show which
-hypothesis each new hypothesis or step comes from.
+hypotheses each step uses.
 
 ## Workflow
 
@@ -46,7 +46,7 @@ hypothesis each new hypothesis or step comes from.
    npx paperproof validate page.html
    ```
 
-   Fix every error. An error means part of the proof is not drawn: a `from` or
+   Fix every error. An error means part of the proof is not drawn: a
    `dependsOn` name that is not in scope gets no arrow, and a step without any
    effect is invalid. Warnings mean the tree probably does not show what you
    meant: an unclosed goal, steps after a goal was closed, or several goal

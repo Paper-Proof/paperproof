@@ -21,6 +21,8 @@ const getTheoremShortName = (theorem: AnyTheoremSignature): string => {
     .split('@').at(-1)!
 };
 
+const NO_ARROWS = { parent: null, used: [] };
+
 interface TacticNodeProps {
   tactic?: Tactic;
   className?: string;
@@ -32,23 +34,28 @@ interface TacticNodeProps {
 const TacticNode = (props: TacticNodeProps) => {
   const global = useGlobalContext();
 
-  const [perfectArrows, setPerfectArrows] = React.useState<Arrow[]>([]);
+  const [arrows, setArrows] = React.useState<{ parent: Arrow | null; used: Arrow[] }>(NO_ARROWS);
   // Stays above the early returns below - a tactic switching to the "..." branch
   // must not change how many hooks we call
   const [theorem, setTheorem] = React.useState<AnyTheoremSignature | null>(null);
   const thisEl = React.useRef<HTMLInputElement>(null);
 
   React.useLayoutEffect(() => {
-    if (!props.tactic) {
-      setPerfectArrows((old) => old.length === 0 ? old : []);
+    const tactic = props.tactic;
+    if (!tactic) {
+      setArrows(NO_ARROWS);
       return;
     }
-    const newPerfectArrows : Arrow[] = props.tactic.dependsOnIds
-      .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, hypId))
-      .map((hypId) => createArrow(thisEl.current?.closest<HTMLElement>(".proof-tree") ?? null, `hypothesis-${hypId}`, thisEl.current))
-      .filter((arrow) : arrow is Arrow => arrow !== null);
-    setPerfectArrows(newPerfectArrows);
-  }, [props.tactic, global.UIVersion]);
+    const arrowFrom = (hypId: string | null | undefined) =>
+      hypId ? createArrow(thisEl.current?.closest<HTMLElement>(".proof-tree") ?? null, `hypothesis-${hypId}`, thisEl.current) : null;
+    setArrows({
+      parent: arrowFrom(tactic.hypArrows.find((hypArrow) => hypArrow.shardId === props.shardId)?.fromId),
+      used: tactic.haveBoxIds.some((boxId) => !global.collapsedBoxIds.includes(boxId)) ? [] : tactic.dependsOnIds
+        .filter((hypId) => DependsOnUI.shouldDrawArrowToHypothesis(global, tactic, hypId))
+        .map(arrowFrom)
+        .filter((arrow): arrow is Arrow => arrow !== null),
+    });
+  }, [props.tactic, props.shardId, global.UIVersion, global.collapsedBoxIds]);
 
   const isSorriedAndWriting = (!props.tactic || props.tactic.text.includes("sorry")) && props.isActiveGoal;
   const isFake = global.settings.isSingleTacticMode && global.proofTree.tactics.find((t) => t.text === "fake");
@@ -143,7 +150,8 @@ const TacticNode = (props: TacticNodeProps) => {
 
       {theorem && <Theorem theorem={theorem}/>}
 
-      {!props.circleEl && perfectArrows.map((arrow, index) =>
+      {arrows.parent && <PerfectArrow p1={arrows.parent.from} p2={arrows.parent.to} className="-parent"/>}
+      {arrows.used.map((arrow, index) =>
         <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
       )}
       {props.circleEl}

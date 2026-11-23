@@ -224,7 +224,8 @@ body{
     display: none;
   }
   &:hover .perfect-arrow,
-  &.-success .perfect-arrow{
+  &.-success .perfect-arrow,
+  .perfect-arrow.-parent{
     display: block;
   }
 }
