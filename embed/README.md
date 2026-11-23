@@ -8,7 +8,7 @@ Proof trees for your own web pages
 
 ### HTML
 
-```html
+```wikitext
 <link rel="paperproof" href="my-styles.css"> <!-- optional: your own CSS for the Paperproof component -->
 <script src="https://cdn.jsdelivr.net/npm/paperproof@0.2/dist/paperproof-embed.js"></script>
 
@@ -25,7 +25,7 @@ Proof trees for your own web pages
 npm install paperproof
 ```
 
-```jsx
+```wikitext
 <link rel="paperproof" href="my-styles.css"> <!-- optional: your own CSS for the Paperproof component -->
 import { Paperproof } from "paperproof/react";
 

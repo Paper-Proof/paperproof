@@ -31,6 +31,18 @@ public meta structure OutputParams where
   version: Nat
   deriving Inhabited, FromJson, ToJson
 
+meta def proofSteps (snap : Snapshots.Snapshot) : RequestM (Option (List Paperproof.Services.ProofStep)) := do
+  let fileMap := (← readDoc).meta.text
+  let some parsedTree ← RequestM.runTermElabM snap (liftM <| Paperproof.Services.BetterParser_Tree fileMap snap.infoTree)
+    | return none
+  return parsedTree.steps
+
+/-- Accepts a snapshot, and returns the proof in the format that `<Paperproof proof={proof}/>` expects (see https://www.npmjs.com/package/paperproof). -/
+public meta def getProof (snapshot : Snapshots.Snapshot) : RequestM (Option Json) := do
+  let some steps ← proofSteps snapshot | return none
+  if steps.isEmpty then return none
+  return toJson steps
+
 @[server_rpc_method]
 public meta def getSnapshotData (params : InputParams) : RequestM (RequestTask OutputParams) := do
   withWaitFindSnapAtPos params.pos fun snap => do
@@ -62,12 +74,11 @@ public meta def getSnapshotData (params : InputParams) : RequestM (RequestTask O
         let parsedTree ← RequestM.runTermElabM snap (liftM <| Paperproof.Services.BetterParser_SingleTactic fileMap snap.infoTree goalsAtResult.ctxInfo info [] ∅ forcedTacticString)
         return { steps := parsedTree.steps, version := VERSION }
     | .tree =>
-      let fileMap := (← readDoc).meta.text
-      let some parsedTree ← RequestM.runTermElabM snap (liftM <| Paperproof.Services.BetterParser_Tree fileMap snap.infoTree)
+      let some steps ← proofSteps snap
         | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
       -- This happens when we hover over something other than a theorem
-      if parsedTree.steps.length == 0 then
+      if steps.length == 0 then
         throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
-      return { steps := parsedTree.steps, version := VERSION }
+      return { steps, version := VERSION }
 
 end Paperproof
