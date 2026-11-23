@@ -15,6 +15,24 @@ const styleSheet = () => {
   return sheet;
 };
 
+const absoluteUrls = (css: string, base: string) =>
+  css.replace(/url\(\s*(["']?)(.*?)\1\s*\)/g, (_, _quote, url) => `url("${new URL(url, base).href}")`);
+
+let pageSheets: Promise<CSSStyleSheet[]> | null = null;
+const pageStyleSheets = () => pageSheets ??= Promise.all(
+  [...document.querySelectorAll<HTMLLinkElement>('link[rel~="paperproof"]')].map(async (link) => {
+    const pageSheet = new CSSStyleSheet();
+    try {
+      const res = await fetch(link.href);
+      if (!res.ok) throw new Error(String(res.status));
+      await pageSheet.replace(absoluteUrls(await res.text(), link.href));
+    } catch (e) {
+      console.warn(`[paperproof] could not load ${link.href}: ${e instanceof Error ? e.message : e}`);
+    }
+    return pageSheet;
+  })
+);
+
 const FIT_STEP = 4;
 
 export class ShadowTree {
@@ -23,6 +41,7 @@ export class ShadowTree {
   #fitStyle = document.createElement("style");
   #root: Root;
   #props: ShadowTreeProps | null = null;
+  #isReady = false;
   #isUnmounted = false;
   #naturalWidth = 0;
   #resizeObserver = new ResizeObserver(() => this.#fit());
@@ -33,6 +52,12 @@ export class ShadowTree {
     shadow.adoptedStyleSheets = [styleSheet()];
     shadow.replaceChildren(this.#fitStyle, this.#container);
     this.#root = createRoot(this.#container);
+    pageStyleSheets().then((sheets) => {
+      if (this.#isUnmounted) return;
+      shadow.adoptedStyleSheets = [styleSheet(), ...sheets];
+      this.#isReady = true;
+      this.#draw();
+    });
   }
 
   render(props: ShadowTreeProps) {
@@ -48,7 +73,7 @@ export class ShadowTree {
   }
 
   #draw() {
-    if (this.#isUnmounted || !this.#props) return;
+    if (!this.#isReady || this.#isUnmounted || !this.#props) return;
     const { fit = "scale", ...props } = this.#props;
     this.#container.className = `pp-host -fit-${fit}`;
     this.#naturalWidth = 0;
