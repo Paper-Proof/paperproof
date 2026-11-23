@@ -4,7 +4,7 @@ import "katex/dist/katex.min.css";
 import { Arrow, Tactic, AnyTheoremSignature } from "types";
 import Hint from "./ProofTree/components/BoxEl/components/Hint";
 import PerfectArrow from "./PerfectArrow";
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 import createArrow from "src/services/createArrow";
 import prettifyTacticText from "src/services/prettifyTacticText";
 import DependsOnUI from "src/services/DependsOnUI";

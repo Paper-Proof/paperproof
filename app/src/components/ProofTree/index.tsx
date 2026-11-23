@@ -1,6 +1,6 @@
 import React from "react";
 import BoxEl from "./components/BoxEl";
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 
 const ProofTree = () => {
   const { proofTree } = useGlobalContext();

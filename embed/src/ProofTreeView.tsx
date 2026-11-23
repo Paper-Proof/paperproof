@@ -6,7 +6,7 @@ import PerfectArrow from "@app/components/PerfectArrow";
 import createHypArrows from "@app/services/createHypArrows";
 import areWeOnEllipsisTactic from "@app/services/areWeOnEllipsisTactic";
 
-import { StandaloneGlobalContext, useStandaloneGlobalContext } from "./proofContext";
+import { GlobalContext, useGlobalContext } from "@app/globalContext";
 
 export const DEFAULT_STANDALONE_SETTINGS: Settings = {
   isSingleTacticMode: false,
@@ -32,7 +32,7 @@ interface Props {
 }
 
 const RootBox = () => {
-  const { proofTree } = useStandaloneGlobalContext();
+  const { proofTree } = useGlobalContext();
   const rootBox = proofTree.boxes.find((box) => box.parentId === null);
   if (!rootBox) return null;
   return <BoxEl box={rootBox}/>;
@@ -70,7 +70,7 @@ const ProofTreeView = (props: Props) => {
   }, [refreshUI]);
 
   return (
-    <StandaloneGlobalContext.Provider
+    <GlobalContext.Provider
       value={{
         UIVersion, refreshUI,
         collapsedBoxIds: props.collapsedBoxIds, setCollapsedBoxIds: props.setCollapsedBoxIds,
@@ -109,7 +109,7 @@ const ProofTreeView = (props: Props) => {
           <PerfectArrow key={index} p1={arrow.from} p2={arrow.to}/>
         )}
       </div>
-    </StandaloneGlobalContext.Provider>
+    </GlobalContext.Provider>
   );
 };
 

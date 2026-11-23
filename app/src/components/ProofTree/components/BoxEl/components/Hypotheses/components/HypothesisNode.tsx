@@ -3,7 +3,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import Hint from "../../Hint";
 import { ContextMenuType, HypNode } from "types";
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 import prettifyHypothesisUsername from "src/services/prettifyHypothesisUsername";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';

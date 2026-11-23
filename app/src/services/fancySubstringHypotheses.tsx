@@ -1,5 +1,5 @@
 import React from 'react';
-import { GlobalContextType } from 'src/indexBrowser';
+import { GlobalContextType } from 'src/globalContext';
 import FancySubstring from './FancySubstring';
 
 const fancySubstringHypotheses = (text: string, global: GlobalContextType): React.ReactNode => {

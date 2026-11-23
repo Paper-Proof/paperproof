@@ -2,7 +2,7 @@ import React from "react";
 import { TabledTactic } from "types";
 import BoxEl from "src/components/ProofTree/components/BoxEl";
 import TacticNode from "src/components/TacticNode";
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 import flashElement from "src/services/flashElement";
 
 interface Props {

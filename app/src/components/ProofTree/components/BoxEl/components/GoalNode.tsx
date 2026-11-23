@@ -2,7 +2,7 @@ import React from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import Hint from './Hint';
-import { useGlobalContext } from 'src/indexBrowser';
+import { useGlobalContext } from 'src/globalContext';
 import { TypeGoalNode } from 'types';
 import fancySubstringHypotheses from 'src/services/fancySubstringHypotheses';
 

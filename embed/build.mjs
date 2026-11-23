@@ -22,7 +22,6 @@ const resolvePlugin = (css) => ({
       }
       return { path: base };
     });
-    build.onResolve({ filter: /^src\/indexBrowser$/ }, () => ({ path: path.join(__dirname, "src/proofContext.tsx") }));
     build.onResolve({ filter: /katex\.min\.css$/ }, () => ({ path: "katex-css", namespace: "pp-empty" }));
     build.onResolve({ filter: /^pp:css$/ }, () => ({ path: "css", namespace: "pp-css" }));
     build.onLoad({ filter: /.*/, namespace: "pp-css" }, () => ({ contents: css ?? "", loader: "text" }));

@@ -4,7 +4,7 @@ import { ConvertedProofTree, Box, Tactic, ContextMenuType, Highlights, TypeGoalN
 import Hypotheses from "./components/Hypotheses";
 import TacticNode from "src/components/TacticNode";
 
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 import ContextMenu from "./components/ContextMenu";
 import prettifyGoalUsername from "src/services/prettifyGoalUsername";
 import onContextMenu from "src/services/onContextMenu";

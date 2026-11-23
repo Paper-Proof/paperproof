@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ContextMenuType } from "types";
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 import ContextMenu from "./ProofTree/components/BoxEl/components/ContextMenu";
 import onContextMenu from "src/services/onContextMenu";
 

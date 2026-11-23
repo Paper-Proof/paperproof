@@ -2,7 +2,7 @@ import React from "react";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Divider, Switch } from "@mui/material";
-import { useGlobalContext } from "src/indexBrowser";
+import { useGlobalContext } from "src/globalContext";
 import { Box, ContextMenuType, Settings } from "types";
 import zoomManually from "src/services/zoomManually";
 import getZoom from "src/services/getZoom";

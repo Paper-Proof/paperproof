@@ -1,8 +1,7 @@
 import React from "react";
 import { ConvertedProofTree, Highlights, LatexSettings, Position, Settings } from "types";
 
-// Stands in for src/indexBrowser's context (build.mjs redirects the import), which calls acquireVsCodeApi() and throws outside vscode
-export interface StandaloneGlobalContextType {
+export interface GlobalContextType {
   UIVersion: number;
   refreshUI: () => void;
   collapsedBoxIds: string[];
@@ -14,9 +13,9 @@ export interface StandaloneGlobalContextType {
   proofTree: ConvertedProofTree;
   highlights: Highlights;
   position: Position;
-  setConverted: (x: any) => void;
+  setConverted: (x: Converted | null) => void;
   createSnapshot: () => Promise<string>;
-  setSnackbarMessage: (message: any) => void;
+  setSnackbarMessage: (message: String | React.ReactNode | null) => void;
   setSnackbarOpen: (open: boolean) => void;
   isStandalone: boolean;
   proofTreeRef: React.RefObject<HTMLDivElement | null>;
@@ -25,13 +24,19 @@ export interface StandaloneGlobalContextType {
   setLatexSettings: (x: LatexSettings) => void;
 }
 
-export const StandaloneGlobalContext = React.createContext<StandaloneGlobalContextType | undefined>(undefined);
+export const GlobalContext = React.createContext<GlobalContextType | undefined>(undefined);
 
-export const useStandaloneGlobalContext = () => {
-  const ctx = React.useContext(StandaloneGlobalContext);
-  if (!ctx) throw new Error("No <StandaloneGlobalContext.Provider/> found.");
-  return ctx;
+// This allows us to use `undefined` for the default GlobalContext value
+// (see https://stackoverflow.com/a/69735347/3192470)
+export const useGlobalContext = () => {
+  const globalContext = React.useContext(GlobalContext);
+  if (!globalContext)
+      throw new Error('No <GlobalContext.Provider/> found when calling useGlobalContext.');
+  return globalContext;
 };
 
-export const useGlobalContext = useStandaloneGlobalContext;
-export type GlobalContextType = StandaloneGlobalContextType;
+export interface Converted {
+  proofTree: ConvertedProofTree;
+  highlights: Highlights;
+  statement: string | null;
+}

@@ -90,10 +90,7 @@ async function screenshots() {
     alias: { react: path.join(appNodeModules, "react"), "react-dom": path.join(appNodeModules, "react-dom") },
     loader: { ".css": "css", ".woff": "dataurl", ".woff2": "dataurl", ".ttf": "dataurl" },
     define: { "process.env.NODE_ENV": '"production"' },
-    plugins: [appAlias, {
-      name: "proof-context",
-      setup(build) { build.onResolve({ filter: /^src\/indexBrowser$/ }, () => ({ path: path.join(repo, "embed/src/proofContext.tsx") })); },
-    }],
+    plugins: [appAlias],
   });
 
   const dist = (f) => pathToFileURL(path.join(repo, "paperproof.xyz/public/dist", f)).href;

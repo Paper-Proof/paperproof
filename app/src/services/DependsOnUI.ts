@@ -1,4 +1,4 @@
-import { GlobalContextType } from "src/indexBrowser";
+import { GlobalContextType } from "src/globalContext";
 import getHypById from "./getHypById";
 import { HypNode } from "types";
 import FancySubstring from "./FancySubstring";
