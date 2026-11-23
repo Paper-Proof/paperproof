@@ -2,7 +2,7 @@
   "name": "paperproof",
   "displayName": "Paperproof",
   "description": "Lean therorem proving interface which feels like pen-and-paper proofs",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "publisher": "paperproof",
   "repository": {
     "type": "git",
@@ -88,7 +88,7 @@
           "default": false,
           "description": "Let goals, tactics and hypotheses grow as wide as their content"
         },
-    "paperproof.fontSize": {
+        "paperproof.fontSize": {
           "type": "number",
           "default": 13,
           "description": "Font size for goals and hypotheses"
