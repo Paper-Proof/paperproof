@@ -181,16 +181,13 @@ class PaperproofProofElement extends HTMLElement {
     if (this.#root || !this.isConnected) return;
     this.#root = createRoot(this.#rootEl);
     PaperproofProofElement.#mounted.add(this);
-    if (!this.#hasProof) {
-      try {
-        this.#proof = await this.#readProof();
-        this.#hasProof = true;
-      } catch (e) {
-        this.#showError(e instanceof Error ? e.message : String(e));
-        return;
-      }
+    if (this.#hasProof) return this.#render();
+    try {
+      const proof = await this.#readProof();
+      if (!this.#hasProof) this.proof = proof;
+    } catch (e) {
+      if (!this.#hasProof) this.#showError(e instanceof Error ? e.message : String(e));
     }
-    this.#render();
   }
 
   async #readProof(): Promise<unknown> {

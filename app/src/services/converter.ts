@@ -490,8 +490,6 @@ const converter = (leanProofTree: LeanProofTree): ConvertedProofTree => {
 
   postprocess(convertedProofTree);
 
-  console.log({ leanProofTree, convertedProofTree });
-
   return convertedProofTree;
 };
 
