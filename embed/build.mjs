@@ -92,15 +92,16 @@ const { llmInstructions, fewShotExamples } = await import(path.join(appSrc, "for
 const examples = fewShotExamples.slice(0, 2).map((ex, i) =>
   `### Example ${i + 1}\n\n${ex.text}\n\n\`\`\`json\n${JSON.stringify(JSON.parse(ex.json), null, 2)}\n\`\`\``
 ).join("\n\n");
+const versionRange = pkg.version.split(".").slice(0, 2).join(".");
 const skill = fs.readFileSync(path.join(__dirname, "src/skill.template.md"), "utf8")
-  .replaceAll("{{VERSION}}", pkg.version)
+  .replaceAll("{{VERSION}}", versionRange)
   .replace("{{INSTRUCTIONS}}", () => llmInstructions.trim())
   .replace("{{EXAMPLES}}", () => examples);
 fs.mkdirSync(path.join(__dirname, "skill/paperproof-notation"), { recursive: true });
 fs.writeFileSync(path.join(__dirname, "skill/paperproof-notation/SKILL.md"), skill);
 fs.writeFileSync(path.join(__dirname, "dist/llms.txt"), skill.replace(/^---[\s\S]*?---\n+/, ""));
 const readme = path.join(__dirname, "README.md");
-fs.writeFileSync(readme, fs.readFileSync(readme, "utf8").replace(/paperproof@\d+\.\d+\.\d+/g, `paperproof@${pkg.version}`));
+fs.writeFileSync(readme, fs.readFileSync(readme, "utf8").replace(/paperproof@\d+\.\d+(\.\d+)?/g, `paperproof@${versionRange}`));
 fs.writeFileSync(path.join(__dirname, "dist/schema.json"),
   execFileSync(process.execPath, [path.join(__dirname, "dist/cli.cjs"), "schema"], { encoding: "utf8" }));
 
