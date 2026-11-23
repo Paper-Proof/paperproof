@@ -25,7 +25,7 @@
   "activationEvents": [
     "onLanguage:lean4"
   ],
-  "icon": "images/paper.png",
+  "icon": "images/icon.png",
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
