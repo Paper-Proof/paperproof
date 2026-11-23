@@ -6,10 +6,8 @@ extension:
 	code --uninstall-extension paperproof.paperproof || true && \
 	code --install-extension paperproof.vsix
 
-# We build app/standalone-rendered.html locally, and deploy everything to paperproof.xyz
-xyz.production:
-	cd paperproof.xyz && node esbuild.js
-	cd paperproof.xyz/deployment && ./deploy.sh 128.199.52.81
+xyz.publish:
+	paperproof.xyz/deployment/push.sh
 xyz.local:
 	cd paperproof.xyz && node esbuild.js --watch & cd paperproof.xyz && node server.js
 
