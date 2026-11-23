@@ -12,7 +12,7 @@ const appNodeModules = path.join(repo, "app/node_modules");
 const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json"), "utf8"));
 const katexVersion = JSON.parse(fs.readFileSync(path.join(appNodeModules, "katex/package.json"), "utf8")).version;
 
-const resolvePlugin = (css) => ({
+const resolvePlugin = ({ collectCss = false, inlineCss = "" } = {}) => ({
   name: "paperproof-embed",
   setup(build) {
     build.onResolve({ filter: /^@app\// }, (args) => {
@@ -24,9 +24,9 @@ const resolvePlugin = (css) => ({
     });
     build.onResolve({ filter: /katex\.min\.css$/ }, () => ({ path: "katex-css", namespace: "pp-empty" }));
     build.onResolve({ filter: /^pp:css$/ }, () => ({ path: "css", namespace: "pp-css" }));
-    build.onLoad({ filter: /.*/, namespace: "pp-css" }, () => ({ contents: css ?? "", loader: "text" }));
-    build.onLoad({ filter: /.*/, namespace: "pp-empty" }, () => ({ contents: "", loader: css === null ? "css" : "js" }));
-    if (css !== null) build.onLoad({ filter: /\.css$/ }, () => ({ contents: "", loader: "js" }));
+    build.onLoad({ filter: /.*/, namespace: "pp-css" }, () => ({ contents: inlineCss, loader: "text" }));
+    build.onLoad({ filter: /.*/, namespace: "pp-empty" }, () => ({ contents: "", loader: collectCss ? "css" : "js" }));
+    if (!collectCss) build.onLoad({ filter: /\.css$/ }, () => ({ contents: "", loader: "js" }));
   },
 });
 
@@ -48,14 +48,13 @@ const shared = {
 
 fs.rmSync(path.join(__dirname, "dist"), { recursive: true, force: true });
 
-const pass1 = await esbuild.build({
+const css = (await esbuild.build({
   ...shared,
-  entryPoints: [path.join(__dirname, "src/embed.tsx")],
+  entryPoints: [path.join(__dirname, "src/ShadowTree.tsx")],
   outdir: path.join(__dirname, "dist"),
   write: false,
-  plugins: [resolvePlugin(null)],
-});
-const css = pass1.outputFiles.find((f) => f.path.endsWith(".css")).text;
+  plugins: [resolvePlugin({ collectCss: true })],
+})).outputFiles.find((f) => f.path.endsWith(".css")).text;
 
 await esbuild.build({
   ...shared,
@@ -65,7 +64,17 @@ await esbuild.build({
   minify: true,
   legalComments: "none",
   alias: { ...shared.alias, katex: path.join(__dirname, "src/katexShim.ts") },
-  plugins: [resolvePlugin(css)],
+  plugins: [resolvePlugin({ inlineCss: css })],
+});
+
+await esbuild.build({
+  ...shared,
+  entryPoints: [path.join(__dirname, "src/react.tsx")],
+  outfile: path.join(__dirname, "dist/react.js"),
+  format: "esm",
+  alias: { katex: path.join(__dirname, "src/katexShim.ts") },
+  external: ["react", "react-dom", "react-dom/client"],
+  plugins: [resolvePlugin({ inlineCss: css })],
 });
 
 await esbuild.build({
@@ -75,7 +84,7 @@ await esbuild.build({
   entryPoints: [path.join(__dirname, "src/cli.ts")],
   outfile: path.join(__dirname, "dist/cli.cjs"),
   banner: { js: "#!/usr/bin/env node" },
-  plugins: [resolvePlugin(css)],
+  plugins: [resolvePlugin()],
 });
 fs.chmodSync(path.join(__dirname, "dist/cli.cjs"), 0o755);
 
@@ -96,4 +105,4 @@ fs.writeFileSync(path.join(__dirname, "dist/schema.json"),
   execFileSync(process.execPath, [path.join(__dirname, "dist/cli.cjs"), "schema"], { encoding: "utf8" }));
 
 const kb = (f) => `${Math.round(fs.statSync(path.join(__dirname, f)).size / 1024)} KB`;
-console.log(`dist/paperproof-embed.js (${kb("dist/paperproof-embed.js")}), dist/cli.cjs, dist/schema.json, dist/llms.txt, skill/paperproof-notation/SKILL.md`);
+console.log(`dist/paperproof-embed.js (${kb("dist/paperproof-embed.js")}), dist/react.js (${kb("dist/react.js")}), dist/cli.cjs, dist/schema.json, dist/llms.txt, skill/paperproof-notation/SKILL.md`);

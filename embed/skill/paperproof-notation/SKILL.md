@@ -33,8 +33,8 @@ hypothesis each new hypothesis or step comes from.
      root box spans the column. `unlimited-width` removes the cap, which suits
      proofs with long formulas inside branches.
    - `theme="..."` sets how a step that closes a goal looks: `sand` (default),
-     `cyan` (the VS Code extension's), `check`, `square`, `check-goal`, `slate`,
-     `clay`. `dark-bars` makes the HYPOTHESES and THEOREM bars darker, with any theme.
+     `cyan` (the VS Code extension's), `check`, `square`. `dark-bars` makes the
+     HYPOTHESES and THEOREM bars darker, with any theme.
    - `src="proof.json"` loads the JSON from a file instead (needs http, not file://).
    - For pages that must work offline, copy `dist/paperproof-embed.js` next to
      the page and load it with a relative path. LaTeX-format proofs load KaTeX

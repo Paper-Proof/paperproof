@@ -10,6 +10,15 @@
   },
   "type": "module",
   "main": "dist/paperproof-embed.js",
+  "exports": {
+    ".": "./dist/paperproof-embed.js",
+    "./react": {
+      "types": "./react.d.ts",
+      "default": "./dist/react.js"
+    },
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
   "jsdelivr": "dist/paperproof-embed.js",
   "unpkg": "dist/paperproof-embed.js",
   "bin": {
@@ -17,7 +26,8 @@
   },
   "files": [
     "dist",
-    "skill"
+    "skill",
+    "react.d.ts"
   ],
   "scripts": {
     "build": "node build.mjs"
@@ -32,5 +42,20 @@
   ],
   "devDependencies": {
     "esbuild": "0.19.12"
+  },
+  "sideEffects": [
+    "./dist/paperproof-embed.js"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   }
 }

@@ -122,7 +122,7 @@ function generateSnapshotHTML(payload) {
   <script src="/dist/paperproof-embed.js"></script>
 </head>
 <body>
-  <paperproof-proof kind="snapshot" fit="none" theme="cyan"><script type="application/json">${toInlineJSON(payload)}</script></paperproof-proof>
+  <paperproof-proof fit="none" theme="cyan"><script type="application/json">${toInlineJSON(payload)}</script></paperproof-proof>
 </body>
 </html>`;
 }

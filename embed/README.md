@@ -18,11 +18,14 @@ Proof trees for your own web pages
 </paperproof-proof>
 ```
 
-### React (soon-to-come)
+### React
+
+```bash
+npm install paperproof
+```
 
 ```jsx
 import { Paperproof } from "paperproof/react";
-import "paperproof/react.css";
 
 <Paperproof proof={proof}/>
 ```

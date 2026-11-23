@@ -1,5 +1,5 @@
 import React from "react";
-import { Arrow, ConvertedProofTree, Highlights, LatexSettings, Settings, fakePosition } from "types";
+import { Arrow, ConvertedProofTree, Highlights, LatexSettings, Position, Settings, fakePosition } from "types";
 
 import BoxEl from "@app/components/ProofTree/components/BoxEl";
 import PerfectArrow from "@app/components/PerfectArrow";
@@ -22,13 +22,14 @@ interface Props {
   proofTree: ConvertedProofTree;
   highlights: Highlights;
   settings: Settings;
-  setSettings: (x: Settings) => void;
+  setSettings?: (x: Settings) => void;
   collapsedBoxIds: string[];
   setCollapsedBoxIds: (x: string[]) => void;
   deletedHypothesisNames: string[];
   setDeletedHypothesisNames: (x: string[]) => void;
   latexSettings: LatexSettings;
-  setLatexSettings: (x: LatexSettings) => void;
+  setLatexSettings?: (x: LatexSettings) => void;
+  position?: Position;
 }
 
 const RootBox = () => {
@@ -75,19 +76,18 @@ const ProofTreeView = (props: Props) => {
         UIVersion, refreshUI,
         collapsedBoxIds: props.collapsedBoxIds, setCollapsedBoxIds: props.setCollapsedBoxIds,
         deletedHypothesisNames: props.deletedHypothesisNames, setDeletedHypothesisNames: props.setDeletedHypothesisNames,
-        settings: props.settings,               setSettings: props.setSettings,
+        settings: props.settings,               setSettings: props.setSettings ?? (() => {}),
 
         proofTree: props.proofTree,
         highlights: props.highlights,
-        // [Claude comment] Nothing out here has a cursor, so no tactic ever counts as the current one
-        position: fakePosition,
+        position: props.position ?? fakePosition,
         setConverted: () => {},
         createSnapshot: async () => "",
         setSnackbarMessage: () => {},
         setSnackbarOpen: () => {},
         proofTreeRef,
         fetchFullProofTree: async () => props.proofTree,
-        latexSettings: props.latexSettings, setLatexSettings: props.setLatexSettings,
+        latexSettings: props.latexSettings, setLatexSettings: props.setLatexSettings ?? (() => {}),
       }}
     >
       <div

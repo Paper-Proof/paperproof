@@ -45,8 +45,10 @@ if (hasEmbed) {
   else { failed = true; console.log(`FAILED: the build changed it - commit it\n${stale.replace(/^/gm, "  ")}`); }
 }
 step("type check app/", path.join(repo, "app/node_modules/.bin/tsc"), ["--noEmit", "-p", "."], "app");
+if (hasEmbed) step("type check embed/", path.join(repo, "app/node_modules/.bin/tsc"), ["-p", "."], "embed");
 
 const proofFiles = fs.readdirSync(path.join(repo, "tests/proofs")).filter((f) => f.endsWith(".json")).sort();
+const leanFiles = fs.readdirSync(path.join(repo, "tests/lean")).filter((f) => f.endsWith(".json")).sort();
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "paperproof-tests-"));
 const lib = await loadLib();
 
@@ -93,13 +95,22 @@ async function screenshots() {
     plugins: [appAlias],
   });
 
+  if (hasEmbed) await esbuild.build({
+    entryPoints: [path.join(repo, "tests/react.tsx")],
+    bundle: true, platform: "browser", logLevel: "warning",
+    outdir: tmp,
+    tsconfig: path.join(repo, "app/tsconfig.json"),
+    alias: { react: path.join(appNodeModules, "react"), "react-dom": path.join(appNodeModules, "react-dom") },
+    define: { "process.env.NODE_ENV": '"production"' },
+  });
+
   const dist = (f) => pathToFileURL(path.join(repo, "paperproof.xyz/public/dist", f)).href;
   const inline = (x) => JSON.stringify(x).replace(/</g, "\\u003c");
   const still = "<style>*, *::before, *::after { animation: none !important; transition: none !important; }</style>";
   const snapshotPage = (payload) => `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <style>body { margin: 0; padding: 20px; background: white; }</style>
 <script src="${dist("paperproof-embed.js")}"></script></head>
-<body><paperproof-proof kind="snapshot" fit="none" theme="cyan"><script type="application/json">${inline(payload)}</script></paperproof-proof></body></html>`;
+<body><paperproof-proof fit="none" theme="cyan"><script type="application/json">${inline(payload)}</script></paperproof-proof></body></html>`;
   const vscodePage = (payload) => `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <link rel="stylesheet" href="${pathToFileURL(path.join(tmp, "vscode.css")).href}">
 <style>body { --vscode-editor-font-family: monospace; --vscode-editor-background: #fff; }</style>${still}</head>
@@ -116,6 +127,12 @@ async function screenshots() {
 <script src="${pathToFileURL(path.join(repo, "embed/dist/paperproof-embed.js")).href}"></script></head>
 <body style="margin: 20px; background: #fff"><paperproof-proof><script type="application/json">${JSON.stringify(proof).replace(/<\//g, "<\\/")}</script></paperproof-proof></body></html>`;
 
+  const reactPage = (proof) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+</head>
+<body style="margin: 20px; background: #fff"><div id="root"></div>
+<script>window.PAPERPROOF_PROOF = ${inline(proof)};</script>
+<script src="${pathToFileURL(path.join(tmp, "react.js")).href}"></script></body></html>`;
+
   const pages = [];
   for (const file of proofFiles) {
     const proof = JSON.parse(fs.readFileSync(path.join(repo, "tests/proofs", file), "utf8"));
@@ -125,6 +142,13 @@ async function screenshots() {
     pages.push([`${name}.vscode`, vscodePage(snapshotPayload(proof))]);
     pages.push([`${name}.playground`, playgroundPage(proof)]);
     if (hasEmbed) pages.push([`${name}.embed`, embedPage(proof)]);
+    if (hasEmbed) pages.push([`${name}.react`, reactPage(proof)]);
+  }
+  if (hasEmbed) for (const file of leanFiles) {
+    const proof = JSON.parse(fs.readFileSync(path.join(repo, "tests/lean", file), "utf8"));
+    const name = `lean-${file.replace(/\.json$/, "")}`;
+    pages.push([`${name}.embed`, embedPage(proof)]);
+    pages.push([`${name}.react`, reactPage(proof)]);
   }
 
   const chrome = process.env.CHROME_PATH ?? ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]

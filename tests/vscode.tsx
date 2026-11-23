@@ -4,8 +4,8 @@ import { SnapshotPayload } from "types";
 import "@app/index.css";
 import "@app/css/theorem.css";
 import hypsToTables from "@app/services/hypsToTables";
-import ProofTreeView from "../embed/src/ProofTreeView";
-import ProofTreeErrorBoundary from "../embed/src/ProofTreeErrorBoundary";
+import ProofTreeView from "../embed/src/components/ProofTreeView";
+import ProofTreeErrorBoundary from "../embed/src/components/ProofTreeErrorBoundary";
 
 declare const window: Window & { PAPERPROOF_SNAPSHOT: SnapshotPayload };
 const payload = window.PAPERPROOF_SNAPSHOT;
