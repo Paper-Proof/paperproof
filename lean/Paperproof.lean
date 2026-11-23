@@ -14,8 +14,6 @@ open Lean Elab Meta Server RequestM
 
 namespace Paperproof
 
-meta def VERSION := 4
-
 public meta inductive Mode where
   | single_tactic
   | tree
@@ -27,8 +25,7 @@ public meta structure InputParams where
   deriving FromJson, ToJson
 
 public meta structure OutputParams where
-  steps  : List Paperproof.Services.ProofStep
-  version: Nat
+  steps : List Paperproof.Services.ProofStep
   deriving Inhabited, FromJson, ToJson
 
 meta def proofSteps (snap : Snapshots.Snapshot) : RequestM (Option (List Paperproof.Services.ProofStep)) := do
@@ -67,18 +64,18 @@ public meta def getSnapshotData (params : InputParams) : RequestM (RequestTask O
           position        := { start := ⟨0, 0⟩, stop := ⟨0, 0⟩ }
           theorems        := []
         }
-        return { steps := [fakeStep], version := VERSION }
+        return { steps := [fakeStep] }
       else
         let forcedTacticString : String ← Paperproof.Services.prettifyRwTactic tacticInfo fileMap hoverPos
         let info : Info := Elab.Info.ofTacticInfo tacticInfo
         let parsedTree ← RequestM.runTermElabM snap (liftM <| Paperproof.Services.BetterParser_SingleTactic fileMap snap.infoTree goalsAtResult.ctxInfo info [] ∅ forcedTacticString)
-        return { steps := parsedTree.steps, version := VERSION }
+        return { steps := parsedTree.steps }
     | .tree =>
       let some steps ← proofSteps snap
         | throwThe RequestError ⟨.invalidParams, "noParsedTree"⟩
       -- This happens when we hover over something other than a theorem
       if steps.length == 0 then
         throwThe RequestError ⟨.invalidParams, "zeroProofSteps"⟩
-      return { steps, version := VERSION }
+      return { steps }
 
 end Paperproof
