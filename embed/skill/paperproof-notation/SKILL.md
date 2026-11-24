@@ -15,7 +15,7 @@ hypotheses each step uses.
 2. Put it into the page:
 
    ```html
-   <script src="https://cdn.jsdelivr.net/npm/paperproof@0.2/dist/paperproof-embed.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/paperproof@0.3/dist/paperproof-embed.js"></script>
 
    <paperproof-proof>
      <script type="application/json">

@@ -10,7 +10,7 @@ Proof trees for your own web pages
 
 ```wikitext
 <link rel="paperproof" href="my-styles.css"> <!-- optional: your own CSS for the Paperproof component -->
-<script src="https://cdn.jsdelivr.net/npm/paperproof@0.2/dist/paperproof-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/paperproof@0.3/dist/paperproof-embed.js"></script>
 
 <paperproof-proof>
   <script type="application/json">
